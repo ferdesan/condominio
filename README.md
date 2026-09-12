@@ -17,5 +17,10 @@ compozy exec \
 --prompt-file task-imlementacao.md \
 --verbose
 
+compozy exec \
+--ide claude \
+--model haiku \
+--prompt-file fase8-devops.md
+
 
   compozy exec --verbose --ide claude --model haiku --prompt-file task-condominio-completo.md
