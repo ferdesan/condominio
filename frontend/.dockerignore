@@ -4,3 +4,12 @@ coverage
 .env
 .env.*
 !.env.example
+*.log
+.git
+.gitignore
+.github
+.vscode
+.idea
+.DS_Store
+*.md
+!README.md
