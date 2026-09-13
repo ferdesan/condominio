@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_PER_PAGE, toQueryParams, toSortOrder } from './query-params';
+import { MAX_PER_PAGE, pickFilters, toQueryParams, toSortOrder, unitFilters } from './query-params';
 
 describe('toQueryParams', () => {
   it('UT-001: emite exatamente as quatro chaves informadas e nenhuma outra', () => {
@@ -33,6 +33,32 @@ describe('toQueryParams', () => {
   it('UT-007: limita perPage ao maximo aceito pelo servidor', () => {
     expect(toQueryParams({ page: 1, perPage: 500 }).perPage).toBe(MAX_PER_PAGE);
     expect(MAX_PER_PAGE).toBe(200);
+  });
+});
+
+describe('unitFilters', () => {
+  it('UT-008: a whitelist de unidades tem exatamente cinco chaves e descarta o resto', () => {
+    expect([...unitFilters]).toEqual(['condominiumId', 'blockId', 'status', 'type', 'floor']);
+
+    const picked = pickFilters(unitFilters, {
+      condominiumId: 'cond-1',
+      blockId: 'block-1',
+      status: 'VACANT',
+      type: 'APARTMENT',
+      floor: '3',
+      // Fora da whitelist: o backend descartaria em silencio, entao a tela
+      // tambem nao pode envia-la como se funcionasse.
+      bedrooms: '2',
+    });
+
+    expect(picked).toEqual({
+      condominiumId: 'cond-1',
+      blockId: 'block-1',
+      status: 'VACANT',
+      type: 'APARTMENT',
+      floor: '3',
+    });
+    expect(picked).not.toHaveProperty('bedrooms');
   });
 });
 
