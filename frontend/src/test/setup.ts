@@ -15,3 +15,82 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: () => false,
   }),
 });
+
+// ---------------------------------------------------------------------------
+// APIs que o jsdom nao tem e os primitivos do Radix exigem.
+//
+// Sem elas, qualquer teste que abra um select ou um dialog falha por motivo
+// alheio ao codigo sob teste (ADR-010).
+// ---------------------------------------------------------------------------
+
+class NoopObserver {
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): [] {
+    return [];
+  }
+}
+
+// Observador de layout: usado pelo Radix para posicionar popovers e pelos graficos.
+Object.defineProperty(window, 'ResizeObserver', { writable: true, value: NoopObserver });
+globalThis.ResizeObserver = NoopObserver as unknown as typeof ResizeObserver;
+
+// Observador de interseccao: listas virtualizadas e conteudo preguicoso.
+Object.defineProperty(window, 'IntersectionObserver', { writable: true, value: NoopObserver });
+globalThis.IntersectionObserver = NoopObserver as unknown as typeof IntersectionObserver;
+
+// O jsdom declara os metodos abaixo, mas como stubs inoperantes: `scrollIntoView`
+// lanca "not implemented" e `hasPointerCapture` devolve undefined onde o Radix
+// espera um booleano. Por isso a atribuicao e incondicional — um guard do tipo
+// `if (!Element.prototype.x)` nao substitui nada e o select trava ao abrir.
+Element.prototype.scrollIntoView = function scrollIntoView(): void {};
+Element.prototype.hasPointerCapture = function hasPointerCapture(): boolean {
+  return false;
+};
+Element.prototype.setPointerCapture = function setPointerCapture(): void {};
+Element.prototype.releasePointerCapture = function releasePointerCapture(): void {};
+
+// O jsdom nao implementa PointerEvent. Sem ele, um `pointerdown` chega sem
+// `button`/`pointerType` e o gatilho do select simplesmente nao abre — o teste
+// entao expira esperando uma opcao que nunca aparece. As telas usam
+// `userEvent`, que emite eventos de ponteiro, entao isto e obrigatorio.
+if (typeof window.PointerEvent === 'undefined') {
+  class PointerEventPolyfill extends MouseEvent {
+    readonly pointerId: number;
+    readonly pointerType: string;
+    readonly width: number;
+    readonly height: number;
+    readonly pressure: number;
+    readonly tangentialPressure: number;
+    readonly tiltX: number;
+    readonly tiltY: number;
+    readonly twist: number;
+    readonly isPrimary: boolean;
+
+    constructor(type: string, params: PointerEventInit = {}) {
+      super(type, params);
+      this.pointerId = params.pointerId ?? 1;
+      this.pointerType = params.pointerType ?? 'mouse';
+      this.width = params.width ?? 1;
+      this.height = params.height ?? 1;
+      this.pressure = params.pressure ?? 0;
+      this.tangentialPressure = params.tangentialPressure ?? 0;
+      this.tiltX = params.tiltX ?? 0;
+      this.tiltY = params.tiltY ?? 0;
+      this.twist = params.twist ?? 0;
+      this.isPrimary = params.isPrimary ?? true;
+    }
+
+    getCoalescedEvents(): PointerEvent[] {
+      return [];
+    }
+
+    getPredictedEvents(): PointerEvent[] {
+      return [];
+    }
+  }
+
+  window.PointerEvent = PointerEventPolyfill as unknown as typeof PointerEvent;
+  globalThis.PointerEvent = PointerEventPolyfill as unknown as typeof PointerEvent;
+}
