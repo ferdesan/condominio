@@ -766,10 +766,21 @@ Botão com múltiplas variantes e tamanhos.
 - `disabled`: boolean - Desabilitar botão
 - `asChild`: boolean - Renderizar como filho (para composição)
 
+**Sobre `asChild` e `loading`:** são mutuamente exclusivos. Com `asChild` o botão
+repassa o filho intacto e ignora `loading` e `disabled`, porque o `Slot` do Radix
+aceita exatamente um filho — o indicador de carga seria um segundo. Use `asChild`
+para envolver um link, que não tem estado de carregamento próprio.
+
+**Acessibilidade:** enquanto `loading` está ativo o botão acrescenta o texto
+`Carregando` em leitura de tela, então o nome acessível passa a ser
+`Carregando <rótulo>`. Testes que localizam o botão pelo nome durante a requisição
+devem casar por trecho.
+
 **Exemplo:**
 
 ```tsx
 import { Button } from '@/components/ui';
+import { Link } from 'react-router-dom';
 
 export function ActionButtons() {
   return (
@@ -781,6 +792,9 @@ export function ActionButtons() {
       <Button variant="destructive">Destructive</Button>
       <Button loading>Loading...</Button>
       <Button disabled>Disabled</Button>
+      <Button asChild>
+        <Link to="/condominios">Como link</Link>
+      </Button>
     </div>
   );
 }
