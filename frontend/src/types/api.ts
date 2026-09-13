@@ -58,6 +58,21 @@ export type Condominium = {
   deletedAt: string | null;
 };
 
+/**
+ * `/condominiums/:id/stats`: os sete contadores consolidados que a tela de
+ * detalhe exibe. Espelha `CondominiumStats` em
+ * `backend/src/modules/condominiums/condominium.service.ts`.
+ */
+export type CondominiumStats = {
+  units: number;
+  occupiedUnits: number;
+  residents: number;
+  vehicles: number;
+  openIncidents: number;
+  pendingCharges: number;
+  pendingReservations: number;
+};
+
 // --- Blocos e unidades -------------------------------------------------------
 
 export const BLOCK_TYPES = ['BLOCK', 'TOWER', 'WING', 'STREET'] as const;

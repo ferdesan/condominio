@@ -16,9 +16,20 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     { className, variant, size, asChild = false, loading = false, children, disabled, ...props },
     ref,
   ) => {
-    const Comp = asChild ? Slot : 'button';
+    // O Slot exige exatamente um filho, e o indicador de carga seria um segundo
+    // — mesmo quando `loading` e falso, porque o `null` continua ocupando lugar.
+    // Por isso o caminho `asChild` repassa `children` intacto; quem o usa esta
+    // envolvendo um link, que nao tem estado de carregamento proprio.
+    if (asChild) {
+      return (
+        <Slot ref={ref} className={cn(buttonVariants({ variant, size, className }))} {...props}>
+          {children}
+        </Slot>
+      );
+    }
+
     return (
-      <Comp
+      <button
         ref={ref}
         className={cn(buttonVariants({ variant, size, className }))}
         disabled={disabled || loading}
@@ -31,7 +42,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           </>
         ) : null}
         {children}
-      </Comp>
+      </button>
     );
   },
 );
