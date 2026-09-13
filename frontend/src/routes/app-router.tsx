@@ -5,13 +5,19 @@ import { LoginPage } from '@/features/auth/login-page';
 import { DashboardPage } from '@/features/dashboard/dashboard-page';
 import { CondominiumsPage } from '@/features/condominiums/condominiums-page';
 import { CondominiumDetailPage } from '@/features/condominiums/condominium-detail-page';
+import { UnitsPage } from '@/features/units/units-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
 import { NAV_ITEMS } from './navigation';
 import { ProtectedRoute } from './protected-route';
 
-/** Itens do menu que ja possuem tela propria. */
-const IMPLEMENTED = new Set(['/', '/condominios']);
+/**
+ * Itens do menu que ja possuem tela propria.
+ *
+ * `/blocos` nao entra: a gestao de blocos vive dentro da tela de unidades e a
+ * entrada reservada continua levando ao placeholder (ADR-007).
+ */
+const IMPLEMENTED = new Set(['/', '/condominios', '/unidades']);
 
 export function AppRouter() {
   return (
@@ -36,6 +42,10 @@ export function AppRouter() {
             <Route path="/condominios" element={<CondominiumsPage />} />
             {/* Rota de detalhe so aqui: os outros modulos vivem em dialogo (ADR-004). */}
             <Route path="/condominios/:id" element={<CondominiumDetailPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="unit:read" />}>
+            <Route path="/unidades" element={<UnitsPage />} />
           </Route>
 
           {NAV_ITEMS.filter((item) => !IMPLEMENTED.has(item.to)).map((item) => (
