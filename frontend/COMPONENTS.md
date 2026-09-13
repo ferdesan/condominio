@@ -110,10 +110,14 @@ export function TermsCheckbox() {
 
 ### DatePicker
 
-Seletor de data com validação.
+Seletor de data sobre o input nativo `type="date"`.
+
+O valor é sincronizado depois do mount: trocar `value` — num reset de formulário, por
+exemplo — atualiza o campo. Quem abre o calendário é o próprio navegador; o ícone à
+direita é decorativo.
 
 **Props:**
-- `value`: Date | string - Data selecionada
+- `value`: Date | string - Data selecionada; mudanças após o mount são refletidas
 - `onChange`: (date: Date) => void - Callback ao mudar data
 - `minDate`: Date - Data mínima permitida
 - `maxDate`: Date - Data máxima permitida
@@ -210,6 +214,117 @@ export function ContactForm() {
 
 ---
 
+### Textarea
+
+Campo de texto multilinha para observações.
+
+Já chega com `maxLength` de 2000 caracteres, que é o limite do servidor nesses campos. O
+valor está exportado como `TEXTAREA_MAX_LENGTH` para quem precisar validar antes do envio.
+
+**Props:** todas as de `<textarea>`. `rows` tem padrão 4 e `maxLength` padrão 2000.
+
+**Exemplo:**
+
+```tsx
+import { Textarea } from '@/components/ui';
+
+export function NotesField() {
+  return <Textarea id="notes" placeholder="Observações sobre a unidade" defaultValue="" />;
+}
+```
+
+---
+
+### DateTimeInput
+
+Data e hora em um único campo, sobre o input nativo `type="datetime-local"` — o
+`DatePicker` cobre apenas a data, e reservas precisam das duas.
+
+É totalmente controlado: o que aparece vem sempre de `value`, então um reset do
+formulário chega ao campo sem precisar de sincronização.
+
+**Props:**
+- `value`: Date | string - Momento selecionado
+- `onChange`: (value: string) => void - Recebe o valor local `yyyy-MM-ddTHH:mm`, ou `''` quando limpo
+- `minDate`: Date - Limite inferior
+- `maxDate`: Date - Limite superior
+
+**Exemplo:**
+
+```tsx
+import { DateTimeInput } from '@/components/ui';
+import { useState } from 'react';
+
+export function BookingStart() {
+  const [startsAt, setStartsAt] = useState('');
+
+  return <DateTimeInput id="startsAt" value={startsAt} onChange={setStartsAt} minDate={new Date()} />;
+}
+```
+
+---
+
+### FormField
+
+Junta rótulo, controle e mensagem de erro com a ligação aria do projeto: id explícito,
+campo marcado como inválido, erro referenciado por `aria-describedby` no id `{id}-error`
+e anunciado com `role="alert"`.
+
+Passe uma função como filho para receber as props do controle. É assim que os controles
+Radix — select, checkbox, moeda, data e hora — entram no formulário: eles expõem valor e
+callback, e não a API de registro não controlada.
+
+**Props:**
+- `id`: string - Id do controle; a mensagem de erro usa `{id}-error`
+- `label`: string - Rótulo associado ao controle
+- `error`: string - Mensagem de erro; quando presente, marca o campo como inválido
+- `description`: string - Texto de apoio, também ligado por `aria-describedby`
+- `className`: string - Classe do contêiner
+- `children`: ReactNode | (control: FormFieldControlProps) => ReactNode
+
+**Exemplo:**
+
+```tsx
+import { FormField, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui';
+import { Controller, useForm } from 'react-hook-form';
+
+export function UnitForm() {
+  const { register, control, formState: { errors } } = useForm<UnitFormValues>();
+
+  return (
+    <>
+      {/* Campo registrado: o register cuida de name, onChange, onBlur e ref. */}
+      <FormField id="number" label="Número" error={errors.number?.message}>
+        {(field) => <Input {...field} {...register('number')} />}
+      </FormField>
+
+      {/* Campo controlado: o Controller liga o valor e o callback do Radix. */}
+      <Controller
+        control={control}
+        name="status"
+        render={({ field, fieldState }) => (
+          <FormField id="status" label="Status" error={fieldState.error?.message}>
+            {(aria) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger {...aria}>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="VACANT">Vaga</SelectItem>
+                  <SelectItem value="OCCUPIED">Ocupada</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </FormField>
+        )}
+      />
+    </>
+  );
+}
+```
+
+---
+
 ## Componentes Comuns
 
 ### PageHeader
@@ -247,27 +362,52 @@ export function UsersPage() {
 
 Tabela de dados com paginação, ordenação e busca.
 
+A paginação é do servidor por padrão: as linhas recebidas são exatamente as linhas
+renderizadas. Ligue `clientPagination` apenas quando a coleção inteira já estiver em
+memória — sem isso, nenhum recorte acontece no cliente.
+
+A busca é controlada por `searchValue`, então quem usa a tabela consegue limpá-la. O
+callback dispara a cada tecla; o debounce pertence a quem faz a requisição.
+
+A direção da ordenação usa o vocabulário `asc`/`desc`. Traduzir para o formato que a API
+espera é responsabilidade da camada de dados, não deste componente (ADR-008).
+
 **Props:**
-- `columns`: Column[] - Definição das colunas
-- `data`: T[] - Dados da tabela
+- `columns`: Column<T>[] - Definição das colunas
+- `data`: T[] - Linhas da página atual
 - `loading`: boolean - Estado de carregamento
 - `searchable`: boolean - Habilitar busca (padrão: true)
 - `searchPlaceholder`: string - Placeholder da busca
-- `onSearch`: (term: string) => void - Callback da busca
+- `searchValue`: string - Valor controlado da busca
+- `onSearch`: (term: string) => void - Callback da busca, a cada tecla
 - `sortable`: boolean - Habilitar ordenação (padrão: true)
 - `onSort`: (column: string, direction: 'asc' | 'desc') => void - Callback da ordenação
 - `sort`: SortState - Estado atual da ordenação
 - `pageable`: boolean - Habilitar paginação (padrão: true)
-- `pageSize`: number - Itens por página
+- `clientPagination`: boolean - Recortar `data` no cliente (padrão: false)
+- `pageSize`: number - Itens por página; só recorta com `clientPagination` ligado
 - `currentPage`: number - Página atual
-- `totalPages`: number - Total de páginas
+- `totalPages`: number - Total de páginas; com 1 os controles não aparecem
 - `onPageChange`: (page: number) => void - Callback da paginação
 - `emptyIcon`: LucideIcon - Ícone do estado vazio
 - `emptyTitle`: string - Título do estado vazio
 - `emptyDescription`: string - Descrição do estado vazio
 - `rowClassName`: (row: T, index: number) => string - Classe CSS da linha
-- `onRowClick`: (row: T) => void - Callback ao clicar na linha
+- `onRowClick`: (row: T) => void - Callback ao ativar a linha, por clique ou teclado
 - `idKey`: keyof T - Chave única de identificação
+
+**Colunas:**
+
+A chave de uma coluna é um campo de `T`. Uma coluna que traz o próprio `render` — ações,
+por exemplo — pode usar um identificador livre, já que não lê nenhum campo da linha
+(ADR-009).
+
+Sem `render`, valores nulos e indefinidos aparecem como um placeholder neutro; zero
+aparece como `0`.
+
+**Acessibilidade:**
+- `aria-sort` fica na célula de cabeçalho e acompanha a coluna ativa.
+- Com `onRowClick`, a linha é focável, expõe papel de botão e ativa com Enter ou Espaço.
 
 **Exemplo:**
 
@@ -285,12 +425,10 @@ interface User {
 }
 
 export function UsersTable() {
-  const [users, setUsers] = useState<User[]>([
-    { id: 1, name: 'João', email: 'joao@example.com', status: 'active' },
-    { id: 2, name: 'Maria', email: 'maria@example.com', status: 'active' },
-  ]);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortState>({ column: null, direction: 'asc' });
+  const { data, meta } = useUsers({ page, perPage: 20, search, sort });
 
   const columns: Column<User>[] = [
     { key: 'id', label: 'ID', sortable: true },
@@ -306,22 +444,15 @@ export function UsersTable() {
       ),
     },
     {
-      key: 'id',
+      // Identificador livre: só vale porque a coluna traz o próprio renderer.
+      key: 'actions',
       label: 'Ações',
       render: (_, row) => (
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleEdit(row)}
-          >
+          <Button variant="outline" size="sm" onClick={() => handleEdit(row)}>
             <Edit2 className="size-4" />
           </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => handleDelete(row)}
-          >
+          <Button variant="destructive" size="sm" onClick={() => handleDelete(row)}>
             <Trash2 className="size-4" />
           </Button>
         </div>
@@ -332,10 +463,15 @@ export function UsersTable() {
   return (
     <DataTable
       columns={columns}
-      data={users}
+      data={data}
+      pageable
+      pageSize={20}
       currentPage={page}
-      totalPages={Math.ceil(users.length / 10)}
+      totalPages={meta.totalPages}
       onPageChange={setPage}
+      searchable
+      searchValue={search}
+      onSearch={setSearch}
       sort={sort}
       onSort={(col, dir) => setSort({ column: col, direction: dir })}
       emptyTitle="Nenhum usuário encontrado"
@@ -744,6 +880,9 @@ import {
   SelectValue,
   Checkbox,
   DatePicker,
+  DateTimeInput,
+  Textarea,
+  FormField,
   CurrencyInput,
   PhoneInput,
   Dialog,
