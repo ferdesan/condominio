@@ -19,8 +19,14 @@ import { BLOCKS_KEY, blockHooks } from '../unit-hooks';
 import { BLOCK_TYPE_LABELS } from '../block-schema';
 import { BlockFormDialog } from './block-form-dialog';
 
-/** `null` cadastra; um registro edita. Ausente mantem o formulario fechado. */
-type FormTarget = { block: Block | null } | null;
+/**
+ * `block: null` cadastra; um registro edita. Ausente mantem o formulario fechado.
+ *
+ * `condominiumId` e o da abertura: a listagem atras pode ter trocado de
+ * condominio desde entao, mas o que foi digitado aqui pertence ao predio em que
+ * comecou (US-027.EC-3).
+ */
+type FormTarget = { block: Block | null; condominiumId: string } | null;
 
 export interface BlockManagerDialogProps {
   condominiumId: string;
@@ -34,6 +40,10 @@ export interface BlockManagerDialogProps {
  * criar, editar e excluir — e nada alem disso: e o limite que impede a gestao
  * embutida de virar por acumulo o quinto modulo que o ADR-007 evitou. Nenhuma
  * rota e registrada para blocos.
+ *
+ * A gestao acompanha o condominio do shell (US-030.EC-5): e uma listagem, e uma
+ * listagem do predio errado nao serve para nada. O formulario aberto dentro dela
+ * e que fica preso ao condominio em que comecou, porque ele grava (US-027.EC-3).
  */
 export function BlockManagerDialog({ condominiumId, onClose }: BlockManagerDialogProps) {
   const { can } = useAuth();
@@ -60,10 +70,10 @@ export function BlockManagerDialog({ condominiumId, onClose }: BlockManagerDialo
 
   const blocks = query.data?.data ?? [];
 
-  // Trocar de condominio recarrega a gestao para o novo. O formulario aberto
-  // pertencia ao anterior, entao ele sai junto.
+  // A confirmacao de exclusao aponta para uma linha que a troca de condominio
+  // acabou de tirar da lista. Fecha-la nao descarta nada digitado — ao contrario
+  // do formulario, que por isso fica aberto e preso ao condominio de origem.
   useEffect(() => {
-    setFormTarget(null);
     setDeleting(null);
   }, [condominiumId]);
 
@@ -103,7 +113,7 @@ export function BlockManagerDialog({ condominiumId, onClose }: BlockManagerDialo
               description="Cadastre o primeiro bloco para poder registrar ou gerar unidades."
               action={
                 canCreate ? (
-                  <Button onClick={() => setFormTarget({ block: null })}>Criar primeiro bloco</Button>
+                  <Button onClick={() => setFormTarget({ block: null, condominiumId })}>Criar primeiro bloco</Button>
                 ) : undefined
               }
             />
@@ -126,7 +136,7 @@ export function BlockManagerDialog({ condominiumId, onClose }: BlockManagerDialo
                         variant="ghost"
                         size="sm"
                         aria-label={`Editar bloco ${block.name}`}
-                        onClick={() => setFormTarget({ block })}
+                        onClick={() => setFormTarget({ block, condominiumId })}
                       >
                         Editar
                       </Button>
@@ -150,7 +160,7 @@ export function BlockManagerDialog({ condominiumId, onClose }: BlockManagerDialo
 
           <DialogFooter>
             {canCreate && blocks.length > 0 ? (
-              <Button variant="outline" onClick={() => setFormTarget({ block: null })}>
+              <Button variant="outline" onClick={() => setFormTarget({ block: null, condominiumId })}>
                 Novo bloco
               </Button>
             ) : null}
@@ -163,7 +173,7 @@ export function BlockManagerDialog({ condominiumId, onClose }: BlockManagerDialo
       {formTarget ? (
         <BlockFormDialog
           key={formTarget.block?.id ?? 'new'}
-          condominiumId={condominiumId}
+          condominiumId={formTarget.condominiumId}
           block={formTarget.block ?? undefined}
           onSaved={() => setFormTarget(null)}
           onCancel={() => setFormTarget(null)}

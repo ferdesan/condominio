@@ -44,7 +44,10 @@ export function ReservationsPage() {
   const [view, setView] = useState<View>('list');
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const [calendarAreaId, setCalendarAreaId] = useState<string | undefined>(undefined);
-  const [creating, setCreating] = useState(false);
+  // O condominio com que o formulario foi aberto, e nao o do shell agora:
+  // trocar a selecao com o dialogo aberto nao pode redirecionar o envio para
+  // o predio recem-escolhido (US-027.EC-3).
+  const [creating, setCreating] = useState<string | null>(null);
   const [decision, setDecision] = useState<DecisionTarget>(null);
 
   const canCreate = can('reservation:create');
@@ -182,7 +185,7 @@ export function ReservationsPage() {
               description="Agenda das areas comuns, com fila de aprovacao e calendario do mes."
               actions={
                 canCreate && selectedId ? (
-                  <Button onClick={() => setCreating(true)}>Nova reserva</Button>
+                  <Button onClick={() => setCreating(selectedId)}>Nova reserva</Button>
                 ) : undefined
               }
             />
@@ -282,7 +285,7 @@ export function ReservationsPage() {
                   description="Registre a primeira reserva de uma area comum deste condominio."
                   action={
                     canCreate ? (
-                      <Button onClick={() => setCreating(true)}>Nova reserva</Button>
+                      <Button onClick={() => setCreating(selectedId)}>Nova reserva</Button>
                     ) : undefined
                   }
                 />
@@ -310,12 +313,12 @@ export function ReservationsPage() {
         }
       />
 
-      {creating && selectedId ? (
+      {creating ? (
         <ReservationFormDialog
-          condominiumId={selectedId}
+          condominiumId={creating}
           areas={bookableAreas}
           units={units}
-          onClose={() => setCreating(false)}
+          onClose={() => setCreating(null)}
         />
       ) : null}
 

@@ -32,8 +32,14 @@ const STATUS_VARIANTS: Record<Resident['status'], 'success' | 'neutral' | 'warni
   MOVED_OUT: 'warning',
 };
 
-/** `null` cadastra; um registro edita. Ausente mantem o dialogo fechado. */
-type FormTarget = { resident: Resident | null } | null;
+/**
+ * `resident: null` cadastra; um registro edita. Ausente mantem o dialogo fechado.
+ *
+ * `condominiumId` e o do shell no momento em que o dialogo abriu, e nao o de
+ * agora: trocar de condominio com o formulario aberto nao pode redirecionar o
+ * envio para o predio recem-escolhido (US-027.EC-3).
+ */
+type FormTarget = { resident: Resident | null; condominiumId: string } | null;
 
 export function ResidentsPage() {
   const { can } = useAuth();
@@ -197,7 +203,7 @@ export function ResidentsPage() {
           resident={row}
           canUpdate={canUpdate}
           canDelete={canDelete}
-          onEdit={(resident) => setFormTarget({ resident })}
+          onEdit={(resident) => setFormTarget({ resident, condominiumId: resident.condominiumId })}
           onDelete={setDeleting}
           onRestore={(resident) => restore.mutate(resident.id, { onError: refreshOnRefusal })}
           onDesignatePrimary={handleDesignatePrimary}
@@ -241,7 +247,7 @@ export function ResidentsPage() {
                 <Button
                   disabled={hasNoUnits}
                   title={hasNoUnits ? NO_UNITS_HINT : undefined}
-                  onClick={() => setFormTarget({ resident: null })}
+                  onClick={() => setFormTarget({ resident: null, condominiumId: selectedId })}
                 >
                   Novo morador
                 </Button>
@@ -283,7 +289,7 @@ export function ResidentsPage() {
                   description="Cadastre o primeiro morador para saber quem ocupa cada unidade."
                   action={
                     canOpenForm ? (
-                      <Button onClick={() => setFormTarget({ resident: null })}>
+                      <Button onClick={() => setFormTarget({ resident: null, condominiumId: selectedId })}>
                         Cadastrar morador
                       </Button>
                     ) : undefined
@@ -313,10 +319,12 @@ export function ResidentsPage() {
       />
 
       {formTarget ? (
+        // O condominio e o da abertura: trocar a selecao do shell com o
+        // formulario aberto nao pode mudar para onde ele grava (US-027.EC-3).
         <ResidentFormDialog
           key={formTarget.resident?.id ?? 'new'}
           resident={formTarget.resident ?? undefined}
-          condominiumId={selectedId}
+          condominiumId={formTarget.condominiumId}
           units={units}
           onClose={() => setFormTarget(null)}
         />

@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
 import type { Block } from '@/types/api';
@@ -113,6 +114,8 @@ export function BlockFormDialog({
               'Nome, tipo e a geometria do predio: andares, unidades por andar e elevador.'}
           </DialogDescription>
         </DialogHeader>
+
+        <CondominiumScopeNotice condominiumId={condominiumId} />
 
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
