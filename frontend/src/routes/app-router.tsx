@@ -7,6 +7,7 @@ import { CondominiumsPage } from '@/features/condominiums/condominiums-page';
 import { CondominiumDetailPage } from '@/features/condominiums/condominium-detail-page';
 import { UnitsPage } from '@/features/units/units-page';
 import { ResidentsPage } from '@/features/residents/residents-page';
+import { ReservationsPage } from '@/features/reservations/reservations-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
 import { NAV_ITEMS } from './navigation';
@@ -18,7 +19,7 @@ import { ProtectedRoute } from './protected-route';
  * `/blocos` nao entra: a gestao de blocos vive dentro da tela de unidades e a
  * entrada reservada continua levando ao placeholder (ADR-007).
  */
-const IMPLEMENTED = new Set(['/', '/condominios', '/unidades', '/moradores']);
+const IMPLEMENTED = new Set(['/', '/condominios', '/unidades', '/moradores', '/reservas']);
 
 export function AppRouter() {
   return (
@@ -47,8 +48,15 @@ export function AppRouter() {
 
           <Route element={<ProtectedRoute permission="unit:read" />}>
             <Route path="/unidades" element={<UnitsPage />} />
+          </Route>
+
           <Route element={<ProtectedRoute permission="resident:read" />}>
             <Route path="/moradores" element={<ResidentsPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="reservation:read" />}>
+            {/* Sem rota de detalhe: a reserva vive em dialogo sobre a lista (ADR-004). */}
+            <Route path="/reservas" element={<ReservationsPage />} />
           </Route>
 
           {NAV_ITEMS.filter((item) => !IMPLEMENTED.has(item.to)).map((item) => (

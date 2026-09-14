@@ -94,3 +94,22 @@ if (typeof window.PointerEvent === 'undefined') {
   window.PointerEvent = PointerEventPolyfill as unknown as typeof PointerEvent;
   globalThis.PointerEvent = PointerEventPolyfill as unknown as typeof PointerEvent;
 }
+
+// ---------------------------------------------------------------------------
+// Curto-circuito de `:fullscreen` no seletor do jsdom.
+//
+// O `nwsapi` resolve `:fullscreen` chamando `element.matches(':fullscreen')` de
+// volta, e cada avaliacao de `:modal` dispara uma cascata dessas chamadas. Ao
+// fechar um Select do Radix numa tela cheia, medimos 58,5 milhoes de chamadas a
+// `matches` a partir de 50 mil verificacoes de `:modal` — 40 segundos de CPU
+// para escolher uma opcao, o que estoura o timeout de qualquer teste que filtre
+// por um select. Com o curto-circuito, a mesma interacao custa ~120ms.
+//
+// Responder `false` nao e uma simplificacao: o jsdom nao implementa a
+// Fullscreen API, entao `document.fullscreenElement` e sempre nulo e nenhum
+// elemento pode estar em tela cheia. A resposta rapida e a resposta correta.
+const matchesWithoutFullscreen = Element.prototype.matches;
+Element.prototype.matches = function matches(this: Element, selectors: string): boolean {
+  if (selectors === ':fullscreen') return false;
+  return matchesWithoutFullscreen.call(this, selectors);
+};
