@@ -6,6 +6,7 @@ import { DashboardPage } from '@/features/dashboard/dashboard-page';
 import { CondominiumsPage } from '@/features/condominiums/condominiums-page';
 import { CondominiumDetailPage } from '@/features/condominiums/condominium-detail-page';
 import { UnitsPage } from '@/features/units/units-page';
+import { ResidentsPage } from '@/features/residents/residents-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
 import { NAV_ITEMS } from './navigation';
@@ -17,7 +18,7 @@ import { ProtectedRoute } from './protected-route';
  * `/blocos` nao entra: a gestao de blocos vive dentro da tela de unidades e a
  * entrada reservada continua levando ao placeholder (ADR-007).
  */
-const IMPLEMENTED = new Set(['/', '/condominios', '/unidades']);
+const IMPLEMENTED = new Set(['/', '/condominios', '/unidades', '/moradores']);
 
 export function AppRouter() {
   return (
@@ -46,6 +47,8 @@ export function AppRouter() {
 
           <Route element={<ProtectedRoute permission="unit:read" />}>
             <Route path="/unidades" element={<UnitsPage />} />
+          <Route element={<ProtectedRoute permission="resident:read" />}>
+            <Route path="/moradores" element={<ResidentsPage />} />
           </Route>
 
           {NAV_ITEMS.filter((item) => !IMPLEMENTED.has(item.to)).map((item) => (
