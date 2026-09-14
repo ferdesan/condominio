@@ -217,9 +217,11 @@ condominio/
 │   ├── nginx.conf          # Configuração Nginx
 │   └── package.json        # Dependências
 │
-├── docs/                    # Documentação
+├── docs/                   # Documentação
+│   ├── QUICKSTART.md       # Quick start 3 minutos
 │   ├── DOCKER.md           # Guia Docker completo
-│   └── API.md              # Documentação API
+│   ├── DEVOPS-STATUS.md    # Configuração do ambiente
+│   └── historico/          # Registros datados de entregas passadas
 │
 ├── .github/
 │   └── workflows/
@@ -230,8 +232,6 @@ condominio/
 ├── .dockerignore            # Arquivos ignorados no Docker
 ├── .gitignore              # Arquivos ignorados no Git
 ├── package.json            # Scripts root
-├── QUICKSTART.md           # Quick start 3 minutos
-├── DOCKER.md               # Guia Docker detalhado
 └── README.md               # Este arquivo
 ```
 
@@ -292,9 +292,9 @@ O workflow executa automaticamente em:
 ## 📚 Documentação Completa
 
 - 📖 [Guia Docker Completo](./docs/DOCKER.md)
-- ⚡ [Quick Start 3 Minutos](./QUICKSTART.md)
-- 🔧 [Configuração Detalhada](./DEVOPS-STATUS.md)
-- 📝 [Relatório Técnico Fase 8](./FASE8-RELATORIO.md)
+- ⚡ [Quick Start 3 Minutos](./docs/QUICKSTART.md)
+- 🔧 [Configuração Detalhada](./docs/DEVOPS-STATUS.md)
+- 🗂️ [Histórico de entregas](./docs/historico/) — registros datados, não documentação atual
 
 ## 🐛 Troubleshooting
 
@@ -367,3 +367,5 @@ Para reportar issues ou sugestões:
 **Pronto para começar?** Execute: `npm run docker:up` 🚀
 
 Última atualização: 2026-09-12
+--super@condominio.app
+--Demo@1234

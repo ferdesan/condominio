@@ -187,7 +187,7 @@ Todos os componentes devem possuir:
   - Critérios de qualidade
   - Customização
 
-- ✅ `TASK-02-SUMMARY.md` - Resumo da implementação
+- ✅ `docs/historico/TASK-02-SUMMARY.md` - Resumo da implementação
 
 ---
 
@@ -205,4 +205,4 @@ Todos os componentes devem possuir:
 
 ## 🚀 Como Usar
 
-Ver documentação completa em `frontend/COMPONENTS.md` ou `TASK-02-SUMMARY.md`
+Ver documentação completa em `frontend/COMPONENTS.md` ou `docs/historico/TASK-02-SUMMARY.md`
