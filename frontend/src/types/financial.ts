@@ -1,0 +1,165 @@
+/**
+ * Espelha `backend/src/modules/financial/entities/`.
+ *
+ * Arquivo proprio pela regra registrada no cabecalho de `types/api.ts`: recurso
+ * novo ganha `types/<recurso>.ts`.
+ *
+ * **Sao quatro recursos sob um modulo so.** `financialRouter` monta
+ * `/financial/categories`, `/financial/charges` e `/financial/expenses` com o
+ * roteador CRUD compartilhado, mais `/financial/payments`, que e **somente
+ * leitura**: a baixa e feita pela cobranca (`POST /charges/:id/payments`), e nao
+ * cadastrando um pagamento solto.
+ */
+
+export const CATEGORY_KINDS = ['INCOME', 'EXPENSE'] as const;
+export type CategoryKind = (typeof CATEGORY_KINDS)[number];
+
+/** Plano de contas simplificado do condominio. */
+export type FinancialCategory = {
+  id: string;
+  condominiumId: string;
+  name: string;
+  kind: CategoryKind;
+  code: string | null;
+  color: string | null;
+  description: string | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+export const CHARGE_STATUSES = ['PENDING', 'PAID', 'PARTIAL', 'OVERDUE', 'CANCELED'] as const;
+export type ChargeStatus = (typeof CHARGE_STATUSES)[number];
+
+export const PAYMENT_METHODS = [
+  'PIX',
+  'BOLETO',
+  'CREDIT_CARD',
+  'DEBIT_CARD',
+  'TRANSFER',
+  'CASH',
+  'OTHER',
+] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+/** Unidade como vem aninhada na resposta de `/financial/charges`. */
+export type ChargeUnit = {
+  id: string;
+  number: string;
+  blockId: string | null;
+};
+
+export type Charge = {
+  id: string;
+  condominiumId: string;
+  unitId: string;
+  /** Presente: `ChargeRepository` faz eager load da unidade. */
+  unit?: ChargeUnit | null;
+  categoryId: string | null;
+  residentId: string | null;
+  description: string;
+  /** Competencia no formato AAAA-MM. */
+  referenceMonth: string;
+  /** Data (AAAA-MM-DD). */
+  dueDate: string;
+  amount: number;
+  discount: number;
+  interest: number;
+  penalty: number;
+  paidAmount: number;
+  status: ChargeStatus;
+  paidAt: string | null;
+  paymentMethod: PaymentMethod | null;
+  barcode: string | null;
+  invoiceUrl: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+export const EXPENSE_STATUSES = ['PENDING', 'PAID', 'OVERDUE', 'CANCELED'] as const;
+export type ExpenseStatus = (typeof EXPENSE_STATUSES)[number];
+
+export type Expense = {
+  id: string;
+  condominiumId: string;
+  categoryId: string | null;
+  serviceProviderId: string | null;
+  description: string;
+  /** Competencia no formato AAAA-MM. */
+  competence: string;
+  dueDate: string;
+  amount: number;
+  status: ExpenseStatus;
+  paidAt: string | null;
+  paymentMethod: PaymentMethod | null;
+  documentUrl: string | null;
+  documentNumber: string | null;
+  isRecurring: boolean;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+/**
+ * Corpo de `GET /financial/charges/summary`.
+ *
+ * `billed` ja soma juros e multa e desconta o abatimento — nao e a soma dos
+ * valores de face. `open` e o que falta receber, e nao o vencido.
+ */
+export type ChargeSummary = {
+  billed: number;
+  received: number;
+  open: number;
+  overdue: number;
+  overdueCount: number;
+  pendingCount: number;
+  delinquencyRate: number;
+};
+
+/** Uma linha de `GET /financial/charges/delinquency`, ja ordenada pelo servidor. */
+export type DelinquencyRow = {
+  unitId: string;
+  unitNumber: string | null;
+  blockId: string | null;
+  charges: number;
+  total: number;
+};
+
+/** Corpo de `POST /financial/charges/generate`. */
+export type GenerateChargesResult = {
+  created: number;
+  skipped: number;
+  total: number;
+};
+
+/** Corpo de `POST /financial/charges/apply-late-fees`. */
+export type ApplyLateFeesResult = {
+  updated: number;
+};
+
+/** Baixa registrada numa cobranca. */
+export type Payment = {
+  id: string;
+  condominiumId: string;
+  chargeId: string;
+  amount: number;
+  paidAt: string;
+  method: PaymentMethod;
+  receiptUrl: string | null;
+  registeredById: string | null;
+  transactionId: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+/** Corpo de `POST /financial/charges/:id/payments`: a baixa e a cobranca atualizada. */
+export type RegisterPaymentResult = {
+  charge: Charge;
+  payment: Payment;
+};

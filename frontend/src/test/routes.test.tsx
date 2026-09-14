@@ -3,10 +3,10 @@
  *
  * Cada tela ja tem os proprios testes, e nenhum deles monta o roteador: eles
  * renderizam o componente direto. O que nao se enxerga de dentro de nenhum e se
- * o caminho do menu chega mesmo naquela tela — registrar uma rota aqui e sempre
- * duas coisas, declarar a rota real e acrescentar o caminho ao conjunto
- * `IMPLEMENTED`, e esquecer a segunda deixa o item levando ao
- * `PlaceholderPage` sem nenhum teste de tela perceber.
+ * o caminho do menu chega mesmo naquela tela — registrar uma rota e sempre duas
+ * coisas, declarar a rota real e acrescentar o caminho ao conjunto
+ * `IMPLEMENTED`, e esquecer a segunda deixa o item levando ao `PlaceholderPage`
+ * sem nenhum teste de tela perceber.
  *
  * Por isso o alvo e `<AppRouter />` montado no caminho, e nao a pagina.
  */
@@ -14,6 +14,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError, apiGet, apiGetPaginated } from '@/lib/api';
 import { AppRouter } from '@/routes/app-router';
+import { NAV_ITEMS } from '@/routes/navigation';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { makeCondominium, makeMeta } from '@/test/fixtures';
 import { renderWithProviders, screen, within } from '@/test/render';
@@ -36,7 +37,7 @@ vi.mock('sonner', () => ({
 }));
 
 /** Montar o roteador inteiro custa mais do que montar uma tela. */
-vi.setConfig({ testTimeout: 120_000, hookTimeout: 120_000 });
+vi.setConfig({ testTimeout: 180_000, hookTimeout: 180_000 });
 
 const CONDOMINIUM = makeCondominium({ id: 'cond-1', name: 'Residencial Aurora' });
 
@@ -72,6 +73,17 @@ const AUXILIARY_READS: Record<string, unknown> = {
   '/maintenances/upcoming': [],
   '/notifications/unread-count': { unread: 0 },
   '/reservations/availability': [],
+  '/assemblies/upcoming': [],
+  '/financial/charges/summary': {
+    billed: 0,
+    received: 0,
+    open: 0,
+    overdue: 0,
+    overdueCount: 0,
+    pendingCount: 0,
+    delinquencyRate: 0,
+  },
+  '/financial/charges/delinquency': [],
   '/dashboard/overview': ZERO_OVERVIEW,
   '/dashboard/financial-series': [],
   '/dashboard/expenses-by-category': [],
@@ -107,43 +119,41 @@ function serveEmptyWorld(): void {
   });
 }
 
-/** As oito telas registradas por esta task, com a permissao de cada rota. */
+/**
+ * Os 22 itens do menu, com a tela e a permissao de cada rota.
+ *
+ * A lista e escrita a mao de proposito: derivar de `NAV_ITEMS` faria o teste
+ * concordar com o roteador por construcao, e e justamente a divergencia entre os
+ * dois que ele existe para pegar. O que se compara com `NAV_ITEMS` e so a
+ * **contagem**, para que um item novo nao passe despercebido.
+ */
 const REGISTERED = [
+  { path: '/', title: 'Dashboard', permission: 'dashboard:read' },
+  { path: '/condominios', title: 'Condominios', permission: 'condominium:read' },
+  { path: '/blocos', title: 'Blocos', permission: 'block:read' },
+  { path: '/unidades', title: 'Unidades', permission: 'unit:read' },
+  { path: '/moradores', title: 'Moradores', permission: 'resident:read' },
+  { path: '/dependentes', title: 'Dependentes', permission: 'dependent:read' },
+  { path: '/funcionarios', title: 'Funcionarios', permission: 'employee:read' },
+  { path: '/prestadores', title: 'Prestadores', permission: 'service-provider:read' },
   { path: '/visitantes', title: 'Visitantes', permission: 'visitor:read' },
+  { path: '/veiculos', title: 'Veiculos', permission: 'vehicle:read' },
   { path: '/correspondencias', title: 'Correspondencias', permission: 'correspondence:read' },
+  { path: '/areas-comuns', title: 'Areas comuns', permission: 'common-area:read' },
+  { path: '/reservas', title: 'Reservas', permission: 'reservation:read' },
+  { path: '/assembleias', title: 'Assembleias', permission: 'assembly:read' },
   { path: '/comunicados', title: 'Comunicados', permission: 'announcement:read' },
+  { path: '/financeiro', title: 'Financeiro', permission: 'charge:read' },
   { path: '/ocorrencias', title: 'Ocorrencias', permission: 'incident:read' },
   { path: '/manutencoes', title: 'Manutencoes', permission: 'maintenance:read' },
+  { path: '/documentos', title: 'Documentos', permission: 'document:read' },
   { path: '/usuarios', title: 'Usuarios', permission: 'user:read' },
   { path: '/auditoria', title: 'Auditoria', permission: 'audit-log:read' },
   // Unico item sem permissao declarada em `navigation.ts`.
   { path: '/notificacoes', title: 'Notificacoes', permission: null },
 ] as const;
 
-/** As onze rotas que ja existiam, para provar que o registro nao as mexeu. */
-const ALREADY_REGISTERED = [
-  { path: '/', title: 'Dashboard' },
-  { path: '/condominios', title: 'Condominios' },
-  { path: '/blocos', title: 'Blocos' },
-  { path: '/unidades', title: 'Unidades' },
-  { path: '/moradores', title: 'Moradores' },
-  { path: '/dependentes', title: 'Dependentes' },
-  { path: '/funcionarios', title: 'Funcionarios' },
-  { path: '/prestadores', title: 'Prestadores' },
-  { path: '/veiculos', title: 'Veiculos' },
-  { path: '/areas-comuns', title: 'Areas comuns' },
-  { path: '/reservas', title: 'Reservas' },
-] as const;
-
-/** Os tres modulos que seguem sem tela, e por isso continuam no placeholder. */
-const STILL_PLACEHOLDER = [
-  { path: '/financeiro', label: 'Financeiro' },
-  { path: '/assembleias', label: 'Assembleias' },
-  { path: '/documentos', label: 'Documentos' },
-] as const;
-
 const PLACEHOLDER_MARKER = 'Modulo em construcao';
-
 
 /**
  * Monta o roteador inteiro no caminho pedido.
@@ -171,7 +181,17 @@ beforeEach(() => {
   serveEmptyWorld();
 });
 
-describe('As oito rotas registradas', () => {
+describe('Cobertura do menu', () => {
+  it('todo item de navegacao tem uma rota real declarada neste teste', () => {
+    // Se alguem acrescentar um item ao menu sem tela, a contagem diverge e o
+    // caso abaixo — que percorre a lista — nao chegaria a exercita-lo.
+    expect(REGISTERED).toHaveLength(NAV_ITEMS.length);
+
+    const covered = new Set<string>(REGISTERED.map((route) => route.path));
+    const missing = NAV_ITEMS.filter((item) => !covered.has(item.to)).map((item) => item.to);
+    expect(missing).toEqual([]);
+  });
+
   it('cada caminho renderiza a tela real, e nao o placeholder', async () => {
     for (const { path, title } of REGISTERED) {
       const view = renderRoute(path);
@@ -188,12 +208,13 @@ describe('As oito rotas registradas', () => {
     }
   });
 
-  it('as sete com permissao negam acesso a um papel que nao a tem', async () => {
+  it('as vinte e uma rotas com permissao negam acesso a um papel que nao a tem', async () => {
     for (const { path, title, permission } of REGISTERED) {
       if (!permission) continue;
+      // O painel e a unica que o papel de teste alcanca; para ela, o caso e o
+      // inverso e ja esta coberto acima.
+      if (permission === 'dashboard:read') continue;
 
-      // Um papel autenticado que so enxerga o painel: tem sessao, e nao tem
-      // nenhuma das sete permissoes.
       const view = renderRoute(path, { permissions: ['dashboard:read'] });
 
       expect(await screen.findByText('Acesso negado'), path).toBeInTheDocument();
@@ -218,44 +239,44 @@ describe('As oito rotas registradas', () => {
 
     // Sem sessao a rota leva ao login: a ausencia de permissao declarada nao
     // dispensa a guarda de autenticacao que envolve toda a area logada.
-    expect(await screen.findByRole('heading', { level: 1, name: 'Condominio SaaS' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { level: 1, name: 'Notificacoes' })).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Condominio SaaS' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { level: 1, name: 'Notificacoes' }),
+    ).not.toBeInTheDocument();
   });
 
-  it('a navegacao lateral mostra os oito itens para o administrador', async () => {
+  it('a navegacao lateral mostra os vinte e dois itens para o administrador', async () => {
     renderRoute('/');
 
     const menu = await screen.findByRole('navigation');
-    for (const { path, title } of REGISTERED) {
-      const link = within(menu).getByRole('link', { name: title });
-      expect(link, title).toHaveAttribute('href', path);
+    for (const item of NAV_ITEMS) {
+      const link = within(menu).getByRole('link', { name: item.label });
+      expect(link, item.label).toHaveAttribute('href', item.to);
     }
   });
 });
 
-describe('O que nao mudou', () => {
-  it('os tres modulos sem tela continuam levando ao placeholder', async () => {
-    for (const { path, label } of STILL_PLACEHOLDER) {
-      const view = renderRoute(path);
-
-      expect(await screen.findByText(PLACEHOLDER_MARKER), path).toBeInTheDocument();
-      expect(screen.getByRole('heading', { level: 1, name: label }), path).toBeInTheDocument();
-
+describe('O mecanismo de placeholder', () => {
+  it('nenhum item do menu leva mais ao placeholder', async () => {
+    // Com as 22 telas registradas, o gerador de rotas de placeholder nao produz
+    // nenhuma. Ele continua no roteador de proposito: um item de menu novo
+    // ganha uma rota que explica a ausencia em vez de um 404.
+    for (const item of NAV_ITEMS) {
+      const view = renderRoute(item.to);
+      await screen.findByRole('heading', { level: 1 });
+      expect(screen.queryByText(PLACEHOLDER_MARKER), item.to).not.toBeInTheDocument();
       view.unmount();
     }
   });
 
-  it('as onze rotas ja existentes seguem chegando nas mesmas telas', async () => {
-    for (const { path, title } of ALREADY_REGISTERED) {
-      const view = renderRoute(path);
+  it('a rota de perfil segue explicando que a tela ainda nao existe', async () => {
+    // `/perfil` nao esta na navegacao e nao tem tela propria: e o unico
+    // placeholder que resta, e serve de prova de que o mecanismo continua vivo.
+    renderRoute('/perfil');
 
-      expect(
-        await screen.findByRole('heading', { level: 1, name: title }),
-        path,
-      ).toBeInTheDocument();
-      expect(screen.queryByText(PLACEHOLDER_MARKER), path).not.toBeInTheDocument();
-
-      view.unmount();
-    }
+    expect(await screen.findByText(PLACEHOLDER_MARKER)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Meu perfil' })).toBeInTheDocument();
   });
 });
