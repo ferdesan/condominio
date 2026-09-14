@@ -8,18 +8,31 @@ import { CondominiumDetailPage } from '@/features/condominiums/condominium-detai
 import { UnitsPage } from '@/features/units/units-page';
 import { ResidentsPage } from '@/features/residents/residents-page';
 import { ReservationsPage } from '@/features/reservations/reservations-page';
+import { BlocksPage } from '@/features/blocks/blocks-page';
+import { DependentsPage } from '@/features/dependents/dependents-page';
+import { EmployeesPage } from '@/features/employees/employees-page';
+import { ServiceProvidersPage } from '@/features/service-providers/service-providers-page';
+import { VehiclesPage } from '@/features/vehicles/vehicles-page';
+import { CommonAreasPage } from '@/features/common-areas/common-areas-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
 import { NAV_ITEMS } from './navigation';
 import { ProtectedRoute } from './protected-route';
 
-/**
- * Itens do menu que ja possuem tela propria.
- *
- * `/blocos` nao entra: a gestao de blocos vive dentro da tela de unidades e a
- * entrada reservada continua levando ao placeholder (ADR-007).
- */
-const IMPLEMENTED = new Set(['/', '/condominios', '/unidades', '/moradores', '/reservas']);
+/** Itens do menu que ja possuem tela propria. */
+const IMPLEMENTED = new Set([
+  '/',
+  '/condominios',
+  '/blocos',
+  '/unidades',
+  '/moradores',
+  '/dependentes',
+  '/funcionarios',
+  '/prestadores',
+  '/veiculos',
+  '/areas-comuns',
+  '/reservas',
+]);
 
 export function AppRouter() {
   return (
@@ -57,6 +70,33 @@ export function AppRouter() {
           <Route element={<ProtectedRoute permission="reservation:read" />}>
             {/* Sem rota de detalhe: a reserva vive em dialogo sobre a lista (ADR-004). */}
             <Route path="/reservas" element={<ReservationsPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="block:read" />}>
+            {/* Segundo caminho para a gestao de blocos, que tambem vive dentro
+                de Unidades para nao travar o cadastro (ADR-007). */}
+            <Route path="/blocos" element={<BlocksPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="dependent:read" />}>
+            <Route path="/dependentes" element={<DependentsPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="employee:read" />}>
+            <Route path="/funcionarios" element={<EmployeesPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="service-provider:read" />}>
+            <Route path="/prestadores" element={<ServiceProvidersPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="vehicle:read" />}>
+            <Route path="/veiculos" element={<VehiclesPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="common-area:read" />}>
+            {/* Os parametros daqui governam as regras aplicadas em /reservas. */}
+            <Route path="/areas-comuns" element={<CommonAreasPage />} />
           </Route>
 
           {NAV_ITEMS.filter((item) => !IMPLEMENTED.has(item.to)).map((item) => (
