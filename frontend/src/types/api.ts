@@ -24,21 +24,214 @@ export type LoginResponse = {
   tokens: AuthTokens;
 };
 
+export const CONDOMINIUM_TYPES = ['RESIDENTIAL', 'COMMERCIAL', 'MIXED'] as const;
+export type CondominiumType = (typeof CONDOMINIUM_TYPES)[number];
+
+export const CONDOMINIUM_STATUSES = ['ACTIVE', 'INACTIVE'] as const;
+export type CondominiumStatus = (typeof CONDOMINIUM_STATUSES)[number];
+
 export type Condominium = {
   id: string;
   name: string;
   document: string | null;
-  type: string;
-  status: string;
+  type: CondominiumType;
+  status: CondominiumStatus;
+  zipCode: string | null;
   city: string | null;
   state: string | null;
   district: string | null;
   street: string | null;
   number: string | null;
+  complement: string | null;
+  phone: string | null;
+  email: string | null;
   totalUnits: number;
   syndicName: string | null;
+  syndicPhone: string | null;
+  /** Data (`YYYY-MM-DD`): o backend expoe a coluna `date` como string. */
+  syndicTermEndsAt: string | null;
   chargeDueDay: number;
   logoUrl: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+/**
+ * `/condominiums/:id/stats`: os sete contadores consolidados que a tela de
+ * detalhe exibe. Espelha `CondominiumStats` em
+ * `backend/src/modules/condominiums/condominium.service.ts`.
+ */
+export type CondominiumStats = {
+  units: number;
+  occupiedUnits: number;
+  residents: number;
+  vehicles: number;
+  openIncidents: number;
+  pendingCharges: number;
+  pendingReservations: number;
+};
+
+// --- Blocos e unidades -------------------------------------------------------
+
+export const BLOCK_TYPES = ['BLOCK', 'TOWER', 'WING', 'STREET'] as const;
+export type BlockType = (typeof BLOCK_TYPES)[number];
+
+export type Block = {
+  id: string;
+  condominiumId: string;
+  name: string;
+  type: BlockType;
+  description: string | null;
+  floors: number;
+  unitsPerFloor: number;
+  hasElevator: boolean;
+  condominium?: Condominium; // presente: a API faz eager load.
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+export const UNIT_TYPES = ['APARTMENT', 'HOUSE', 'COMMERCIAL', 'PARKING', 'STORAGE'] as const;
+export type UnitType = (typeof UNIT_TYPES)[number];
+
+export const UNIT_STATUSES = ['OCCUPIED', 'VACANT', 'RENOVATION', 'BLOCKED'] as const;
+export type UnitStatus = (typeof UNIT_STATUSES)[number];
+
+export type Unit = {
+  id: string;
+  condominiumId: string;
+  blockId: string;
+  number: string;
+  floor: number;
+  type: UnitType;
+  status: UnitStatus;
+  area: number | null;
+  idealFraction: number | null;
+  monthlyFee: number;
+  bedrooms: number;
+  parkingSpots: number;
+  petsAllowed: boolean;
+  notes: string | null;
+  block?: Block; // presente: a API faz eager load.
+  condominium?: Condominium; // presente: a API faz eager load.
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+// --- Moradores ---------------------------------------------------------------
+
+export const RESIDENT_TYPES = ['OWNER', 'TENANT', 'OCCUPANT'] as const;
+export type ResidentType = (typeof RESIDENT_TYPES)[number];
+
+export const RESIDENT_STATUSES = ['ACTIVE', 'INACTIVE', 'MOVED_OUT'] as const;
+export type ResidentStatus = (typeof RESIDENT_STATUSES)[number];
+
+export type Resident = {
+  id: string;
+  condominiumId: string;
+  unitId: string;
+  userId: string | null;
+  name: string;
+  document: string | null;
+  email: string | null;
+  phone: string | null;
+  birthDate: string | null;
+  type: ResidentType;
+  status: ResidentStatus;
+  isPrimary: boolean;
+  moveInDate: string | null;
+  moveOutDate: string | null;
+  emergencyContact: string | null;
+  emergencyPhone: string | null;
+  photoUrl: string | null;
+  lgpdConsentAt: string | null;
+  notes: string | null;
+  unit?: Unit; // presente: a API faz eager load.
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+// --- Areas comuns e reservas -------------------------------------------------
+
+export const COMMON_AREA_STATUSES = ['AVAILABLE', 'MAINTENANCE', 'BLOCKED'] as const;
+export type CommonAreaStatus = (typeof COMMON_AREA_STATUSES)[number];
+
+export type CommonArea = {
+  id: string;
+  condominiumId: string;
+  name: string;
+  description: string | null;
+  capacity: number;
+  status: CommonAreaStatus;
+  requiresApproval: boolean;
+  reservationFee: number;
+  /** Janela diaria de funcionamento no formato `HH:mm`. */
+  opensAt: string;
+  closesAt: string;
+  /** Dias liberados (0 = domingo). `null` libera a semana inteira. */
+  availableWeekdays: number[] | null;
+  minHours: number;
+  maxHours: number;
+  advanceBookingDays: number;
+  minIntervalDays: number;
+  photoUrl: string | null;
+  rules: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+export const RESERVATION_STATUSES = [
+  'PENDING',
+  'CONFIRMED',
+  'REJECTED',
+  'CANCELED',
+  'COMPLETED',
+] as const;
+export type ReservationStatus = (typeof RESERVATION_STATUSES)[number];
+
+export type Reservation = {
+  id: string;
+  condominiumId: string;
+  commonAreaId: string;
+  unitId: string;
+  requestedById: string;
+  requestedByName: string;
+  startsAt: string;
+  endsAt: string;
+  status: ReservationStatus;
+  guestsCount: number;
+  fee: number;
+  paidAt: string | null;
+  reviewedById: string | null;
+  reviewedAt: string | null;
+  statusReason: string | null;
+  notes: string | null;
+  commonArea?: CommonArea; // presente: a API faz eager load.
+  unit?: Unit; // presente: a API faz eager load.
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+/**
+ * `/reservations/availability` devolve uma projecao achatada, e nao a entidade:
+ * os nomes da area e da unidade ja vem resolvidos para o calendario.
+ */
+export type AvailabilityEntry = {
+  id: string;
+  commonAreaId: string;
+  commonAreaName: string | null;
+  unitId: string;
+  unitNumber: string | null;
+  startsAt: string;
+  endsAt: string;
+  status: ReservationStatus;
+  requestedByName: string | null;
 };
 
 // --- Dashboard --------------------------------------------------------------
