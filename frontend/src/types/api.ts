@@ -219,6 +219,72 @@ export type Employee = {
   deletedAt: string | null;
 };
 
+// --- Prestadores de servico --------------------------------------------------
+
+export const PROVIDER_STATUSES = ['ACTIVE', 'INACTIVE', 'BLOCKED'] as const;
+export type ProviderStatus = (typeof PROVIDER_STATUSES)[number];
+
+/**
+ * Fornecedor contratado pelo condominio. Unico cadastro cujo `document` aceita
+ * dois formatos: 11 digitos (CPF, prestador pessoa fisica) ou 14 (CNPJ).
+ */
+export type ServiceProvider = {
+  id: string;
+  condominiumId: string;
+  companyName: string;
+  tradeName: string | null;
+  document: string | null;
+  serviceType: string;
+  contactName: string | null;
+  phone: string | null;
+  email: string | null;
+  status: ProviderStatus;
+  /** Datas (`YYYY-MM-DD`): o backend expoe as colunas `date` como string. */
+  contractStart: string | null;
+  contractEnd: string | null;
+  /** Avaliacao de 1 a 5. Sem relacao aninhada: a listagem so tem campos proprios. */
+  rating: number | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+// --- Veiculos ----------------------------------------------------------------
+
+export const VEHICLE_TYPES = ['CAR', 'MOTORCYCLE', 'TRUCK', 'BICYCLE', 'OTHER'] as const;
+export type VehicleType = (typeof VEHICLE_TYPES)[number];
+
+export const VEHICLE_STATUSES = ['ACTIVE', 'INACTIVE'] as const;
+export type VehicleStatus = (typeof VEHICLE_STATUSES)[number];
+
+export type Vehicle = {
+  id: string;
+  condominiumId: string;
+  /** Opcionais: um veiculo pode circular sem dono cadastrado no condominio. */
+  unitId: string | null;
+  residentId: string | null;
+  /** Guardada sem pontuacao e em caixa alta: `ABC1234` ou `ABC1D23`. */
+  plate: string;
+  brand: string | null;
+  model: string | null;
+  color: string | null;
+  type: VehicleType;
+  year: number | null;
+  parkingSpot: string | null;
+  stickerNumber: string | null;
+  status: VehicleStatus;
+  notes: string | null;
+  /**
+   * Presente: a API faz eager load. Ausente quando nao ha vinculo ou quando a
+   * unidade foi removida — a coluna do banco e `ON DELETE SET NULL`.
+   */
+  unit?: Unit | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
 // --- Areas comuns e reservas -------------------------------------------------
 
 export const COMMON_AREA_STATUSES = ['AVAILABLE', 'MAINTENANCE', 'BLOCKED'] as const;

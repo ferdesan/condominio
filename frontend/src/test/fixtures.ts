@@ -13,8 +13,10 @@ import type {
   Condominium,
   Reservation,
   Resident,
+  ServiceProvider,
   SystemRole,
   Unit,
+  Vehicle,
 } from '@/types/api';
 
 const TIMESTAMPS = {
@@ -177,6 +179,51 @@ export function makeAvailabilityEntry(
     endsAt: '2026-03-14T23:00:00.000Z',
     status: 'PENDING',
     requestedByName: 'Carlos Pereira',
+    ...overrides,
+  };
+}
+
+export function makeServiceProvider(overrides: Partial<ServiceProvider> = {}): ServiceProvider {
+  return {
+    id: 'provider-1',
+    condominiumId: 'cond-1',
+    companyName: 'Limpeza Total Ltda',
+    tradeName: 'Limpeza Total',
+    // CNPJ: o documento do prestador tambem aceita CPF, e os testes do cadastro
+    // cobrem os dois comprimentos.
+    document: '12345678000199',
+    serviceType: 'Limpeza',
+    contactName: 'Joana Ribeiro',
+    phone: '11955554444',
+    email: 'contato@limpezatotal.com.br',
+    status: 'ACTIVE',
+    contractStart: '2026-01-01',
+    contractEnd: '2026-12-31',
+    rating: 4,
+    notes: null,
+    ...TIMESTAMPS,
+    ...overrides,
+  };
+}
+
+export function makeVehicle(overrides: Partial<Vehicle> = {}): Vehicle {
+  return {
+    id: 'vehicle-1',
+    condominiumId: 'cond-1',
+    unitId: 'unit-1',
+    residentId: 'resident-1',
+    plate: 'ABC1D23',
+    brand: 'Fiat',
+    model: 'Argo',
+    color: 'Prata',
+    type: 'CAR',
+    year: 2022,
+    parkingSpot: 'G1-014',
+    stickerNumber: '00147',
+    status: 'ACTIVE',
+    notes: null,
+    unit: makeUnit(),
+    ...TIMESTAMPS,
     ...overrides,
   };
 }
