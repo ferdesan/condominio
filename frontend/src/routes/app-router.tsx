@@ -22,6 +22,9 @@ import { MaintenancesPage } from '@/features/maintenances/maintenances-page';
 import { UsersPage } from '@/features/users/users-page';
 import { AuditPage } from '@/features/audit/audit-page';
 import { NotificationsPage } from '@/features/notifications/notifications-page';
+import { FinancialPage } from '@/features/financial/financial-page';
+import { AssembliesPage } from '@/features/assemblies/assemblies-page';
+import { DocumentsPage } from '@/features/documents/documents-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
 import { NAV_ITEMS } from './navigation';
@@ -48,6 +51,9 @@ const IMPLEMENTED = new Set([
   '/usuarios',
   '/auditoria',
   '/notificacoes',
+  '/financeiro',
+  '/assembleias',
+  '/documentos',
 ]);
 
 export function AppRouter() {
@@ -143,6 +149,25 @@ export function AppRouter() {
           <Route element={<ProtectedRoute permission="audit-log:read" />}>
             {/* Tambem por tenant, e somente leitura: a trilha e append-only. */}
             <Route path="/auditoria" element={<AuditPage />} />
+          </Route>
+
+          {/*
+            Financeiro reune tres recursos sob uma rota — cobrancas, despesas e
+            plano de contas. A guarda e a do item de menu (`charge:read`); as
+            outras duas secoes checam as proprias permissoes por dentro, porque
+            um papel pode ler cobrancas sem ler despesas.
+          */}
+          <Route element={<ProtectedRoute permission="charge:read" />}>
+            <Route path="/financeiro" element={<FinancialPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="assembly:read" />}>
+            {/* As votacoes vivem em dialogo sobre a assembleia (ADR-004). */}
+            <Route path="/assembleias" element={<AssembliesPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="document:read" />}>
+            <Route path="/documentos" element={<DocumentsPage />} />
           </Route>
 
           {/*
