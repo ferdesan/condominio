@@ -38,5 +38,18 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: './coverage',
+      reporter: ['text', 'lcov', 'html'],
+      // O harness de teste e os pontos de entrada nao sao codigo sob teste.
+      exclude: [
+        'src/main.tsx',
+        'src/test/**',
+        'src/**/*.d.ts',
+        'src/**/*.test.{ts,tsx}',
+        'src/components/ui/**-variants.ts',
+      ],
+    },
   },
 });

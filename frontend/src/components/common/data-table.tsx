@@ -1,16 +1,33 @@
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { EmptyState } from './empty-state';
 
-export interface Column<T> {
-  key: keyof T;
+export type CellRenderer<T> = (value: T[keyof T], row: T) => ReactNode;
+
+interface ColumnBase<T> {
   label: string;
   sortable?: boolean;
-  render?: (value: T[keyof T], row: T) => ReactNode;
+  render?: CellRenderer<T>;
   width?: string;
 }
+
+/** Coluna ligada a um campo da linha: a chave precisa existir em `T`. */
+export interface FieldColumn<T> extends ColumnBase<T> {
+  key: keyof T;
+}
+
+/**
+ * Coluna que traz o proprio renderer — acoes, por exemplo. Como nao le nenhum
+ * campo da linha, a chave e um identificador livre (ADR-009).
+ */
+export interface RenderedColumn<T> extends ColumnBase<T> {
+  key: string;
+  render: CellRenderer<T>;
+}
+
+export type Column<T> = FieldColumn<T> | RenderedColumn<T>;
 
 export type SortDirection = 'asc' | 'desc';
 
@@ -25,11 +42,15 @@ export interface DataTableProps<T extends Record<string, any>> {
   loading?: boolean;
   searchable?: boolean;
   searchPlaceholder?: string;
+  /** Valor controlado da busca. Quem passa tambem faz o debounce da requisicao. */
+  searchValue?: string;
   onSearch?: (term: string) => void;
   sortable?: boolean;
   onSort?: (column: string, direction: SortDirection) => void;
   sort?: SortState;
   pageable?: boolean;
+  /** Recorta `data` na pagina atual. Deixe desligado quando o servidor pagina. */
+  clientPagination?: boolean;
   pageSize?: number;
   currentPage?: number;
   totalPages?: number;
@@ -42,6 +63,21 @@ export interface DataTableProps<T extends Record<string, any>> {
   idKey?: keyof T;
 }
 
+/** Placeholder neutro para valores ausentes, o mesmo de `lib/format.ts`. */
+const EMPTY_CELL = '—';
+
+/** Zero e string vazia sao valores; so nulo e indefinido viram placeholder. */
+function displayCellValue(value: unknown): ReactNode {
+  if (value === null || value === undefined) return EMPTY_CELL;
+  return String(value);
+}
+
+function ariaSortValue(direction: SortDirection | null): 'ascending' | 'descending' | 'none' {
+  if (direction === 'asc') return 'ascending';
+  if (direction === 'desc') return 'descending';
+  return 'none';
+}
+
 /**
  * DataTable Component
  *
@@ -49,13 +85,18 @@ export interface DataTableProps<T extends Record<string, any>> {
  *
  * ## Features
  *
- * - **Pagination**: Navigate through pages of data
- * - **Sorting**: Click column headers to sort (when `sortable` is enabled)
- * - **Search**: Filter data with a search input (when `searchable` is enabled)
- * - **Loading**: Display loading state while data is being fetched
- * - **Empty state**: Show custom empty state when no data is available
+ * - **Pagination**: server-side by default — the rows received are the rows rendered.
+ *   Set `clientPagination` only when the whole collection is already in memory.
+ * - **Sorting**: click column headers to sort (when `sortable` is enabled). The direction
+ *   vocabulary is `asc`/`desc`; translating it to the API's casing belongs to the data
+ *   layer, not here (ADR-008).
+ * - **Search**: controlled through `searchValue`, so the caller can clear it. The callback
+ *   fires per keystroke; debouncing belongs to whoever issues the request.
+ * - **Loading**: display loading state while data is being fetched
+ * - **Empty state**: show custom empty state when no data is available
  * - **Responsive**: Works on all screen sizes
- * - **Accessible**: ARIA labels and keyboard navigation support
+ * - **Accessible**: sortable headers announce their state, clickable rows are focusable
+ *   and activate with Enter or Space.
  *
  * ## Usage
  *
@@ -72,6 +113,7 @@ export interface DataTableProps<T extends Record<string, any>> {
  *       { key: 'name', label: 'Name', sortable: true },
  *       { key: 'email', label: 'Email' },
  *       {
+ *         // Identificador livre: so vale porque a coluna traz o proprio renderer.
  *         key: 'actions',
  *         label: 'Actions',
  *         render: (_, row) => (
@@ -81,14 +123,15 @@ export interface DataTableProps<T extends Record<string, any>> {
  *     ]}
  *     data={data}
  *     pageable
- *     pageSize={10}
+ *     pageSize={20}
  *     currentPage={page}
- *     totalPages={Math.ceil(total / 10)}
+ *     totalPages={meta.totalPages}
  *     onPageChange={setPage}
  *     sortable
  *     sort={sort}
  *     onSort={(col, dir) => setSort({ column: col, direction: dir })}
  *     searchable
+ *     searchValue={search}
  *     onSearch={setSearch}
  *     emptyTitle="No users found"
  *   />
@@ -101,11 +144,13 @@ export function DataTable<T extends Record<string, any>>({
   loading = false,
   searchable = true,
   searchPlaceholder = 'Buscar...',
+  searchValue,
   onSearch,
   sortable = true,
   onSort,
   sort,
   pageable = true,
+  clientPagination = false,
   pageSize = 10,
   currentPage = 1,
   totalPages = 1,
@@ -117,7 +162,10 @@ export function DataTable<T extends Record<string, any>>({
   onRowClick,
   idKey,
 }: DataTableProps<T>) {
-  const displayData = data.slice(0, pageSize);
+  // Com paginacao no servidor a pagina ja chega pronta; recortar aqui derruba linhas.
+  const displayData = clientPagination
+    ? data.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    : data;
 
   const handleSort = (columnKey: string) => {
     if (!sortable || !onSort) return;
@@ -125,6 +173,13 @@ export function DataTable<T extends Record<string, any>>({
     const newDirection: SortDirection =
       sort?.column === columnKey && sort.direction === 'asc' ? 'desc' : 'asc';
     onSort(columnKey, newDirection);
+  };
+
+  const handleRowKeyDown = (event: KeyboardEvent<HTMLTableRowElement>, row: T) => {
+    if (!onRowClick) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    onRowClick(row);
   };
 
   const handlePreviousPage = () => {
@@ -153,51 +208,55 @@ export function DataTable<T extends Record<string, any>>({
 
   return (
     <div className="space-y-4">
-      {searchable && (
+      {searchable ? (
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={searchPlaceholder}
+            value={searchValue}
             onChange={(e) => onSearch?.(e.target.value)}
             className="pl-10"
             aria-label="Buscar"
           />
         </div>
-      )}
+      ) : null}
 
       <div className="rounded-lg border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                {columns.map((column) => (
-                  <th
-                    key={String(column.key)}
-                    className="px-4 py-3 text-left font-medium"
-                    style={{ width: column.width }}
-                  >
-                    {sortable && column.sortable ? (
-                      <button
-                        onClick={() => handleSort(String(column.key))}
-                        className="flex items-center gap-2 hover:text-foreground transition-colors cursor-pointer select-none"
-                        aria-sort={
-                          sort?.column === String(column.key)
-                            ? sort.direction === 'asc'
-                              ? 'ascending'
-                              : 'descending'
-                            : 'none'
-                        }
-                      >
-                        {column.label}
-                        {sort?.column === String(column.key) && (
-                          <span aria-hidden="true">{sort.direction === 'asc' ? '↑' : '↓'}</span>
-                        )}
-                      </button>
-                    ) : (
-                      column.label
-                    )}
-                  </th>
-                ))}
+                {columns.map((column) => {
+                  const columnKey = String(column.key);
+                  const isSortable = Boolean(sortable && column.sortable);
+                  const activeDirection =
+                    sort && sort.column === columnKey ? sort.direction : null;
+
+                  return (
+                    <th
+                      key={columnKey}
+                      scope="col"
+                      className="px-4 py-3 text-left font-medium"
+                      style={{ width: column.width }}
+                      aria-sort={isSortable ? ariaSortValue(activeDirection) : undefined}
+                    >
+                      {isSortable ? (
+                        <button
+                          type="button"
+                          onClick={() => handleSort(columnKey)}
+                          className="flex items-center gap-2 hover:text-foreground transition-colors cursor-pointer select-none"
+                        >
+                          {column.label}
+                          {activeDirection ? (
+                            <span aria-hidden="true">{activeDirection === 'asc' ? '↑' : '↓'}</span>
+                          ) : null}
+                        </button>
+                      ) : (
+                        column.label
+                      )}
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
@@ -225,19 +284,29 @@ export function DataTable<T extends Record<string, any>>({
                   <tr
                     key={idKey ? String(row[idKey]) : index}
                     className={`border-b border-border hover:bg-muted/50 transition-colors ${
-                      onRowClick ? 'cursor-pointer' : ''
+                      onRowClick
+                        ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset'
+                        : ''
                     } ${rowClassName?.(row, index) || ''}`}
-                    onClick={() => onRowClick?.(row)}
+                    role={onRowClick ? 'button' : undefined}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+                    onKeyDown={onRowClick ? (event) => handleRowKeyDown(event, row) : undefined}
                   >
-                    {columns.map((column) => (
-                      <td
-                        key={String(column.key)}
-                        className="px-4 py-3"
-                        style={{ width: column.width }}
-                      >
-                        {column.render ? column.render(row[column.key], row) : String(row[column.key])}
-                      </td>
-                    ))}
+                    {columns.map((column) => {
+                      const value = row[column.key as keyof T];
+                      const renderer = column.render;
+
+                      return (
+                        <td
+                          key={String(column.key)}
+                          className="px-4 py-3"
+                          style={{ width: column.width }}
+                        >
+                          {renderer ? renderer(value, row) : displayCellValue(value)}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))
               )}
@@ -246,7 +315,7 @@ export function DataTable<T extends Record<string, any>>({
         </div>
       </div>
 
-      {pageable && totalPages > 1 && (
+      {pageable && totalPages > 1 ? (
         <div className="flex items-center justify-between gap-2">
           <span className="text-sm text-muted-foreground">
             Página {currentPage} de {totalPages}
@@ -290,7 +359,7 @@ export function DataTable<T extends Record<string, any>>({
             </Button>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

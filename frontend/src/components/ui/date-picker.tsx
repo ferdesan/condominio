@@ -2,7 +2,6 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from './button';
 import { Input } from './input';
 
 export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'onChange'> {
@@ -12,12 +11,20 @@ export interface DatePickerProps extends Omit<React.InputHTMLAttributes<HTMLInpu
   maxDate?: Date;
 }
 
+function toDate(value?: Date | string): Date | undefined {
+  if (!value) return undefined;
+  const date = value instanceof Date ? value : new Date(value);
+  return isNaN(date.getTime()) ? undefined : date;
+}
+
 export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
   ({ className, value, onChange, minDate, maxDate, ...props }, ref) => {
-    const [open, setOpen] = React.useState(false);
-    const [dateValue, setDateValue] = React.useState<Date | undefined>(
-      value instanceof Date ? value : value ? new Date(value) : undefined,
-    );
+    const [dateValue, setDateValue] = React.useState<Date | undefined>(() => toDate(value));
+
+    // Sem isto o valor so vale no mount, e um reset do formulario nao chega ate aqui.
+    React.useEffect(() => {
+      setDateValue(toDate(value));
+    }, [value]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const date = new Date(e.target.value);
@@ -32,26 +39,18 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
         <Input
           ref={ref}
           type="date"
-          value={
-            dateValue
-              ? format(dateValue, 'yyyy-MM-dd')
-              : ''
-          }
+          value={dateValue ? format(dateValue, 'yyyy-MM-dd') : ''}
           onChange={handleInputChange}
           min={minDate ? format(minDate, 'yyyy-MM-dd') : undefined}
           max={maxDate ? format(maxDate, 'yyyy-MM-dd') : undefined}
+          className="pr-10"
           {...props}
         />
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="absolute right-0 top-1/2 -translate-y-1/2"
-          onClick={() => setOpen(!open)}
-        >
-          <CalendarIcon className="size-4" aria-hidden="true" />
-          <span className="sr-only">Abrir calendário</span>
-        </Button>
+        {/* Decorativo: quem abre o calendario e o proprio input nativo. */}
+        <CalendarIcon
+          className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
       </div>
     );
   },

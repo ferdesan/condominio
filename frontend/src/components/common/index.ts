@@ -8,5 +8,13 @@ export { PageHeader } from './page-header';
 
 export type { ConfirmDialogProps } from './confirm-dialog';
 export type { CrudLayoutProps } from './crud-layout';
-export type { Column, DataTableProps, SortDirection, SortState } from './data-table';
+export type {
+  CellRenderer,
+  Column,
+  DataTableProps,
+  FieldColumn,
+  RenderedColumn,
+  SortDirection,
+  SortState,
+} from './data-table';
 export type { FilterPanelProps } from './filter-panel';
