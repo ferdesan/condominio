@@ -41,7 +41,11 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reportsDirectory: './coverage',
-      reporter: ['text', 'lcov', 'html'],
+      // `json` nao e redundante com os outros: e o unico que escreve
+      // `coverage-final.json`, que e justamente o arquivo que o passo de upload
+      // do pipeline aponta (`.github/workflows/ci-cd.yml`). Sem ele o comando de
+      // cobertura roda verde e o upload nao encontra nada (US-028.EC-3).
+      reporter: ['text', 'lcov', 'html', 'json'],
       // O harness de teste e os pontos de entrada nao sao codigo sob teste.
       exclude: [
         'src/main.tsx',

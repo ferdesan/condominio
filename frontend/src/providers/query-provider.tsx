@@ -28,6 +28,10 @@ function createQueryClient(): QueryClient {
       },
       mutations: {
         onError: (error) => {
+          // Mesmo motivo das consultas: 401 nao e falha da acao, e sim a sessao
+          // que acabou. O interceptor ja dispara o logout e a rota leva ao login;
+          // um toast aqui culparia a acao por algo que nao foi ela (US-026.EC-2).
+          if (error instanceof ApiError && error.status === 401) return;
           toast.error(
             error instanceof ApiError ? error.message : 'Nao foi possivel concluir a operacao.',
           );

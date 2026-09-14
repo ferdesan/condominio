@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
+import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
 import { useAuth } from '@/hooks/use-auth';
@@ -158,6 +159,8 @@ export function UnitFormDialog({
               A unidade pertence ao condominio selecionado no topo da aplicacao.
             </DialogDescription>
           </DialogHeader>
+
+          <CondominiumScopeNotice condominiumId={condominiumId} />
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
             <FormSection title="Identificacao">

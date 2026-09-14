@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
 import { applyApiError } from '@/lib/form-errors';
 import { formatNumber } from '@/lib/format';
 import { useAuth } from '@/hooks/use-auth';
@@ -178,6 +179,8 @@ export function BulkGenerateDialog({
             sao mantidos como estao.
           </DialogDescription>
         </DialogHeader>
+
+        <CondominiumScopeNotice condominiumId={condominiumId} />
 
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           <Controller

@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
 import { formatCurrency } from '@/lib/format';
@@ -153,6 +154,8 @@ export function ReservationFormDialog({
             Area comum, unidade e periodo. As regras da area escolhida aparecem abaixo dela.
           </DialogDescription>
         </DialogHeader>
+
+        <CondominiumScopeNotice condominiumId={condominiumId} />
 
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           <Controller

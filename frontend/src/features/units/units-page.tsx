@@ -41,8 +41,14 @@ function residentsReference(status: UnitStatus): string {
   return '—';
 }
 
-/** `null` cadastra; um registro edita. Ausente mantem o dialogo fechado. */
-type FormTarget = { unit: Unit | null } | null;
+/**
+ * `unit: null` cadastra; um registro edita. Ausente mantem o dialogo fechado.
+ *
+ * `condominiumId` e o do shell no momento em que o dialogo abriu, e nao o de
+ * agora: trocar de condominio com o formulario aberto nao pode redirecionar o
+ * envio para o predio recem-escolhido (US-027.EC-3).
+ */
+type FormTarget = { unit: Unit | null; condominiumId: string } | null;
 
 export function UnitsPage() {
   const { can } = useAuth();
@@ -50,7 +56,10 @@ export function UnitsPage() {
   const queryClient = useQueryClient();
   const list = useListState();
   const [formTarget, setFormTarget] = useState<FormTarget>(null);
-  const [generating, setGenerating] = useState(false);
+  // A geracao em lote grava, entao guarda o condominio de abertura pelo mesmo motivo.
+  const [generating, setGenerating] = useState<string | null>(null);
+  // A gestao de blocos e uma listagem, nao um formulario: ela acompanha o
+  // condominio do shell (IT-205). Quem fica fixado e o formulario dentro dela.
   const [managingBlocks, setManagingBlocks] = useState(false);
   const [deleting, setDeleting] = useState<Unit | null>(null);
   const [removing, setRemoving] = useState(false);
@@ -175,7 +184,7 @@ export function UnitsPage() {
           unit={row}
           canUpdate={canUpdate}
           canDelete={canDelete}
-          onEdit={(unit) => setFormTarget({ unit })}
+          onEdit={(unit) => setFormTarget({ unit, condominiumId: unit.condominiumId })}
           onDelete={setDeleting}
           onRestore={(unit) => restore.mutate(unit.id, { onError: refreshOnRefusal })}
         />
@@ -186,23 +195,26 @@ export function UnitsPage() {
   const isNarrowed = Boolean(list.search) || Object.keys(list.filters).length > 0;
   const showEmpty = !query.isPending && rows.length === 0;
 
-  const actions = (
-    <div className="flex flex-wrap items-center gap-2">
-      {canReadBlocks ? (
-        <Button variant="outline" onClick={() => setManagingBlocks(true)}>
-          Gerenciar blocos
-        </Button>
-      ) : null}
-      {canCreate ? (
-        <Button variant="outline" onClick={() => setGenerating(true)}>
-          Gerar unidades
-        </Button>
-      ) : null}
-      {canCreate ? (
-        <Button onClick={() => setFormTarget({ unit: null })}>Nova unidade</Button>
-      ) : null}
-    </div>
-  );
+  // Calculado antes da guarda de condominio ausente, entao a estreita aqui: sem
+  // condominio nao ha acao possivel, e e o que a tela abaixo ja renderiza.
+  const actions =
+    condominiumId === null ? null : (
+      <div className="flex flex-wrap items-center gap-2">
+        {canReadBlocks ? (
+          <Button variant="outline" onClick={() => setManagingBlocks(true)}>
+            Gerenciar blocos
+          </Button>
+        ) : null}
+        {canCreate ? (
+          <Button variant="outline" onClick={() => setGenerating(condominiumId)}>
+            Gerar unidades
+          </Button>
+        ) : null}
+        {canCreate ? (
+          <Button onClick={() => setFormTarget({ unit: null, condominiumId })}>Nova unidade</Button>
+        ) : null}
+      </div>
+    );
 
   // Todo pedido desta tela e escopado ao condominio do shell. Sem um escolhido
   // nao ha o que pedir, e listar nada pareceria um condominio vazio.
@@ -272,12 +284,12 @@ export function UnitsPage() {
                   action={
                     canCreate ? (
                       <div className="flex flex-wrap items-center justify-center gap-2">
-                        <Button onClick={() => setFormTarget({ unit: null })}>
+                        <Button onClick={() => setFormTarget({ unit: null, condominiumId })}>
                           Cadastrar unidade
                         </Button>
                         {/* Rotulo proprio: dois botoes com o mesmo nome acessivel
                             na mesma tela nao dizem qual e qual. */}
-                        <Button variant="outline" onClick={() => setGenerating(true)}>
+                        <Button variant="outline" onClick={() => setGenerating(condominiumId)}>
                           Gerar unidades em lote
                         </Button>
                       </div>
@@ -309,10 +321,15 @@ export function UnitsPage() {
         }
       />
 
+      {/*
+        Os formularios recebem o condominio de abertura. Enquanto ele for o do
+        shell — o caso comum — nada muda; quando o seletor mudar no meio, o
+        dialogo continua gravando onde comecou e o aviso explica a divergencia.
+      */}
       {formTarget ? (
         <UnitFormDialog
           key={formTarget.unit?.id ?? 'new'}
-          condominiumId={condominiumId}
+          condominiumId={formTarget.condominiumId}
           unit={formTarget.unit ?? undefined}
           blocks={blocks}
           blocksLoading={blocksQuery.isPending}
@@ -322,10 +339,10 @@ export function UnitsPage() {
 
       {generating ? (
         <BulkGenerateDialog
-          condominiumId={condominiumId}
+          condominiumId={generating}
           blocks={blocks}
           blocksLoading={blocksQuery.isPending}
-          onClose={() => setGenerating(false)}
+          onClose={() => setGenerating(null)}
         />
       ) : null}
 
