@@ -1,6 +1,13 @@
 {
   "compilerOptions": {
     "composite": true,
+    // O projeto e composite, entao emite por padrao - e sem `outDir` a saida
+    // cai ao lado do fonte, criando um `vite.config.js` que o Vite carrega
+    // ANTES do `vite.config.ts` (a ordem de busca dele e .js, .mjs, .ts).
+    // Editar o .ts e rodar `npm run dev`, que nao roda `tsc`, usaria a copia
+    // velha em silencio. `noEmit` aqui nao resolve: da TS6310, porque um
+    // projeto referenciado nao pode desabilitar emissao.
+    "outDir": "./node_modules/.tmp",
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
