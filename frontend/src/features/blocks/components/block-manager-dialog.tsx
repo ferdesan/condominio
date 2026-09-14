@@ -15,7 +15,7 @@ import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { MAX_PER_PAGE } from '@/lib/crud';
 import type { Block } from '@/types/api';
-import { BLOCKS_KEY, blockHooks } from '../unit-hooks';
+import { BLOCKS_KEY, blockHooks } from '../block-hooks';
 import { BLOCK_TYPE_LABELS } from '../block-schema';
 import { BlockFormDialog } from './block-form-dialog';
 

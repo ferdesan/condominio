@@ -30,7 +30,7 @@ import { applyApiError } from '@/lib/form-errors';
 import { useAuth } from '@/hooks/use-auth';
 import type { Block, Unit } from '@/types/api';
 import { UNITS_KEY, unitHooks } from '../unit-hooks';
-import { defaultBlockId } from '../block-schema';
+import { defaultBlockId } from '@/features/blocks/block-schema';
 import {
   UNIT_FIELDS,
   UNIT_FORM_DEFAULTS,
