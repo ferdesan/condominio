@@ -1,0 +1,128 @@
+import { Button } from '@/components/ui/button';
+import type { Announcement } from '@/types/announcement';
+
+export type AnnouncementLifecycleAction = 'publish' | 'archive';
+
+export interface AnnouncementRowActionsProps {
+  announcement: Announcement;
+  /** Publicar, arquivar, editar e restaurar exigem `announcement:update` (ADR-006). */
+  canUpdate: boolean;
+  canDelete: boolean;
+  /** Recusa do servidor para esta linha. Fica onde a acao foi disparada. */
+  error?: string;
+  onLifecycle: (action: AnnouncementLifecycleAction, announcement: Announcement) => void;
+  onEdit: (announcement: Announcement) => void;
+  onDelete: (announcement: Announcement) => void;
+  onRestore: (announcement: Announcement) => void;
+}
+
+/**
+ * As duas acoes do ciclo editorial vivem na propria linha (ADR-003): uma fila de
+ * dez rascunhos e publicada sem sair da lista.
+ *
+ * Aqui o status importa, e esta e a excecao deliberada a forma das demais telas
+ * deste tier — onde a acao de fluxo e oferecida so pela permissao e o servidor
+ * decide se vale. O ciclo do comunicado e linear e fechado: um rascunho publica,
+ * um publicado arquiva, e um arquivado nao volta (`announcement.service.ts`
+ * recusa publicar o arquivado, e arquivar o arquivado nao teria efeito). Oferecer
+ * o botao que nao leva a lugar nenhum seria oferecer um beco.
+ *
+ * O que sobra de incerto continua sendo do servidor: um rascunho pode ter sido
+ * publicado por outra pessoa enquanto esta lista estava na tela, e a recusa dele
+ * aparece na linha, com o status intacto.
+ *
+ * Cada rotulo acessivel carrega o titulo do comunicado: numa tabela de vinte
+ * linhas, "Publicar" sozinho nao diz qual.
+ */
+export function AnnouncementRowActions({
+  announcement,
+  canUpdate,
+  canDelete,
+  error,
+  onLifecycle,
+  onEdit,
+  onDelete,
+  onRestore,
+}: AnnouncementRowActionsProps) {
+  const label = announcement.title;
+
+  if (announcement.deletedAt) {
+    if (!canUpdate) return null;
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        aria-label={`Restaurar ${label}`}
+        onClick={() => onRestore(announcement)}
+      >
+        Restaurar
+      </Button>
+    );
+  }
+
+  const canPublish = announcement.status === 'DRAFT';
+  const canArchive = announcement.status === 'PUBLISHED';
+
+  return (
+    <div className="space-y-1">
+      <div className="flex flex-wrap items-center gap-2">
+        {canUpdate ? (
+          <>
+            {canPublish ? (
+              <Button
+                variant="outline"
+                size="sm"
+                aria-label={`Publicar ${label}`}
+                onClick={() => onLifecycle('publish', announcement)}
+              >
+                Publicar
+              </Button>
+            ) : null}
+
+            {canArchive ? (
+              <Button
+                variant="outline"
+                size="sm"
+                aria-label={`Arquivar ${label}`}
+                onClick={() => onLifecycle('archive', announcement)}
+              >
+                Arquivar
+              </Button>
+            ) : null}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label={`Editar ${label}`}
+              onClick={() => onEdit(announcement)}
+            >
+              Editar
+            </Button>
+          </>
+        ) : null}
+
+        {canDelete ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive"
+            aria-label={`Excluir ${label}`}
+            onClick={() => onDelete(announcement)}
+          >
+            Excluir
+          </Button>
+        ) : null}
+      </div>
+
+      {/*
+        A recusa aparece na linha, e nao em toast: e sobre este comunicado, e a
+        proxima coisa a fazer esta a dois centimetros dela.
+      */}
+      {error ? (
+        <p role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
