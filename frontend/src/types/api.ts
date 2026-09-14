@@ -155,6 +155,70 @@ export type Resident = {
   deletedAt: string | null;
 };
 
+// --- Dependentes -------------------------------------------------------------
+
+export const DEPENDENT_RELATIONSHIPS = [
+  'SPOUSE',
+  'CHILD',
+  'PARENT',
+  'SIBLING',
+  'EMPLOYEE',
+  'OTHER',
+] as const;
+export type DependentRelationship = (typeof DEPENDENT_RELATIONSHIPS)[number];
+
+export type Dependent = {
+  id: string;
+  condominiumId: string;
+  unitId: string;
+  residentId: string;
+  name: string;
+  relationship: DependentRelationship;
+  document: string | null;
+  birthDate: string | null;
+  phone: string | null;
+  photoUrl: string | null;
+  hasAccessCard: boolean;
+  active: boolean;
+  resident?: Resident; // presente: a API faz eager load.
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+// --- Funcionarios ------------------------------------------------------------
+
+export const EMPLOYEE_STATUSES = ['ACTIVE', 'ON_LEAVE', 'TERMINATED'] as const;
+export type EmployeeStatus = (typeof EMPLOYEE_STATUSES)[number];
+
+export const EMPLOYEE_CONTRACT_TYPES = ['CLT', 'PJ', 'TEMPORARY', 'OUTSOURCED'] as const;
+export type EmployeeContractType = (typeof EMPLOYEE_CONTRACT_TYPES)[number];
+
+export type Employee = {
+  id: string;
+  condominiumId: string;
+  /** Vinculo opcional com um usuario do sistema; nao ha tela para escolher um. */
+  userId: string | null;
+  name: string;
+  document: string | null;
+  position: string;
+  department: string | null;
+  contractType: EmployeeContractType;
+  status: EmployeeStatus;
+  email: string | null;
+  phone: string | null;
+  /** Datas (`YYYY-MM-DD`): o backend expoe as colunas `date` como string. */
+  admissionDate: string | null;
+  terminationDate: string | null;
+  workSchedule: string | null;
+  salary: number | null;
+  photoUrl: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
 // --- Areas comuns e reservas -------------------------------------------------
 
 export const COMMON_AREA_STATUSES = ['AVAILABLE', 'MAINTENANCE', 'BLOCKED'] as const;
