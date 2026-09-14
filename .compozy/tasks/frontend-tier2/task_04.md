@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Telas de Auditoria e Notificações
 type: frontend
 complexity: low
@@ -42,14 +42,14 @@ deve haver diálogo de formulário em lugar nenhum destas telas.
 
 ## Subtasks
 
-- [ ] 4.1 Tipos em `frontend/src/types/audit.ts` e `types/notification.ts`.
-- [ ] 4.2 Tela de Auditoria: lista paginada, com quem, o quê e quando legíveis.
-- [ ] 4.3 Consulta do histórico de um registro específico.
-- [ ] 4.4 Tela de Notificações: lista, distinção entre lida e não lida, contagem de não lidas.
-- [ ] 4.5 Marcar como lida, com a contagem acompanhando.
-- [ ] 4.6 Seguir o `actionUrl` quando existir, tolerando rota não implementada.
-- [ ] 4.7 Gating por permissão nas duas.
-- [ ] 4.8 Testes das duas telas.
+- [x] 4.1 Tipos em `frontend/src/types/audit.ts` e `types/notification.ts`.
+- [x] 4.2 Tela de Auditoria: lista paginada, com quem, o quê e quando legíveis.
+- [x] 4.3 Consulta do histórico de um registro específico.
+- [x] 4.4 Tela de Notificações: lista, distinção entre lida e não lida, contagem de não lidas.
+- [x] 4.5 Marcar como lida, com a contagem acompanhando.
+- [x] 4.6 Seguir o `actionUrl` quando existir, tolerando rota não implementada.
+- [x] 4.7 Gating por permissão nas duas.
+- [x] 4.8 Testes das duas telas.
 
 ## Implementation Details
 
@@ -107,26 +107,26 @@ Este workflow não tem `_tests.md`. Escreva:
 
 **Auditoria**
 
-- [ ] Lista paginada: a paginação pede a próxima página com os parâmetros certos.
-- [ ] **Sem condomínio selecionado, a tela funciona** e não pede seleção.
-- [ ] Nenhuma ação de criar, editar, excluir ou restaurar é oferecida em lugar nenhum.
-- [ ] Uma entrada mostra quem agiu, o que mudou e quando, de forma legível.
-- [ ] O histórico de um registro específico consulta a rota por recurso e identificador.
-- [ ] Lista vazia renderiza estado vazio, não tabela em branco.
-- [ ] Papel sem `audit-log:read` não alcança a tela.
+- [x] Lista paginada: a paginação pede a próxima página com os parâmetros certos.
+- [x] **Sem condomínio selecionado, a tela funciona** e não pede seleção.
+- [x] Nenhuma ação de criar, editar, excluir ou restaurar é oferecida em lugar nenhum.
+- [x] Uma entrada mostra quem agiu, o que mudou e quando, de forma legível.
+- [x] O histórico de um registro específico consulta a rota por recurso e identificador.
+- [x] Lista vazia renderiza estado vazio, não tabela em branco.
+- [x] Papel sem `audit-log:read` não alcança a tela.
 
 **Notificações**
 
-- [ ] Lista renderiza distinguindo lida de não lida sem depender de cor.
-- [ ] A contagem de não lidas vem de `/notifications/unread-count`.
-- [ ] Marcar como lida reduz a contagem e muda a aparência da entrada.
-- [ ] Marcar duas vezes em sequência dispara uma requisição só.
-- [ ] Sem permissão de `notification:update`, marcar como lida não é oferecido.
-- [ ] Contagem zero renderiza como zero, não some.
-- [ ] Entrada com `actionUrl` para rota existente navega até ela.
-- [ ] Entrada com `actionUrl` para rota **inexistente** se comporta como decidido, sem quebrar nem levar a tela em branco.
-- [ ] Entrada sem `actionUrl` não oferece link.
-- [ ] Lista vazia renderiza estado vazio.
+- [x] Lista renderiza distinguindo lida de não lida sem depender de cor.
+- [x] A contagem de não lidas vem de `/notifications/unread-count`.
+- [x] Marcar como lida reduz a contagem e muda a aparência da entrada.
+- [x] Marcar duas vezes em sequência dispara uma requisição só.
+- [x] Sem permissão de `notification:update`, marcar como lida não é oferecido.
+- [x] Contagem zero renderiza como zero, não some.
+- [x] Entrada com `actionUrl` para rota existente navega até ela.
+- [x] Entrada com `actionUrl` para rota **inexistente** se comporta como decidido, sem quebrar nem levar a tela em branco.
+- [x] Entrada sem `actionUrl` não oferece link.
+- [x] Lista vazia renderiza estado vazio.
 
 ## Success Criteria
 

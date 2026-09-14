@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Registro das oito rotas e verificação final
 type: frontend
 complexity: low
@@ -34,13 +34,13 @@ genuinamente diferentes e ficam para um esforço próprio.
 
 ## Subtasks
 
-- [ ] 5.1 Registrar as oito rotas e atualizar o conjunto `IMPLEMENTED`.
-- [ ] 5.2 Tratar `/notificacoes`, que não tem permissão declarada.
-- [ ] 5.3 Decidir e executar a consolidação dos tipos, registrando o motivo.
-- [ ] 5.4 Testar que cada uma das oito rotas renderiza a tela real.
-- [ ] 5.5 Testar o gating por permissão nas sete que têm permissão.
-- [ ] 5.6 Rodar lint, typecheck, testes e build, nessa ordem, e corrigir o que falhar.
-- [ ] 5.7 Relatar quantos dos 22 itens de menu seguem sem tela.
+- [x] 5.1 Registrar as oito rotas e atualizar o conjunto `IMPLEMENTED`.
+- [x] 5.2 Tratar `/notificacoes`, que não tem permissão declarada.
+- [x] 5.3 Decidir e executar a consolidação dos tipos, registrando o motivo.
+- [x] 5.4 Testar que cada uma das oito rotas renderiza a tela real.
+- [x] 5.5 Testar o gating por permissão nas sete que têm permissão.
+- [x] 5.6 Rodar lint, typecheck, testes e build, nessa ordem, e corrigir o que falhar.
+- [x] 5.7 Relatar quantos dos 22 itens de menu seguem sem tela.
 
 ## Implementation Details
 
@@ -103,12 +103,12 @@ com `types/api.ts` reexportando.
 
 Este workflow não tem `_tests.md`. Escreva:
 
-- [ ] Cada uma das oito rotas renderiza a tela real e **não** o `PlaceholderPage`.
-- [ ] As sete com permissão negam acesso a um papel que não a tem.
-- [ ] `/notificacoes` é alcançável por qualquer papel autenticado, e negada a quem não está autenticado.
-- [ ] A navegação lateral mostra os oito itens para ADMIN.
-- [ ] Os itens ainda não implementados — Financeiro, Assembleias, Documentos — continuam levando ao placeholder.
-- [ ] Regressão: as onze rotas já existentes seguem funcionando.
+- [x] Cada uma das oito rotas renderiza a tela real e **não** o `PlaceholderPage`.
+- [x] As sete com permissão negam acesso a um papel que não a tem.
+- [x] `/notificacoes` é alcançável por qualquer papel autenticado, e negada a quem não está autenticado.
+- [x] A navegação lateral mostra os oito itens para ADMIN.
+- [x] Os itens ainda não implementados — Financeiro, Assembleias, Documentos — continuam levando ao placeholder.
+- [x] Regressão: as onze rotas já existentes seguem funcionando.
 
 ## Success Criteria
 
