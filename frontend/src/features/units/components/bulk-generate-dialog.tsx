@@ -25,7 +25,7 @@ import { formatNumber } from '@/lib/format';
 import { useAuth } from '@/hooks/use-auth';
 import type { Block } from '@/types/api';
 import { unitHooks, useBulkCreateUnits } from '../unit-hooks';
-import { defaultBlockId } from '../block-schema';
+import { defaultBlockId } from '@/features/blocks/block-schema';
 import { UNIT_TYPE_LABELS } from '../unit-schema';
 import {
   BULK_GENERATE_FIELDS,

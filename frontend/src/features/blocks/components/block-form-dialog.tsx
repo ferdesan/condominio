@@ -26,7 +26,7 @@ import { CondominiumScopeNotice } from '@/components/common/condominium-scope-no
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
 import type { Block } from '@/types/api';
-import { blockHooks } from '../unit-hooks';
+import { blockHooks } from '../block-hooks';
 import {
   BLOCK_FIELDS,
   BLOCK_FORM_DEFAULTS,

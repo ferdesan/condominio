@@ -13,12 +13,13 @@ import { formatNumber } from '@/lib/format';
 import { useAuth } from '@/hooks/use-auth';
 import { useCondominium } from '@/hooks/use-condominium';
 import type { Unit, UnitStatus } from '@/types/api';
-import { UNITS_KEY, blockHooks, unitHooks } from './unit-hooks';
+import { UNITS_KEY, unitHooks } from './unit-hooks';
+import { blockHooks } from '@/features/blocks/block-hooks';
 import { UNIT_STATUS_LABELS, UNIT_TYPE_LABELS } from './unit-schema';
 import { UnitFilters } from './components/unit-filters';
 import { UnitFormDialog } from './components/unit-form-dialog';
 import { UnitRowActions } from './components/unit-row-actions';
-import { BlockManagerDialog } from './components/block-manager-dialog';
+import { BlockManagerDialog } from '@/features/blocks/components/block-manager-dialog';
 import { BulkGenerateDialog } from './components/bulk-generate-dialog';
 import { OccupancyIndicators } from './components/occupancy-indicators';
 

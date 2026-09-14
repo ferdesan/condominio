@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { Block } from '@/types/api';
-import { BlockFormDialog } from './block-form-dialog';
+import { BlockFormDialog } from '@/features/blocks/components/block-form-dialog';
 
 export interface BlockSelectFieldProps {
   id: string;
