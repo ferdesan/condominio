@@ -52,6 +52,14 @@ if (typeof window !== 'undefined') {
   // lanca "not implemented" e `hasPointerCapture` devolve undefined onde o Radix
   // espera um booleano. Por isso a atribuicao e incondicional — um guard do tipo
   // `if (!Element.prototype.x)` nao substitui nada e o select trava ao abrir.
+  // O jsdom nao implementa `window.scrollTo`: chamar lanca "Not implemented" no
+  // stderr a cada troca de rota. O `AppShell` devolve o topo da pagina em todo
+  // `pathname` novo, entao o teste que monta o roteador inteiro produzia uma
+  // pagina de ruido por caminho visitado, escondendo o que importa no log. A
+  // pagina de um ambiente sem viewport nao rola: nao fazer nada e o
+  // comportamento correto, e nao um atalho.
+  window.scrollTo = function scrollTo(): void {};
+
   Element.prototype.scrollIntoView = function scrollIntoView(): void {};
   Element.prototype.hasPointerCapture = function hasPointerCapture(): boolean {
     return false;

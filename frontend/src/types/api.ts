@@ -1,4 +1,30 @@
-/** Espelha os contratos expostos por `/api/v1`. */
+/**
+ * Espelha os contratos expostos por `/api/v1`.
+ *
+ * ## Onde mora o tipo de um recurso
+ *
+ * **Recurso novo ganha `types/<recurso>.ts`; este arquivo esta fechado para
+ * novos.** Visitantes, correspondencias, comunicados, ocorrencias, manutencoes,
+ * usuarios, auditoria e notificacoes ja seguem essa regra. O que continua aqui
+ * sao os contratos anteriores a ela — sessao, condominio, bloco, unidade,
+ * morador, dependente, funcionario, prestador, veiculo, area comum, reserva e
+ * painel.
+ *
+ * A separacao comecou como medida contra conflito de merge entre tarefas
+ * concorrentes, mas permaneceu por um motivo proprio: cada arquivo de recurso
+ * carrega as notas de contrato que so valem para ele — que `/users` e por tenant
+ * e nao aceita `condominiumId`, que a trilha de auditoria nao tem rota de
+ * escrita — e essas notas se perdem num arquivo de quatrocentas linhas.
+ *
+ * **Nao ha reexportacao daqui para os arquivos de recurso**, e isso foi
+ * decidido, nao esquecido: uma barrica criaria dois caminhos de import validos
+ * para o mesmo simbolo sem nada que escolhesse entre eles, e o valor de um
+ * "ponto de entrada unico" so existe quando ele e o unico. Torna-lo unico
+ * significaria reescrever os imports das oito telas recem-entregues, sem ganho
+ * funcional nenhum. Cada tipo tem exatamente um lugar e um caminho de import; a
+ * migracao do que sobrou aqui e uma tarefa propria, e nao um efeito colateral do
+ * registro das rotas.
+ */
 
 export const SYSTEM_ROLES = ['SUPER_ADMIN', 'ADMIN', 'SINDICO', 'STAFF', 'RESIDENT'] as const;
 export type SystemRole = (typeof SYSTEM_ROLES)[number];

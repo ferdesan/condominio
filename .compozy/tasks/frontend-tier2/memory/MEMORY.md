@@ -4,8 +4,9 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 
 ## Current State
 
-- task_01 (Visitantes, Correspondencias), task_02 (Comunicados, Ocorrencias) e task_03 (Manutencoes, Usuarios) implementadas. Suite do frontend: 62 arquivos / 691 casos, verde. Baselines: 50/498 antes da task_01, 54/555 antes da task_02, 58/619 antes da task_03.
-- `app-router.tsx` e `types/api.ts` seguem intocados, como o `_techspec.md` exige. As rotas das 8 telas continuam sendo da task_05.
+- **Workflow concluido.** As cinco tasks entregues: task_01 (Visitantes, Correspondencias), task_02 (Comunicados, Ocorrencias), task_03 (Manutencoes, Usuarios), task_04 (Auditoria, Notificacoes) e task_05 (registro das oito rotas e verificacao). Suite do frontend: 65 arquivos / 729 casos, verde. Baselines: 50/498, 54/555, 58/619, 62/691, 64/722.
+- Pipeline conferido na ordem do CI: lint (5 avisos, todos anteriores a este esforco), typecheck, testes e build — todos zero. Backend intocado e conferido a parte: 16 suites / 151 casos.
+- **19 dos 22 itens de menu tem tela.** Seguem sem tela: Financeiro, Assembleias e Documentos, que o `_techspec.md` deixou de fora por serem genuinamente diferentes do padrao lista + dialogo.
 
 ## Shared Decisions
 
@@ -26,6 +27,8 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 - **Rotulo de status colide com cabecalho de coluna e com o botao do contador.** Aconteceu duas vezes na task_01 (`Previsto` x coluna, `Aguardando retirada` x botao) e quebra `getByText` no teste antes de confundir o usuario. Onde o mesmo vocabulario e inevitavel — a lista de indicadores por status ao lado da coluna de status — o caminho e a regiao nomeada (`role="region"` com `aria-labelledby`), que deixa o teste escopar em vez de exigir dois nomes para a mesma coisa.
 - **`await screen.findByRole('table')` nao prova que as linhas chegaram.** O `DataTable` renderiza `<table>` desde o primeiro quadro, com uma linha de "Carregando..." no lugar dos dados, entao o `findBy` resolve cedo e toda assercao seguinte sobre botao de linha ou celula falha com "unable to find" — 16 casos de uma vez na task_03, apontando para o lugar errado. Espere pelo conteudo (o titulo do registro). Vale para as duas telas restantes.
 - **Fixture de erro em consulta auxiliar precisa ser 4xx.** O `retry` do `QueryProvider` repete 5xx ate tres vezes e o estado de erro nao chega dentro do caso; um 422 nao e repetido.
+- **Montar `<AppRouter />` nao e montar uma tela.** Ele traz `CondominiumProvider` proprio, que sobrescreve o contexto do harness e consulta `/condominiums`; o shell exige tambem o `ThemeProvider`, que `test/render.tsx` nao monta. Para afirmar que um caminho chegou na tela certa, o sinal e o `h1` do `PageHeader` (`getByRole('heading', { level: 1, name })`), porque o item de menu tem o mesmo texto mas e link — e o caso negativo e o texto do `PlaceholderPage`.
+- **`window.scrollTo` faltava no `test/setup.ts`** e foi acrescentado: o `AppShell` devolve o topo da pagina a cada rota nova e o jsdom lanca "Not implemented". So aparece para quem monta o shell.
 - **Finais de linha:** o repositorio guarda LF, `core.autocrlf=false` e nao ha `.gitattributes`. Conferir com `file <path> | grep CRLF` antes de entregar.
 
 ## Open Risks
@@ -34,14 +37,10 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 
 ## Handoffs
 
-- **Para a task_05**, export nomeado, sem barrel, nenhuma registra rota:
-  - `VisitorsPage` — `features/visitors/visitors-page.tsx`
-  - `CorrespondencesPage` — `features/correspondences/correspondences-page.tsx`
-  - `AnnouncementsPage` — `features/announcements/announcements-page.tsx`
-  - `IncidentsPage` — `features/incidents/incidents-page.tsx`
-  - `MaintenancesPage` — `features/maintenances/maintenances-page.tsx`
-  - `UsersPage` — `features/users/users-page.tsx`
-- **`/usuarios` nao se comporta como as outras sete telas.** E por tenant: funciona sem condominio selecionado, nao renderiza o estado de "selecione um condominio" e nenhuma requisicao dela envia `condominiumId`. Um teste de rota que a monte sem condominio esperando aquele estado falha por desenho, e nao por defeito. O mesmo valera para Auditoria (task_04).
+- **As oito rotas estao registradas** em `app-router.tsx`, cada uma no proprio `ProtectedRoute` com a permissao do item de navegacao — exceto `/notificacoes`, que nao tem permissao declarada e por isso so carrega a guarda de sessao. Conferido por `src/test/tier2-routes.test.tsx`, que monta `<AppRouter />` e e o unico arquivo da suite que faz isso.
+- **Onde mora o tipo de um recurso, decidido e registrado no cabecalho de `types/api.ts`:** recurso novo ganha `types/<recurso>.ts`; `api.ts` esta fechado para novos e nao reexporta ninguem. Cada tipo tem um lugar e um caminho de import. O que sobrou em `api.ts` sao os contratos anteriores a esta regra, e migra-los e tarefa propria.
+- **`/usuarios` e `/auditoria` nao se comportam como as outras seis telas.** As duas sao por tenant: funcionam sem condominio selecionado, nao renderizam o estado de "selecione um condominio" e nenhuma requisicao delas envia `condominiumId`. Um teste que as monte sem condominio esperando aquele estado falha por desenho, e nao por defeito.
+- **Para quem for construir Financeiro, Assembleias ou Documentos:** os tres modulos ja existem no backend e os tres itens de menu levam ao `PlaceholderPage`, com teste que garante isso. Registrar cada tela sera, como sempre, duas coisas: declarar a rota e acrescentar o caminho ao conjunto `IMPLEMENTED`. O mesmo valera para Auditoria (task_04).
 - `photoUrl` entra nos formularios de portaria como URL em texto; captura de foto nao esta no escopo de nenhuma task deste workflow.
 - O filtro `authorizedById` de Visitantes e oferecido como "Autorizadas por mim", usando o id de quem esta na sessao — nao havia tela de usuarios para alimentar um seletor. Ocorrencias ja resolve o seletor de pessoas pelo recorte cliente sobre `/users`; se a task_03 ou a task_05 quiserem o mesmo em Visitantes, o caminho ja existe em `features/incidents/incident-hooks.ts::scopeAssignees`.
 - Campos fora dos formularios por ausencia de requisito, caso alguma task posterior precise: comunicado sem `expiresAt` e `attachmentUrl`; ocorrencia sem `unitId`, `occurredAt` e `isAnonymous`; manutencao sem `estimatedCost`, `notes` e `attachments`; usuario sem `avatarUrl`. `/announcements/board` segue sem uso.
