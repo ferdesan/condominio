@@ -5,13 +5,14 @@ import { LoginPage } from '@/features/auth/login-page';
 import { DashboardPage } from '@/features/dashboard/dashboard-page';
 import { CondominiumsPage } from '@/features/condominiums/condominiums-page';
 import { CondominiumDetailPage } from '@/features/condominiums/condominium-detail-page';
+import { ReservationsPage } from '@/features/reservations/reservations-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
 import { NAV_ITEMS } from './navigation';
 import { ProtectedRoute } from './protected-route';
 
 /** Itens do menu que ja possuem tela propria. */
-const IMPLEMENTED = new Set(['/', '/condominios']);
+const IMPLEMENTED = new Set(['/', '/condominios', '/reservas']);
 
 export function AppRouter() {
   return (
@@ -36,6 +37,11 @@ export function AppRouter() {
             <Route path="/condominios" element={<CondominiumsPage />} />
             {/* Rota de detalhe so aqui: os outros modulos vivem em dialogo (ADR-004). */}
             <Route path="/condominios/:id" element={<CondominiumDetailPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="reservation:read" />}>
+            {/* Sem rota de detalhe: a reserva vive em dialogo sobre a lista (ADR-004). */}
+            <Route path="/reservas" element={<ReservationsPage />} />
           </Route>
 
           {NAV_ITEMS.filter((item) => !IMPLEMENTED.has(item.to)).map((item) => (
