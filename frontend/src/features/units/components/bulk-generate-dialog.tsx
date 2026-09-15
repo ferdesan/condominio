@@ -90,9 +90,7 @@ export function BulkGenerateDialog({
   const pattern = values.numberPattern ?? '';
   const blockId = values.blockId ?? '';
 
-  const firstNumber = Number.isFinite(startFloor)
-    ? composeUnitNumber(pattern, startFloor, 1)
-    : '';
+  const firstNumber = Number.isFinite(startFloor) ? composeUnitNumber(pattern, startFloor, 1) : '';
   const lastNumber =
     Number.isFinite(startFloor) && Number.isFinite(floors) && Number.isFinite(unitsPerFloor)
       ? composeUnitNumber(pattern, startFloor + floors - 1, unitsPerFloor)
@@ -101,10 +99,7 @@ export function BulkGenerateDialog({
   // Quantas unidades o bloco escolhido ja tem. Serve para avisar da sobreposicao
   // antes de confirmar — a geracao pula numeros existentes, entao gerar sobre um
   // bloco povoado nao e destrutivo, mas tambem nao cria o que ja esta la.
-  const existing = unitHooks.useCount(
-    { condominiumId, blockId },
-    { enabled: blockId !== '' },
-  );
+  const existing = unitHooks.useCount({ condominiumId, blockId }, { enabled: blockId !== '' });
   const existingCount = existing.data ?? 0;
 
   const generate = useBulkCreateUnits({

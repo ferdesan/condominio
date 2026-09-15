@@ -90,12 +90,7 @@ async function findRows(name: string = NAME): Promise<HTMLElement> {
 }
 
 /** Permissoes de quem pode tudo em usuarios **menos** `manage`. */
-const UPDATE_WITHOUT_MANAGE = [
-  'user:read',
-  'user:create',
-  'user:update',
-  'user:delete',
-];
+const UPDATE_WITHOUT_MANAGE = ['user:read', 'user:create', 'user:update', 'user:delete'];
 
 beforeEach(() => {
   vi.clearAllMocks();

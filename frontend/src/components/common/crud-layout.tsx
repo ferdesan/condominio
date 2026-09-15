@@ -112,13 +112,17 @@ export function CrudLayout({
         )}
       >
         {/* Sidebar Left */}
-        {sidebar && sidebarPosition === 'left' && <aside className="hidden lg:block">{sidebar}</aside>}
+        {sidebar && sidebarPosition === 'left' && (
+          <aside className="hidden lg:block">{sidebar}</aside>
+        )}
 
         {/* Content */}
         <Card className="overflow-hidden">{content}</Card>
 
         {/* Sidebar Right */}
-        {sidebar && sidebarPosition === 'right' && <aside className="hidden lg:block">{sidebar}</aside>}
+        {sidebar && sidebarPosition === 'right' && (
+          <aside className="hidden lg:block">{sidebar}</aside>
+        )}
       </div>
 
       {/* Footer */}

@@ -207,7 +207,10 @@ describe('Listagem de condominios', () => {
     mockGetPaginated.mockImplementation(async (_url, config) => {
       const params = (config?.params ?? {}) as { page?: number };
       if ((params.page ?? 1) === 1) {
-        return { data: makeRecords(20), meta: makeMeta({ page: 1, perPage: 20, total: 25, totalPages: 2 }) };
+        return {
+          data: makeRecords(20),
+          meta: makeMeta({ page: 1, perPage: 20, total: 25, totalPages: 2 }),
+        };
       }
       return { data: [], meta: makeMeta({ page: 2, perPage: 20, total: 20, totalPages: 1 }) };
     });
@@ -276,7 +279,9 @@ describe('Fronteira com a camada de dados', () => {
     );
 
     const selector = screen.getByRole('list', { name: 'Seletor do shell' });
-    await waitFor(() => expect(within(selector).getByText('Residencial Aurora')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(within(selector).getByText('Residencial Aurora')).toBeInTheDocument(),
+    );
     expect(within(selector).queryByText('Residencial Bosque')).not.toBeInTheDocument();
 
     mockPost.mockResolvedValue(created);

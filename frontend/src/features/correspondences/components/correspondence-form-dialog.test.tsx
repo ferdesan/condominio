@@ -14,11 +14,7 @@ import {
   within,
 } from '@/test/render';
 import { CorrespondencesPage } from '../correspondences-page';
-import {
-  makeCorrespondence,
-  serveCorrespondences,
-  type CorrespondenceWorld,
-} from '../test-utils';
+import { makeCorrespondence, serveCorrespondences, type CorrespondenceWorld } from '../test-utils';
 
 vi.mock('@/lib/api', async () => {
   const actual = await vi.importActual<typeof import('@/lib/api')>('@/lib/api');

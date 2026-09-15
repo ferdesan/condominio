@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  CondominiumContext,
-  type CondominiumContextValue,
-} from '@/providers/condominium-context';
+import { CondominiumContext, type CondominiumContextValue } from '@/providers/condominium-context';
 import { makeCommonArea, makeCondominium, makeReservation, makeUnit } from '@/test/fixtures';
 import {
   clickTrigger,
@@ -134,7 +131,9 @@ describe('Listagem de reservas', () => {
 
     renderWithProviders(<ReservationsPage />);
 
-    const row = within(await screen.findByText('Carlos Pereira').then((cell) => cell.closest('tr')!));
+    const row = within(
+      await screen.findByText('Carlos Pereira').then((cell) => cell.closest('tr')!),
+    );
     expect(row.getByText('Area indisponivel')).toBeInTheDocument();
   });
 

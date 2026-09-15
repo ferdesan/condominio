@@ -281,7 +281,11 @@ export function ResidentFormDialog({
                 {(aria) => <Input inputMode="numeric" {...aria} {...register('document')} />}
               </FormField>
 
-              <FormField id="birthDate" label="Data de nascimento" error={errors.birthDate?.message}>
+              <FormField
+                id="birthDate"
+                label="Data de nascimento"
+                error={errors.birthDate?.message}
+              >
                 {(aria) => <Input type="date" {...aria} {...register('birthDate')} />}
               </FormField>
 

@@ -105,9 +105,7 @@ export function CondominiumsPage() {
           canDelete={canDelete}
           onEdit={(condominium) => setFormTarget({ condominium })}
           onDelete={setDeleting}
-          onRestore={(condominium) =>
-            restore.mutate(condominium.id, { onError: refreshOnRefusal })
-          }
+          onRestore={(condominium) => restore.mutate(condominium.id, { onError: refreshOnRefusal })}
         />
       ),
     },

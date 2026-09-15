@@ -26,10 +26,7 @@ import {
 import { decisionSchema, type DecisionFormValues } from '../reservation-rules';
 import type { ReservationAction } from './reservation-row-actions';
 
-const COPY: Record<
-  ReservationAction,
-  { title: string; description: string; submit: string }
-> = {
+const COPY: Record<ReservationAction, { title: string; description: string; submit: string }> = {
   approve: {
     title: 'Aprovar reserva',
     description: 'A reserva passa a confirmada. O motivo e opcional e fica registrado na decisao.',

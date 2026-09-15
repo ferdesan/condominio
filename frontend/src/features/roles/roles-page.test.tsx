@@ -201,7 +201,9 @@ describe('Cadastro', () => {
     await user.type(within(dialog).getByLabelText('Nome'), 'PAPEL VAZIO');
     await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
 
-    expect(await within(dialog).findByText('Selecione ao menos uma permissao.')).toBeInTheDocument();
+    expect(
+      await within(dialog).findByText('Selecione ao menos uma permissao.'),
+    ).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 
@@ -253,7 +255,9 @@ describe('Cadastro', () => {
     await user.click(within(dialog).getByLabelText('Ver Cobrancas'));
     await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
 
-    expect(await within(dialog).findByText('Ja existe um papel com este nome.')).toBeInTheDocument();
+    expect(
+      await within(dialog).findByText('Ja existe um papel com este nome.'),
+    ).toBeInTheDocument();
     expect(within(dialog).getByLabelText('Ver Cobrancas')).toBeChecked();
   });
 
@@ -474,7 +478,9 @@ describe('Removidos', () => {
     render();
 
     expect(await screen.findByText('Removido')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Editar PORTARIA NOTURNA' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Editar PORTARIA NOTURNA' }),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Excluir PORTARIA NOTURNA' }),
     ).not.toBeInTheDocument();

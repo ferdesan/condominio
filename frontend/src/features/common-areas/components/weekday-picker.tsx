@@ -61,11 +61,7 @@ export function WeekdayPicker({
         </p>
       ) : (
         <>
-          <div
-            role="group"
-            aria-label="Dias liberados"
-            className="flex flex-wrap gap-x-4 gap-y-2"
-          >
+          <div role="group" aria-label="Dias liberados" className="flex flex-wrap gap-x-4 gap-y-2">
             {WEEKDAYS.map((weekday) => (
               <div key={weekday.value} className="flex items-center gap-2">
                 <Checkbox
@@ -73,10 +69,7 @@ export function WeekdayPicker({
                   checked={selected.has(weekday.value)}
                   onCheckedChange={(checked) => toggle(weekday.value, checked === true)}
                 />
-                <Label
-                  htmlFor={`common-area-weekday-${weekday.value}`}
-                  className="font-normal"
-                >
+                <Label htmlFor={`common-area-weekday-${weekday.value}`} className="font-normal">
                   {weekday.label}
                 </Label>
               </div>
@@ -93,8 +86,7 @@ export function WeekdayPicker({
               role="status"
               className="rounded-md border border-warning/40 bg-warning/15 px-3 py-2 text-sm text-foreground"
             >
-              Nenhum dia liberado: a area nao aceitara reservas ate que ao menos um
-              seja marcado.
+              Nenhum dia liberado: a area nao aceitara reservas ate que ao menos um seja marcado.
             </p>
           ) : null}
         </>

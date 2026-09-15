@@ -552,7 +552,12 @@ describe('O mural', () => {
   it('o contador e de visualizacoes, e nao um marcador de lido', async () => {
     world = serveAnnouncements({
       announcements: [
-        makeAnnouncement({ id: 'a-1', title: 'Assembleia ordinaria', status: 'PUBLISHED', readsCount: 42 }),
+        makeAnnouncement({
+          id: 'a-1',
+          title: 'Assembleia ordinaria',
+          status: 'PUBLISHED',
+          readsCount: 42,
+        }),
       ],
     });
     renderWithProviders(<AnnouncementsPage />);

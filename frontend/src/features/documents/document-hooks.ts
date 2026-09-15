@@ -195,11 +195,13 @@ function describeDownloadFailure(error: unknown): unknown {
  * esta rota devolve o arquivo cru.
  */
 export async function downloadDocument(document: DocumentFile): Promise<void> {
-  const response = await api.get<Blob>(`/documents/${document.id}/download`, {
-    responseType: 'blob',
-  }).catch((error: unknown) => {
-    throw describeDownloadFailure(error);
-  });
+  const response = await api
+    .get<Blob>(`/documents/${document.id}/download`, {
+      responseType: 'blob',
+    })
+    .catch((error: unknown) => {
+      throw describeDownloadFailure(error);
+    });
 
   const url = URL.createObjectURL(response.data);
   try {

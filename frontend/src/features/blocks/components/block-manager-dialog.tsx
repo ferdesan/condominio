@@ -113,7 +113,9 @@ export function BlockManagerDialog({ condominiumId, onClose }: BlockManagerDialo
               description="Cadastre o primeiro bloco para poder registrar ou gerar unidades."
               action={
                 canCreate ? (
-                  <Button onClick={() => setFormTarget({ block: null, condominiumId })}>Criar primeiro bloco</Button>
+                  <Button onClick={() => setFormTarget({ block: null, condominiumId })}>
+                    Criar primeiro bloco
+                  </Button>
                 ) : undefined
               }
             />
@@ -160,7 +162,10 @@ export function BlockManagerDialog({ condominiumId, onClose }: BlockManagerDialo
 
           <DialogFooter>
             {canCreate && blocks.length > 0 ? (
-              <Button variant="outline" onClick={() => setFormTarget({ block: null, condominiumId })}>
+              <Button
+                variant="outline"
+                onClick={() => setFormTarget({ block: null, condominiumId })}
+              >
                 Novo bloco
               </Button>
             ) : null}

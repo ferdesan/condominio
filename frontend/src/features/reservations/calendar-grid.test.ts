@@ -33,9 +33,7 @@ function flatten(weeks: CalendarDay[][]): CalendarDay[] {
 }
 
 function dayOf(weeks: CalendarDay[][], day: number): CalendarDay {
-  const found = flatten(weeks).find(
-    (cell) => cell.inMonth && cell.date.getDate() === day,
-  );
+  const found = flatten(weeks).find((cell) => cell.inMonth && cell.date.getDate() === day);
   if (!found) throw new Error(`Dia ${day} ausente da grade`);
   return found;
 }

@@ -115,9 +115,7 @@ export function BlockSelectField({
           <div className="flex items-center gap-2">
             <Select value={value} onValueChange={onChange} disabled={loading || !hasBlocks}>
               <SelectTrigger className="flex-1" {...aria}>
-                <SelectValue
-                  placeholder={loading ? 'Carregando blocos...' : 'Selecione o bloco'}
-                />
+                <SelectValue placeholder={loading ? 'Carregando blocos...' : 'Selecione o bloco'} />
               </SelectTrigger>
               <SelectContent>
                 {options.map((block) => (

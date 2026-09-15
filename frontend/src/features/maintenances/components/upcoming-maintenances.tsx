@@ -32,7 +32,10 @@ export function UpcomingMaintenances({ condominiumId }: UpcomingMaintenancesProp
   return (
     <Card role="region" className="p-4" aria-labelledby="maintenance-upcoming-title">
       <div className="mb-3 flex items-start gap-2">
-        <CalendarClock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <CalendarClock
+          className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+          aria-hidden="true"
+        />
         <div>
           <h2 id="maintenance-upcoming-title" className="text-sm font-semibold">
             Proximas manutencoes
@@ -53,9 +56,7 @@ export function UpcomingMaintenances({ condominiumId }: UpcomingMaintenancesProp
           <Skeleton className="h-5 w-1/2" />
         </div>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Nada agendado adiante neste condominio.
-        </p>
+        <p className="text-sm text-muted-foreground">Nada agendado adiante neste condominio.</p>
       ) : (
         <ul className="grid gap-x-8 gap-y-1 text-sm sm:grid-cols-2">
           {rows.map((row) => (

@@ -221,11 +221,7 @@ export function DependentFormDialog({
                 control={control}
                 name="relationship"
                 render={({ field, fieldState }) => (
-                  <FormField
-                    id="relationship"
-                    label="Parentesco"
-                    error={fieldState.error?.message}
-                  >
+                  <FormField id="relationship" label="Parentesco" error={fieldState.error?.message}>
                     {(aria) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger {...aria}>
@@ -270,7 +266,11 @@ export function DependentFormDialog({
                 `DatePicker` obrigaria a converter para `Date` e voltar, o que
                 desloca a data em um dia em fusos negativos.
               */}
-              <FormField id="birthDate" label="Data de nascimento" error={errors.birthDate?.message}>
+              <FormField
+                id="birthDate"
+                label="Data de nascimento"
+                error={errors.birthDate?.message}
+              >
                 {(aria) => <Input type="date" {...aria} {...register('birthDate')} />}
               </FormField>
 

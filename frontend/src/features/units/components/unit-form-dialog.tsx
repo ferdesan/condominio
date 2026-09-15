@@ -126,9 +126,7 @@ export function UnitFormDialog({
     submittingRef.current = true;
     setFormError(null);
     const data = toUnitPayload(values, condominiumId);
-    const request = unit
-      ? update.mutateAsync({ id: unit.id, data })
-      : create.mutateAsync(data);
+    const request = unit ? update.mutateAsync({ id: unit.id, data }) : create.mutateAsync(data);
     // A falha ja foi apresentada por `handleError`; aqui so nao se deixa a
     // promessa rejeitar sem dono.
     await request.catch(() => undefined);
@@ -267,7 +265,11 @@ export function UnitFormDialog({
                 {(aria) => <Input inputMode="decimal" {...aria} {...register('idealFraction')} />}
               </FormField>
 
-              <FormField id="unit-monthly-fee" label="Taxa mensal" error={errors.monthlyFee?.message}>
+              <FormField
+                id="unit-monthly-fee"
+                label="Taxa mensal"
+                error={errors.monthlyFee?.message}
+              >
                 {(aria) => <Input inputMode="decimal" {...aria} {...register('monthlyFee')} />}
               </FormField>
 

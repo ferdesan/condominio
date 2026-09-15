@@ -25,8 +25,7 @@ export const ACTION_LABELS: Record<PermissionAction, string> = {
 };
 
 /** Dito sob a coluna "Gerenciar", que resolve as quatro anteriores. */
-export const MANAGE_NOTE =
-  'Gerenciar ja inclui ver, criar, editar e excluir daquele recurso.';
+export const MANAGE_NOTE = 'Gerenciar ja inclui ver, criar, editar e excluir daquele recurso.';
 
 const RESOURCE_LABELS: Record<string, string> = {
   tenant: 'Administradora',
@@ -80,7 +79,10 @@ export const PERMISSION_GROUPS: Array<{ title: string; resources: string[] }> = 
   { title: 'Estrutura', resources: ['condominium', 'block', 'unit'] },
   { title: 'Pessoas', resources: ['resident', 'dependent', 'employee', 'service-provider'] },
   { title: 'Portaria', resources: ['visitor', 'vehicle', 'correspondence'] },
-  { title: 'Convivencia', resources: ['common-area', 'reservation', 'assembly', 'poll', 'vote', 'announcement'] },
+  {
+    title: 'Convivencia',
+    resources: ['common-area', 'reservation', 'assembly', 'poll', 'vote', 'announcement'],
+  },
   {
     title: 'Financeiro',
     resources: ['financial-category', 'charge', 'payment', 'expense'],

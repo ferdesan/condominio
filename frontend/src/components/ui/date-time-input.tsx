@@ -6,8 +6,10 @@ import { Input } from './input';
 /** Formato aceito e emitido pelo input nativo `datetime-local`. */
 const LOCAL_DATE_TIME = "yyyy-MM-dd'T'HH:mm";
 
-export interface DateTimeInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'onChange'> {
+export interface DateTimeInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'type' | 'value' | 'onChange'
+> {
   value?: Date | string;
   /** Recebe o valor local (`yyyy-MM-ddTHH:mm`), ou `''` quando o campo e limpo. */
   onChange?: (value: string) => void;

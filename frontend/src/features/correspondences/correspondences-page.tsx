@@ -34,8 +34,7 @@ import { CorrespondenceDeliverDialog } from './components/correspondence-deliver
 import { CorrespondenceStatusBadge } from './components/correspondence-status-badge';
 import { CorrespondenceRowActions } from './components/correspondence-row-actions';
 
-const DESCRIPTION =
-  'O que a portaria recebeu, para quem, e o que ainda aguarda retirada.';
+const DESCRIPTION = 'O que a portaria recebeu, para quem, e o que ainda aguarda retirada.';
 
 /** Dito quando havia destinatario e o morador referido nao esta mais acessivel. */
 const RESIDENT_UNAVAILABLE = 'Destinatario indisponivel';

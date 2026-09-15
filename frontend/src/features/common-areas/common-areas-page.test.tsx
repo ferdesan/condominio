@@ -171,9 +171,7 @@ describe('Listagem de areas comuns', () => {
     // distinguiveis, e nao a mesma tela vazia.
     expect(await screen.findByText('Nenhum resultado para esta busca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Cadastrar area comum' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cadastrar area comum' })).not.toBeInTheDocument();
   });
 
   it('sem condominio selecionado explica a exigencia e nao consulta', async () => {
@@ -625,9 +623,7 @@ describe('Exclusao e restauracao de areas comuns', () => {
 
     clickTrigger(await screen.findByRole('button', { name: 'Restaurar Salao de Festas' }));
 
-    await waitFor(() =>
-      expect(mockPost).toHaveBeenCalledWith('/common-areas/area-1/restore'),
-    );
+    await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/common-areas/area-1/restore'));
     await waitFor(() => expect(screen.queryByText('Removido')).not.toBeInTheDocument());
   });
 });
@@ -660,8 +656,6 @@ describe('Permissoes', () => {
     renderWithProviders(<CommonAreasPage />, { role: 'STAFF' });
 
     expect(await screen.findByText('Nenhuma area comum cadastrada')).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Cadastrar area comum' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cadastrar area comum' })).not.toBeInTheDocument();
   });
 });

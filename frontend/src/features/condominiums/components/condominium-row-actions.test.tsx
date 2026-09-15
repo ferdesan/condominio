@@ -4,13 +4,7 @@ import { ApiError, apiDelete, apiGetPaginated, apiPost } from '@/lib/api';
 import { useCondominium } from '@/hooks/use-condominium';
 import { CondominiumProvider } from '@/providers/condominium-provider';
 import { makeCondominium, makeMeta } from '@/test/fixtures';
-import {
-  clickTrigger,
-  renderWithProviders,
-  screen,
-  waitFor,
-  within,
-} from '@/test/render';
+import { clickTrigger, renderWithProviders, screen, waitFor, within } from '@/test/render';
 import type { Condominium } from '@/types/api';
 import { CondominiumsPage } from '../condominiums-page';
 
@@ -108,7 +102,9 @@ describe('Exclusao de condominio', () => {
       </CondominiumProvider>,
     );
     const selector = screen.getByRole('list', { name: 'Seletor do shell' });
-    await waitFor(() => expect(within(selector).getByText('Residencial Bosque')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(within(selector).getByText('Residencial Bosque')).toBeInTheDocument(),
+    );
 
     mockDelete.mockResolvedValue(undefined);
     clickTrigger(screen.getByRole('button', { name: 'Excluir Residencial Bosque' }));
@@ -124,7 +120,9 @@ describe('Exclusao de condominio', () => {
     await waitFor(() =>
       expect(within(selector).queryByText('Residencial Bosque')).not.toBeInTheDocument(),
     );
-    expect(within(screen.getByRole('table')).queryByText('Residencial Bosque')).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole('table')).queryByText('Residencial Bosque'),
+    ).not.toBeInTheDocument();
   });
 
   it('IT-033: recusa por unidades existentes mostra a mensagem e mantem o registro', async () => {
@@ -361,7 +359,8 @@ describe('Seletor do shell', () => {
     const restored = makeCondominium({ id: 'cond-8', name: 'Residencial Antigo' });
     mockGetPaginated.mockImplementation(async (_url, config) => {
       const params = (config?.params ?? {}) as { perPage?: number; includeDeleted?: boolean };
-      if (params.perPage === 100) return { data: [AURORA], meta: makeMeta({ total: 1, perPage: 100 }) };
+      if (params.perPage === 100)
+        return { data: [AURORA], meta: makeMeta({ total: 1, perPage: 100 }) };
       const data = params.includeDeleted ? [AURORA, gone] : [AURORA];
       return { data, meta: makeMeta({ total: data.length }) };
     });
@@ -373,7 +372,9 @@ describe('Seletor do shell', () => {
       </CondominiumProvider>,
     );
     const selector = screen.getByRole('list', { name: 'Seletor do shell' });
-    await waitFor(() => expect(within(selector).getByText('Residencial Aurora')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(within(selector).getByText('Residencial Aurora')).toBeInTheDocument(),
+    );
 
     clickTrigger(screen.getByRole('checkbox', { name: 'Incluir removidos' }));
     await screen.findByText('Residencial Antigo');
@@ -421,7 +422,16 @@ describe('Gating por permissao', () => {
   });
 
   it('quem edita mas nao exclui mantem restaurar e perde excluir', async () => {
-    serveWithDeleted([AURORA], [makeCondominium({ id: 'cond-6', name: 'Residencial Antigo', deletedAt: '2026-02-01T12:00:00.000Z' })]);
+    serveWithDeleted(
+      [AURORA],
+      [
+        makeCondominium({
+          id: 'cond-6',
+          name: 'Residencial Antigo',
+          deletedAt: '2026-02-01T12:00:00.000Z',
+        }),
+      ],
+    );
     renderWithProviders(<CondominiumsPage />, {
       permissions: ['condominium:read', 'condominium:update'],
     });
@@ -431,7 +441,9 @@ describe('Gating por permissao', () => {
     await screen.findByText('Residencial Antigo');
 
     // Restaurar depende de `update`, nao de `delete` (ADR-006).
-    expect(screen.getByRole('button', { name: 'Restaurar Residencial Antigo' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Restaurar Residencial Antigo' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Editar Residencial Aurora' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Novo condominio' })).not.toBeInTheDocument();

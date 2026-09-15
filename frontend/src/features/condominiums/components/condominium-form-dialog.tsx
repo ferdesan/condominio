@@ -85,9 +85,7 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
     formState: { errors, isDirty, isSubmitting },
   } = useForm<CondominiumFormValues>({
     resolver: zodResolver(condominiumSchema),
-    defaultValues: condominium
-      ? toCondominiumFormValues(condominium)
-      : CONDOMINIUM_FORM_DEFAULTS,
+    defaultValues: condominium ? toCondominiumFormValues(condominium) : CONDOMINIUM_FORM_DEFAULTS,
   });
 
   function handleError(error: ApiError): void {

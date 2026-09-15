@@ -56,16 +56,13 @@ describe('bulkGenerateSchema', () => {
       unitsPerFloor: '50',
       startFloor: '1',
     });
-    expect(
-      longestGeneratedNumber({ pattern, floors: 10, unitsPerFloor: 50, startFloor: 1 }),
-    ).toBe('UNIDADE-CENTRAL-1050');
+    expect(longestGeneratedNumber({ pattern, floors: 10, unitsPerFloor: 50, startFloor: 1 })).toBe(
+      'UNIDADE-CENTRAL-1050',
+    );
     expect(issueOn(withinLimit, 'numberPattern')).toBeUndefined();
 
     // Um andar de tres digitos acrescenta o caractere que derruba.
-    const rejected = issueOn(
-      { ...withinLimit, floors: '100', startFloor: '100' },
-      'numberPattern',
-    );
+    const rejected = issueOn({ ...withinLimit, floors: '100', startFloor: '100' }, 'numberPattern');
     expect(rejected).toContain('21 caracteres');
     expect(rejected).toContain('UNIDADE-CENTRAL-19950');
   });

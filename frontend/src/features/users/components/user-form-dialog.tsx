@@ -70,13 +70,7 @@ export interface UserFormDialogProps {
  * exige a troca no primeiro acesso; depois disso o reset administrativo — que
  * exige `user:manage` — e a unica via. `updateUserSchema` sequer aceita o campo.
  */
-export function UserFormDialog({
-  user,
-  roles,
-  units,
-  condominiums,
-  onClose,
-}: UserFormDialogProps) {
+export function UserFormDialog({ user, roles, units, condominiums, onClose }: UserFormDialogProps) {
   const isEdit = Boolean(user);
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);
@@ -113,9 +107,7 @@ export function UserFormDialog({
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
     const data = toUserPayload(values);
-    const request = user
-      ? update.mutateAsync({ id: user.id, data })
-      : create.mutateAsync(data);
+    const request = user ? update.mutateAsync({ id: user.id, data }) : create.mutateAsync(data);
     // A falha ja foi apresentada por `handleError`; aqui so nao se deixa a
     // promessa rejeitar sem dono.
     await request.catch(() => undefined);
@@ -162,9 +154,7 @@ export function UserFormDialog({
                     : 'O convite e a senha temporaria vao para este endereco.'
                 }
               >
-                {(aria) => (
-                  <Input type="email" maxLength={180} {...aria} {...register('email')} />
-                )}
+                {(aria) => <Input type="email" maxLength={180} {...aria} {...register('email')} />}
               </FormField>
 
               <FormField

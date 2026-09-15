@@ -299,7 +299,9 @@ export function DependentsPage() {
                   action={
                     canOpenForm ? (
                       <Button
-                        onClick={() => setFormTarget({ dependent: null, condominiumId: selectedId })}
+                        onClick={() =>
+                          setFormTarget({ dependent: null, condominiumId: selectedId })
+                        }
                       >
                         Cadastrar dependente
                       </Button>

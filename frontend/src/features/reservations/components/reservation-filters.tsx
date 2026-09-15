@@ -42,7 +42,11 @@ export function ReservationFilters({ list, areas, units }: ReservationFiltersPro
   }
   if (list.filters.status) {
     const status = STATUS_OPTIONS.find(([value]) => value === list.filters.status);
-    chips.push({ id: 'status', label: 'Status', value: status?.[1] ?? String(list.filters.status) });
+    chips.push({
+      id: 'status',
+      label: 'Status',
+      value: status?.[1] ?? String(list.filters.status),
+    });
   }
   if (list.filters.unitId) {
     const unit = units.find((item) => item.id === list.filters.unitId);

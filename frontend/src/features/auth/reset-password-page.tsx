@@ -119,9 +119,7 @@ export function ResetPasswordPage() {
       <form onSubmit={onSubmit} noValidate className="app-surface space-y-4 p-6">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold">Definir nova senha</h2>
-          <p className="text-sm text-muted-foreground">
-            Escolha uma senha nova para entrar.
-          </p>
+          <p className="text-sm text-muted-foreground">Escolha uma senha nova para entrar.</p>
         </div>
 
         {/*

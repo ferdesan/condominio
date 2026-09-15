@@ -4,7 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { ApiError, apiDelete, apiGetPaginated, apiPatch, apiPost } from '@/lib/api';
 import { CondominiumContext, type CondominiumContextValue } from '@/providers/condominium-context';
-import { makeCondominium, makeMeta, makeReservation, makeResident, makeUnit } from '@/test/fixtures';
+import {
+  makeCondominium,
+  makeMeta,
+  makeReservation,
+  makeResident,
+  makeUnit,
+} from '@/test/fixtures';
 import {
   clickTrigger,
   createUser,
@@ -299,9 +305,7 @@ describe('Designacao do responsavel pela unidade', () => {
     renderWithProviders(<ResidentsPage />);
 
     await screen.findByText('Ana Souza');
-    clickTrigger(
-      screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }),
-    );
+    clickTrigger(screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }));
 
     await waitFor(() =>
       expect(cellsOf('Responsavel').filter((cell) => cell === 'Responsavel')).toHaveLength(1),
@@ -318,9 +322,7 @@ describe('Designacao do responsavel pela unidade', () => {
     await screen.findByText('Ana Souza');
     expect(cellsOf('Responsavel')).toEqual(['Responsavel', '—']);
 
-    clickTrigger(
-      screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }),
-    );
+    clickTrigger(screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }));
 
     await waitFor(() => expect(cellsOf('Responsavel')).toEqual(['—', 'Responsavel']));
   });
@@ -345,9 +347,7 @@ describe('Designacao do responsavel pela unidade', () => {
     clickTrigger(
       screen.getByRole('button', { name: 'Tornar Carlos Pereira responsavel pela unidade' }),
     );
-    clickTrigger(
-      screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }),
-    );
+    clickTrigger(screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(2));
     await waitFor(() =>
@@ -475,9 +475,7 @@ describe('Exclusao e restauracao de moradores', () => {
     await user.click(screen.getByLabelText('Incluir removidos'));
     clickTrigger(await screen.findByRole('button', { name: 'Restaurar Carlos Pereira' }));
 
-    await waitFor(() =>
-      expect(mockPost).toHaveBeenCalledWith('/residents/resident-1/restore'),
-    );
+    await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/residents/resident-1/restore'));
     await waitFor(() => expect(cellsOf('Unidade')).toEqual(['Unidade removida']));
   });
 

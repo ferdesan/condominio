@@ -143,11 +143,7 @@ export function GenerateChargesDialog({
                 )}
               </FormField>
 
-              <FormField
-                id="generate-dueDate"
-                label="Vencimento"
-                error={errors.dueDate?.message}
-              >
+              <FormField id="generate-dueDate" label="Vencimento" error={errors.dueDate?.message}>
                 {(aria) => <Input type="date" {...aria} {...register('dueDate')} />}
               </FormField>
             </div>

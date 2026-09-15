@@ -101,9 +101,7 @@ export function ChargeFormDialog({
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
     const data = toChargePayload(values, condominiumId);
-    const request = charge
-      ? update.mutateAsync({ id: charge.id, data })
-      : create.mutateAsync(data);
+    const request = charge ? update.mutateAsync({ id: charge.id, data }) : create.mutateAsync(data);
     await request.catch(() => undefined);
   });
 
@@ -192,7 +190,11 @@ export function ChargeFormDialog({
               />
             </div>
 
-            <FormField id="charge-description" label="Descricao" error={errors.description?.message}>
+            <FormField
+              id="charge-description"
+              label="Descricao"
+              error={errors.description?.message}
+            >
               {(aria) => <Input maxLength={180} {...aria} {...register('description')} />}
             </FormField>
 
@@ -228,7 +230,11 @@ export function ChargeFormDialog({
             <fieldset className="grid gap-4 rounded-md border border-border p-4 sm:grid-cols-3">
               <legend className="px-1 text-sm font-medium">Ajustes do valor</legend>
 
-              <FormField id="charge-discount" label="Desconto (R$)" error={errors.discount?.message}>
+              <FormField
+                id="charge-discount"
+                label="Desconto (R$)"
+                error={errors.discount?.message}
+              >
                 {(aria) => (
                   <Input type="number" min={0} step="0.01" {...aria} {...register('discount')} />
                 )}

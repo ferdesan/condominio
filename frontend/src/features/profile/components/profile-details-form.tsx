@@ -152,7 +152,11 @@ export function ProfileDetailsForm({ user }: ProfileDetailsFormProps) {
               value={user.email}
               note="Trocar o endereco de acesso e feito em Usuarios, por quem administra a conta."
             />
-            <ReadOnlyField label="Papel" value={roleLabel(user.role)} note="Define o que voce pode fazer no sistema." />
+            <ReadOnlyField
+              label="Papel"
+              value={roleLabel(user.role)}
+              note="Define o que voce pode fazer no sistema."
+            />
           </dl>
 
           {formError ? (

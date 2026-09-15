@@ -93,7 +93,10 @@ function MutationProbe() {
   const remove = condominiumHooks.useRemove();
   return (
     <>
-      <button type="button" onClick={() => create.mutate({ name: 'Residencial Novo' } as CondominiumPayload)}>
+      <button
+        type="button"
+        onClick={() => create.mutate({ name: 'Residencial Novo' } as CondominiumPayload)}
+      >
         Criar condominio
       </button>
       <button type="button" onClick={() => remove.mutate('cond-1')}>

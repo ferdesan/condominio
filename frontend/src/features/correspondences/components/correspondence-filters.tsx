@@ -46,7 +46,11 @@ export function CorrespondenceFilters({ list, units, residents }: Correspondence
 
   const chips: Filter[] = [];
   if (list.filters.unitId) {
-    chips.push({ id: 'unitId', label: 'Unidade', value: labelOf(unitOptions, list.filters.unitId) });
+    chips.push({
+      id: 'unitId',
+      label: 'Unidade',
+      value: labelOf(unitOptions, list.filters.unitId),
+    });
   }
   if (list.filters.residentId) {
     chips.push({

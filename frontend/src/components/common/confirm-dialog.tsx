@@ -65,9 +65,14 @@ export function ConfirmDialog({
   onCancel,
   children,
 }: ConfirmDialogProps) {
-  const buttonVariant = variant === 'danger' ? 'destructive' : variant === 'warning' ? 'secondary' : 'default';
+  const buttonVariant =
+    variant === 'danger' ? 'destructive' : variant === 'warning' ? 'secondary' : 'default';
   const iconColor =
-    variant === 'danger' ? 'text-destructive' : variant === 'warning' ? 'text-yellow-600' : 'text-blue-600';
+    variant === 'danger'
+      ? 'text-destructive'
+      : variant === 'warning'
+        ? 'text-yellow-600'
+        : 'text-blue-600';
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>

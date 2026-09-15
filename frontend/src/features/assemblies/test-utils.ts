@@ -76,10 +76,7 @@ export function makePoll(overrides: Partial<Poll> = {}): Poll {
     totalVotes: 0,
     eligibleUnits: 48,
     resultsPublishedAt: null,
-    options: [
-      makePollOption(),
-      makePollOption({ id: 'option-2', label: 'Rejeito', sortOrder: 1 }),
-    ],
+    options: [makePollOption(), makePollOption({ id: 'option-2', label: 'Rejeito', sortOrder: 1 })],
     ...TIMESTAMPS,
     ...overrides,
   };

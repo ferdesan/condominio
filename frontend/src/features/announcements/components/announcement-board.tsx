@@ -44,8 +44,8 @@ export function AnnouncementBoard({ condominiumId }: AnnouncementBoardProps) {
       <CardHeader>
         <CardTitle id="announcement-board-title">No ar agora</CardTitle>
         <CardDescription>
-          Comunicados publicados e ainda vigentes, fixados primeiro — a ordem em que os moradores
-          os veem. Ate vinte.
+          Comunicados publicados e ainda vigentes, fixados primeiro — a ordem em que os moradores os
+          veem. Ate vinte.
         </CardDescription>
       </CardHeader>
 

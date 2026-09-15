@@ -70,9 +70,7 @@ export function UnitFilters({ list, blocks }: UnitFiltersProps) {
   }
 
   function toggleStatus(status: UnitStatus, checked: boolean): void {
-    const next = checked
-      ? [...statuses, status]
-      : statuses.filter((item) => item !== status);
+    const next = checked ? [...statuses, status] : statuses.filter((item) => item !== status);
     list.setFilter('status', next.length > 0 ? next : undefined);
   }
 

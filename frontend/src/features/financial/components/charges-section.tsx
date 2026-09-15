@@ -169,7 +169,9 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
       render: (_value, row) => (
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className={row.deletedAt ? 'line-through' : 'font-medium'}>{row.description}</span>
+            <span className={row.deletedAt ? 'line-through' : 'font-medium'}>
+              {row.description}
+            </span>
             {row.deletedAt ? <Badge variant="destructive">Removida</Badge> : null}
           </div>
           <p className="truncate text-xs text-muted-foreground">
@@ -187,7 +189,8 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
       // A unidade vem aninhada na resposta (`ChargeRepository.relations`), entao
       // a celula nao precisa de uma segunda consulta para nomea-la.
       render: (_value, row) =>
-        row.unit?.number ?? unitsById.get(row.unitId)?.number ?? (
+        row.unit?.number ??
+        unitsById.get(row.unitId)?.number ?? (
           <span className="text-muted-foreground">{UNIT_UNAVAILABLE}</span>
         ),
     },
@@ -464,15 +467,10 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
         />
       ) : null}
 
-      {paying ? (
-        <RegisterPaymentDialog charge={paying} onClose={() => setPaying(null)} />
-      ) : null}
+      {paying ? <RegisterPaymentDialog charge={paying} onClose={() => setPaying(null)} /> : null}
 
       {viewingPayments ? (
-        <ChargePaymentsDialog
-          charge={viewingPayments}
-          onClose={() => setViewingPayments(null)}
-        />
+        <ChargePaymentsDialog charge={viewingPayments} onClose={() => setViewingPayments(null)} />
       ) : null}
 
       <ConfirmDialog

@@ -47,10 +47,7 @@ const vehicleFields = z.object({
   type: z.enum(VEHICLE_TYPES),
   year: z
     .string()
-    .refine(
-      (value) => value === '' || /^\d{4}$/.test(value),
-      'Informe o ano com quatro digitos.',
-    )
+    .refine((value) => value === '' || /^\d{4}$/.test(value), 'Informe o ano com quatro digitos.')
     .refine(
       (value) => value === '' || (Number(value) >= 1900 && Number(value) <= 2100),
       'O ano deve estar entre 1900 e 2100.',

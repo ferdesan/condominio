@@ -102,9 +102,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
     submittingRef.current = true;
     setFormError(null);
     const data = toCommonAreaPayload(values, condominiumId);
-    const request = area
-      ? update.mutateAsync({ id: area.id, data })
-      : create.mutateAsync(data);
+    const request = area ? update.mutateAsync({ id: area.id, data }) : create.mutateAsync(data);
     // A falha ja foi apresentada por `handleError`.
     await request.catch(() => undefined);
     submittingRef.current = false;
@@ -150,9 +148,9 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
             >
               <CalendarClock className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span>
-                As regras de reserva abaixo valem imediatamente para o formulario de
-                Reservas: horario, dias, duracao, antecedencia e intervalo passam a ser
-                cobrados com os valores salvos aqui.
+                As regras de reserva abaixo valem imediatamente para o formulario de Reservas:
+                horario, dias, duracao, antecedencia e intervalo passam a ser cobrados com os
+                valores salvos aqui.
               </span>
             </p>
           ) : null}
@@ -216,7 +214,9 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
                 label="Descricao"
                 error={errors.description?.message}
               >
-                {(aria) => <Textarea maxLength={2000} rows={2} {...aria} {...register('description')} />}
+                {(aria) => (
+                  <Textarea maxLength={2000} rows={2} {...aria} {...register('description')} />
+                )}
               </FormField>
             </section>
 
@@ -224,7 +224,11 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
               <h3 className="text-sm font-semibold">Disponibilidade</h3>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="common-area-opens-at" label="Abre as" error={errors.opensAt?.message}>
+                <FormField
+                  id="common-area-opens-at"
+                  label="Abre as"
+                  error={errors.opensAt?.message}
+                >
                   {(aria) => <Input type="time" {...aria} {...register('opensAt')} />}
                 </FormField>
 

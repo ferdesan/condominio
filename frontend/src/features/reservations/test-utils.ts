@@ -51,7 +51,10 @@ export function serveApi(options: ServeOptions = {}): void {
 
     if (url === '/reservations') {
       if (isCountRequest(params)) {
-        return { data: [], meta: makeMeta({ page: 1, perPage: 1, total: options.count?.(params) ?? 0 }) };
+        return {
+          data: [],
+          meta: makeMeta({ page: 1, perPage: 1, total: options.count?.(params) ?? 0 }),
+        };
       }
       const resolved =
         typeof options.reservations === 'function'

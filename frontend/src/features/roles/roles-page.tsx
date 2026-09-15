@@ -137,8 +137,7 @@ export function RolesPage() {
       key: 'description',
       label: 'Descricao',
       sortable: true,
-      render: (_value, row) =>
-        row.description ?? <span className="text-muted-foreground">—</span>,
+      render: (_value, row) => row.description ?? <span className="text-muted-foreground">—</span>,
     },
     {
       key: 'isSystem',
@@ -193,7 +192,11 @@ export function RolesPage() {
           <PageHeader
             title="Papeis"
             description={DESCRIPTION}
-            actions={canCreate ? <Button onClick={() => setFormTarget(null)}>Novo papel</Button> : undefined}
+            actions={
+              canCreate ? (
+                <Button onClick={() => setFormTarget(null)}>Novo papel</Button>
+              ) : undefined
+            }
           />
         }
         filters={<RoleFilters list={list} />}
@@ -262,9 +265,7 @@ export function RolesPage() {
         />
       ) : null}
 
-      {viewing ? (
-        <RolePermissionsDialog role={viewing} onClose={() => setViewing(null)} />
-      ) : null}
+      {viewing ? <RolePermissionsDialog role={viewing} onClose={() => setViewing(null)} /> : null}
 
       <ConfirmDialog
         open={Boolean(deleting)}

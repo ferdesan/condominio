@@ -42,7 +42,11 @@ export interface CondominiumFiltersProps {
 export function CondominiumFilters({ list }: CondominiumFiltersProps) {
   const chips: Filter[] = [];
   if (list.filters.status) {
-    chips.push({ id: 'status', label: 'Status', value: labelOf(STATUS_OPTIONS, list.filters.status) });
+    chips.push({
+      id: 'status',
+      label: 'Status',
+      value: labelOf(STATUS_OPTIONS, list.filters.status),
+    });
   }
   if (list.filters.type) {
     chips.push({ id: 'type', label: 'Tipo', value: labelOf(TYPE_OPTIONS, list.filters.type) });

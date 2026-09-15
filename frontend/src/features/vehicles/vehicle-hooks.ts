@@ -17,13 +17,7 @@ import type { VehiclePayload } from './vehicle-schema';
  * mesma: o backend descarta em silencio o que estiver fora da lista, entao um
  * controle a mais pareceria funcionar sem filtrar nada.
  */
-export const vehicleFilters = [
-  'condominiumId',
-  'unitId',
-  'residentId',
-  'type',
-  'status',
-] as const;
+export const vehicleFilters = ['condominiumId', 'unitId', 'residentId', 'type', 'status'] as const;
 
 export const vehicleHooks = createResourceHooks<Vehicle, VehiclePayload, Partial<VehiclePayload>>(
   'vehicles',

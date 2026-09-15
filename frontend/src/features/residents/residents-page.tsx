@@ -259,7 +259,10 @@ export function ResidentsPage() {
         content={
           <div className="p-4 space-y-4">
             {hasNoUnits ? (
-              <p role="alert" className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+              <p
+                role="alert"
+                className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
+              >
                 {NO_UNITS_HINT}
               </p>
             ) : null}
@@ -289,7 +292,9 @@ export function ResidentsPage() {
                   description="Cadastre o primeiro morador para saber quem ocupa cada unidade."
                   action={
                     canOpenForm ? (
-                      <Button onClick={() => setFormTarget({ resident: null, condominiumId: selectedId })}>
+                      <Button
+                        onClick={() => setFormTarget({ resident: null, condominiumId: selectedId })}
+                      >
                         Cadastrar morador
                       </Button>
                     ) : undefined

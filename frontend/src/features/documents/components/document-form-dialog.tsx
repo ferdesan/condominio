@@ -188,7 +188,9 @@ export function DocumentFormDialog({ document, condominiumId, onClose }: Documen
               error={errors.description?.message}
               description="Opcional. Uma linha sobre o que o documento contem."
             >
-              {(aria) => <Textarea rows={3} maxLength={255} {...aria} {...register('description')} />}
+              {(aria) => (
+                <Textarea rows={3} maxLength={255} {...aria} {...register('description')} />
+              )}
             </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -267,7 +269,12 @@ export function DocumentFormDialog({ document, condominiumId, onClose }: Documen
                 description="Opcional, separados por virgula."
               >
                 {(aria) => (
-                  <Input placeholder="assembleia, 2026" maxLength={400} {...aria} {...register('tags')} />
+                  <Input
+                    placeholder="assembleia, 2026"
+                    maxLength={400}
+                    {...aria}
+                    {...register('tags')}
+                  />
                 )}
               </FormField>
             </div>

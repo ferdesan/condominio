@@ -321,7 +321,10 @@ describe('Edicao de unidade', () => {
 
   it('IT-072: o campo de bloco e oferecido na edicao e validado contra o condominio', async () => {
     mockPatch.mockResolvedValue(makeUnit({ blockId: 'block-2' }));
-    renderForm({ unit: makeUnit({ number: '101', blockId: 'block-1' }), blocks: [TOWER_A, TOWER_B] });
+    renderForm({
+      unit: makeUnit({ number: '101', blockId: 'block-1' }),
+      blocks: [TOWER_A, TOWER_B],
+    });
 
     // Oferecido — nunca exibido e ignorado —, e com os blocos do condominio atual.
     const blockField = within(screen.getByRole('dialog')).getByLabelText('Bloco');

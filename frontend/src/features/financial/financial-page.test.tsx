@@ -95,15 +95,18 @@ describe('Posicao financeira', () => {
     expect(within(region).getByText('R$ 48.000,00')).toBeInTheDocument();
     expect(within(region).getByText('R$ 31.500,00')).toBeInTheDocument();
     expect(within(region).getByText(/19 cobrancas a receber/)).toBeInTheDocument();
-    expect(
-      allReadRequests().some((request) => request.url === '/financial/charges/summary'),
-    ).toBe(true);
+    expect(allReadRequests().some((request) => request.url === '/financial/charges/summary')).toBe(
+      true,
+    );
   });
 
   it('a inadimplencia por unidade vem da rota propria, ja ordenada pelo servidor', async () => {
     world = serveFinancial({
       charges: [makeCharge()],
-      delinquency: [makeDelinquencyRow(), makeDelinquencyRow({ unitId: 'unit-8', unitNumber: '808', total: 1200, charges: 1 })],
+      delinquency: [
+        makeDelinquencyRow(),
+        makeDelinquencyRow({ unitId: 'unit-8', unitNumber: '808', total: 1200, charges: 1 }),
+      ],
     });
     renderWithProviders(<FinancialPage />);
 
@@ -186,7 +189,9 @@ describe('Cobrancas', () => {
     expect(mockPost).not.toHaveBeenCalled();
     clickTrigger(await screen.findByRole('button', { name: 'Cancelar cobranca' }));
 
-    await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/financial/charges/charge-1/cancel', {}));
+    await waitFor(() =>
+      expect(mockPost).toHaveBeenCalledWith('/financial/charges/charge-1/cancel', {}),
+    );
 
     const message = await screen.findByText('Cobranca ja quitada nao pode ser cancelada.');
     expect(message).toHaveAttribute('role', 'alert');
@@ -466,9 +471,7 @@ describe('Multa e juros em massa', () => {
 
     await screen.findByText(CHARGE);
 
-    expect(
-      screen.queryByRole('button', { name: 'Aplicar multa e juros' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Aplicar multa e juros' })).not.toBeInTheDocument();
     // Gerar continua: exige `charge:create`, que o papel tem.
     expect(screen.getByRole('button', { name: 'Gerar cobrancas do mes' })).toBeInTheDocument();
   });
@@ -569,8 +572,6 @@ describe('Historico de pagamentos de uma cobranca', () => {
     });
 
     await screen.findByText(CHARGE);
-    expect(
-      screen.queryByRole('button', { name: VIEW_PAYMENTS }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: VIEW_PAYMENTS })).not.toBeInTheDocument();
   });
 });

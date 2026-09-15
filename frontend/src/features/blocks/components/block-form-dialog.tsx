@@ -91,9 +91,7 @@ export function BlockFormDialog({
     submittingRef.current = true;
     setFormError(null);
     const data = toBlockPayload(values, condominiumId);
-    const request = block
-      ? update.mutateAsync({ id: block.id, data })
-      : create.mutateAsync(data);
+    const request = block ? update.mutateAsync({ id: block.id, data }) : create.mutateAsync(data);
     // A falha ja foi apresentada por `handleError`.
     await request.catch(() => undefined);
     submittingRef.current = false;

@@ -75,12 +75,7 @@ describe('Calendario de reservas', () => {
     const thisMonth = entry({
       id: 'deste-mes',
       commonAreaName: 'Salao de Festas',
-      startsAt: at(
-        CURRENT_MONTH.getFullYear(),
-        CURRENT_MONTH.getMonth() + 1,
-        10,
-        18,
-      ),
+      startsAt: at(CURRENT_MONTH.getFullYear(), CURRENT_MONTH.getMonth() + 1, 10, 18),
       endsAt: at(CURRENT_MONTH.getFullYear(), CURRENT_MONTH.getMonth() + 1, 10, 22),
     });
     const next = addMonths(CURRENT_MONTH, 1);
@@ -105,7 +100,9 @@ describe('Calendario de reservas', () => {
     renderWithProviders(<ReservationsPage />);
     await openCalendar();
 
-    await waitFor(() => expect(within(dayCell(10)).getByText(/Salao de Festas/)).toBeInTheDocument());
+    await waitFor(() =>
+      expect(within(dayCell(10)).getByText(/Salao de Festas/)).toBeInTheDocument(),
+    );
 
     const first = availabilityRequests().at(-1);
     expect(first?.condominiumId).toBe('cond-1');
@@ -200,11 +197,15 @@ describe('Calendario de reservas', () => {
     });
 
     const cells = screen.getAllByRole('cell');
-    const inMonth = cells.filter((cell) => !cell.getAttribute('aria-label')?.includes('fora do mes'));
+    const inMonth = cells.filter(
+      (cell) => !cell.getAttribute('aria-label')?.includes('fora do mes'),
+    );
     expect(inMonth).toHaveLength(29);
 
     // Os dias de preenchimento existem e sao identificaveis.
-    const outside = cells.filter((cell) => cell.getAttribute('aria-label')?.includes('fora do mes'));
+    const outside = cells.filter((cell) =>
+      cell.getAttribute('aria-label')?.includes('fora do mes'),
+    );
     expect(outside.length).toBeGreaterThan(0);
   });
 
@@ -297,9 +298,7 @@ describe('Calendario de reservas', () => {
     );
 
     // O calendario explica o proprio recorte.
-    expect(
-      screen.getByText(/apenas reservas pendentes e confirmadas/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/apenas reservas pendentes e confirmadas/i)).toBeInTheDocument();
   });
 
   it('IT-137: sem condominio selecionado, o calendario explica a exigencia', async () => {

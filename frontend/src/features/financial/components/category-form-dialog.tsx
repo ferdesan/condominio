@@ -121,11 +121,7 @@ export function CategoryFormDialog({ category, condominiumId, onClose }: Categor
                 control={control}
                 name="kind"
                 render={({ field, fieldState }) => (
-                  <FormField
-                    id="category-kind"
-                    label="Natureza"
-                    error={fieldState.error?.message}
-                  >
+                  <FormField id="category-kind" label="Natureza" error={fieldState.error?.message}>
                     {(aria) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger {...aria}>

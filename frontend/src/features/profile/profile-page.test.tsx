@@ -218,7 +218,9 @@ describe('Senha', () => {
     await user.type(screen.getByLabelText('Repetir a nova senha'), 'SenhaIgual1');
     await user.click(screen.getByRole('button', { name: 'Alterar senha' }));
 
-    expect(await screen.findByText('A nova senha deve ser diferente da atual.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('A nova senha deve ser diferente da atual.'),
+    ).toBeInTheDocument();
     expect(lastPostTo('/auth/change-password')).toBeUndefined();
   });
 

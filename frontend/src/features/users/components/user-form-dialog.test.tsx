@@ -349,11 +349,7 @@ describe('Erros do servidor no formulario de usuario', () => {
     world = serveUsers({ users: [] });
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError(
-        'Ja existe um usuario com este e-mail nesta administradora.',
-        409,
-        'CONFLICT',
-      ),
+      new ApiError('Ja existe um usuario com este e-mail nesta administradora.', 409, 'CONFLICT'),
     );
     renderWithProviders(<UsersPage />);
 

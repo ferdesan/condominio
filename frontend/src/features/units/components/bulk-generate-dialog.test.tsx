@@ -98,7 +98,10 @@ describe('Geracao de unidades em lote', () => {
     expect(confirmButton()).toHaveAccessibleName('Gerar 12 unidades');
 
     mockPost.mockResolvedValue({ created: 12 });
-    serve(Array.from({ length: 12 }, (_, i) => makeUnit({ id: `u-${i}`, number: `10${i}` })), 12);
+    serve(
+      Array.from({ length: 12 }, (_, i) => makeUnit({ id: `u-${i}`, number: `10${i}` })),
+      12,
+    );
     clickTrigger(confirmButton());
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
@@ -167,7 +170,10 @@ describe('Geracao de unidades em lote', () => {
     serve([], 0);
     let resolveBulk: (value: { created: number }) => void = () => undefined;
     mockPost.mockImplementation(
-      () => new Promise((resolve) => { resolveBulk = resolve; }),
+      () =>
+        new Promise((resolve) => {
+          resolveBulk = resolve;
+        }),
     );
     renderDialog();
     await fillGrid('100', '50');
@@ -212,9 +218,7 @@ describe('Geracao de unidades em lote', () => {
     expect(await screen.findByText('Falha de conexao.')).toBeInTheDocument();
     // Nenhuma contagem e anunciada; o que existe de fato vem da lista recarregada.
     expect(screen.queryByText(/unidades criadas/)).not.toBeInTheDocument();
-    await waitFor(() =>
-      expect(mockGetPaginated.mock.calls.length).toBeGreaterThan(callsBefore),
-    );
+    await waitFor(() => expect(mockGetPaginated.mock.calls.length).toBeGreaterThan(callsBefore));
   });
 
   it('IT-067: padrao que produz numero de 21 caracteres e recusado sem requisicao', async () => {

@@ -60,7 +60,11 @@ export function DependentFilters({ list, residents, units }: DependentFiltersPro
     });
   }
   if (list.filters.unitId) {
-    chips.push({ id: 'unitId', label: 'Unidade', value: labelOf(unitOptions, list.filters.unitId) });
+    chips.push({
+      id: 'unitId',
+      label: 'Unidade',
+      value: labelOf(unitOptions, list.filters.unitId),
+    });
   }
   if (list.filters.relationship) {
     chips.push({

@@ -230,7 +230,10 @@ describe('Cobertura do menu', () => {
       const view = renderRoute(path, { permissions: ['dashboard:read'] });
 
       expect(await screen.findByText('Acesso negado'), path).toBeInTheDocument();
-      expect(screen.queryByRole('heading', { level: 1, name: title }), path).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('heading', { level: 1, name: title }),
+        path,
+      ).not.toBeInTheDocument();
 
       view.unmount();
     }
@@ -274,9 +277,7 @@ describe('As rotas publicas de recuperacao de senha', () => {
   it('sao alcancaveis sem sessao', async () => {
     renderRoute('/esqueci-senha', { user: null });
 
-    expect(
-      await screen.findByRole('heading', { name: 'Esqueci minha senha' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Esqueci minha senha' })).toBeInTheDocument();
   });
 
   it('a de redefinicao explica o link incompleto quando nao ha token', async () => {
@@ -290,9 +291,7 @@ describe('As rotas publicas de recuperacao de senha', () => {
     // precisa funcionar independentemente do que este navegador guardou.
     renderRoute('/esqueci-senha');
 
-    expect(
-      await screen.findByRole('heading', { name: 'Esqueci minha senha' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Esqueci minha senha' })).toBeInTheDocument();
   });
 
   it('nao aparecem na navegacao lateral', async () => {
@@ -303,7 +302,9 @@ describe('As rotas publicas de recuperacao de senha', () => {
       expect(item.to).not.toBe('/esqueci-senha');
       expect(item.to).not.toBe('/redefinir-senha');
     }
-    expect(within(menu).queryByRole('link', { name: 'Esqueci minha senha' })).not.toBeInTheDocument();
+    expect(
+      within(menu).queryByRole('link', { name: 'Esqueci minha senha' }),
+    ).not.toBeInTheDocument();
   });
 
   it('o login leva a de pedido', async () => {

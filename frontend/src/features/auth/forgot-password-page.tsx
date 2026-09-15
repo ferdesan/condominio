@@ -127,7 +127,10 @@ export function ForgotPasswordPage() {
         </FormField>
 
         {formError ? (
-          <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p
+            role="alert"
+            className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
             {formError}
           </p>
         ) : null}

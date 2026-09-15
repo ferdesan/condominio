@@ -87,7 +87,9 @@ describe('Carregamento', () => {
     mockGet.mockRejectedValue(new ApiError('Servico indisponivel.', 422, 'UNPROCESSABLE_ENTITY'));
     render();
 
-    expect(await screen.findByText(/Nao foi possivel carregar as configuracoes/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Nao foi possivel carregar as configuracoes/),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument();
   });
 
@@ -100,7 +102,9 @@ describe('Carregamento', () => {
     // O recurso e a raiz do isolamento multi-tenant: nenhuma chamada carrega
     // o condominio do shell.
     const params = mockGet.mock.calls.map((call) => call[1]);
-    expect(params.some((config) => JSON.stringify(config ?? {}).includes('condominium'))).toBe(false);
+    expect(params.some((config) => JSON.stringify(config ?? {}).includes('condominium'))).toBe(
+      false,
+    );
   });
 });
 

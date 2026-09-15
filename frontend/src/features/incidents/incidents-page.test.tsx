@@ -379,23 +379,13 @@ describe('Mudanca de status', () => {
     // Quais transicoes valem e do servidor (`STATUS_FLOW`); o unico destino que
     // a tela descarta e o proprio estado atual, que nao e uma mudanca.
     expect(options).not.toContain('Aberta');
-    expect(options).toEqual([
-      'Em analise',
-      'Em atendimento',
-      'Resolvida',
-      'Encerrada',
-      'Recusada',
-    ]);
+    expect(options).toEqual(['Em analise', 'Em atendimento', 'Resolvida', 'Encerrada', 'Recusada']);
   });
 
   it('uma transicao recusada mostra a mensagem do servidor e o status nao muda', async () => {
     world = serveIncidents({ incidents: [makeIncident({ status: 'OPEN' })] });
     mockPost.mockRejectedValue(
-      new ApiError(
-        'Transicao de status invalida: OPEN -> CLOSED.',
-        409,
-        'BUSINESS_RULE_VIOLATION',
-      ),
+      new ApiError('Transicao de status invalida: OPEN -> CLOSED.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<IncidentsPage />);
 
@@ -549,7 +539,9 @@ describe('Exclusao e restauracao de ocorrencias', () => {
     // A exclusao nao passa `onError`, entao herda o toast global — que e a
     // apresentacao certa para um 409 que traz so a mensagem do servidor.
     await waitFor(() =>
-      expect(mockToastError).toHaveBeenCalledWith('Ocorrencias encerradas nao podem ser alteradas.'),
+      expect(mockToastError).toHaveBeenCalledWith(
+        'Ocorrencias encerradas nao podem ser alteradas.',
+      ),
     );
     expect(screen.getByText('Vazamento na garagem')).toBeInTheDocument();
   });

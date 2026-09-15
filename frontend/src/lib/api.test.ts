@@ -1,18 +1,6 @@
-import axios, {
-  AxiosError,
-  type AxiosResponse,
-  type InternalAxiosRequestConfig,
-} from 'axios';
+import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  api,
-  apiDelete,
-  apiGet,
-  apiGetPaginated,
-  apiPost,
-  ApiError,
-  tokenStorage,
-} from './api';
+import { api, apiDelete, apiGet, apiGetPaginated, apiPost, ApiError, tokenStorage } from './api';
 
 /**
  * O transporte e testado contra um adaptador de HTTP falso, e nao contra um

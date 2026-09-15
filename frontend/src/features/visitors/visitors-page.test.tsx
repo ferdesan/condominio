@@ -376,7 +376,11 @@ describe('Exclusao e restauracao de visitantes', () => {
   it('um 409 de impedimento mostra a mensagem do servidor e mantem o registro', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     mockDelete.mockRejectedValue(
-      new ApiError('Ha uma visita em andamento para este registro.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError(
+        'Ha uma visita em andamento para este registro.',
+        409,
+        'BUSINESS_RULE_VIOLATION',
+      ),
     );
     renderWithProviders(<VisitorsPage />);
 
@@ -477,7 +481,12 @@ describe('Consulta por codigo de acesso', () => {
     const user = createUser();
     serveVisitors({
       visitors: [
-        makeVisitor({ id: 'visitor-1', name: 'Joana Ribeiro', accessCode: 'A1B2C3', status: 'EXPECTED' }),
+        makeVisitor({
+          id: 'visitor-1',
+          name: 'Joana Ribeiro',
+          accessCode: 'A1B2C3',
+          status: 'EXPECTED',
+        }),
       ],
     });
     renderWithProviders(<VisitorsPage />);

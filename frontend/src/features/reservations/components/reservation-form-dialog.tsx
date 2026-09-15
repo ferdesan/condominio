@@ -131,8 +131,8 @@ export function ReservationFormDialog({
           <DialogHeader>
             <DialogTitle>Nova reserva</DialogTitle>
             <DialogDescription>
-              Este condominio ainda nao tem areas comuns disponiveis para reserva. Cadastre uma
-              area comum antes de registrar reservas.
+              Este condominio ainda nao tem areas comuns disponiveis para reserva. Cadastre uma area
+              comum antes de registrar reservas.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
