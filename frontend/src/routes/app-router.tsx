@@ -2,6 +2,8 @@ import { Route, Routes } from 'react-router-dom';
 import { AppShell } from '@/components/layout/app-shell';
 import { CondominiumProvider } from '@/providers/condominium-provider';
 import { LoginPage } from '@/features/auth/login-page';
+import { ForgotPasswordPage } from '@/features/auth/forgot-password-page';
+import { ResetPasswordPage } from '@/features/auth/reset-password-page';
 import { DashboardPage } from '@/features/dashboard/dashboard-page';
 import { CondominiumsPage } from '@/features/condominiums/condominiums-page';
 import { CondominiumDetailPage } from '@/features/condominiums/condominium-detail-page';
@@ -65,6 +67,16 @@ export function AppRouter() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+
+      {/*
+        Publicas, como o login: quem precisa delas e justamente quem nao
+        consegue entrar. Nenhuma das duas redireciona sessao existente — o link
+        de redefinicao chega por e-mail e precisa funcionar independentemente do
+        que este navegador tenha guardado. Fora da navegacao, tambem: nao
+        pertencem ao menu de quem ja entrou.
+      */}
+      <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
+      <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route
