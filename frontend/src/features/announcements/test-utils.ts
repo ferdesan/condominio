@@ -10,7 +10,7 @@
  */
 
 import { vi } from 'vitest';
-import { apiGetPaginated } from '@/lib/api';
+import { apiGet, apiGetPaginated } from '@/lib/api';
 import { makeBlock, makeMeta } from '@/test/fixtures';
 import type { Announcement } from '@/types/announcement';
 import type { Block } from '@/types/api';
@@ -65,6 +65,29 @@ export function serveAnnouncements(initial: Partial<AnnouncementWorld> = {}): An
     ...initial,
   };
 
+  /**
+   * O mural e uma leitura propria da tela, e precisa ser servida: um `vi.fn()`
+   * sem implementacao devolve `undefined`, e o React Query trata resultado
+   * indefinido como falha — a tela inteira ganharia um toast de erro que nao
+   * tem nada a ver com o caso em teste.
+   *
+   * Serve o recorte que `listPublished` faz: publicados, nao expirados, fixados
+   * primeiro.
+   */
+  vi.mocked(apiGet).mockImplementation(async (url) => {
+    if (url === '/announcements/board') {
+      const now = Date.now();
+      const published = world.announcements.filter(
+        (item) =>
+          item.status === 'PUBLISHED' &&
+          !item.deletedAt &&
+          (!item.expiresAt || new Date(item.expiresAt).getTime() > now),
+      );
+      return [...published].sort((a, b) => Number(b.pinned) - Number(a.pinned)) as never;
+    }
+    throw new Error(`URL nao prevista no teste: ${url}`);
+  });
+
   vi.mocked(apiGetPaginated).mockImplementation(async (url, config) => {
     const params = (config?.params ?? {}) as RequestParams;
 
@@ -86,6 +109,14 @@ export function serveAnnouncements(initial: Partial<AnnouncementWorld> = {}): An
   });
 
   return world;
+}
+
+/** As consultas feitas ao mural. */
+export function boardRequests(): RequestParams[] {
+  return vi
+    .mocked(apiGet)
+    .mock.calls.filter(([url]) => url === '/announcements/board')
+    .map(([, config]) => (config?.params ?? {}) as RequestParams);
 }
 
 /** Os parametros da ultima listagem de comunicados pedida pela tela. */

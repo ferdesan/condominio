@@ -24,6 +24,7 @@ import {
   VISITORS_KEY,
 } from './visitor-hooks';
 import { TYPE_LABELS, UNIT_REMOVED, unitLabel } from './visitor-labels';
+import { AccessCodeLookup } from './components/access-code-lookup';
 import { VisitorFilters } from './components/visitor-filters';
 import { VisitorFormDialog } from './components/visitor-form-dialog';
 import { VisitorStatusBadge } from './components/visitor-status-badge';
@@ -295,7 +296,18 @@ export function VisitorsPage() {
           </div>
         }
         filters={
-          <VisitorFilters list={list} units={units} currentUserId={user?.id ?? null} />
+          <div className="space-y-4">
+            {/*
+              Acima dos filtros de proposito: o balcao vem antes da consulta a
+              lista. Quem esta com alguem parado na frente pergunta por um
+              codigo, e nao refina uma listagem.
+            */}
+            <AccessCodeLookup
+              canCheckIn={canUpdate}
+              onCheckIn={(visitor) => runFlow('check-in', visitor)}
+            />
+            <VisitorFilters list={list} units={units} currentUserId={user?.id ?? null} />
+          </div>
         }
         content={
           <div className="p-4 space-y-4">

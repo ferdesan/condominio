@@ -15,6 +15,7 @@ import { makeMeta, makeServiceProvider, makeUnit } from '@/test/fixtures';
 import type { ServiceProvider, Unit } from '@/types/api';
 import type {
   Charge,
+  Payment,
   ChargeSummary,
   DelinquencyRow,
   Expense,
@@ -49,6 +50,25 @@ export function makeCategory(overrides: Partial<FinancialCategory> = {}): Financ
  * unica forma de o teste do saldo provar que a conta e
  * `amount + juros + multa - desconto - pago`, e nao simplesmente `amount`.
  */
+export function makePayment(overrides: Partial<Payment> = {}): Payment {
+  return {
+    id: 'payment-1',
+    condominiumId: 'cond-1',
+    chargeId: 'charge-1',
+    amount: 250,
+    paidAt: '2026-03-05T14:00:00.000Z',
+    method: 'PIX',
+    receiptUrl: null,
+    registeredById: 'user-1',
+    transactionId: null,
+    notes: null,
+    createdAt: '2026-03-05T14:00:00.000Z',
+    updatedAt: '2026-03-05T14:00:00.000Z',
+    deletedAt: null,
+    ...overrides,
+  };
+}
+
 export function makeCharge(overrides: Partial<Charge> = {}): Charge {
   return {
     id: 'charge-1',
@@ -127,6 +147,8 @@ export type RequestParams = Record<string, unknown>;
 /** Estado do servidor durante um caso, mutavel para que o refetch mostre o efeito. */
 export type FinancialWorld = {
   charges: Charge[];
+  /** Historico de baixas, servido por `/financial/payments`. */
+  payments: Payment[];
   expenses: Expense[];
   categories: FinancialCategory[];
   units: Unit[];
@@ -138,13 +160,14 @@ export type FinancialWorld = {
 };
 
 /**
- * Responde as sete rotas de leitura que a tela alcanca a partir de uma unica
+ * Responde as oito rotas de leitura que a tela alcanca a partir de uma unica
  * descricao do mundo. O objeto devolvido e o mesmo que os mocks leem, entao
  * mutar um campo dele muda o que a proxima requisicao ve.
  */
 export function serveFinancial(initial: Partial<FinancialWorld> = {}): FinancialWorld {
   const world: FinancialWorld = {
     charges: [],
+    payments: [],
     expenses: [],
     categories: [makeCategory()],
     units: [makeUnit({ id: 'unit-1', number: '101' })],
@@ -168,7 +191,13 @@ export function serveFinancial(initial: Partial<FinancialWorld> = {}): Financial
               ? world.units
               : url === '/service-providers'
                 ? world.providers
-                : null;
+                : url === '/financial/payments'
+                  ? // O servidor filtra por `chargeId`; o duble faz o mesmo, para
+                    // que um caso com duas cobrancas nao veja o historico da outra.
+                    world.payments.filter(
+                      (payment) => !params.chargeId || payment.chargeId === params.chargeId,
+                    )
+                  : null;
 
     if (collection === null) {
       throw new Error(`URL de listagem nao prevista no teste: ${url}`);

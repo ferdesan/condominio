@@ -15,6 +15,7 @@ import {
   lastParamsOf,
   makeCategory,
   makeCharge,
+  makePayment,
   makeDelinquencyRow,
   makeExpense,
   makeSummary,
@@ -470,5 +471,106 @@ describe('Multa e juros em massa', () => {
     ).not.toBeInTheDocument();
     // Gerar continua: exige `charge:create`, que o papel tem.
     expect(screen.getByRole('button', { name: 'Gerar cobrancas do mes' })).toBeInTheDocument();
+  });
+});
+
+describe('Historico de pagamentos de uma cobranca', () => {
+  /**
+   * `chargeLabel` acrescenta a unidade ao rotulo acessivel: numa tabela de
+   * cobrancas, a descricao sozinha se repete entre unidades.
+   */
+  const VIEW_PAYMENTS = `Ver pagamentos de ${CHARGE} da unidade 101`;
+
+  it('abre o historico e pede so os pagamentos daquela cobranca', async () => {
+    const user = createUser();
+    serveFinancial({
+      charges: [makeCharge({ id: 'charge-1', description: CHARGE, amount: 600 })],
+      payments: [
+        makePayment({ id: 'payment-1', chargeId: 'charge-1', amount: 250 }),
+        makePayment({ id: 'payment-2', chargeId: 'charge-9', amount: 999 }),
+      ],
+    });
+    renderWithProviders(<FinancialPage />);
+
+    await screen.findByText(CHARGE);
+    await user.click(screen.getByRole('button', { name: VIEW_PAYMENTS }));
+
+    const dialog = await screen.findByRole('dialog');
+    // Escopado na tabela: com uma baixa so, o rodape de total repete o mesmo
+    // valor da linha.
+    const table = await within(dialog).findByRole('table');
+    expect(within(table).getByText('R$ 250,00')).toBeInTheDocument();
+    // O duble filtra por `chargeId` como o servidor: o historico de outra
+    // cobranca nao pode vazar para este dialogo.
+    expect(within(dialog).queryByText('R$ 999,00')).not.toBeInTheDocument();
+    expect(lastParamsOf('/financial/payments').chargeId).toBe('charge-1');
+  });
+
+  it('a soma das baixas explica um saldo parcial', async () => {
+    const user = createUser();
+    serveFinancial({
+      charges: [makeCharge({ id: 'charge-1', description: CHARGE, amount: 600 })],
+      payments: [
+        makePayment({ id: 'payment-1', chargeId: 'charge-1', amount: 250 }),
+        makePayment({ id: 'payment-2', chargeId: 'charge-1', amount: 170 }),
+      ],
+    });
+    renderWithProviders(<FinancialPage />);
+
+    await screen.findByText(CHARGE);
+    await user.click(screen.getByRole('button', { name: VIEW_PAYMENTS }));
+
+    const dialog = await screen.findByRole('dialog');
+    // 250 + 170 de uma cobranca de 600: e a unica tela que mostra de onde vem
+    // um saldo parcial.
+    expect(await within(dialog).findByText('R$ 420,00')).toBeInTheDocument();
+    expect(within(dialog).getByText('R$ 600,00')).toBeInTheDocument();
+  });
+
+  it('cobranca sem baixa rende estado vazio, e nao tabela de zero linhas', async () => {
+    const user = createUser();
+    serveFinancial({
+      charges: [makeCharge({ id: 'charge-1', description: CHARGE })],
+      payments: [],
+    });
+    renderWithProviders(<FinancialPage />);
+
+    await screen.findByText(CHARGE);
+    await user.click(screen.getByRole('button', { name: VIEW_PAYMENTS }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(await within(dialog).findByText('Nenhum pagamento registrado')).toBeInTheDocument();
+  });
+
+  it('o historico nao oferece lancar pagamento', async () => {
+    const user = createUser();
+    serveFinancial({
+      charges: [makeCharge({ id: 'charge-1', description: CHARGE })],
+      payments: [makePayment({ chargeId: 'charge-1' })],
+    });
+    renderWithProviders(<FinancialPage />);
+
+    await screen.findByText(CHARGE);
+    await user.click(screen.getByRole('button', { name: VIEW_PAYMENTS }));
+
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByRole('table');
+    // A baixa acontece por `POST /financial/charges/:id/payments`, que ja tem
+    // tela. Um botao aqui duplicaria aquele caminho.
+    expect(within(dialog).queryByRole('button', { name: /Registrar/ })).not.toBeInTheDocument();
+  });
+
+  it('sem payment:read, a acao nao e oferecida', async () => {
+    serveFinancial({ charges: [makeCharge({ id: 'charge-1', description: CHARGE })] });
+    // Consultar o que ja foi baixado e leitura, e `financial.routes.ts` separa
+    // `payment:read` de `payment:create`.
+    renderWithProviders(<FinancialPage />, {
+      permissions: ['charge:read', 'charge:manage', 'payment:create'],
+    });
+
+    await screen.findByText(CHARGE);
+    expect(
+      screen.queryByRole('button', { name: VIEW_PAYMENTS }),
+    ).not.toBeInTheDocument();
   });
 });

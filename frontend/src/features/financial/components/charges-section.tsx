@@ -35,6 +35,7 @@ import {
 import { ChargeFormDialog } from './charge-form-dialog';
 import { ChargeStatusBadge } from './charge-status-badge';
 import { RegisterPaymentDialog } from './register-payment-dialog';
+import { ChargePaymentsDialog } from './charge-payments-dialog';
 
 /** Valor sentinela: o Radix nao aceita `SelectItem` com valor vazio. */
 const ANY = '__all__';
@@ -71,6 +72,7 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
   const list = useListState();
   const [formTarget, setFormTarget] = useState<Charge | null | undefined>(undefined);
   const [paying, setPaying] = useState<Charge | null>(null);
+  const [viewingPayments, setViewingPayments] = useState<Charge | null>(null);
   const [canceling, setCanceling] = useState<Charge | null>(null);
   const [deleting, setDeleting] = useState<Charge | null>(null);
   const [removing, setRemoving] = useState(false);
@@ -84,6 +86,12 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
   // A baixa exige `payment:create`, e nao `charge:update`: quem corrige a
   // descricao de uma cobranca nao necessariamente da baixa nela.
   const canRegisterPayment = can('payment:create');
+  /**
+   * Ver o historico exige `payment:read`, e nao `payment:create`: consultar o
+   * que ja foi baixado e leitura, e e a divisao que `financial.routes.ts` faz
+   * entre `GET /financial/payments` e a rota de baixa.
+   */
+  const canReadPayments = can('payment:read');
 
   const unitsById = useMemo(() => new Map(units.map((unit) => [unit.id, unit])), [units]);
   const categoriesById = useMemo(
@@ -242,6 +250,22 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
                   onClick={() => setPaying(row)}
                 >
                   Registrar pagamento
+                </Button>
+              ) : null}
+
+              {/*
+                O historico e o unico lugar onde uma baixa parcial se explica: a
+                coluna de valor mostra o total da cobranca, e nao os lancamentos
+                que a compuseram.
+              */}
+              {canReadPayments ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`Ver pagamentos de ${label}`}
+                  onClick={() => setViewingPayments(row)}
+                >
+                  Pagamentos
                 </Button>
               ) : null}
 
@@ -442,6 +466,13 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
 
       {paying ? (
         <RegisterPaymentDialog charge={paying} onClose={() => setPaying(null)} />
+      ) : null}
+
+      {viewingPayments ? (
+        <ChargePaymentsDialog
+          charge={viewingPayments}
+          onClose={() => setViewingPayments(null)}
+        />
       ) : null}
 
       <ConfirmDialog

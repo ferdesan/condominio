@@ -89,6 +89,9 @@ const AUXILIARY_READS: Record<string, unknown> = {
   '/dashboard/overview': ZERO_OVERVIEW,
   '/dashboard/financial-series': [],
   '/dashboard/expenses-by-category': [],
+  '/dashboard/incidents-by-category': [],
+  // O mural da tela de comunicados: array cru, sem envelope de paginacao.
+  '/announcements/board': [],
   '/dashboard/recent-activity': [],
   '/auth/sessions': [],
   // A fixture nao mora em `test/fixtures.ts`: aquele arquivo so conhece

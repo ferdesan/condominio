@@ -10,7 +10,7 @@
  */
 
 import { vi } from 'vitest';
-import { apiGet, apiGetPaginated } from '@/lib/api';
+import { ApiError, apiGet, apiGetPaginated } from '@/lib/api';
 import { makeMeta, makeUnit } from '@/test/fixtures';
 import type { Unit } from '@/types/api';
 import type { Visitor } from '@/types/visitor';
@@ -63,7 +63,7 @@ export type VisitorWorld = {
 };
 
 /**
- * Responde as tres rotas que a tela alcanca a partir de uma unica descricao do
+ * Responde as quatro rotas que a tela alcanca a partir de uma unica descricao do
  * mundo. O objeto devolvido e o mesmo que os mocks leem, entao mutar um campo
  * dele muda o que a proxima requisicao ve.
  */
@@ -95,6 +95,31 @@ export function serveVisitors(initial: Partial<VisitorWorld> = {}): VisitorWorld
 
   vi.mocked(apiGet).mockImplementation(async (url) => {
     if (url === '/visitors/inside-count') return { inside: world.inside } as never;
+
+    /**
+     * A consulta do balcao. O servidor procura **apenas entre os `EXPECTED`** e
+     * recusa o resto com `BusinessRuleError` (409) — quem ja entrou tambem "nao
+     * existe" para ela. O duble reproduz as duas regras, porque e justamente
+     * essa distincao que a tela precisa apresentar como resposta, e nao como
+     * falha.
+     */
+    const match = /^\/visitors\/access-code\/(.+)$/.exec(url);
+    if (match) {
+      const code = decodeURIComponent(match[1] ?? '');
+      const found = world.visitors.find(
+        (visitor) =>
+          visitor.accessCode === code && visitor.status === 'EXPECTED' && !visitor.deletedAt,
+      );
+      if (!found) {
+        throw new ApiError(
+          'Codigo de acesso invalido ou ja utilizado.',
+          409,
+          'BUSINESS_RULE_VIOLATION',
+        );
+      }
+      return found as never;
+    }
+
     throw new Error(`URL nao prevista no teste: ${url}`);
   });
 
