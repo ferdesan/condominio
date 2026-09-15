@@ -13,7 +13,8 @@ import { vi } from 'vitest';
 import { apiGet, apiGetPaginated } from '@/lib/api';
 import { makeMeta, makeUnit } from '@/test/fixtures';
 import type { Unit } from '@/types/api';
-import type { Role, User } from '@/types/user';
+import type { Role } from '@/types/role';
+import type { User } from '@/types/user';
 
 const TIMESTAMPS = {
   createdAt: '2026-03-10T12:00:00.000Z',
