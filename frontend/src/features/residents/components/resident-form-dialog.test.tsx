@@ -140,7 +140,9 @@ describe('Cadastro de morador', () => {
   it('IT-092: digito verificador invalido aparece no formulario e preserva o que foi digitado', async () => {
     serve([]);
     const user = createUser();
-    mockPost.mockRejectedValue(new ApiError('CPF informado e invalido.', 409, 'BUSINESS_RULE_VIOLATION'));
+    mockPost.mockRejectedValue(
+      new ApiError('CPF informado e invalido.', 409, 'BUSINESS_RULE_VIOLATION'),
+    );
     renderWithProviders(<ResidentsPage />);
 
     await screen.findByText('Nenhum morador cadastrado');
@@ -184,10 +186,7 @@ describe('Cadastro de morador', () => {
   it('IT-094: o seletor oferece apenas unidades do condominio selecionado', async () => {
     serve(
       [],
-      [
-        makeUnit({ id: 'unit-1', number: '101' }),
-        makeUnit({ id: 'unit-2', number: '102' }),
-      ],
+      [makeUnit({ id: 'unit-1', number: '101' }), makeUnit({ id: 'unit-2', number: '102' })],
     );
     renderWithProviders(<ResidentsPage />);
 
@@ -260,7 +259,9 @@ describe('Cadastro de morador', () => {
     await user.type(within(dialog()).getByLabelText('Saida'), '2026-03-09');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
-    const message = await screen.findByText('A data de saida nao pode ser anterior a data de entrada.');
+    const message = await screen.findByText(
+      'A data de saida nao pode ser anterior a data de entrada.',
+    );
     expect(message).toBeInTheDocument();
     // A objecao pertence ao campo de saida, e nao ao formulario inteiro.
     expect(message).toHaveAttribute('id', 'moveOutDate-error');
@@ -329,7 +330,11 @@ describe('Edicao de morador', () => {
     );
     mockPatch.mockImplementation(async () => {
       world.residents = [
-        makeResident({ unitId: 'unit-2', status: 'INACTIVE', unit: makeUnit({ id: 'unit-2', number: '102' }) }),
+        makeResident({
+          unitId: 'unit-2',
+          status: 'INACTIVE',
+          unit: makeUnit({ id: 'unit-2', number: '102' }),
+        }),
       ];
       return world.residents[0];
     });
@@ -384,7 +389,11 @@ describe('Edicao de morador', () => {
     serve([makeResident()]);
     const user = createUser();
     mockPatch.mockRejectedValue(
-      new ApiError('A unidade informada pertence a outro condominio.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError(
+        'A unidade informada pertence a outro condominio.',
+        409,
+        'BUSINESS_RULE_VIOLATION',
+      ),
     );
     renderWithProviders(<ResidentsPage />);
 

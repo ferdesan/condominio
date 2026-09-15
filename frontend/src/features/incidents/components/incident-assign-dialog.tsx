@@ -49,11 +49,7 @@ export interface IncidentAssignDialogProps {
  * removido enquanto este dialogo estava aberto. A mensagem aparece aqui, e a
  * lista e atualizada.
  */
-export function IncidentAssignDialog({
-  incident,
-  assignees,
-  onClose,
-}: IncidentAssignDialogProps) {
+export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentAssignDialogProps) {
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);
   const submittingRef = useRef(false);

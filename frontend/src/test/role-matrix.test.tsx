@@ -49,7 +49,11 @@ const CONDOMINIUM = makeCondominium({ id: 'cond-1', name: 'Residencial Aurora' }
 const WORLD = {
   condominiums: [
     CONDOMINIUM,
-    makeCondominium({ id: 'cond-9', name: 'Residencial Antigo', deletedAt: '2026-02-01T10:00:00.000Z' }),
+    makeCondominium({
+      id: 'cond-9',
+      name: 'Residencial Antigo',
+      deletedAt: '2026-02-01T10:00:00.000Z',
+    }),
   ],
   blocks: [],
   units: [
@@ -63,7 +67,11 @@ const WORLD = {
   // Nome proprio: 'Salao de Festas' aparece tambem nos indicadores e no filtro,
   // entao o solicitante e o unico texto que so existe na linha da tabela.
   reservations: [
-    makeReservation({ id: 'reservation-1', status: 'PENDING', requestedByName: 'Marina Solicitante' }),
+    makeReservation({
+      id: 'reservation-1',
+      status: 'PENDING',
+      requestedByName: 'Marina Solicitante',
+    }),
   ],
   commonAreas: [makeCommonArea({ id: 'area-1', name: 'Salao de Festas' })],
 };

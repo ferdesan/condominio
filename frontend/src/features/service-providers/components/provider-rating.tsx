@@ -22,7 +22,10 @@ export function ProviderRating({ value }: ProviderRatingProps) {
   const filled = Math.min(Math.max(Math.round(value), 0), 5);
 
   return (
-    <span aria-label={scale ? `${value} de 5 — ${scale}` : `${value} de 5`} className="text-warning">
+    <span
+      aria-label={scale ? `${value} de 5 — ${scale}` : `${value} de 5`}
+      className="text-warning"
+    >
       <span aria-hidden="true">
         {'★'.repeat(filled)}
         <span className="text-muted-foreground">{'☆'.repeat(5 - filled)}</span>

@@ -141,8 +141,7 @@ export function useDeliverCorrespondence(
   const queryClient = useQueryClient();
 
   return useMutation<Correspondence, ApiError, DeliverVariables>({
-    mutationFn: ({ id, data }) =>
-      apiPost<Correspondence>(`/correspondences/${id}/deliver`, data),
+    mutationFn: ({ id, data }) => apiPost<Correspondence>(`/correspondences/${id}/deliver`, data),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: [CORRESPONDENCES_KEY] });
       callbacks.onSuccess?.(data, variables);

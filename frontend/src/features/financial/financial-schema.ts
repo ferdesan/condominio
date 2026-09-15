@@ -40,15 +40,10 @@ function optionalMoney(message: string) {
   return z
     .string()
     .refine((value) => value === '' || Number.isFinite(Number(value)), 'Informe um valor numerico.')
-    .refine(
-      (value) => value === '' || (Number(value) >= 0 && Number(value) <= MAX_MONEY),
-      message,
-    );
+    .refine((value) => value === '' || (Number(value) >= 0 && Number(value) <= MAX_MONEY), message);
 }
 
-const referenceMonth = z
-  .string()
-  .regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Use o formato AAAA-MM.');
+const referenceMonth = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Use o formato AAAA-MM.');
 
 const isoDate = z.string().min(1, 'Informe a data de vencimento.');
 
@@ -405,10 +400,7 @@ export type ExpensePayload = {
  * `/expenses/:id/pay`, que grava a data e a forma de pagamento junto. Manda-lo
  * daqui criaria um segundo caminho para a mesma transicao, sem esses campos.
  */
-export function toExpensePayload(
-  values: ExpenseFormValues,
-  condominiumId: string,
-): ExpensePayload {
+export function toExpensePayload(values: ExpenseFormValues, condominiumId: string): ExpensePayload {
   return {
     condominiumId,
     categoryId: values.categoryId || null,

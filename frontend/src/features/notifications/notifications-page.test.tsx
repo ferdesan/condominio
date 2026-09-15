@@ -237,7 +237,10 @@ describe('Marcar como lida', () => {
 
   it('marcar todas manda o corpo sem ids, que e o que o servidor le como "todas"', async () => {
     world = serveNotifications({
-      notifications: [makeNotification(), makeNotification({ id: 'notification-2', title: 'Encomenda na portaria' })],
+      notifications: [
+        makeNotification(),
+        makeNotification({ id: 'notification-2', title: 'Encomenda na portaria' }),
+      ],
       unread: 2,
     });
     mockPost.mockImplementation(async () => {

@@ -199,7 +199,11 @@ describe('Cadastro de visitante', () => {
   it('um 409 sem campo aparece como mensagem do formulario, preservando o preenchido', async () => {
     world = serveVisitors({ visitors: [] });
     mockPost.mockRejectedValue(
-      new ApiError('A unidade informada pertence a outro condominio.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError(
+        'A unidade informada pertence a outro condominio.',
+        409,
+        'BUSINESS_RULE_VIOLATION',
+      ),
     );
     renderWithProviders(<VisitorsPage />);
 

@@ -136,7 +136,11 @@ export function AccessCodeLookup({ canCheckIn, onCheckIn }: AccessCodeLookupProp
               <VisitorStatusBadge status={found.status} />
             </div>
             {canCheckIn ? (
-              <Button size="sm" aria-label={`Registrar entrada de ${found.name}`} onClick={() => onCheckIn(found)}>
+              <Button
+                size="sm"
+                aria-label={`Registrar entrada de ${found.name}`}
+                onClick={() => onCheckIn(found)}
+              >
                 Registrar entrada
               </Button>
             ) : null}

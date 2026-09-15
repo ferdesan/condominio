@@ -229,8 +229,7 @@ export function DataTable<T extends Record<string, any>>({
                 {columns.map((column) => {
                   const columnKey = String(column.key);
                   const isSortable = Boolean(sortable && column.sortable);
-                  const activeDirection =
-                    sort && sort.column === columnKey ? sort.direction : null;
+                  const activeDirection = sort && sort.column === columnKey ? sort.direction : null;
 
                   return (
                     <th

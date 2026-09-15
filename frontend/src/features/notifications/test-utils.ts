@@ -66,9 +66,7 @@ export type NotificationWorld = {
  * Qualquer outra URL falha de proposito: uma chamada inesperada precisa aparecer
  * como erro em vez de resolver para `undefined`.
  */
-export function serveNotifications(
-  initial: Partial<NotificationWorld> = {},
-): NotificationWorld {
+export function serveNotifications(initial: Partial<NotificationWorld> = {}): NotificationWorld {
   const world: NotificationWorld = { notifications: [], unread: 0, ...initial };
 
   vi.mocked(apiGetPaginated).mockImplementation(async (url, config) => {

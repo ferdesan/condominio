@@ -63,11 +63,7 @@ export interface AssemblyFormDialogProps {
  * `/cancel` fazem. A ata e o numero de presentes tambem ficam de fora: eles sao
  * o corpo do encerramento.
  */
-export function AssemblyFormDialog({
-  assembly,
-  condominiumId,
-  onClose,
-}: AssemblyFormDialogProps) {
+export function AssemblyFormDialog({ assembly, condominiumId, onClose }: AssemblyFormDialogProps) {
   const isEdit = Boolean(assembly);
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);

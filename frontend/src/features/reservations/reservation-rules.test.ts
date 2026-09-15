@@ -67,11 +67,7 @@ describe('Regras locais de reserva', () => {
   it('UT-060: termino igual ao inicio falha no campo endsAt; um minuto depois passa', () => {
     const area = permissiveArea();
 
-    const equal = checkReservationRules(
-      values('2026-03-14T18:00', '2026-03-14T18:00'),
-      area,
-      NOW,
-    );
+    const equal = checkReservationRules(values('2026-03-14T18:00', '2026-03-14T18:00'), area, NOW);
     expect(equal).toEqual([
       { field: 'endsAt', message: 'O termino deve ser posterior ao inicio.' },
     ]);
@@ -153,9 +149,7 @@ describe('Regras locais de reserva', () => {
     ]);
 
     const unlimited = permissiveArea({ capacity: 0 });
-    expect(messages(values('2026-03-14T18:00', '2026-03-14T20:00', '9999'), unlimited)).toEqual(
-      [],
-    );
+    expect(messages(values('2026-03-14T18:00', '2026-03-14T20:00', '9999'), unlimited)).toEqual([]);
   });
 
   it('UT-068: motivo de decisao com 255 caracteres passa e com 256 falha', () => {

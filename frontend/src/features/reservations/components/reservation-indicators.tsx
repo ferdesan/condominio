@@ -65,8 +65,7 @@ export function ReservationIndicators({ condominiumId, month, areas }: Reservati
 
       {failed ? (
         <p role="alert" className="text-sm text-destructive">
-          Nao foi possivel carregar os indicadores do mes. A lista de reservas continua
-          disponivel.
+          Nao foi possivel carregar os indicadores do mes. A lista de reservas continua disponivel.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-3">

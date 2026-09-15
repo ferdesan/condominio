@@ -49,16 +49,25 @@ export const condominiumSchema = z.object({
   phone: z
     .string()
     .transform((value) => value.replace(/\D/g, ''))
-    .refine((value) => value === '' || (value.length >= 8 && value.length <= 11), 'Telefone invalido.'),
+    .refine(
+      (value) => value === '' || (value.length >= 8 && value.length <= 11),
+      'Telefone invalido.',
+    ),
   email: z
     .string()
     .trim()
-    .refine((value) => value === '' || z.string().email().safeParse(value).success, 'E-mail invalido.'),
+    .refine(
+      (value) => value === '' || z.string().email().safeParse(value).success,
+      'E-mail invalido.',
+    ),
   syndicName: optionalText(150),
   syndicPhone: z
     .string()
     .transform((value) => value.replace(/\D/g, ''))
-    .refine((value) => value === '' || (value.length >= 8 && value.length <= 11), 'Telefone invalido.'),
+    .refine(
+      (value) => value === '' || (value.length >= 8 && value.length <= 11),
+      'Telefone invalido.',
+    ),
   syndicTermEndsAt: z
     .string()
     .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data invalida.'),
@@ -72,7 +81,10 @@ export const condominiumSchema = z.object({
   logoUrl: z
     .string()
     .trim()
-    .refine((value) => value === '' || z.string().url().safeParse(value).success, 'Informe uma URL valida.'),
+    .refine(
+      (value) => value === '' || z.string().url().safeParse(value).success,
+      'Informe uma URL valida.',
+    ),
   notes: optionalText(2000),
 });
 

@@ -326,12 +326,8 @@ describe('Exclusao e restauracao de prestadores', () => {
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir' }));
 
-    await waitFor(() =>
-      expect(mockDelete).toHaveBeenCalledWith('/service-providers/provider-1'),
-    );
-    await waitFor(() =>
-      expect(screen.queryByText('Limpeza Total Ltda')).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(mockDelete).toHaveBeenCalledWith('/service-providers/provider-1'));
+    await waitFor(() => expect(screen.queryByText('Limpeza Total Ltda')).not.toBeInTheDocument());
   });
 
   it('um 409 de impedimento mostra a mensagem do servidor e mantem o registro', async () => {
@@ -374,9 +370,7 @@ describe('Exclusao e restauracao de prestadores', () => {
     await waitFor(() => expect(lastListParams().includeDeleted).toBe(true));
     expect(screen.getByText('Removido')).toBeInTheDocument();
 
-    clickTrigger(
-      await screen.findByRole('button', { name: 'Restaurar Limpeza Total Ltda' }),
-    );
+    clickTrigger(await screen.findByRole('button', { name: 'Restaurar Limpeza Total Ltda' }));
 
     await waitFor(() =>
       expect(mockPost).toHaveBeenCalledWith('/service-providers/provider-1/restore'),

@@ -142,7 +142,9 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
       render: (_value, row) => (
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className={row.deletedAt ? 'line-through' : 'font-medium'}>{row.description}</span>
+            <span className={row.deletedAt ? 'line-through' : 'font-medium'}>
+              {row.description}
+            </span>
             {row.deletedAt ? <Badge variant="destructive">Removida</Badge> : null}
             {row.isRecurring ? <Badge variant="outline">Recorrente</Badge> : null}
           </div>

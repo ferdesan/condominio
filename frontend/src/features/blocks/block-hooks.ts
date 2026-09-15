@@ -18,6 +18,9 @@ export const BLOCKS_KEY = ['blocks'] as const;
  * exibe o nome do bloco vindo do eager load, entao renomear um bloco muda
  * linhas que o cache de unidades ja tem guardadas.
  */
-export const blockHooks = createResourceHooks<Block, BlockPayload, Partial<BlockPayload>>('blocks', {
-  extraInvalidate: [UNITS_KEY],
-});
+export const blockHooks = createResourceHooks<Block, BlockPayload, Partial<BlockPayload>>(
+  'blocks',
+  {
+    extraInvalidate: [UNITS_KEY],
+  },
+);

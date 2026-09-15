@@ -75,9 +75,7 @@ export function RoleFilters({ list }: RoleFiltersProps) {
           <Label htmlFor="role-origin">Origem</Label>
           <Select
             value={list.filters.isSystem === undefined ? ANY : String(list.filters.isSystem)}
-            onValueChange={(value) =>
-              list.setFilter('isSystem', value === ANY ? undefined : value)
-            }
+            onValueChange={(value) => list.setFilter('isSystem', value === ANY ? undefined : value)}
           >
             <SelectTrigger id="role-origin">
               <SelectValue />

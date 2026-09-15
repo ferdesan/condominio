@@ -47,7 +47,11 @@ export interface AuditFiltersProps {
 export function AuditFilters({ list }: AuditFiltersProps) {
   const chips: Filter[] = [];
   if (list.filters.action) {
-    chips.push({ id: 'action', label: 'Acao', value: labelOf(ACTION_OPTIONS, list.filters.action) });
+    chips.push({
+      id: 'action',
+      label: 'Acao',
+      value: labelOf(ACTION_OPTIONS, list.filters.action),
+    });
   }
   if (list.filters.resource) {
     chips.push({

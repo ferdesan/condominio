@@ -28,7 +28,10 @@ const roleFields = z.object({
     // Mesma expressao do servidor. Note que ela **nao** aceita acento: um nome
     // com cedilha seria recusado la, entao e recusado aqui, com a mensagem que
     // explica o que vale.
-    .regex(/^[A-Za-z0-9_ -]+$/, 'Use apenas letras sem acento, numeros, espaco, hifen ou underscore.'),
+    .regex(
+      /^[A-Za-z0-9_ -]+$/,
+      'Use apenas letras sem acento, numeros, espaco, hifen ou underscore.',
+    ),
   description: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
   permissions: z
     .array(z.string())

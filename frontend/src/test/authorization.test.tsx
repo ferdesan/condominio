@@ -162,7 +162,9 @@ describe('Registro fora do escopo por link direto', () => {
 
     expect(await screen.findByText('Acesso negado')).toBeInTheDocument();
     // Nem o cadastro nem os indicadores aparecem pela metade.
-    expect(screen.queryByText('Cadastro completo e indicadores operacionais.')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Cadastro completo e indicadores operacionais.'),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Editar' })).not.toBeInTheDocument();
     expect(screen.queryByText('Residencial Aurora')).not.toBeInTheDocument();
   });

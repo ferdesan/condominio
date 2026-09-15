@@ -148,9 +148,7 @@ export function AssembliesPage() {
             {/* A tarja nomeia o estado: cor sozinha nao distingue removido. */}
             {row.deletedAt ? <Badge variant="destructive">Removida</Badge> : null}
           </div>
-          <p className="truncate text-xs text-muted-foreground">
-            {row.location ?? NO_LOCATION}
-          </p>
+          <p className="truncate text-xs text-muted-foreground">{row.location ?? NO_LOCATION}</p>
         </div>
       ),
     },
@@ -192,9 +190,7 @@ export function AssembliesPage() {
       render: (_value, row) => (
         <span className="whitespace-nowrap">
           {formatNumber(row.attendeesCount)}{' '}
-          <span className="text-xs text-muted-foreground">
-            (quorum {row.quorumPercent}%)
-          </span>
+          <span className="text-xs text-muted-foreground">(quorum {row.quorumPercent}%)</span>
         </span>
       ),
     },
@@ -212,9 +208,7 @@ export function AssembliesPage() {
           onCancel={(assembly) => runLifecycle('cancel', assembly)}
           onFinish={setFinishing}
           onPolls={setPollsOf}
-          onEdit={(assembly) =>
-            setFormTarget({ assembly, condominiumId: assembly.condominiumId })
-          }
+          onEdit={(assembly) => setFormTarget({ assembly, condominiumId: assembly.condominiumId })}
           onDelete={setDeleting}
           onRestore={(assembly) => restore.mutate(assembly.id, { onError: refreshOnRefusal })}
         />
@@ -251,7 +245,9 @@ export function AssembliesPage() {
             description={DESCRIPTION}
             actions={
               canCreate ? (
-                <Button onClick={() => setFormTarget({ assembly: null, condominiumId: selectedId })}>
+                <Button
+                  onClick={() => setFormTarget({ assembly: null, condominiumId: selectedId })}
+                >
                   Nova assembleia
                 </Button>
               ) : undefined
@@ -292,9 +288,7 @@ export function AssembliesPage() {
                   action={
                     canCreate ? (
                       <Button
-                        onClick={() =>
-                          setFormTarget({ assembly: null, condominiumId: selectedId })
-                        }
+                        onClick={() => setFormTarget({ assembly: null, condominiumId: selectedId })}
                       >
                         Convocar a primeira
                       </Button>
@@ -338,9 +332,7 @@ export function AssembliesPage() {
         <AssemblyFinishDialog assembly={finishing} onClose={() => setFinishing(null)} />
       ) : null}
 
-      {pollsOf ? (
-        <AssemblyPollsDialog assembly={pollsOf} onClose={() => setPollsOf(null)} />
-      ) : null}
+      {pollsOf ? <AssemblyPollsDialog assembly={pollsOf} onClose={() => setPollsOf(null)} /> : null}
 
       <ConfirmDialog
         open={deleting !== null}

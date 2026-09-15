@@ -56,9 +56,7 @@ export function ChargePaymentsDialog({ charge, onClose }: ChargePaymentsDialogPr
     {
       key: 'amount',
       label: 'Valor',
-      render: (_value, row) => (
-        <span className="tabular-nums">{formatCurrency(row.amount)}</span>
-      ),
+      render: (_value, row) => <span className="tabular-nums">{formatCurrency(row.amount)}</span>,
     },
     {
       key: 'method',
@@ -69,7 +67,8 @@ export function ChargePaymentsDialog({ charge, onClose }: ChargePaymentsDialogPr
       key: 'transactionId',
       label: 'Identificador',
       // Ausente na maioria das baixas manuais; o traco diz isso sem sugerir erro.
-      render: (_value, row) => row.transactionId ?? <span className="text-muted-foreground">—</span>,
+      render: (_value, row) =>
+        row.transactionId ?? <span className="text-muted-foreground">—</span>,
     },
     {
       key: 'notes',

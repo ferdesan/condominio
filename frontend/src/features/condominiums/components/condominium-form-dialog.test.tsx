@@ -180,9 +180,7 @@ describe('Cadastro de condominio', () => {
     submit('Cadastrar');
 
     expect(await screen.findByText('Informe o nome do condominio.')).toBeInTheDocument();
-    expect(
-      screen.getByText('O dia de vencimento deve estar entre 1 e 28.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('O dia de vencimento deve estar entre 1 e 28.')).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 

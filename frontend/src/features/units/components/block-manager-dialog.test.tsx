@@ -40,10 +40,12 @@ const TOWER_A = makeBlock({ id: 'block-1', name: 'Torre A', floors: 12 });
 const TOWER_B = makeBlock({ id: 'block-2', name: 'Torre B', floors: 8 });
 
 /** Blocos por condominio, para que a troca no shell tenha o que recarregar. */
-function serve(options: {
-  blocksByCondominium?: Record<string, Block[]>;
-  units?: Unit[];
-} = {}): void {
+function serve(
+  options: {
+    blocksByCondominium?: Record<string, Block[]>;
+    units?: Unit[];
+  } = {},
+): void {
   const { blocksByCondominium = { 'cond-1': [TOWER_A, TOWER_B] }, units = [] } = options;
   mockGetPaginated.mockImplementation(async (url, config) => {
     const params = (config?.params ?? {}) as Record<string, unknown>;
@@ -128,20 +130,19 @@ describe('Gestao de blocos do condominio', () => {
         expect.objectContaining({ name: 'Torre Central' }),
       ),
     );
-    await waitFor(() =>
-      expect(within(topDialog()).getByText('Torre Central')).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(within(topDialog()).getByText('Torre Central')).toBeInTheDocument());
 
     // Excluir um bloco sem unidades.
     mockDelete.mockResolvedValue(undefined);
-    serve({ blocksByCondominium: { 'cond-1': [renamed] }, units: [makeUnit({ ...unit, block: renamed })] });
+    serve({
+      blocksByCondominium: { 'cond-1': [renamed] },
+      units: [makeUnit({ ...unit, block: renamed })],
+    });
     clickTrigger(within(topDialog()).getByRole('button', { name: 'Excluir bloco Torre B' }));
     clickTrigger(await screen.findByRole('button', { name: /^Excluir bloco$/ }));
 
     await waitFor(() => expect(mockDelete).toHaveBeenCalledWith('/blocks/block-2'));
-    await waitFor(() =>
-      expect(within(topDialog()).queryByText('Torre B')).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(within(topDialog()).queryByText('Torre B')).not.toBeInTheDocument());
 
     clickTrigger(within(topDialog()).getByRole('button', { name: 'Concluir' }));
     // A mutacao de bloco invalida tambem as unidades, que exibem o nome.
@@ -271,6 +272,8 @@ describe('Gestao de blocos do condominio', () => {
     expect(
       within(topDialog()).queryByRole('button', { name: 'Excluir bloco Torre A' }),
     ).not.toBeInTheDocument();
-    expect(within(topDialog()).queryByRole('button', { name: 'Novo bloco' })).not.toBeInTheDocument();
+    expect(
+      within(topDialog()).queryByRole('button', { name: 'Novo bloco' }),
+    ).not.toBeInTheDocument();
   });
 });

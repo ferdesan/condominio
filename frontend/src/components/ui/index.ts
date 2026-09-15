@@ -19,7 +19,12 @@ export {
   DialogTitle,
   DialogTrigger,
 } from './dialog';
-export { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu';
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './dropdown-menu';
 export { FormField } from './form-field';
 export { Input } from './input';
 export { Label } from './label';

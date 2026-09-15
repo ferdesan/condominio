@@ -136,9 +136,11 @@ describe('Indicadores do mes', () => {
     expect(await screen.findByText('Carlos Pereira')).toBeInTheDocument();
 
     // E a area de indicadores reporta a propria falha.
-    await waitFor(() => expect(panel().getByRole('alert')).toHaveTextContent(
-      /Nao foi possivel carregar os indicadores do mes/i,
-    ));
+    await waitFor(() =>
+      expect(panel().getByRole('alert')).toHaveTextContent(
+        /Nao foi possivel carregar os indicadores do mes/i,
+      ),
+    );
   });
 
   it('IT-175: doze areas comuns rendem um detalhamento legivel, sem transbordar', async () => {
@@ -157,9 +159,7 @@ describe('Indicadores do mes', () => {
     await screen.findByText('Carlos Pereira');
 
     // Seis areas listadas e as demais agrupadas numa linha so.
-    await waitFor(() =>
-      expect(panel().getByText('Outras 6 areas')).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(panel().getByText('Outras 6 areas')).toBeInTheDocument());
     const items = panel().getAllByRole('listitem');
     expect(items).toHaveLength(7);
   });
@@ -181,9 +181,9 @@ describe('Indicadores do mes', () => {
     // Filtra a lista por area.
     selectOption(screen.getByLabelText('Area comum'), 'Churrasqueira');
     await waitFor(() =>
-      expect(
-        screen.getByText('Area comum:').closest('div')?.textContent,
-      ).toContain('Churrasqueira'),
+      expect(screen.getByText('Area comum:').closest('div')?.textContent).toContain(
+        'Churrasqueira',
+      ),
     );
 
     // O rotulo deixa explicito que os numeros descrevem o mes, e nao o recorte.

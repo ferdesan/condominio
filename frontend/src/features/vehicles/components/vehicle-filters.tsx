@@ -45,7 +45,11 @@ export function VehicleFilters({ list, units, residents }: VehicleFiltersProps) 
 
   const chips: Filter[] = [];
   if (list.filters.unitId) {
-    chips.push({ id: 'unitId', label: 'Unidade', value: labelOf(unitOptions, list.filters.unitId) });
+    chips.push({
+      id: 'unitId',
+      label: 'Unidade',
+      value: labelOf(unitOptions, list.filters.unitId),
+    });
   }
   if (list.filters.residentId) {
     chips.push({

@@ -338,9 +338,7 @@ describe('Historico de um registro', () => {
     clickTrigger(screen.getByRole('button', { name: /^Ver detalhes de Falha de entrada/ }));
 
     const dialog = await screen.findByRole('dialog');
-    expect(
-      within(dialog).getByText(/nao aponta para um registro especifico/i),
-    ).toBeInTheDocument();
+    expect(within(dialog).getByText(/nao aponta para um registro especifico/i)).toBeInTheDocument();
     // Pedir o historico de um identificador vazio seria um 400 no servidor.
     expect(mockGet).not.toHaveBeenCalled();
   });

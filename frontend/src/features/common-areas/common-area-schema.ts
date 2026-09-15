@@ -31,7 +31,11 @@ function intInRange(min: number, max: number, message: string) {
 }
 
 const commonAreaFields = z.object({
-  name: z.string().trim().min(2, 'Informe o nome da area comum.').max(120, 'Use no maximo 120 caracteres.'),
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Informe o nome da area comum.')
+    .max(120, 'Use no maximo 120 caracteres.'),
   description: z.string().trim().max(2000, 'Use no maximo 2000 caracteres.'),
   status: z.enum(COMMON_AREA_STATUSES),
   capacity: intInRange(0, 10000, 'A capacidade deve estar entre 0 e 10000.'),
@@ -103,9 +107,7 @@ export type CommonAreaFormValues = z.infer<typeof commonAreaSchema>;
  * formulario o expressa em dois controles, entao uma objecao do servidor sobre
  * ele vira mensagem geral em vez de sumir num campo que nao existe.
  */
-export const COMMON_AREA_FIELDS: ReadonlySet<string> = new Set(
-  Object.keys(commonAreaFields.shape),
-);
+export const COMMON_AREA_FIELDS: ReadonlySet<string> = new Set(Object.keys(commonAreaFields.shape));
 
 /** Os padroes do servidor, para que cadastrar sem mexer em nada grave o mesmo. */
 export const COMMON_AREA_FORM_DEFAULTS: CommonAreaFormValues = {

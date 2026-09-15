@@ -23,12 +23,7 @@ export const employeeHooks = createResourceHooks<
  * Vive aqui, e nao em `lib/crud/query-params.ts`, porque aquela camada e
  * compartilhada e nao muda por causa de uma tela nova.
  */
-export const employeeFilters = [
-  'condominiumId',
-  'status',
-  'department',
-  'contractType',
-] as const;
+export const employeeFilters = ['condominiumId', 'status', 'department', 'contractType'] as const;
 
 /**
  * Departamentos ja usados no condominio selecionado.

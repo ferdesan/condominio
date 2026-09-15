@@ -171,10 +171,7 @@ export type TenantPayload = {
   phone: string | null;
   logoUrl: string | null;
   /** Parcial de proposito: o servidor mescla com o que ja existe. */
-  settings: Pick<
-    TenantSettings,
-    'chargeGraceDays' | 'latePenaltyPercent' | 'lateInterestPercent'
-  >;
+  settings: Pick<TenantSettings, 'chargeGraceDays' | 'latePenaltyPercent' | 'lateInterestPercent'>;
 };
 
 /** Texto vazio vira `null`; o resto vai como digitado, so com os digitos do CNPJ. */

@@ -34,11 +34,7 @@ export type ThemePreference = (typeof THEMES)[number];
  * mesma decisao ja valia no cadastro de usuarios.
  */
 const profileFields = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(3, 'Informe seu nome.')
-    .max(150, 'Use no maximo 150 caracteres.'),
+  name: z.string().trim().min(3, 'Informe seu nome.').max(150, 'Use no maximo 150 caracteres.'),
   /** Opcional, mas o servidor exige forma quando presente (`phoneSchema`). */
   phone: z
     .string()
@@ -63,7 +59,10 @@ export const PROFILE_FIELDS: ReadonlySet<string> = new Set(Object.keys(profileFi
  * e o que esta aplicado agora. Quem alternou na topbar e abriu o perfil veria um
  * seletor desmentindo a propria tela se lessemos a conta aqui.
  */
-export function toProfileFormValues(user: AuthUser, appliedTheme: ThemePreference): ProfileFormValues {
+export function toProfileFormValues(
+  user: AuthUser,
+  appliedTheme: ThemePreference,
+): ProfileFormValues {
   return {
     name: user.name,
     phone: user.phone ?? '',

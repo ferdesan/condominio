@@ -2,13 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { addDays, differenceInCalendarMonths, startOfMonth } from 'date-fns';
 import { ApiError, apiPost } from '@/lib/api';
 import { makeCommonArea, makeReservation, makeUnit } from '@/test/fixtures';
-import {
-  clickTrigger,
-  renderWithProviders,
-  screen,
-  waitFor,
-  within,
-} from '@/test/render';
+import { clickTrigger, renderWithProviders, screen, waitFor, within } from '@/test/render';
 import type { AvailabilityEntry, Reservation } from '@/types/api';
 import { ReservationsPage } from './reservations-page';
 import { countRequests, serveApi } from './test-utils';
@@ -449,9 +443,7 @@ describe('Cancelamento de reservas', () => {
 
     // Antes: a reserva esta no calendario.
     await showCalendarFor(addDays(new Date(), 3));
-    await waitFor(() =>
-      expect(screen.getAllByText(/Salao de Festas/).length).toBeGreaterThan(0),
-    );
+    await waitFor(() => expect(screen.getAllByText(/Salao de Festas/).length).toBeGreaterThan(0));
 
     clickTrigger(screen.getByRole('button', { name: 'Lista' }));
     await openDecision(/^Cancelar reserva de/);

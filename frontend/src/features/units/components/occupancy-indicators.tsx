@@ -54,11 +54,12 @@ export function OccupancyIndicators({ condominiumId, filtersActive }: OccupancyI
       ? total.data - occupied.data - available.data
       : undefined;
 
-  const indicators: { key: string; label: string; icon: LucideIcon; value: number | undefined }[] = [
-    { key: 'total', label: 'Total de unidades', icon: DoorOpen, value: total.data },
-    { key: 'occupied', label: 'Unidades ocupadas', icon: Home, value: occupied.data },
-    { key: 'available', label: 'Unidades disponiveis', icon: KeyRound, value: available.data },
-  ];
+  const indicators: { key: string; label: string; icon: LucideIcon; value: number | undefined }[] =
+    [
+      { key: 'total', label: 'Total de unidades', icon: DoorOpen, value: total.data },
+      { key: 'occupied', label: 'Unidades ocupadas', icon: Home, value: occupied.data },
+      { key: 'available', label: 'Unidades disponiveis', icon: KeyRound, value: available.data },
+    ];
 
   return (
     <section aria-label="Indicadores de ocupacao" className="space-y-2">

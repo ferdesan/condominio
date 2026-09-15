@@ -74,5 +74,7 @@ export function lastProfilePatch(): Record<string, unknown> {
 /** O corpo do ultimo POST para a rota informada. */
 export function lastPostTo(url: string): Record<string, unknown> | undefined {
   const calls = vi.mocked(apiPost).mock.calls.filter((call) => call[0] === url);
-  return calls.length ? ((calls[calls.length - 1]?.[1] ?? {}) as Record<string, unknown>) : undefined;
+  return calls.length
+    ? ((calls[calls.length - 1]?.[1] ?? {}) as Record<string, unknown>)
+    : undefined;
 }

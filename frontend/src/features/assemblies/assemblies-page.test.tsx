@@ -272,10 +272,7 @@ describe('Ciclo da assembleia', () => {
     const attendees = within(dialog).getByLabelText('Unidades presentes');
     await user.clear(attendees);
     await user.type(attendees, '31');
-    await user.type(
-      within(dialog).getByLabelText('Ata'),
-      'https://exemplo.com/ata-ago-2026.pdf',
-    );
+    await user.type(within(dialog).getByLabelText('Ata'), 'https://exemplo.com/ata-ago-2026.pdf');
     await user.click(within(dialog).getByRole('button', { name: 'Encerrar' }));
 
     await waitFor(() =>
@@ -433,13 +430,14 @@ describe('Deliberacoes', () => {
     expect(await within(dialog).findByText('30 de 48 unidades')).toBeInTheDocument();
     // O texto diz se o quorum foi atingido: a cor sozinha nao diria.
     expect(within(dialog).getByText(/quorum atingido/)).toBeInTheDocument();
-    expect(
-      allReadRequests().some((request) => request.url === '/polls/poll-1/results'),
-    ).toBe(true);
+    expect(allReadRequests().some((request) => request.url === '/polls/poll-1/results')).toBe(true);
   });
 
   it('apurar chama a rota de encerramento da votacao', async () => {
-    world = serveAssemblies({ assemblies: [makeAssembly()], polls: [makePoll({ status: 'OPEN' })] });
+    world = serveAssemblies({
+      assemblies: [makeAssembly()],
+      polls: [makePoll({ status: 'OPEN' })],
+    });
     mockPost.mockImplementation(async () => makePollResults() as never);
     renderWithProviders(<AssembliesPage />);
 

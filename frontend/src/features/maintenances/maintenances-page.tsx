@@ -275,9 +275,7 @@ export function MaintenancesPage() {
             setFormTarget({ maintenance, condominiumId: maintenance.condominiumId })
           }
           onDelete={setDeleting}
-          onRestore={(maintenance) =>
-            restore.mutate(maintenance.id, { onError: refreshOnRefusal })
-          }
+          onRestore={(maintenance) => restore.mutate(maintenance.id, { onError: refreshOnRefusal })}
         />
       ),
     },

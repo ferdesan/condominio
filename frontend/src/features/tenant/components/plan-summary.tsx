@@ -23,7 +23,11 @@ export interface PlanSummaryProps {
  */
 export function PlanSummary({ tenant }: PlanSummaryProps) {
   const statusVariant =
-    tenant.status === 'ACTIVE' ? 'success' : tenant.status === 'SUSPENDED' ? 'warning' : 'destructive';
+    tenant.status === 'ACTIVE'
+      ? 'success'
+      : tenant.status === 'SUSPENDED'
+        ? 'warning'
+        : 'destructive';
 
   return (
     <Card>

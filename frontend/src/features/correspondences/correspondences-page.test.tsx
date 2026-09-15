@@ -223,9 +223,7 @@ describe('Estados vazios de correspondencias', () => {
     renderWithProviders(<CorrespondencesPage />);
 
     expect(await screen.findByText('Nenhuma correspondencia registrada')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Registrar correspondencia' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Registrar correspondencia' })).toBeInTheDocument();
     expect(screen.queryByText('Nenhum resultado para esta busca')).not.toBeInTheDocument();
   });
 

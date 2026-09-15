@@ -6,12 +6,7 @@
  * entre as tasks deste tier e ja foi ponto de quebra.
  */
 
-export const MAINTENANCE_TYPES = [
-  'PREVENTIVE',
-  'CORRECTIVE',
-  'EMERGENCY',
-  'INSPECTION',
-] as const;
+export const MAINTENANCE_TYPES = ['PREVENTIVE', 'CORRECTIVE', 'EMERGENCY', 'INSPECTION'] as const;
 export type MaintenanceType = (typeof MAINTENANCE_TYPES)[number];
 
 /**

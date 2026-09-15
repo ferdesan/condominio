@@ -134,9 +134,7 @@ export function CorrespondenceFormDialog({
       >
         <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {isEdit ? 'Editar correspondencia' : 'Nova correspondencia'}
-            </DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar correspondencia' : 'Nova correspondencia'}</DialogTitle>
             <DialogDescription>
               O que chegou, para qual unidade e quando a portaria recebeu.
             </DialogDescription>
@@ -289,11 +287,7 @@ export function CorrespondenceFormDialog({
                 control={control}
                 name="receivedAt"
                 render={({ field, fieldState }) => (
-                  <FormField
-                    id="receivedAt"
-                    label="Recebida em"
-                    error={fieldState.error?.message}
-                  >
+                  <FormField id="receivedAt" label="Recebida em" error={fieldState.error?.message}>
                     {(aria) => (
                       <DateTimeInput {...aria} value={field.value} onChange={field.onChange} />
                     )}

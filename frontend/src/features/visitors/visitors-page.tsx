@@ -28,10 +28,7 @@ import { AccessCodeLookup } from './components/access-code-lookup';
 import { VisitorFilters } from './components/visitor-filters';
 import { VisitorFormDialog } from './components/visitor-form-dialog';
 import { VisitorStatusBadge } from './components/visitor-status-badge';
-import {
-  VisitorRowActions,
-  type VisitorFlowAction,
-} from './components/visitor-row-actions';
+import { VisitorRowActions, type VisitorFlowAction } from './components/visitor-row-actions';
 
 const DESCRIPTION = 'Controle de acesso da portaria: quem chegou, quem esta dentro e quem saiu.';
 
@@ -116,10 +113,7 @@ export function VisitorsPage() {
     setRowError(null);
 
     const mutation = action === 'check-in' ? checkIn : checkOut;
-    mutation.mutate(
-      { id: visitor.id },
-      { onSettled: () => inFlight.current.delete(visitor.id) },
-    );
+    mutation.mutate({ id: visitor.id }, { onSettled: () => inFlight.current.delete(visitor.id) });
   }
 
   const rows = query.data?.data ?? [];
@@ -268,7 +262,9 @@ export function VisitorsPage() {
               description={DESCRIPTION}
               actions={
                 canCreate ? (
-                  <Button onClick={() => setFormTarget({ visitor: null, condominiumId: selectedId })}>
+                  <Button
+                    onClick={() => setFormTarget({ visitor: null, condominiumId: selectedId })}
+                  >
                     Novo visitante
                   </Button>
                 ) : undefined

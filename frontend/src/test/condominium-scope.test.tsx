@@ -123,8 +123,10 @@ describe('Escopo de condominio', () => {
       serveAll(WORLD);
 
       const view = renderWithProviders(element, { condominium: scoped });
-      expect((await screen.findAllByText(marker, undefined, { timeout: 5000 })).length, name)
-        .toBeGreaterThan(0);
+      expect(
+        (await screen.findAllByText(marker, undefined, { timeout: 5000 })).length,
+        name,
+      ).toBeGreaterThan(0);
 
       const requests = allRequests().filter((request) => !UNSCOPED.includes(request.url));
       expect(requests.length, `${name} nao fez requisicao nenhuma`).toBeGreaterThan(0);

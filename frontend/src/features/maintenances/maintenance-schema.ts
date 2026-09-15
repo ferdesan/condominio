@@ -9,11 +9,7 @@
  */
 
 import { z } from 'zod';
-import {
-  MAINTENANCE_RECURRENCES,
-  MAINTENANCE_TYPES,
-  type Maintenance,
-} from '@/types/maintenance';
+import { MAINTENANCE_RECURRENCES, MAINTENANCE_TYPES, type Maintenance } from '@/types/maintenance';
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {

@@ -46,11 +46,7 @@ describe('Recorte do grafico de ocorrencias', () => {
   });
 
   it('ordena pelo maior total', () => {
-    const ranked = rankIncidentCategories([
-      make('NOISE', 1),
-      make('SECURITY', 9),
-      make('PET', 5),
-    ]);
+    const ranked = rankIncidentCategories([make('NOISE', 1), make('SECURITY', 9), make('PET', 5)]);
 
     expect(ranked.map((item) => item.category)).toEqual(['SECURITY', 'PET', 'NOISE']);
   });

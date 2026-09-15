@@ -99,7 +99,12 @@ export function PayExpenseDialog({ expense, onClose }: PayExpenseDialogProps) {
               render={({ field, fieldState }) => (
                 <FormField id="pay-paidAt" label="Pago em" error={fieldState.error?.message}>
                   {(aria) => (
-                    <DateTimeInput autoFocus {...aria} value={field.value} onChange={field.onChange} />
+                    <DateTimeInput
+                      autoFocus
+                      {...aria}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
                   )}
                 </FormField>
               )}

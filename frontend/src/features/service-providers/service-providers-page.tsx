@@ -205,7 +205,9 @@ export function ServiceProvidersPage() {
             description={DESCRIPTION}
             actions={
               canCreate ? (
-                <Button onClick={() => setFormTarget({ provider: null, condominiumId: selectedId })}>
+                <Button
+                  onClick={() => setFormTarget({ provider: null, condominiumId: selectedId })}
+                >
                   Novo prestador
                 </Button>
               ) : undefined

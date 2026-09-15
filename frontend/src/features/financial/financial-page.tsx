@@ -138,11 +138,7 @@ export function FinancialPage() {
         content={
           <div className="p-4">
             {section === 'charges' ? (
-              <ChargesSection
-                condominiumId={selectedId}
-                units={units}
-                categories={categories}
-              />
+              <ChargesSection condominiumId={selectedId} units={units} categories={categories} />
             ) : section === 'expenses' ? (
               <ExpensesSection
                 condominiumId={selectedId}

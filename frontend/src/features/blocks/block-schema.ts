@@ -30,7 +30,11 @@ function intInRange(min: number, max: number, message: string) {
 }
 
 export const blockSchema = z.object({
-  name: z.string().trim().min(1, 'Informe o nome do bloco.').max(80, 'Use no maximo 80 caracteres.'),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Informe o nome do bloco.')
+    .max(80, 'Use no maximo 80 caracteres.'),
   type: z.enum(BLOCK_TYPES),
   description: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
   floors: intInRange(

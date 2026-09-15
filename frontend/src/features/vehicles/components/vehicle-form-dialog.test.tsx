@@ -196,9 +196,7 @@ describe('Cadastro de veiculo', () => {
     await user.type(within(dialog()).getByLabelText('Placa'), 'AB12');
     submitCreate();
 
-    const message = await screen.findByText(
-      'Placa invalida. Use o formato ABC1234 ou ABC1D23.',
-    );
+    const message = await screen.findByText('Placa invalida. Use o formato ABC1234 ou ABC1D23.');
     // A objecao pertence ao campo da placa, e nao ao formulario inteiro.
     expect(message).toHaveAttribute('id', 'plate-error');
     expect(mockPost).not.toHaveBeenCalled();

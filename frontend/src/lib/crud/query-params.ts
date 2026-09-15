@@ -116,10 +116,7 @@ const reservationSearchable = ['requestedByName', 'notes'] as const;
 const commonAreaSearchable = ['name', 'description'] as const;
 
 /** O backend aceita ordenar por filtravel + buscavel + os dois timestamps. */
-function sortable(
-  filters: readonly string[],
-  searchable: readonly string[],
-): readonly string[] {
+function sortable(filters: readonly string[], searchable: readonly string[]): readonly string[] {
   return [...new Set([...filters, ...searchable, 'createdAt', 'updatedAt'])];
 }
 
@@ -133,7 +130,5 @@ export const commonAreaSortable = sortable(commonAreaFilters, commonAreaSearchab
 /** Descarta chaves fora da whitelist antes que virem uma query inocua. */
 export function pickFilters(whitelist: readonly string[], filters: Filters): Filters {
   const allowed = new Set(whitelist);
-  return Object.fromEntries(
-    Object.entries(filters).filter(([key]) => allowed.has(key)),
-  );
+  return Object.fromEntries(Object.entries(filters).filter(([key]) => allowed.has(key)));
 }

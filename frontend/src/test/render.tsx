@@ -19,10 +19,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { QueryProvider } from '@/providers/query-provider';
 import { AuthContext, type AuthContextValue } from '@/providers/auth-context';
-import {
-  CondominiumContext,
-  type CondominiumContextValue,
-} from '@/providers/condominium-context';
+import { CondominiumContext, type CondominiumContextValue } from '@/providers/condominium-context';
 import { hasPermission } from '@/lib/permissions';
 import type { AuthUser, Condominium, SystemRole } from '@/types/api';
 import { makeAuthUser, makeCondominium } from './fixtures';
@@ -45,10 +42,7 @@ const ROLE_PERMISSIONS: Record<SystemRole, string[]> = {
   SUPER_ADMIN: ['*'],
   ADMIN: ['*'],
   SINDICO: BACK_OFFICE_RESOURCES.map((resource) => `${resource}:manage`),
-  STAFF: [
-    ...BACK_OFFICE_RESOURCES.map((resource) => `${resource}:read`),
-    'reservation:update',
-  ],
+  STAFF: [...BACK_OFFICE_RESOURCES.map((resource) => `${resource}:read`), 'reservation:update'],
   RESIDENT: [
     ...BACK_OFFICE_RESOURCES.map((resource) => `${resource}:read`),
     'reservation:create',

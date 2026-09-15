@@ -298,9 +298,7 @@ describe('Envio de documento', () => {
     await user.type(within(dialog).getByLabelText('Titulo'), 'Repetido');
     await user.click(within(dialog).getByRole('button', { name: 'Enviar' }));
 
-    expect(
-      await screen.findByText('Ja existe um documento com este titulo.'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('Ja existe um documento com este titulo.')).toBeInTheDocument();
     // O `onError` proprio substitui o toast global: a mesma recusa nao pode
     // aparecer duas vezes.
     expect(mockToastError).not.toHaveBeenCalled();
@@ -311,7 +309,9 @@ describe('Edicao de metadados', () => {
   it('edita sem tocar no arquivo, e nem oferece troca-lo', async () => {
     world = serveDocuments({ documents: [makeDocument()] });
     const user = createUser();
-    mockPatch.mockImplementation(async () => makeDocument({ title: 'Convencao revisada' }) as never);
+    mockPatch.mockImplementation(
+      async () => makeDocument({ title: 'Convencao revisada' }) as never,
+    );
     renderWithProviders(<DocumentsPage />);
 
     await findRows();

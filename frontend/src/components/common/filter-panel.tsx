@@ -77,7 +77,9 @@ export function FilterPanel({
   title = 'Filtros',
   showActiveOnly = false,
 }: FilterPanelProps) {
-  const activeFilters = filters.filter((f) => f.value !== null && f.value !== undefined && f.value !== '');
+  const activeFilters = filters.filter(
+    (f) => f.value !== null && f.value !== undefined && f.value !== '',
+  );
 
   const handleRemoveFilter = (id: string) => {
     onFilterChange(filters.filter((f) => f.id !== id));
@@ -109,27 +111,27 @@ export function FilterPanel({
           <div className="px-4 pb-4 space-y-4 border-t border-border">{children}</div>
 
           {activeFilters.length > 0 && (
-              <div className="px-4 py-3 border-t border-border bg-muted/30">
-                <div className="flex flex-wrap gap-2">
-                  {activeFilters.map((filter) => (
-                    <div
-                      key={filter.id}
-                      className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm"
+            <div className="px-4 py-3 border-t border-border bg-muted/30">
+              <div className="flex flex-wrap gap-2">
+                {activeFilters.map((filter) => (
+                  <div
+                    key={filter.id}
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm"
+                  >
+                    <span className="font-medium">{filter.label}:</span>
+                    <span className="font-mono text-xs">{String(filter.value)}</span>
+                    <button
+                      onClick={() => handleRemoveFilter(filter.id)}
+                      className="ml-1 hover:opacity-70 transition-opacity"
+                      aria-label={`Remover filtro ${filter.label}`}
                     >
-                      <span className="font-medium">{filter.label}:</span>
-                      <span className="font-mono text-xs">{String(filter.value)}</span>
-                      <button
-                        onClick={() => handleRemoveFilter(filter.id)}
-                        className="ml-1 hover:opacity-70 transition-opacity"
-                        aria-label={`Remover filtro ${filter.label}`}
-                      >
-                        <X className="size-3" aria-hidden="true" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                      <X className="size-3" aria-hidden="true" />
+                    </button>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+          )}
         </>
       </Card>
     </div>

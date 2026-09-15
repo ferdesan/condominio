@@ -220,7 +220,14 @@ export function VehicleFormDialog({
 
               <FormField id="year" label="Ano" error={errors.year?.message}>
                 {(aria) => (
-                  <Input type="number" min={1900} max={2100} inputMode="numeric" {...aria} {...register('year')} />
+                  <Input
+                    type="number"
+                    min={1900}
+                    max={2100}
+                    inputMode="numeric"
+                    {...aria}
+                    {...register('year')}
+                  />
                 )}
               </FormField>
             </FormSection>

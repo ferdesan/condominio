@@ -115,8 +115,8 @@ export function ReservationCalendar({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        O calendario mostra apenas reservas pendentes e confirmadas. Use a lista para ver
-        recusadas, canceladas e concluidas.
+        O calendario mostra apenas reservas pendentes e confirmadas. Use a lista para ver recusadas,
+        canceladas e concluidas.
       </p>
 
       {loading ? (

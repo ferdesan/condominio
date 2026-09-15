@@ -88,9 +88,7 @@ export function MaintenanceFormDialog({
     formState: { errors, isDirty, isSubmitting },
   } = useForm<MaintenanceFormValues>({
     resolver: zodResolver(maintenanceSchema),
-    defaultValues: maintenance
-      ? toMaintenanceFormValues(maintenance)
-      : maintenanceFormDefaults(),
+    defaultValues: maintenance ? toMaintenanceFormValues(maintenance) : maintenanceFormDefaults(),
   });
 
   function handleError(error: ApiError): void {
@@ -369,7 +367,11 @@ function FormSection({
   children: ReactNode;
 }) {
   const grid =
-    columns === 1 ? 'grid gap-4' : columns === 2 ? 'grid gap-4 sm:grid-cols-2' : 'grid gap-4 sm:grid-cols-3';
+    columns === 1
+      ? 'grid gap-4'
+      : columns === 2
+        ? 'grid gap-4 sm:grid-cols-2'
+        : 'grid gap-4 sm:grid-cols-3';
   return (
     <fieldset>
       <legend className="mb-3 text-sm font-semibold text-foreground">{title}</legend>

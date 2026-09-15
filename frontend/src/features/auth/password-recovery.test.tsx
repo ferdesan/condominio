@@ -50,7 +50,9 @@ function render(ui: React.ReactElement, route = '/') {
 /** O corpo do ultimo POST para a rota informada. */
 function lastPostTo(url: string): Record<string, unknown> | undefined {
   const calls = mockPost.mock.calls.filter((call) => call[0] === url);
-  return calls.length ? ((calls[calls.length - 1]?.[1] ?? {}) as Record<string, unknown>) : undefined;
+  return calls.length
+    ? ((calls[calls.length - 1]?.[1] ?? {}) as Record<string, unknown>)
+    : undefined;
 }
 
 describe('Login: a porta que faltava', () => {
@@ -158,7 +160,9 @@ describe('Pedido de recuperacao', () => {
     await user.type(await screen.findByLabelText('E-mail'), 'marina@exemplo.com');
     await user.click(screen.getByRole('button', { name: 'Enviar link' }));
 
-    expect(await screen.findByRole('heading', { name: 'Verifique seu e-mail' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Verifique seu e-mail' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('marina@exemplo.com')).toBeInTheDocument();
     expect(screen.getByText(/estiver cadastrado/)).toBeInTheDocument();
   });
@@ -178,7 +182,11 @@ describe('Pedido de recuperacao', () => {
   it('limite de tentativas do servidor vira aviso, e nao silencio', async () => {
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Muitas tentativas. Tente novamente em alguns minutos.', 429, 'TOO_MANY_REQUESTS'),
+      new ApiError(
+        'Muitas tentativas. Tente novamente em alguns minutos.',
+        429,
+        'TOO_MANY_REQUESTS',
+      ),
     );
     render(<ForgotPasswordPage />);
 

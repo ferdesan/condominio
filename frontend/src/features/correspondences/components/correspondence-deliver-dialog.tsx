@@ -110,8 +110,8 @@ export function CorrespondenceDeliverDialog({
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           <p className="text-sm text-muted-foreground">
             {correspondence.description ?? 'Sem descricao'} ·{' '}
-            {correspondence.unit ? unitLabel(correspondence.unit) : 'Unidade removida'} · recebida em{' '}
-            {formatDateTime(correspondence.receivedAt)}
+            {correspondence.unit ? unitLabel(correspondence.unit) : 'Unidade removida'} · recebida
+            em {formatDateTime(correspondence.receivedAt)}
           </p>
 
           <FormField

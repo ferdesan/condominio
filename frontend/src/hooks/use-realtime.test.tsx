@@ -3,10 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import { io } from 'socket.io-client';
 import { AuthContext, type AuthContextValue } from '@/providers/auth-context';
-import {
-  CondominiumContext,
-  type CondominiumContextValue,
-} from '@/providers/condominium-context';
+import { CondominiumContext, type CondominiumContextValue } from '@/providers/condominium-context';
 import { makeAuthUser, makeCondominium } from '@/test/fixtures';
 import { EVENT_INVALIDATIONS, invalidationsFor } from '@/lib/realtime-events';
 import { realtimeOrigin, REALTIME_EVENTS, SOCKET_PATH } from '@/lib/realtime';

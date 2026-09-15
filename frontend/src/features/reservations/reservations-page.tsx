@@ -124,7 +124,11 @@ export function ReservationsPage() {
       key: 'unitId',
       label: 'Unidade',
       render: (_value, row) =>
-        row.unit ? `Unidade ${row.unit.number}` : <span className="text-muted-foreground">Unidade indisponivel</span>,
+        row.unit ? (
+          `Unidade ${row.unit.number}`
+        ) : (
+          <span className="text-muted-foreground">Unidade indisponivel</span>
+        ),
     },
     // O nome do solicitante e gravado na propria reserva, entao sobrevive a
     // remocao da unidade e do usuario.

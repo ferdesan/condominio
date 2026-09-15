@@ -229,7 +229,9 @@ export function DocumentsPage() {
             description={DESCRIPTION}
             actions={
               canCreate ? (
-                <Button onClick={() => setFormTarget({ document: null, condominiumId: selectedId })}>
+                <Button
+                  onClick={() => setFormTarget({ document: null, condominiumId: selectedId })}
+                >
                   Enviar documento
                 </Button>
               ) : undefined

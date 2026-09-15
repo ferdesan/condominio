@@ -76,7 +76,9 @@ describe('Indicadores de ocupacao', () => {
     serve({ total: 48, OCCUPIED: 30, VACANT: 18 });
     renderWithProviders(<UnitsPage />);
 
-    await waitFor(() => expect(within(indicator('Total de unidades')).getByText('48')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(within(indicator('Total de unidades')).getByText('48')).toBeInTheDocument(),
+    );
     expect(within(indicator('Unidades ocupadas')).getByText('30')).toBeInTheDocument();
     expect(within(indicator('Unidades disponiveis')).getByText('18')).toBeInTheDocument();
 
@@ -86,18 +88,16 @@ describe('Indicadores de ocupacao', () => {
     for (const params of calls) {
       expect(params).toMatchObject({ perPage: 1, condominiumId: 'cond-1' });
     }
-    expect(calls.map((params) => params.status)).toEqual([
-      undefined,
-      'OCCUPIED',
-      'VACANT',
-    ]);
+    expect(calls.map((params) => params.status)).toEqual([undefined, 'OCCUPIED', 'VACANT']);
   });
 
   it('IT-081: condominio sem unidades mostra zeros, distintos do carregamento', async () => {
     serve({ total: 0, OCCUPIED: 0, VACANT: 0 });
     renderWithProviders(<UnitsPage />);
 
-    await waitFor(() => expect(within(indicator('Total de unidades')).getByText('0')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(within(indicator('Total de unidades')).getByText('0')).toBeInTheDocument(),
+    );
     expect(within(indicator('Unidades ocupadas')).getByText('0')).toBeInTheDocument();
     expect(within(indicator('Unidades disponiveis')).getByText('0')).toBeInTheDocument();
     // Zero e um numero; carregando seria um esqueleto no lugar dele.
@@ -108,7 +108,9 @@ describe('Indicadores de ocupacao', () => {
     serve({ total: 10, OCCUPIED: 6, VACANT: 3 });
     renderWithProviders(<UnitsPage />);
 
-    await waitFor(() => expect(within(indicator('Total de unidades')).getByText('10')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(within(indicator('Total de unidades')).getByText('10')).toBeInTheDocument(),
+    );
     expect(within(indicator('Unidades ocupadas')).getByText('6')).toBeInTheDocument();
     expect(within(indicator('Unidades disponiveis')).getByText('3')).toBeInTheDocument();
 
@@ -139,7 +141,9 @@ describe('Indicadores de ocupacao', () => {
   it('IT-084: com filtros ativos, o escopo dos indicadores fica explicito', async () => {
     serve({ total: 48, OCCUPIED: 30, VACANT: 18 });
     renderWithProviders(<UnitsPage />);
-    await waitFor(() => expect(within(indicator('Total de unidades')).getByText('48')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(within(indicator('Total de unidades')).getByText('48')).toBeInTheDocument(),
+    );
 
     expect(screen.getByText(/Indicadores de todo o condominio selecionado\./)).toBeInTheDocument();
     expect(screen.queryByText(/os filtros da lista nao se aplicam/)).not.toBeInTheDocument();

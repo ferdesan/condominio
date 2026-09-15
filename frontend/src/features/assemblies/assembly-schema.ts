@@ -257,7 +257,8 @@ const pollFields = z.object({
 });
 
 export const pollSchema = pollFields.refine(
-  (values) => !values.startsAt || !values.endsAt || new Date(values.endsAt) > new Date(values.startsAt),
+  (values) =>
+    !values.startsAt || !values.endsAt || new Date(values.endsAt) > new Date(values.startsAt),
   { path: ['endsAt'], message: 'O encerramento deve ser posterior a abertura.' },
 );
 

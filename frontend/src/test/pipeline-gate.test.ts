@@ -128,9 +128,7 @@ describe('Portao do pipeline', () => {
 
     // O build so roda se lint/typecheck e teste passarem: e ai que o portao fecha.
     const build = workflow.slice(workflow.indexOf('  build:'));
-    expect(build.slice(0, build.indexOf('steps:'))).toContain(
-      'needs: [lint-typecheck, test]',
-    );
+    expect(build.slice(0, build.indexOf('steps:'))).toContain('needs: [lint-typecheck, test]');
   });
 
   it('IT-189: a suite roda ate o fim, sai zero e relata arquivos e casos', () => {

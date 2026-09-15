@@ -49,18 +49,14 @@ export type ResourceHooks<T, TCreate, TUpdate> = {
     options?: { enabled?: boolean },
   ) => UseQueryResult<Paginated<T>, ApiError>;
   useOne: (id: string | null) => UseQueryResult<T, ApiError>;
-  useCreate: (
-    callbacks?: MutationCallbacks<T, TCreate>,
-  ) => UseMutationResult<T, ApiError, TCreate>;
+  useCreate: (callbacks?: MutationCallbacks<T, TCreate>) => UseMutationResult<T, ApiError, TCreate>;
   useUpdate: (
     callbacks?: MutationCallbacks<T, { id: string; data: TUpdate }>,
   ) => UseMutationResult<T, ApiError, { id: string; data: TUpdate }>;
   useRemove: (
     callbacks?: MutationCallbacks<void, string>,
   ) => UseMutationResult<void, ApiError, string>;
-  useRestore: (
-    callbacks?: MutationCallbacks<T, string>,
-  ) => UseMutationResult<T, ApiError, string>;
+  useRestore: (callbacks?: MutationCallbacks<T, string>) => UseMutationResult<T, ApiError, string>;
   /**
    * Indicadores numericos: nao existe endpoint de agregacao, entao pedimos uma
    * pagina de um registro e lemos `meta.total`.

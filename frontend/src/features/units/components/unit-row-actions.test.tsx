@@ -53,9 +53,7 @@ function serve(units: Unit[]): void {
 
 /** O cartao de total, que a exclusao precisa mover. */
 function totalIndicator(): HTMLElement {
-  return screen
-    .getByText('Total de unidades')
-    .closest('div.app-surface') as HTMLElement;
+  return screen.getByText('Total de unidades').closest('div.app-surface') as HTMLElement;
 }
 
 /** Abre a confirmacao de exclusao da unidade e confirma. */
@@ -124,9 +122,7 @@ describe('Exclusao e restauracao de unidade', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
     // Os moradores saíram; o servidor agora reporta o outro impedimento.
-    mockDelete.mockRejectedValueOnce(
-      new ApiError(CHARGES_BLOCKER, 409, 'BUSINESS_RULE_VIOLATION'),
-    );
+    mockDelete.mockRejectedValueOnce(new ApiError(CHARGES_BLOCKER, 409, 'BUSINESS_RULE_VIOLATION'));
     await deleteUnit('101');
 
     await waitFor(() => expect(mockToastError).toHaveBeenCalledWith(CHARGES_BLOCKER));
@@ -195,9 +191,7 @@ describe('Permissoes nas acoes de linha', () => {
     expect(screen.queryByRole('button', { name: 'Excluir unidade 101' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Editar unidade 101' })).not.toBeInTheDocument();
     // Restaurar exige `update`, nao `delete` — e sem ele tambem some (ADR-006).
-    expect(
-      screen.queryByRole('button', { name: 'Restaurar unidade 102' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Restaurar unidade 102' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Nova unidade' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Gerar unidades/ })).not.toBeInTheDocument();
   });

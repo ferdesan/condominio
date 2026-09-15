@@ -44,13 +44,21 @@ export function ResidentFilters({ list, units }: ResidentFiltersProps) {
 
   const chips: Filter[] = [];
   if (list.filters.unitId) {
-    chips.push({ id: 'unitId', label: 'Unidade', value: labelOf(unitOptions, list.filters.unitId) });
+    chips.push({
+      id: 'unitId',
+      label: 'Unidade',
+      value: labelOf(unitOptions, list.filters.unitId),
+    });
   }
   if (list.filters.type) {
     chips.push({ id: 'type', label: 'Tipo', value: labelOf(TYPE_OPTIONS, list.filters.type) });
   }
   if (list.filters.status) {
-    chips.push({ id: 'status', label: 'Status', value: labelOf(STATUS_OPTIONS, list.filters.status) });
+    chips.push({
+      id: 'status',
+      label: 'Status',
+      value: labelOf(STATUS_OPTIONS, list.filters.status),
+    });
   }
 
   /** O painel devolve os chips que sobraram; os que sairam viram filtro limpo. */

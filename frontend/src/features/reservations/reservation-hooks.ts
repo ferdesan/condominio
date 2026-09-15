@@ -68,7 +68,14 @@ export function useAvailability(
   const to = params?.to.toISOString();
 
   return useQuery<AvailabilityEntry[], ApiError>({
-    queryKey: [RESERVATIONS_KEY, 'availability', params?.condominiumId, from, to, params?.commonAreaId ?? null],
+    queryKey: [
+      RESERVATIONS_KEY,
+      'availability',
+      params?.condominiumId,
+      from,
+      to,
+      params?.commonAreaId ?? null,
+    ],
     queryFn: () =>
       apiGet<AvailabilityEntry[]>('/reservations/availability', {
         params: {

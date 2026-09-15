@@ -118,10 +118,7 @@ export function useResponsibleOptions(
  * deliberada: importa-la de `features/incidents` acoplaria duas telas
  * independentes por uma funcao pura, e `lib/crud/` nao muda nesta entrega.
  */
-export function scopeToCondominium(
-  users: readonly User[],
-  condominiumId: string | null,
-): User[] {
+export function scopeToCondominium(users: readonly User[], condominiumId: string | null): User[] {
   if (!condominiumId) return [];
   return users.filter((user) => {
     const scope = user.condominiums ?? [];

@@ -63,7 +63,10 @@ function serve(blocks: Block[], units: Unit[] = []): void {
     }
     // A tela de unidades tambem consulta contagens (`perPage=1`) na regressao.
     if (Number(params.perPage) === 1) {
-      return { data: [], meta: makeMeta({ page: 1, perPage: 1, total: world.units.length }) } as never;
+      return {
+        data: [],
+        meta: makeMeta({ page: 1, perPage: 1, total: world.units.length }),
+      } as never;
     }
     return { data: world.units, meta: makeMeta({ total: world.units.length }) } as never;
   });
@@ -96,7 +99,10 @@ function cellsOf(label: string): string[] {
 function makeRoster(count: number, offset = 0): Block[] {
   return Array.from({ length: count }, (_, index) => {
     const position = offset + index + 1;
-    return makeBlock({ id: `block-${position}`, name: `Bloco ${String(position).padStart(3, '0')}` });
+    return makeBlock({
+      id: `block-${position}`,
+      name: `Bloco ${String(position).padStart(3, '0')}`,
+    });
   });
 }
 

@@ -19,9 +19,9 @@ type Callbacks<TVariables> = {
   onError?: (error: ApiError, variables: TVariables) => void;
 };
 
-function optionalOnError<TVariables>(
-  callbacks: Callbacks<TVariables>,
-): { onError?: (error: ApiError, variables: TVariables) => void } {
+function optionalOnError<TVariables>(callbacks: Callbacks<TVariables>): {
+  onError?: (error: ApiError, variables: TVariables) => void;
+} {
   return callbacks.onError ? { onError: callbacks.onError } : {};
 }
 

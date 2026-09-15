@@ -139,9 +139,7 @@ export function ExpenseFormDialog({
               label="Descricao"
               error={errors.description?.message}
             >
-              {(aria) => (
-                <Input autoFocus maxLength={180} {...aria} {...register('description')} />
-              )}
+              {(aria) => <Input autoFocus maxLength={180} {...aria} {...register('description')} />}
             </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
