@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "Fecha o desvio do `/uploads` e o arquivo órfão do upload"
 type: bugfix
 complexity: high
@@ -34,17 +34,17 @@ Fecha os dois defeitos que a auditoria encontrou nos documentos: um arquivo guar
 
 ## Subtasks
 
-- [ ] 1.1 Remove the static mount and verify the file has no dangling imports afterwards.
-- [ ] 1.2 Hide `filePath` on the entity.
-- [ ] 1.3 Add the repository method that re-selects the column, mirroring the `passwordHash` precedent, and make it able to read a soft-deleted row.
-- [ ] 1.4 Point `prepareDownload` at that method.
-- [ ] 1.5 Make the removal path obtain the stored path before or despite the soft delete, so the file is actually unlinked.
-- [ ] 1.6 Wrap the `POST /documents` handler so a failure after the write unlinks the orphan and rethrows the original error.
-- [ ] 1.7 Drop `filePath` from the frontend type and its fixture together.
-- [ ] 1.8 Add the `uploads-test/` ignore line.
-- [ ] 1.9 Create `backend/tests/integration/documents.spec.ts` with the shared skeleton: personas in `beforeAll`, the multipart upload helper described in the TechSpec's Core Interfaces, and an `afterAll` that removes the tenant upload directory **before** tearing the context down.
-- [ ] 1.10 Write the three assigned cases against that skeleton.
-- [ ] 1.11 Run the full pipeline on both sides and confirm the case counts did not drop.
+- [x] 1.1 Remove the static mount and verify the file has no dangling imports afterwards.
+- [x] 1.2 Hide `filePath` on the entity.
+- [x] 1.3 Add the repository method that re-selects the column, mirroring the `passwordHash` precedent, and make it able to read a soft-deleted row.
+- [x] 1.4 Point `prepareDownload` at that method.
+- [x] 1.5 Make the removal path obtain the stored path before or despite the soft delete, so the file is actually unlinked.
+- [x] 1.6 Wrap the `POST /documents` handler so a failure after the write unlinks the orphan and rethrows the original error.
+- [x] 1.7 Drop `filePath` from the frontend type and its fixture together.
+- [x] 1.8 Add the `uploads-test/` ignore line.
+- [x] 1.9 Create `backend/tests/integration/documents.spec.ts` with the shared skeleton: personas in `beforeAll`, the multipart upload helper described in the TechSpec's Core Interfaces, and an `afterAll` that removes the tenant upload directory **before** tearing the context down.
+- [x] 1.10 Write the three assigned cases against that skeleton.
+- [x] 1.11 Run the full pipeline on both sides and confirm the case counts did not drop.
 
 ## Implementation Details
 
@@ -102,9 +102,18 @@ Side effect worth knowing: `BaseCrudService.toAuditSnapshot` copies scalar prope
 
 Cases assigned from `_tests.md`, the test contract — read each ID's full definition there before writing tests.
 
-- [ ] IT-214 — a failed multipart body returns 422 and leaves no file in the tenant upload directory.
-- [ ] IT-234 — a real uploaded file is unreachable at `/uploads/<tenantId>/<storedName>` with no `Authorization` header.
-- [ ] IT-235 — no document response carries a `filePath` field.
+- [x] IT-214 — a failed multipart body returns 422 and leaves no file in the tenant upload directory.
+- [x] IT-234 — a real uploaded file is unreachable at `/uploads/<tenantId>/<storedName>` with no `Authorization` header.
+- [x] IT-235 — no document response carries a `filePath` field.
+
+## Notas de execução
+
+Duas leituras do contrato foram resolvidas durante a implementação, ambas a favor da intenção e contra a letra:
+
+- **IT-214** diz "o diretório do tenant não tem arquivo nenhum depois". O caso afirma que o diretório **não mudou**. Hoje é a mesma coisa — IT-214 é o primeiro caso e nada sobe no `beforeAll` —, mas a task_02 vai subir cinco documentos ali, e a partir daí a letra do contrato seria falsa enquanto esta forma continua correta.
+- **IT-234** diz que o caminho vem "do upload feito no `beforeAll`". O esqueleto da task_01 não sobe nada no `beforeAll`; o caso faz o próprio upload e lê o nome **do disco**. É consequência desta própria task: a API deixou de expor `filePath`, então ler do disco virou o único jeito de apontar para um arquivo real, que é a propriedade que o contrato pede.
+
+Uma coisa a mais do que o pedido, por segurança do que vem depois: `prepareDownload` passou a tratar caminho ausente como `400 Arquivo indisponivel`, em vez de deixar `resolveStoredPath` receber `undefined`. Sem isso, um documento sem caminho conhecido produziria um erro de tipo no meio da requisição.
 
 ## Success Criteria
 
