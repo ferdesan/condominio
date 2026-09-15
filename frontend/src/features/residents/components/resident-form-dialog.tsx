@@ -359,11 +359,9 @@ export function ResidentFormDialog({
               </FormField>
             </FormSection>
 
-            <FormSection title="Observacoes" columns={1}>
-              <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
-                {(aria) => <Textarea {...aria} {...register('notes')} />}
-              </FormField>
-            </FormSection>
+            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+              {(aria) => <Textarea {...aria} {...register('notes')} />}
+            </FormField>
 
             {formError ? (
               <div

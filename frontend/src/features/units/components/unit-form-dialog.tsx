@@ -297,11 +297,9 @@ export function UnitFormDialog({
               />
             </FormSection>
 
-            <FormSection title="Observacoes" columns={1}>
-              <FormField id="unit-notes" label="Observacoes" error={errors.notes?.message}>
-                {(aria) => <Textarea {...aria} {...register('notes')} />}
-              </FormField>
-            </FormSection>
+            <FormField id="unit-notes" label="Observacoes" error={errors.notes?.message}>
+              {(aria) => <Textarea {...aria} {...register('notes')} />}
+            </FormField>
 
             {formError ? (
               <div
