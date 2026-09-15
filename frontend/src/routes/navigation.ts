@@ -10,6 +10,7 @@ import {
   Gauge,
   HardHat,
   Home,
+  KeyRound,
   Mail,
   Megaphone,
   ScrollText,
@@ -119,6 +120,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: '/notificacoes', label: 'Notificacoes', icon: Bell },
       { to: '/usuarios', label: 'Usuarios', icon: ShieldCheck, permission: 'user:read' },
+      { to: '/papeis', label: 'Papeis', icon: KeyRound, permission: 'role:read' },
       { to: '/auditoria', label: 'Auditoria', icon: ScrollText, permission: 'audit-log:read' },
       {
         // Por tenant, como Usuarios e Auditoria: nao herda o seletor do shell.

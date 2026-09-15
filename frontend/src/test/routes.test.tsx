@@ -18,6 +18,7 @@ import { NAV_ITEMS } from '@/routes/navigation';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { makeCondominium, makeMeta } from '@/test/fixtures';
 import { makeTenant } from '@/features/tenant/test-utils';
+import { CATALOG } from '@/features/roles/test-utils';
 import { renderWithProviders, screen, within } from '@/test/render';
 import type { DashboardOverview } from '@/types/api';
 
@@ -93,6 +94,7 @@ const AUXILIARY_READS: Record<string, unknown> = {
   // A fixture nao mora em `test/fixtures.ts`: aquele arquivo so conhece
   // `types/api.ts`, fechado para contratos novos.
   '/tenants/me': makeTenant(),
+  '/roles/permissions': { permissions: CATALOG },
 };
 
 /**
@@ -154,6 +156,7 @@ const REGISTERED = [
   { path: '/documentos', title: 'Documentos', permission: 'document:read' },
   { path: '/usuarios', title: 'Usuarios', permission: 'user:read' },
   { path: '/auditoria', title: 'Auditoria', permission: 'audit-log:read' },
+  { path: '/papeis', title: 'Papeis', permission: 'role:read' },
   { path: '/configuracoes', title: 'Configuracoes', permission: 'tenant:read' },
   // Unico item sem permissao declarada em `navigation.ts`.
   { path: '/notificacoes', title: 'Notificacoes', permission: null },

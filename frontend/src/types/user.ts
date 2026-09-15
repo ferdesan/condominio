@@ -1,6 +1,12 @@
 /**
  * Espelha `backend/src/modules/users/user.entity.ts` e o contrato de
- * `user.schema.ts`, mais o papel de `role.entity.ts`.
+ * `user.schema.ts`.
+ *
+ * **`Role` nao mora mais aqui.** Ele e um recurso proprio, com rotas proprias,
+ * e desde a tela de papeis vive em `types/role.ts`; este arquivo apenas o
+ * importa para tipar o vinculo. Um `export` de reexportacao daria dois caminhos
+ * de import validos para o mesmo simbolo, que e justamente o que o cabecalho de
+ * `api.ts` recusa.
  *
  * Arquivo proprio pelo mesmo motivo de `incident.ts`: `api.ts` e compartilhado
  * entre as tasks deste tier e ja foi ponto de quebra.
@@ -11,25 +17,10 @@
  * (`relations: ['role', 'condominiums']`), e nunca como filtro.
  */
 
+import type { Role } from './role';
+
 export const USER_STATUSES = ['ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING'] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
-
-/**
- * Papel de acesso, de `GET /roles`.
- *
- * Os cinco papeis do sistema (`isSystem`) sao semeados por tenant e nao podem
- * ser removidos; um tenant pode criar outros combinando permissoes do catalogo.
- */
-export type Role = {
-  id: string;
-  name: string;
-  description: string | null;
-  permissions: string[];
-  isSystem: boolean;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-};
 
 /** Condominio vinculado a um usuario, como vem aninhado na resposta de `/users`. */
 export type UserCondominium = {

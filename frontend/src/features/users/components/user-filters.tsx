@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import type { ListState } from '@/lib/crud';
 import type { Unit } from '@/types/api';
-import type { Role } from '@/types/user';
+import type { Role } from '@/types/role';
 import { unitLabel } from '../user-hooks';
 import { STATUS_LABELS } from '../user-labels';
 

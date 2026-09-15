@@ -22,7 +22,8 @@ import {
 import { apiGetPaginated, apiPost, type ApiError, type Paginated } from '@/lib/api';
 import { createResourceHooks, MAX_PER_PAGE } from '@/lib/crud';
 import type { Unit } from '@/types/api';
-import type { PasswordReset, Role, User } from '@/types/user';
+import type { Role } from '@/types/role';
+import type { PasswordReset, User } from '@/types/user';
 import type { UserPayload } from './user-schema';
 
 export const USERS_KEY = 'users';

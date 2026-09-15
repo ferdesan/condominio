@@ -25,6 +25,7 @@ import { NotificationsPage } from '@/features/notifications/notifications-page';
 import { FinancialPage } from '@/features/financial/financial-page';
 import { AssembliesPage } from '@/features/assemblies/assemblies-page';
 import { DocumentsPage } from '@/features/documents/documents-page';
+import { RolesPage } from '@/features/roles/roles-page';
 import { TenantPage } from '@/features/tenant/tenant-page';
 import { ProfilePage } from '@/features/profile/profile-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
@@ -57,6 +58,7 @@ const IMPLEMENTED = new Set([
   '/assembleias',
   '/documentos',
   '/configuracoes',
+  '/papeis',
 ]);
 
 export function AppRouter() {
@@ -147,6 +149,13 @@ export function AppRouter() {
           <Route element={<ProtectedRoute permission="user:read" />}>
             {/* Por tenant, e nao por condominio: nao herda o seletor do shell. */}
             <Route path="/usuarios" element={<UsersPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="role:read" />}>
+            {/* Tambem por tenant. A guarda e a de leitura; criar, editar e
+                excluir sao conferidos por dentro, e o servidor recusa as tres
+                operacoes sobre um papel do sistema de qualquer forma. */}
+            <Route path="/papeis" element={<RolesPage />} />
           </Route>
 
           <Route element={<ProtectedRoute permission="audit-log:read" />}>

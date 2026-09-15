@@ -26,7 +26,8 @@ import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
 import type { Condominium, Unit } from '@/types/api';
-import type { Role, User } from '@/types/user';
+import type { Role } from '@/types/role';
+import type { User } from '@/types/user';
 import { unitLabel, userHooks, USERS_KEY } from '../user-hooks';
 import {
   toUserFormValues,
