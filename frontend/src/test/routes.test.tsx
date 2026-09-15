@@ -267,6 +267,50 @@ describe('Cobertura do menu', () => {
   });
 });
 
+describe('As rotas publicas de recuperacao de senha', () => {
+  it('sao alcancaveis sem sessao', async () => {
+    renderRoute('/esqueci-senha', { user: null });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Esqueci minha senha' }),
+    ).toBeInTheDocument();
+  });
+
+  it('a de redefinicao explica o link incompleto quando nao ha token', async () => {
+    renderRoute('/redefinir-senha', { user: null });
+
+    expect(await screen.findByRole('heading', { name: 'Link incompleto' })).toBeInTheDocument();
+  });
+
+  it('continuam alcancaveis com sessao', async () => {
+    // Nao redirecionam de proposito: o link de redefinicao chega por e-mail e
+    // precisa funcionar independentemente do que este navegador guardou.
+    renderRoute('/esqueci-senha');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Esqueci minha senha' }),
+    ).toBeInTheDocument();
+  });
+
+  it('nao aparecem na navegacao lateral', async () => {
+    renderRoute('/');
+
+    const menu = await screen.findByRole('navigation');
+    for (const item of NAV_ITEMS) {
+      expect(item.to).not.toBe('/esqueci-senha');
+      expect(item.to).not.toBe('/redefinir-senha');
+    }
+    expect(within(menu).queryByRole('link', { name: 'Esqueci minha senha' })).not.toBeInTheDocument();
+  });
+
+  it('o login leva a de pedido', async () => {
+    renderRoute('/login', { user: null });
+
+    const link = await screen.findByRole('link', { name: 'Esqueci minha senha' });
+    expect(link).toHaveAttribute('href', '/esqueci-senha');
+  });
+});
+
 describe('O mecanismo de placeholder', () => {
   it('nenhum item do menu leva mais ao placeholder', async () => {
     // Com todas as telas do menu registradas, o gerador de rotas de placeholder
