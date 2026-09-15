@@ -8,6 +8,14 @@ export type AuthContextValue = {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  /**
+   * Substitui o usuario da sessao pelo que o servidor acabou de devolver.
+   *
+   * Existe para o perfil: `PATCH /auth/me` responde com o `AuthUser` inteiro, e
+   * sem isto a topbar continuaria mostrando o nome antigo ate o proximo boot.
+   * Nao busca nada — quem chama ja tem a resposta em maos.
+   */
+  updateUser: (user: AuthUser) => void;
   can: (permission?: string) => boolean;
 };
 

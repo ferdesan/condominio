@@ -50,6 +50,7 @@ const AUTH: AuthContextValue = {
   isAuthenticated: true,
   login: async () => undefined,
   logout: async () => undefined,
+  updateUser: () => undefined,
   can: () => true,
 };
 

@@ -99,6 +99,7 @@ export function renderWithProviders(
           isAuthenticated: false,
           login: async () => undefined,
           logout: async () => undefined,
+          updateUser: () => undefined,
           can: () => false,
         }
       : {
@@ -107,6 +108,7 @@ export function renderWithProviders(
           isAuthenticated: true,
           login: async () => undefined,
           logout: async () => undefined,
+          updateUser: () => undefined,
           can: (permission?: string) => hasPermission(granted, permission),
         };
 

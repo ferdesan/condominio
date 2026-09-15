@@ -3,14 +3,15 @@ import { ThemeContext, type Theme, type ThemeContextValue } from './theme-contex
 
 const STORAGE_KEY = 'condominio.theme';
 
-function readStoredTheme(): Theme {
+/** `null` quando o dispositivo nunca escolheu — nao e o mesmo que `'system'`. */
+function readStoredTheme(): Theme | null {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
   } catch {
     // Modo privativo ou storage bloqueado: cai no padrao do sistema.
   }
-  return 'system';
+  return null;
 }
 
 function systemPrefersDark(): boolean {
@@ -18,8 +19,11 @@ function systemPrefersDark(): boolean {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(readStoredTheme);
+  const [stored, setStored] = useState<Theme | null>(readStoredTheme);
   const [systemDark, setSystemDark] = useState(systemPrefersDark);
+
+  // Sem escolha no dispositivo o comportamento e o de antes: segue o sistema.
+  const theme = stored ?? 'system';
 
   // Acompanha a troca de tema do sistema operacional enquanto a app esta aberta.
   useEffect(() => {
@@ -39,7 +43,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [resolvedTheme]);
 
   const setTheme = useCallback((next: Theme) => {
-    setThemeState(next);
+    setStored(next);
     try {
       localStorage.setItem(STORAGE_KEY, next);
     } catch {
@@ -52,8 +56,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [resolvedTheme, setTheme]);
 
   const value = useMemo<ThemeContextValue>(
-    () => ({ theme, resolvedTheme, setTheme, toggleTheme }),
-    [theme, resolvedTheme, setTheme, toggleTheme],
+    () => ({ theme, resolvedTheme, hasDeviceChoice: stored !== null, setTheme, toggleTheme }),
+    [theme, resolvedTheme, stored, setTheme, toggleTheme],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

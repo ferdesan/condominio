@@ -29,6 +29,23 @@
 export const SYSTEM_ROLES = ['SUPER_ADMIN', 'ADMIN', 'SINDICO', 'STAFF', 'RESIDENT'] as const;
 export type SystemRole = (typeof SYSTEM_ROLES)[number];
 
+/**
+ * Preferencias guardadas na conta, de `users.preferences`.
+ *
+ * **So `theme` tem efeito hoje.** O servidor semeia as quatro em
+ * `user.service.ts` e as devolve em `/auth/me`, mas nada no backend le
+ * `emailNotifications` ou `pushNotifications` — nao ha despachante de e-mail nem
+ * de push — e o frontend nao tem i18n que consuma `locale`. Por isso a tela de
+ * perfil oferece apenas o tema: um interruptor ligado a nada seria pior do que
+ * um campo ausente.
+ */
+export type UserPreferences = {
+  theme?: 'light' | 'dark' | 'system';
+  locale?: string;
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
+};
+
 export type AuthUser = {
   id: string;
   tenantId: string;
@@ -38,6 +55,8 @@ export type AuthUser = {
   avatarUrl: string | null;
   role: SystemRole | string;
   permissions: string[];
+  /** Ausente em contas semeadas antes da coluna existir. */
+  preferences?: UserPreferences | null;
 };
 
 export type AuthTokens = {

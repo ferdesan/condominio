@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAccountTheme } from '@/hooks/use-account-theme';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+
+  // Primeiro acesso neste dispositivo herda o tema guardado na conta; depois
+  // disso a escolha local manda.
+  useAccountTheme();
 
   // Trocar de rota no mobile fecha o drawer e devolve o topo da pagina.
   useEffect(() => {

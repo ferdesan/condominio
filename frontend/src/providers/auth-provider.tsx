@@ -60,14 +60,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  /**
+   * O perfil ja recebeu o usuario atualizado do servidor; aqui so o contexto
+   * passa a refleti-lo. Sem refetch de proposito: uma segunda ida a `/auth/me`
+   * poderia responder antes da primeira e restaurar o valor antigo.
+   */
+  const updateUser = useCallback((next: AuthUser) => setUser(next), []);
+
   const can = useCallback(
     (permission?: string) => hasPermission(user?.permissions ?? [], permission),
     [user],
   );
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, initializing, isAuthenticated: Boolean(user), login, logout, can }),
-    [user, initializing, login, logout, can],
+    () => ({
+      user,
+      initializing,
+      isAuthenticated: Boolean(user),
+      login,
+      logout,
+      updateUser,
+      can,
+    }),
+    [user, initializing, login, logout, updateUser, can],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
