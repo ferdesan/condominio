@@ -25,6 +25,7 @@ import { NotificationsPage } from '@/features/notifications/notifications-page';
 import { FinancialPage } from '@/features/financial/financial-page';
 import { AssembliesPage } from '@/features/assemblies/assemblies-page';
 import { DocumentsPage } from '@/features/documents/documents-page';
+import { TenantPage } from '@/features/tenant/tenant-page';
 import { ProfilePage } from '@/features/profile/profile-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
@@ -55,6 +56,7 @@ const IMPLEMENTED = new Set([
   '/financeiro',
   '/assembleias',
   '/documentos',
+  '/configuracoes',
 ]);
 
 export function AppRouter() {
@@ -169,6 +171,14 @@ export function AppRouter() {
 
           <Route element={<ProtectedRoute permission="document:read" />}>
             <Route path="/documentos" element={<DocumentsPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="tenant:read" />}>
+            {/* Por tenant, como /usuarios e /auditoria. A guarda e a de leitura
+                porque o SINDICO so a tem; a edicao e conferida por dentro, com
+                `tenant:update`, e o servidor recusa os campos comerciais de
+                qualquer forma. */}
+            <Route path="/configuracoes" element={<TenantPage />} />
           </Route>
 
           {/*
