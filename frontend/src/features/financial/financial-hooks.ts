@@ -29,6 +29,7 @@ import type {
   Expense,
   FinancialCategory,
   GenerateChargesResult,
+  Payment,
   RegisterPaymentResult,
 } from '@/types/financial';
 import type {
@@ -159,6 +160,38 @@ export function useDelinquency(
         params: { condominiumId: condominiumId ?? '' },
       }),
     enabled: Boolean(condominiumId),
+  });
+}
+
+/**
+ * Os pagamentos de **uma** cobranca, de `GET /financial/payments`.
+ *
+ * **Somente leitura, e so aqui.** A rota nao tem criacao, edicao nem exclusao: a
+ * baixa acontece por `POST /financial/charges/:id/payments`, que ja tem tela
+ * (`RegisterPaymentDialog`). O que faltava era **ver** o que foi baixado — uma
+ * cobranca aceita pagamentos parciais, entao "quanto ja entrou" pode ser a soma
+ * de varios lancamentos que a listagem de cobrancas nao mostra.
+ *
+ * `chargeId` esta na whitelist de filtros de `PaymentRepository`; a ordenacao
+ * padrao dele e `paidAt DESC`, do mais recente para o mais antigo. **Nao se pede
+ * ordenacao**: `paidAt` nao esta no conjunto ordenavel do servidor — ele soma
+ * filtraveis, buscaveis e os dois timestamps — e a chave seria descartada em
+ * silencio.
+ *
+ * Fica fora da fabrica de proposito (ADR-008): a fabrica monta seis operacoes
+ * sobre um recurso, e aqui ha exatamente uma leitura. `MAX_PER_PAGE` porque o
+ * que se quer e o historico inteiro da cobranca, e nao uma pagina dele.
+ */
+export function useChargePayments(
+  chargeId: string | null,
+): UseQueryResult<Paginated<Payment>, ApiError> {
+  return useQuery<Paginated<Payment>, ApiError>({
+    queryKey: [CHARGES_KEY, 'payments', chargeId],
+    queryFn: () =>
+      apiGetPaginated<Payment>('/financial/payments', {
+        params: { chargeId: chargeId ?? '', perPage: MAX_PER_PAGE },
+      }),
+    enabled: Boolean(chargeId),
   });
 }
 

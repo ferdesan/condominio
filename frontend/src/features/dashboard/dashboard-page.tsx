@@ -19,9 +19,11 @@ import type {
   CategoryTotal,
   DashboardOverview,
   FinancialSeriesPoint,
+  IncidentCategoryTotal,
 } from '@/types/api';
 import { ActivityFeed } from './components/activity-feed';
 import { ExpensesChart } from './components/expenses-chart';
+import { IncidentsChart } from './components/incidents-chart';
 import { FinancialChart } from './components/financial-chart';
 import { StatCard } from './components/stat-card';
 
@@ -48,6 +50,16 @@ export function DashboardPage() {
   const expenses = useQuery({
     queryKey: ['dashboard', 'expenses-by-category', selectedId],
     queryFn: () => apiGet<CategoryTotal[]>('/dashboard/expenses-by-category', { params }),
+    enabled,
+  });
+
+  /**
+   * Irma de `expenses`: mesmo parametro, mesma guarda, mesma chave por
+   * condominio. A rota existia desde o inicio e nenhuma tela a chamava.
+   */
+  const incidents = useQuery({
+    queryKey: ['dashboard', 'incidents-by-category', selectedId],
+    queryFn: () => apiGet<IncidentCategoryTotal[]>('/dashboard/incidents-by-category', { params }),
     enabled,
   });
 
@@ -152,6 +164,16 @@ export function DashboardPage() {
           icon={CalendarClock}
           loading={loading}
         />
+      </section>
+
+      {/*
+        Logo depois das pendencias operacionais, e nao junto dos graficos
+        financeiros: a pergunta que ele responde — "de que sao as ocorrencias?" —
+        e a continuacao natural de "quantas estao abertas?", que e a primeira
+        tarja da secao acima.
+      */}
+      <section className="mt-4">
+        <IncidentsChart data={incidents.data ?? []} loading={incidents.isPending} />
       </section>
 
       <section className="mt-4">

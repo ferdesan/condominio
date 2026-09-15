@@ -1,8 +1,9 @@
 /**
  * Camada de dados da tela de visitantes: a fabrica do ADR-008 para a superficie
- * CRUD uniforme, mais os tres endpoints proprios do recurso — contagem de quem
- * esta dentro, entrada e saida — escritos como hooks comuns, porque a fabrica
- * so expoe as seis operacoes do roteador compartilhado.
+ * CRUD uniforme, mais os quatro endpoints proprios do recurso — contagem de quem
+ * esta dentro, consulta por codigo de acesso, entrada e saida — escritos como
+ * hooks comuns, porque a fabrica so expoe as seis operacoes do roteador
+ * compartilhado.
  */
 
 import {
@@ -87,6 +88,40 @@ export function useInsideCount(
       return result.inside;
     },
     enabled: (options.enabled ?? true) && Boolean(condominiumId),
+  });
+}
+
+/**
+ * Consulta um visitante pelo codigo de acesso, sob demanda.
+ *
+ * **E uma mutacao, e nao uma consulta**, apesar de ser um `GET`. A diferenca
+ * que importa aqui nao e o verbo HTTP: e que ela roda quando a portaria pede, e
+ * nao quando a tela monta. Um `useQuery` guardaria o resultado por chave e
+ * responderia a segunda digitacao do mesmo codigo com o cache — exatamente o
+ * errado numa consulta cujo proposito e saber o estado **agora**.
+ *
+ * **Codigo nao encontrado chega como 409, e nao 404.**
+ * `visitorService.findByAccessCode` lanca `BusinessRuleError` com "Codigo de
+ * acesso invalido ou ja utilizado." — e a consulta so procura entre os
+ * `EXPECTED`, entao um visitante que ja entrou tambem "nao existe" para ela.
+ * Isso e um desfecho normal da portaria, e nao uma falha: quem chama trata o
+ * 409 como resposta, e nao como erro.
+ *
+ * O servidor exige de 4 a 12 caracteres no parametro e normaliza para
+ * maiusculas; o cliente faz o mesmo antes de enviar para que o codigo digitado
+ * em minusculas nao vire um 409 desnecessario.
+ */
+export function useVisitorByAccessCode(
+  callbacks: {
+    onSuccess?: (visitor: Visitor) => void;
+    onError?: (error: ApiError) => void;
+  } = {},
+): UseMutationResult<Visitor, ApiError, string> {
+  return useMutation<Visitor, ApiError, string>({
+    mutationFn: (code) =>
+      apiGet<Visitor>(`/visitors/access-code/${encodeURIComponent(code.trim().toUpperCase())}`),
+    onSuccess: (visitor) => callbacks.onSuccess?.(visitor),
+    ...(callbacks.onError ? { onError: callbacks.onError } : {}),
   });
 }
 

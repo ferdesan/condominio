@@ -2,7 +2,15 @@
  * Camada de dados da tela de comunicados: a fabrica do ADR-008 para a superficie
  * CRUD uniforme, mais as duas acoes do ciclo editorial — publicar e arquivar —
  * escritas como hooks comuns, porque a fabrica so expoe as seis operacoes do
- * roteador compartilhado.
+ * roteador compartilhado. O mural (`/board`) e a terceira leitura propria.
+ *
+ * **`POST /announcements/:id/read` nao esta aqui, e e deliberado.** Ele nao
+ * registra leitura por pessoa: `announcementService.markAsRead` chama
+ * `incrementReads`, que soma 1 em `reads_count` — um contador global, sem
+ * nenhum vinculo com quem pediu. Chama-lo desta tela faria cada consulta de um
+ * administrador contar como leitura de morador, e o unico numero de alcance que
+ * o produto tem deixaria de medir o que foi construido para medir. A rota
+ * pertence ao portal do morador, que nao existe neste frontend.
  */
 
 import {
@@ -12,7 +20,7 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from '@tanstack/react-query';
-import { apiGetPaginated, apiPost, type ApiError, type Paginated } from '@/lib/api';
+import { apiGet, apiGetPaginated, apiPost, type ApiError, type Paginated } from '@/lib/api';
 import { createResourceHooks, MAX_PER_PAGE } from '@/lib/crud';
 import type { Announcement } from '@/types/announcement';
 import type { Block } from '@/types/api';
@@ -35,6 +43,35 @@ export const announcementFilters = [
   'audience',
   'pinned',
 ] as const;
+
+/**
+ * O mural: `GET /announcements/board`.
+ *
+ * **E uma leitura diferente da listagem, e nao um filtro dela.** O servidor
+ * devolve so os `PUBLISHED` **nao expirados**, fixados primeiro e depois por
+ * data de publicacao, no maximo vinte (`listPublished`). A listagem
+ * administrativa nao consegue reproduzir isso: ela filtra por status, mas nao
+ * tem filtro de expiracao nem ordenacao por `pinned` — entao um comunicado
+ * vencido continuaria aparecendo como se estivesse no ar.
+ *
+ * E essa a pergunta que o mural responde para quem administra: **o que esta
+ * publicado agora, na ordem em que as pessoas veem**.
+ *
+ * Array cru, sem envelope de paginacao: o recorte e do servidor e nao se refaz
+ * no cliente.
+ */
+export function useAnnouncementBoard(
+  condominiumId: string | null,
+): UseQueryResult<Announcement[], ApiError> {
+  return useQuery<Announcement[], ApiError>({
+    queryKey: [ANNOUNCEMENTS_KEY, 'board', condominiumId],
+    queryFn: () =>
+      apiGet<Announcement[]>('/announcements/board', {
+        params: { condominiumId: condominiumId ?? '' },
+      }),
+    enabled: Boolean(condominiumId),
+  });
+}
 
 export const announcementHooks = createResourceHooks<
   Announcement,

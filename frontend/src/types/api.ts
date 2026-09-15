@@ -449,6 +449,24 @@ export type CategoryTotal = {
   total: number;
 };
 
+/**
+ * Contagem de ocorrencias por categoria, de `/dashboard/incidents-by-category`.
+ *
+ * **Nao e um `CategoryTotal`.** O irmao financeiro agrupa por uma entidade —
+ * `financial_categories`, com id, nome e cor —, e este agrupa por um enum de
+ * coluna: `dashboardService.incidentsByCategory` seleciona `incident.category`
+ * cru. Nao ha id, nao ha cor, e o rotulo legivel e do cliente
+ * (`features/incidents/incident-labels.ts`).
+ *
+ * `total` ja vem convertido para numero pelo servico; a consulta o devolve como
+ * texto.
+ */
+export type IncidentCategoryTotal = {
+  /** Um valor de `INCIDENT_CATEGORIES`, mas tipado solto: o que vier do banco chega aqui. */
+  category: string;
+  total: number;
+};
+
 export type ActivityEntry = {
   id: string;
   action: string;

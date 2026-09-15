@@ -14,6 +14,7 @@ import type { Announcement } from '@/types/announcement';
 import { AnnouncementsPage } from './announcements-page';
 import {
   lastListParams,
+  boardRequests,
   makeAnnouncement,
   serveAnnouncements,
   type AnnouncementWorld,
@@ -491,5 +492,93 @@ describe('Escopo e permissoes de comunicados', () => {
     expect((call?.[1]?.params ?? {}) as Record<string, unknown>).toMatchObject({
       condominiumId: 'cond-1',
     });
+  });
+});
+
+describe('O mural', () => {
+  /** O painel do mural, para escopar as consultas. */
+  function board(): HTMLElement {
+    return screen.getByRole('region', { name: 'No ar agora' });
+  }
+
+  it('mostra o que esta publicado e vigente, escopado ao condominio', async () => {
+    world = serveAnnouncements({
+      announcements: [
+        makeAnnouncement({ id: 'a-1', title: 'Assembleia ordinaria', status: 'PUBLISHED' }),
+      ],
+    });
+    renderWithProviders(<AnnouncementsPage />);
+
+    expect(await within(board()).findByText('Assembleia ordinaria')).toBeInTheDocument();
+    expect(boardRequests().at(-1)?.condominiumId).toBe('cond-1');
+  });
+
+  it('nao mostra rascunho, arquivado nem expirado', async () => {
+    const past = new Date(Date.now() - 86_400_000).toISOString();
+    world = serveAnnouncements({
+      announcements: [
+        makeAnnouncement({ id: 'a-1', title: 'Rascunho interno', status: 'DRAFT' }),
+        makeAnnouncement({ id: 'a-2', title: 'Aviso arquivado', status: 'ARCHIVED' }),
+        makeAnnouncement({
+          id: 'a-3',
+          title: 'Aviso vencido',
+          status: 'PUBLISHED',
+          expiresAt: past,
+        }),
+      ],
+    });
+    renderWithProviders(<AnnouncementsPage />);
+
+    // A listagem administrativa filtra por status, mas nao tem filtro de
+    // expiracao: sem o mural, um comunicado vencido pareceria estar no ar.
+    expect(await within(board()).findByText('Nada publicado no momento')).toBeInTheDocument();
+    expect(within(board()).queryByText('Aviso vencido')).not.toBeInTheDocument();
+  });
+
+  it('os fixados vem primeiro', async () => {
+    world = serveAnnouncements({
+      announcements: [
+        makeAnnouncement({ id: 'a-1', title: 'Aviso comum', status: 'PUBLISHED', pinned: false }),
+        makeAnnouncement({ id: 'a-2', title: 'Aviso fixado', status: 'PUBLISHED', pinned: true }),
+      ],
+    });
+    renderWithProviders(<AnnouncementsPage />);
+
+    await within(board()).findByText('Aviso fixado');
+    const items = within(board()).getAllByRole('listitem');
+    expect(items[0]).toHaveTextContent('Aviso fixado');
+  });
+
+  it('o contador e de visualizacoes, e nao um marcador de lido', async () => {
+    world = serveAnnouncements({
+      announcements: [
+        makeAnnouncement({ id: 'a-1', title: 'Assembleia ordinaria', status: 'PUBLISHED', readsCount: 42 }),
+      ],
+    });
+    renderWithProviders(<AnnouncementsPage />);
+
+    await within(board()).findByText('Assembleia ordinaria');
+    expect(within(board()).getByText('42')).toBeInTheDocument();
+    // `incrementReads` soma numa coluna do comunicado, sem vinculo com quem
+    // pediu: nao ha dado que sustente "lido por voce".
+    expect(within(board()).queryByText(/lido/i)).not.toBeInTheDocument();
+    expect(within(board()).queryByText(/nao lido/i)).not.toBeInTheDocument();
+  });
+
+  it('a tela nunca registra leitura', async () => {
+    world = serveAnnouncements({
+      announcements: [
+        makeAnnouncement({ id: 'a-1', title: 'Assembleia ordinaria', status: 'PUBLISHED' }),
+      ],
+    });
+    renderWithProviders(<AnnouncementsPage />);
+
+    await within(board()).findByText('Assembleia ordinaria');
+    // Cada abertura daqui e de um administrador; contar isso como leitura de
+    // morador corromperia o unico numero de alcance que o produto tem.
+    const readCalls = vi
+      .mocked(apiPost)
+      .mock.calls.filter(([url]) => String(url).endsWith('/read'));
+    expect(readCalls).toHaveLength(0);
   });
 });

@@ -23,6 +23,7 @@ import {
   usePublishAnnouncement,
 } from './announcement-hooks';
 import { AUDIENCE_LABELS, CATEGORY_LABELS, NO_AUTHOR } from './announcement-labels';
+import { AnnouncementBoard } from './components/announcement-board';
 import { AnnouncementFilters } from './components/announcement-filters';
 import { AnnouncementFormDialog } from './components/announcement-form-dialog';
 import { AnnouncementStatusBadge } from './components/announcement-status-badge';
@@ -253,7 +254,17 @@ export function AnnouncementsPage() {
             }
           />
         }
-        filters={<AnnouncementFilters list={list} />}
+        filters={
+          <div className="space-y-4">
+            {/*
+              Acima dos filtros: "o que esta no ar agora" e a primeira pergunta
+              de quem abre esta tela, e a listagem abaixo — com rascunhos,
+              arquivados e expirados — nao a responde.
+            */}
+            <AnnouncementBoard condominiumId={selectedId} />
+            <AnnouncementFilters list={list} />
+          </div>
+        }
         content={
           <div className="p-4 space-y-4">
             {showEmpty ? (

@@ -465,3 +465,134 @@ describe('Escopo e permissoes de visitantes', () => {
     });
   });
 });
+
+describe('Consulta por codigo de acesso', () => {
+  /** Preenche o campo do balcao e dispara a consulta. */
+  async function lookup(user: ReturnType<typeof createUser>, code: string): Promise<void> {
+    await user.type(screen.getByLabelText('Codigo de acesso'), code);
+    await user.click(screen.getByRole('button', { name: 'Consultar' }));
+  }
+
+  it('encontra a visita aguardando entrada e mostra os dados dela', async () => {
+    const user = createUser();
+    serveVisitors({
+      visitors: [
+        makeVisitor({ id: 'visitor-1', name: 'Joana Ribeiro', accessCode: 'A1B2C3', status: 'EXPECTED' }),
+      ],
+    });
+    renderWithProviders(<VisitorsPage />);
+
+    await screen.findByText('Joana Ribeiro');
+    await lookup(user, 'A1B2C3');
+
+    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    expect(await within(panel).findByText('Joana Ribeiro')).toBeInTheDocument();
+  });
+
+  it('o codigo vai em maiusculas, como o servidor o guarda', async () => {
+    const user = createUser();
+    serveVisitors({
+      visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'EXPECTED' })],
+    });
+    renderWithProviders(<VisitorsPage />);
+
+    await screen.findByText('Joana Ribeiro');
+    // Digitado em minusculas; sem a normalizacao seria um 409 de caixa.
+    await lookup(user, 'a1b2c3');
+
+    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    expect(await within(panel).findByText('Joana Ribeiro')).toBeInTheDocument();
+  });
+
+  it('codigo desconhecido e resposta da consulta, e nao falha da tela', async () => {
+    const user = createUser();
+    serveVisitors({ visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'EXPECTED' })] });
+    renderWithProviders(<VisitorsPage />);
+
+    await screen.findByText('Joana Ribeiro');
+    await lookup(user, 'ZZZZZZ');
+
+    // 409 e o desfecho normal do balcao: aparece na propria consulta, sem toast.
+    expect(
+      await screen.findByText('Codigo de acesso invalido ou ja utilizado.'),
+    ).toBeInTheDocument();
+    expect(mockToastError).not.toHaveBeenCalled();
+  });
+
+  it('visita que ja entrou tambem nao e encontrada', async () => {
+    const user = createUser();
+    // O servidor procura apenas entre os `EXPECTED`; quem ja entrou "nao existe"
+    // para esta rota, e a mensagem cobre os dois casos.
+    serveVisitors({ visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'CHECKED_IN' })] });
+    renderWithProviders(<VisitorsPage />);
+
+    await screen.findByText('Joana Ribeiro');
+    await lookup(user, 'A1B2C3');
+
+    expect(
+      await screen.findByText('Codigo de acesso invalido ou ja utilizado.'),
+    ).toBeInTheDocument();
+  });
+
+  it('codigo curto demais nem chega ao servidor', async () => {
+    const user = createUser();
+    serveVisitors({ visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'EXPECTED' })] });
+    renderWithProviders(<VisitorsPage />);
+
+    await screen.findByText('Joana Ribeiro');
+    await user.type(screen.getByLabelText('Codigo de acesso'), 'A1');
+
+    // O servidor exige de 4 a 12 caracteres; abaixo disso o botao nem habilita.
+    expect(screen.getByRole('button', { name: 'Consultar' })).toBeDisabled();
+  });
+
+  it('a consulta nao mexe nos filtros nem na paginacao da lista', async () => {
+    const user = createUser();
+    serveVisitors({ visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'EXPECTED' })] });
+    renderWithProviders(<VisitorsPage />);
+
+    await screen.findByText('Joana Ribeiro');
+    const before = lastListParams();
+    await lookup(user, 'A1B2C3');
+    // Escopado no painel: a linha da tabela oferece a mesma acao, com o mesmo
+    // rotulo acessivel.
+    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    await within(panel).findByRole('button', { name: 'Registrar entrada de Joana Ribeiro' });
+
+    // Sao gestos diferentes: o balcao devolve um visitante, a lista devolve uma
+    // pagina. Um nao pode alterar o recorte do outro.
+    expect(lastListParams()).toEqual(before);
+  });
+
+  it('registrar entrada a partir do resultado usa o fluxo de check-in', async () => {
+    const user = createUser();
+    serveVisitors({
+      visitors: [makeVisitor({ id: 'visitor-1', accessCode: 'A1B2C3', status: 'EXPECTED' })],
+    });
+    renderWithProviders(<VisitorsPage />);
+
+    await screen.findByText('Joana Ribeiro');
+    await lookup(user, 'A1B2C3');
+
+    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    await user.click(
+      await within(panel).findByRole('button', { name: 'Registrar entrada de Joana Ribeiro' }),
+    );
+    await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/visitors/visitor-1/check-in', {}));
+  });
+
+  it('sem visitor:update, o resultado e so leitura', async () => {
+    const user = createUser();
+    serveVisitors({ visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'EXPECTED' })] });
+    renderWithProviders(<VisitorsPage />, { permissions: ['visitor:read'] });
+
+    await screen.findByText('Joana Ribeiro');
+    await lookup(user, 'A1B2C3');
+
+    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    await within(panel).findByText('Joana Ribeiro');
+    expect(
+      within(panel).queryByRole('button', { name: /Registrar entrada/ }),
+    ).not.toBeInTheDocument();
+  });
+});
