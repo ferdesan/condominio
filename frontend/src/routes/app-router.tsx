@@ -25,6 +25,7 @@ import { NotificationsPage } from '@/features/notifications/notifications-page';
 import { FinancialPage } from '@/features/financial/financial-page';
 import { AssembliesPage } from '@/features/assemblies/assemblies-page';
 import { DocumentsPage } from '@/features/documents/documents-page';
+import { ProfilePage } from '@/features/profile/profile-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
 import { NAV_ITEMS } from './navigation';
@@ -186,7 +187,14 @@ export function AppRouter() {
             </Route>
           ))}
 
-          <Route path="/perfil" element={<PlaceholderPage title="Meu perfil" />} />
+          {/*
+            Fora da navegacao e sem guarda de permissao: chega-se pelo menu do
+            usuario na topbar, e as quatro rotas de `/auth` que a tela usa sao
+            protegidas so por `authenticate` — o alvo vem do token, entao uma
+            pessoa sempre pode editar a propria conta. Continua dentro do
+            `ProtectedRoute` de sessao acima, como todas as outras.
+          */}
+          <Route path="/perfil" element={<ProfilePage />} />
         </Route>
       </Route>
 

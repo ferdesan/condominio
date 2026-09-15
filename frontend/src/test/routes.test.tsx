@@ -88,6 +88,7 @@ const AUXILIARY_READS: Record<string, unknown> = {
   '/dashboard/financial-series': [],
   '/dashboard/expenses-by-category': [],
   '/dashboard/recent-activity': [],
+  '/auth/sessions': [],
 };
 
 /**
@@ -271,12 +272,38 @@ describe('O mecanismo de placeholder', () => {
     }
   });
 
-  it('a rota de perfil segue explicando que a tela ainda nao existe', async () => {
-    // `/perfil` nao esta na navegacao e nao tem tela propria: e o unico
-    // placeholder que resta, e serve de prova de que o mecanismo continua vivo.
+  it('nao resta nenhuma rota servida pelo placeholder', async () => {
+    // `/perfil` era a ultima, e ganhou tela propria. O componente continua no
+    // roteador de proposito: um item de menu novo ganha uma rota que explica a
+    // ausencia em vez de um 404.
     renderRoute('/perfil');
 
-    expect(await screen.findByText(PLACEHOLDER_MARKER)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: 'Meu perfil' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Meu perfil' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
+  });
+
+  it('perfil fica fora da navegacao e nao exige permissao alguma', async () => {
+    // Nem no menu — a lateral organiza o produto por modulo de negocio, e a
+    // conta de quem esta olhando nao e um deles — nem sob `authorize`: as quatro
+    // rotas de `/auth` que a tela usa derivam o alvo do token.
+    renderRoute('/perfil', { permissions: [] });
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Meu perfil' }),
+    ).toBeInTheDocument();
+
+    const menu = screen.getByRole('navigation');
+    expect(within(menu).queryByRole('link', { name: 'Meu perfil' })).not.toBeInTheDocument();
+  });
+
+  it('perfil e negado a quem nao esta autenticado', async () => {
+    renderRoute('/perfil', { user: null });
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Condominio SaaS' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 1, name: 'Meu perfil' })).not.toBeInTheDocument();
   });
 });
