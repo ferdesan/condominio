@@ -17,6 +17,7 @@ import { AppRouter } from '@/routes/app-router';
 import { NAV_ITEMS } from '@/routes/navigation';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { makeCondominium, makeMeta } from '@/test/fixtures';
+import { makeTenant } from '@/features/tenant/test-utils';
 import { renderWithProviders, screen, within } from '@/test/render';
 import type { DashboardOverview } from '@/types/api';
 
@@ -89,6 +90,9 @@ const AUXILIARY_READS: Record<string, unknown> = {
   '/dashboard/expenses-by-category': [],
   '/dashboard/recent-activity': [],
   '/auth/sessions': [],
+  // A fixture nao mora em `test/fixtures.ts`: aquele arquivo so conhece
+  // `types/api.ts`, fechado para contratos novos.
+  '/tenants/me': makeTenant(),
 };
 
 /**
@@ -121,7 +125,7 @@ function serveEmptyWorld(): void {
 }
 
 /**
- * Os 22 itens do menu, com a tela e a permissao de cada rota.
+ * Todos os itens do menu, com a tela e a permissao de cada rota.
  *
  * A lista e escrita a mao de proposito: derivar de `NAV_ITEMS` faria o teste
  * concordar com o roteador por construcao, e e justamente a divergencia entre os
@@ -150,6 +154,7 @@ const REGISTERED = [
   { path: '/documentos', title: 'Documentos', permission: 'document:read' },
   { path: '/usuarios', title: 'Usuarios', permission: 'user:read' },
   { path: '/auditoria', title: 'Auditoria', permission: 'audit-log:read' },
+  { path: '/configuracoes', title: 'Configuracoes', permission: 'tenant:read' },
   // Unico item sem permissao declarada em `navigation.ts`.
   { path: '/notificacoes', title: 'Notificacoes', permission: null },
 ] as const;
@@ -209,7 +214,7 @@ describe('Cobertura do menu', () => {
     }
   });
 
-  it('as vinte e uma rotas com permissao negam acesso a um papel que nao a tem', async () => {
+  it('as rotas com permissao negam acesso a um papel que nao a tem', async () => {
     for (const { path, title, permission } of REGISTERED) {
       if (!permission) continue;
       // O painel e a unica que o papel de teste alcanca; para ela, o caso e o
@@ -248,7 +253,7 @@ describe('Cobertura do menu', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('a navegacao lateral mostra os vinte e dois itens para o administrador', async () => {
+  it('a navegacao lateral mostra todos os itens para o administrador', async () => {
     renderRoute('/');
 
     const menu = await screen.findByRole('navigation');
@@ -261,8 +266,8 @@ describe('Cobertura do menu', () => {
 
 describe('O mecanismo de placeholder', () => {
   it('nenhum item do menu leva mais ao placeholder', async () => {
-    // Com as 22 telas registradas, o gerador de rotas de placeholder nao produz
-    // nenhuma. Ele continua no roteador de proposito: um item de menu novo
+    // Com todas as telas do menu registradas, o gerador de rotas de placeholder
+    // nao produz nenhuma. Ele continua no roteador de proposito: um item de menu novo
     // ganha uma rota que explica a ausencia em vez de um 404.
     for (const item of NAV_ITEMS) {
       const view = renderRoute(item.to);

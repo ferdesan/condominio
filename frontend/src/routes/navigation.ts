@@ -13,6 +13,7 @@ import {
   Mail,
   Megaphone,
   ScrollText,
+  Settings,
   ShieldCheck,
   TriangleAlert,
   UserCog,
@@ -119,6 +120,16 @@ export const NAV_SECTIONS: NavSection[] = [
       { to: '/notificacoes', label: 'Notificacoes', icon: Bell },
       { to: '/usuarios', label: 'Usuarios', icon: ShieldCheck, permission: 'user:read' },
       { to: '/auditoria', label: 'Auditoria', icon: ScrollText, permission: 'audit-log:read' },
+      {
+        // Por tenant, como Usuarios e Auditoria: nao herda o seletor do shell.
+        // `tenant:read` abre; `tenant:update` libera a edicao la dentro — o
+        // SINDICO tem so a primeira, e precisa conhecer a politica de encargos
+        // aplicada as cobrancas sem poder muda-la.
+        to: '/configuracoes',
+        label: 'Configuracoes',
+        icon: Settings,
+        permission: 'tenant:read',
+      },
     ],
   },
 ];
