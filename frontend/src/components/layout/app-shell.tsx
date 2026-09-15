@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAccountTheme } from '@/hooks/use-account-theme';
+import { useRealtime } from '@/hooks/use-realtime';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 
@@ -12,6 +13,10 @@ export function AppShell() {
   // Primeiro acesso neste dispositivo herda o tema guardado na conta; depois
   // disso a escolha local manda.
   useAccountTheme();
+
+  // Canal de tempo real. E um acelerador: se nao conectar, nada muda — as telas
+  // continuam se atualizando pela invalidacao das proprias mutacoes.
+  useRealtime();
 
   // Trocar de rota no mobile fecha o drawer e devolve o topo da pagina.
   useEffect(() => {
