@@ -93,6 +93,7 @@ mysql-data/
 redis-data/
 dump.rdb
 uploads/
+uploads-test/
 tmp/
 temp/
 storage/

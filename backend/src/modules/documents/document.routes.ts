@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import { authorize } from '@/middlewares/auth.middleware';
@@ -54,6 +55,12 @@ documentRouter.post(
 
       created(res, document);
     } catch (error) {
+      // O multer grava o arquivo antes de a validacao do corpo rodar, e
+      // `documentService.upload` tambem pode recusar depois disso. Sem esta
+      // limpeza, toda falha daqui deixa um arquivo no disco para sempre, sem
+      // registro que o alcance. A falha do unlink e engolida de proposito: ela
+      // nunca pode substituir o erro que o cliente precisa receber.
+      if (req.file) await fs.unlink(req.file.path).catch(() => undefined);
       next(error);
     }
   },

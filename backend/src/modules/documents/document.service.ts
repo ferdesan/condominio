@@ -69,7 +69,11 @@ export class DocumentService extends CondominiumScopedService<
     const document = await this.findById(ctx, id);
     this.assertVisibility(ctx, document.visibility);
 
-    const absolutePath = resolveStoredPath(document.filePath);
+    // `filePath` e `select: false`, entao a entidade acima nao o traz.
+    const storedPath = await this.documents.findStoredPath(ctx.scope, id);
+    if (!storedPath) throw new BadRequestError('Arquivo indisponivel no armazenamento.');
+
+    const absolutePath = resolveStoredPath(storedPath);
 
     try {
       await fs.access(absolutePath);
@@ -81,12 +85,27 @@ export class DocumentService extends CondominiumScopedService<
     return { absolutePath, document };
   }
 
-  /** Remove o arquivo fisico junto com o registro (LGPD: eliminacao do dado). */
-  protected override async afterRemove(_ctx: RequestContext, entity: DocumentFile): Promise<void> {
+  /**
+   * Remove o arquivo fisico junto com o registro (LGPD: eliminacao do dado).
+   *
+   * A entidade que chega aqui vem do `findById` que a `BaseCrudService` fez
+   * *antes* do soft delete, e nao carrega `filePath`. Ler `entity.filePath`
+   * direto daria `undefined`, `resolveStoredPath` lancaria, o catch abaixo
+   * engoliria, e a exclusao responderia 204 com o arquivo intacto no disco —
+   * silencioso em todos os niveis. Dai a releitura.
+   */
+  protected override async afterRemove(ctx: RequestContext, entity: DocumentFile): Promise<void> {
+    const storedPath = await this.documents.findStoredPath(ctx.scope, entity.id);
+
+    if (!storedPath) {
+      logger.warn(`Documento ${entity.id} removido sem caminho de arquivo conhecido.`);
+      return;
+    }
+
     try {
-      await fs.unlink(resolveStoredPath(entity.filePath));
+      await fs.unlink(resolveStoredPath(storedPath));
     } catch (error) {
-      logger.warn(`Could not delete file ${entity.filePath}: ${(error as Error).message}`);
+      logger.warn(`Could not delete file ${storedPath}: ${(error as Error).message}`);
     }
   }
 

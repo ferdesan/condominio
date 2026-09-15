@@ -47,8 +47,9 @@ export type DocumentFile = {
   visibility: DocumentVisibility;
   /** Nome original enviado; o nome em disco e outro, gerado pelo servidor. */
   fileName: string;
-  /** Caminho relativo dentro do armazenamento do tenant. Nunca absoluto. */
-  filePath: string;
+  // `filePath` nao existe aqui de proposito: o servidor deixou de devolve-lo,
+  // porque o caminho carrega o layout do armazenamento e nao ha rota publica
+  // que o consuma. O arquivo vem por `GET /documents/:id/download`.
   mimeType: string;
   sizeBytes: number;
   version: number;

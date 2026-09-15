@@ -29,7 +29,6 @@ export function makeDocument(overrides: Partial<DocumentFile> = {}): DocumentFil
     category: 'CONVENTION',
     visibility: 'RESIDENTS',
     fileName: 'convencao.pdf',
-    filePath: 'tenant-1/6f1c.pdf',
     mimeType: 'application/pdf',
     sizeBytes: 524_288,
     version: 1,
