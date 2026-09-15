@@ -281,3 +281,51 @@ describe('autenticacao', () => {
     window.removeEventListener('auth:session-expired', onExpired);
   });
 });
+
+describe('corpo multipart', () => {
+  /**
+   * O envio de documento e a unica rota multipart do sistema, e o defeito mora
+   * antes do transporte: o `transformRequest` do axios serializa um `FormData`
+   * para JSON sempre que o cabecalho anuncia `application/json` — e a instancia
+   * `api` anuncia, para todas as outras rotas. O que chega no servidor e um
+   * corpo JSON, o multer nao encontra arquivo e a resposta e
+   * `400 Envie o arquivo no campo "file".`
+   */
+  function documentoComArquivo(): FormData {
+    const body = new FormData();
+    body.append('file', new File(['conteudo'], 'ata.pdf', { type: 'application/pdf' }));
+    body.append('title', 'Ata da assembleia');
+    return body;
+  }
+
+  function capturaCorpo(): () => unknown {
+    let sent: unknown;
+    onRequest((config) => {
+      sent = config.data;
+      return { status: 201, data: { data: { id: 'doc-1' } } };
+    });
+    return () => sent;
+  }
+
+  it('UT-101: multipart declarado entrega o FormData intacto ao transporte', async () => {
+    const corpo = capturaCorpo();
+
+    await apiPost('/documents', documentoComArquivo(), {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    expect(corpo()).toBeInstanceOf(FormData);
+    expect((corpo() as FormData).get('title')).toBe('Ata da assembleia');
+  });
+
+  it('UT-102: sem o cabecalho o axios serializa o FormData para JSON', async () => {
+    const corpo = capturaCorpo();
+
+    await apiPost('/documents', documentoComArquivo());
+
+    // Nao e preferencia de estilo: e exatamente o que quebra o upload. Este caso
+    // existe para que uma atualizacao do axios que mude essa conversao apareca
+    // aqui, e nao numa tela.
+    expect(typeof corpo()).toBe('string');
+  });
+});

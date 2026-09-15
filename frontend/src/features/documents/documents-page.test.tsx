@@ -216,8 +216,14 @@ describe('Envio de documento', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Enviar' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
-    const [url, body] = mockPost.mock.calls[0];
+    const [url, body, config] = mockPost.mock.calls[0];
     expect(url).toBe('/documents');
+
+    // O envio precisa anunciar multipart. Sem isso o axios serializa o `FormData`
+    // para JSON — a instancia de `lib/api.ts` fixa `application/json` — e o
+    // servidor responde `400 Envie o arquivo no campo "file".` A conversao em si
+    // esta caracterizada em UT-101 e UT-102, em `lib/api.test.ts`.
+    expect(config?.headers).toMatchObject({ 'Content-Type': 'multipart/form-data' });
 
     // O corpo precisa ser multipart de verdade: e o que o multer le, e um JSON
     // aqui passaria pelo type check e falharia so no servidor.
