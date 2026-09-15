@@ -88,11 +88,15 @@ function useInvalidate(): () => void {
 /**
  * Envio do arquivo. `POST /documents` e multipart.
  *
- * O `FormData` vai cru: o axios remove o `Content-Type: application/json` da
- * instancia quando o corpo e `FormData`, deixando o navegador escrever o
- * cabecalho com o `boundary` — que e a unica forma de o multer ler o arquivo.
- * Definir o cabecalho a mao aqui quebraria isso, porque o `boundary` so e
- * conhecido na hora do envio.
+ * O `Content-Type` precisa ser anunciado aqui. A instancia de `lib/api.ts` traz
+ * `application/json` fixo, e o `transformRequest` do axios serializa o
+ * `FormData` para JSON quando encontra esse cabecalho — o servidor receberia um
+ * corpo JSON, o multer nao acharia arquivo nenhum e a resposta seria
+ * `400 Envie o arquivo no campo "file".`
+ *
+ * Declarar `multipart/form-data` sem `boundary` e o caminho suportado: o axios
+ * deixa o `FormData` passar intacto e o adaptador do navegador reescreve o
+ * cabecalho com o `boundary` na hora do envio, que e quando ele existe.
  */
 export function useUploadDocument(
   callbacks: MutationCallbacks<DocumentFile, FormData> = {},
@@ -100,7 +104,10 @@ export function useUploadDocument(
   const invalidate = useInvalidate();
 
   return useMutation<DocumentFile, ApiError, FormData>({
-    mutationFn: (data) => apiPost<DocumentFile>('/documents', data),
+    mutationFn: (data) =>
+      apiPost<DocumentFile>('/documents', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }),
     onSuccess: (data, variables) => {
       invalidate();
       callbacks.onSuccess?.(data, variables);
