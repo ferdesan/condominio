@@ -127,7 +127,7 @@ export function DocumentFormDialog({ document, condominiumId, onClose }: Documen
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar documento' : 'Enviar documento'}</DialogTitle>
             <DialogDescription>

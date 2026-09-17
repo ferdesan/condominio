@@ -137,7 +137,7 @@ export function BulkGenerateDialog({
           if (!next) onClose();
         }}
       >
-        <DialogContent>
+        <DialogContent side="right" dismissible={false}>
           <DialogHeader>
             <DialogTitle>Geracao concluida</DialogTitle>
           </DialogHeader>
@@ -166,7 +166,7 @@ export function BulkGenerateDialog({
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Gerar unidades</DialogTitle>
           <DialogDescription>

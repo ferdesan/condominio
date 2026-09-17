@@ -125,7 +125,7 @@ export function ReservationDecisionDialog({
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent side="right" dismissible={false}>
         <DialogHeader>
           <DialogTitle>{copy.title}</DialogTitle>
           <DialogDescription>{copy.description}</DialogDescription>

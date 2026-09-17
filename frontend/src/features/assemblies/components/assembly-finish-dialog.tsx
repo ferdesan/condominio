@@ -77,7 +77,7 @@ export function AssemblyFinishDialog({ assembly, onClose }: AssemblyFinishDialog
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent side="right" dismissible={false}>
         <DialogHeader>
           <DialogTitle>Encerrar assembleia</DialogTitle>
           <DialogDescription>

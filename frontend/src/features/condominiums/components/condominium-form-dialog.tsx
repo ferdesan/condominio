@@ -135,7 +135,7 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar condominio' : 'Novo condominio'}</DialogTitle>
             <DialogDescription>
