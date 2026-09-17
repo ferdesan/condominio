@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "`documents.spec.ts` — matriz de visibilidade, upload, download e LGPD"
 type: test
 complexity: high
@@ -33,16 +33,16 @@ Cobre o módulo de documentos, que é o mais diferente da suíte: a única rota 
 
 ## Subtasks
 
-- [ ] 2.1 Read `_tests.md` for all twenty-five assigned ids before writing anything.
-- [ ] 2.2 Extend `beforeAll` to upload one document per visibility level, keeping their ids for the matrix table.
-- [ ] 2.3 Write the upload cases: the happy path with its metadata defaults, the missing file part, the rejected mime type, the size ceiling, the tag string that becomes an array, and the permission denial that precedes the write.
-- [ ] 2.4 Write the visibility matrix as one `it.each` table, ten rows.
-- [ ] 2.5 Write the `document:manage` shortcut case.
-- [ ] 2.6 Write the download mechanics: the counter, the headers naming the original filename, the byte-for-byte comparison, and the seeded document whose file was never written.
-- [ ] 2.7 Write the listing cases: the whitelisted filter, the silently ignored one, and the pagination meta.
-- [ ] 2.8 Write the update case, proving a metadata change leaves the stored bytes alone.
-- [ ] 2.9 Write the deletion case, asserting the row is gone **and** the file left the disk.
-- [ ] 2.10 Run the backend suite and confirm the upload directory is empty afterwards.
+- [x] 2.1 Read `_tests.md` for all twenty-five assigned ids before writing anything.
+- [x] 2.2 Extend `beforeAll` to upload one document per visibility level, keeping their ids for the matrix table.
+- [x] 2.3 Write the upload cases: the happy path with its metadata defaults, the missing file part, the rejected mime type, the size ceiling, the tag string that becomes an array, and the permission denial that precedes the write.
+- [x] 2.4 Write the visibility matrix as one `it.each` table, ten rows.
+- [x] 2.5 Write the `document:manage` shortcut case.
+- [x] 2.6 Write the download mechanics: the counter, the headers naming the original filename, the byte-for-byte comparison, and the seeded document whose file was never written.
+- [x] 2.7 Write the listing cases: the whitelisted filter, the silently ignored one, and the pagination meta.
+- [x] 2.8 Write the update case, proving a metadata change leaves the stored bytes alone.
+- [x] 2.9 Write the deletion case, asserting the row is gone **and** the file left the disk.
+- [x] 2.10 Run the backend suite and confirm the upload directory is empty afterwards.
 
 ## Implementation Details
 
@@ -88,13 +88,34 @@ The upload ceiling is 10 MB with at most 5 files, and ten mime types are allowed
 
 Cases assigned from `_tests.md`, the test contract — read each ID's full definition there before writing tests.
 
-- [ ] IT-210, IT-211, IT-212, IT-213, IT-215, IT-236 — upload: happy path, missing file part, rejected type, size ceiling, tag coercion, permission denial before the write.
-- [ ] IT-216, IT-217, IT-218, IT-219, IT-220, IT-221, IT-222, IT-223, IT-224, IT-225 — the ten persona/visibility outcomes.
-- [ ] IT-226 — `document:manage` bypasses the matrix.
-- [ ] IT-227, IT-228, IT-229, IT-230 — download counter, headers, byte fidelity, missing stored file.
-- [ ] IT-231, IT-232 — filters honoured and silently ignored; pagination meta.
-- [ ] IT-257 — metadata update leaves the stored file untouched.
-- [ ] IT-233 — deletion removes the row and the file.
+- [x] IT-210, IT-211, IT-212, IT-213, IT-215, IT-236 — upload: happy path, missing file part, rejected type, size ceiling, tag coercion, permission denial before the write.
+- [x] IT-216, IT-217, IT-218, IT-219, IT-220, IT-221, IT-222, IT-223, IT-224, IT-225 — the ten persona/visibility outcomes.
+- [x] IT-226 — `document:manage` bypasses the matrix.
+- [x] IT-227, IT-228, IT-229, IT-230 — download counter, headers, byte fidelity, missing stored file.
+- [x] IT-231, IT-232 — filters honoured and silently ignored; pagination meta.
+- [x] IT-257 — metadata update leaves the stored file untouched.
+- [x] IT-233 — deletion removes the row and the file.
+
+## Notas de execução
+
+Três leituras do contrato foram resolvidas durante a implementação:
+
+- **"file count up by one"**, em Success Criteria, descreve o workflow inteiro, não esta task. A
+  task_01 já criou `documents.spec.ts` e os requisitos proíbem reconstruí-lo, então a entrega aqui
+  é **+25 casos e +0 arquivos**: 26 suites / 291 casos, contra 26 / 266 antes.
+- **A tabela que "quebra quando uma visibilidade nova aparece"** não quebra sozinha: dez linhas
+  literais continuariam verdes com um sexto nível no servidor. A tabela é tipada contra
+  `DocumentVisibility`, e uma guarda na coleta do `describe` exige duas linhas por nível — o que
+  torna a consequência do ADR-003 literal em vez de retórica.
+- **IT-211 monta a requisição inline.** O helper da task_01 sempre anexa, e o caso investiga
+  justamente a ausência da parte de arquivo. Não é um segundo helper: é o único caso que não pode
+  usar o único helper.
+
+Nenhum caso falhou na primeira execução, o que por si não é evidência de que mordam. As duas
+canárias que o TechSpec nomeia foram verificadas por mutação: forçar
+`DocumentRepository.findStoredPath` a devolver `null` — a falha exata que o ADR-001 previu — deixou
+IT-229 e IT-233 vermelhos, junto com todos os casos que dependem de um download real, enquanto as
+quatro linhas 403 e o IT-230 seguiram verdes. A mutação foi revertida.
 
 ## Success Criteria
 
