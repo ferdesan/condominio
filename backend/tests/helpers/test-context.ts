@@ -51,10 +51,11 @@ export async function login(
   ctx: TestContext,
   email: string,
   password = 'Demo@1234',
+  tenantSlug = 'demo',
 ): Promise<AuthenticatedAgent> {
   const response = await request(ctx.app)
     .post(`${ctx.api}/auth/login`)
-    .send({ email, password, tenantSlug: 'demo' });
+    .send({ email, password, tenantSlug });
 
   if (response.status !== 200) {
     throw new Error(`Login falhou para ${email}: ${response.status} ${JSON.stringify(response.body)}`);
