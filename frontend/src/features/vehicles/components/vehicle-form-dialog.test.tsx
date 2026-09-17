@@ -9,7 +9,7 @@ import {
   createUser,
   renderWithProviders,
   screen,
-  selectOption,
+  chooseOption,
   waitFor,
   within,
 } from '@/test/render';
@@ -177,8 +177,8 @@ describe('Cadastro de veiculo', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Placa'), 'XYZ9876');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Carlos Pereira');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Carlos Pereira/);
     submitCreate();
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
@@ -343,8 +343,8 @@ describe('Edicao de veiculo', () => {
     await screen.findByText('ABC1D23');
     await openEditDialog('ABC1D23');
 
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Sem vinculo');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Sem vinculo');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Sem vinculo');
+    chooseOption(within(dialog()).getByLabelText('Morador'), 'Sem vinculo');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(1));
