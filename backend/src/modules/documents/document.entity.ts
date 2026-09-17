@@ -38,7 +38,13 @@ export class DocumentFile extends TenantScopedEntity {
   @Column({ name: 'file_name', type: 'varchar', length: 255 })
   fileName: string;
 
-  @Column({ name: 'file_path', type: 'varchar', length: 255 })
+  /**
+   * Layout do armazenamento, com o id do tenant embutido. Nunca sai numa
+   * resposta: `select: false` mantem a coluna fora de toda leitura da
+   * `BaseRepository`, e as duas leituras internas que precisam dela pedem
+   * explicitamente, por `DocumentRepository.findStoredPath` (ADR-001).
+   */
+  @Column({ name: 'file_path', type: 'varchar', length: 255, select: false })
   filePath: string;
 
   @Column({ name: 'mime_type', type: 'varchar', length: 120 })

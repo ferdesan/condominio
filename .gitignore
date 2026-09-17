@@ -93,6 +93,7 @@ mysql-data/
 redis-data/
 dump.rdb
 uploads/
+uploads-test/
 tmp/
 temp/
 storage/
@@ -151,5 +152,4 @@ $RECYCLE.BIN/
 .compozy/cache/
 .compozy/runs/
 .compozy/tmp/
-.zencoder/cache/
 .aider*

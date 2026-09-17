@@ -5,7 +5,7 @@ import type { Paginated, QueryOptions } from '@/shared/types/pagination';
 import { isValidCnpj } from '@/shared/utils/document.util';
 import { Tenant } from './tenant.entity';
 import { tenantRepository, type TenantRepository } from './tenant.repository';
-import type { CreateTenantDTO, UpdateTenantDTO } from './tenant.schema';
+import type { CreateTenantDTO, UpdateLgpdSettingsDTO, UpdateTenantDTO } from './tenant.schema';
 
 /**
  * Administracao das contas da plataforma. Operacoes que atravessam tenants sao
@@ -99,6 +99,38 @@ export class TenantService {
       description: 'Dados da administradora atualizados.',
       before: { name: current.name, plan: current.plan, status: current.status },
       after: { name: updated.name, plan: updated.plan, status: updated.status },
+      actor: ctx.actor,
+      ipAddress: ctx.ipAddress,
+      userAgent: ctx.userAgent,
+      requestId: ctx.requestId,
+    });
+
+    return updated;
+  }
+
+  async updateLgpdSettings(
+    ctx: RequestContext,
+    id: string,
+    dto: UpdateLgpdSettingsDTO,
+  ): Promise<Tenant> {
+    const current = await this.findById(ctx, id);
+
+    const updated = await this.tenants.update(id, {
+      settings: {
+        ...(current.settings ?? {}),
+        lgpd: { ...(current.settings?.lgpd ?? {}), ...dto },
+      },
+    });
+    if (!updated) throw new NotFoundError('Administradora');
+
+    await this.audit.record({
+      tenantId: id,
+      action: 'UPDATE',
+      resource: 'tenant',
+      resourceId: id,
+      description: 'Configuracoes de LGPD da administradora atualizadas.',
+      before: { lgpd: current.settings?.lgpd ?? null },
+      after: { lgpd: updated.settings?.lgpd ?? null },
       actor: ctx.actor,
       ipAddress: ctx.ipAddress,
       userAgent: ctx.userAgent,

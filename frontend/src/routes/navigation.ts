@@ -15,6 +15,7 @@ import {
   Megaphone,
   ScrollText,
   Settings,
+  Shield,
   ShieldCheck,
   TriangleAlert,
   UserCog,
@@ -133,6 +134,13 @@ export const NAV_SECTIONS: NavSection[] = [
         permission: 'tenant:read',
       },
     ],
+  },
+  {
+    // Secao propria de proposito (ADR-005): LGPD trata de direitos de dados, e
+    // nao de uma colecao de negocio — mistura-la com os modulos faria o item
+    // sumir quando o papel nao le aquele recurso.
+    title: 'Privacidade',
+    items: [{ to: '/lgpd', label: 'LGPD', icon: Shield, permission: 'lgpd:read' }],
   },
 ];
 

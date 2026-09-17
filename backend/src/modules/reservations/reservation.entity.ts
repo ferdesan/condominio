@@ -33,8 +33,8 @@ export class Reservation extends TenantScopedEntity {
   @JoinColumn({ name: 'unit_id' })
   unit?: Unit;
 
-  @Column({ name: 'requested_by_id', type: 'varchar', length: 36 })
-  requestedById: string;
+  @Column({ name: 'requested_by_id', type: 'varchar', length: 36, nullable: true })
+  requestedById?: string | null;
 
   @Column({ name: 'requested_by_name', type: 'varchar', length: 150 })
   requestedByName: string;

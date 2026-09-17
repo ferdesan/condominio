@@ -17,6 +17,13 @@ export type TenantSettings = {
   latePenaltyPercent?: number;
   /** Percentual de juros ao mes. */
   lateInterestPercent?: number;
+  /** Encarregado de dados (LGPD) e politica de retencao da administradora. */
+  lgpd?: {
+    dpoName?: string | null;
+    dpoEmail?: string | null;
+    /** Tempo de retencao dos dados pessoais, em anos. */
+    retentionYears?: number | null;
+  };
 };
 
 /**

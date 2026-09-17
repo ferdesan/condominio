@@ -1,5 +1,5 @@
 import type { DeepPartial } from 'typeorm';
-import { BusinessRuleError } from '@/shared/errors';
+import { BusinessRuleError, ConflictError } from '@/shared/errors';
 import { CondominiumScopedService } from '@/shared/services/condominium-scoped.service';
 import type { RequestContext } from '@/shared/services/request-context';
 import { isValidCpf } from '@/shared/utils/document.util';
@@ -12,25 +12,31 @@ export class EmployeeService extends CondominiumScopedService<
   CreateEmployeeDTO,
   UpdateEmployeeDTO
 > {
-  constructor(repository: EmployeeRepository = employeeRepository) {
-    super(repository, { resource: 'employee', label: 'Funcionario' });
+  constructor(private readonly repo: EmployeeRepository = employeeRepository) {
+    super(repo, { resource: 'employee', label: 'Funcionario' });
   }
 
   protected override async prepareCreate(
-    _ctx: RequestContext,
+    ctx: RequestContext,
     dto: CreateEmployeeDTO,
   ): Promise<DeepPartial<Employee>> {
     this.assertDocument(dto.document ?? null);
+    await this.assertDocumentTaken(ctx, dto.document ?? null);
     this.assertContractDates(dto.admissionDate ?? null, dto.terminationDate ?? null);
     return dto as DeepPartial<Employee>;
   }
 
   protected override async prepareUpdate(
-    _ctx: RequestContext,
+    ctx: RequestContext,
     current: Employee,
     dto: UpdateEmployeeDTO,
   ): Promise<DeepPartial<Employee>> {
-    if (dto.document) this.assertDocument(dto.document);
+    if (dto.document) {
+      this.assertDocument(dto.document);
+      if (dto.document !== current.document) {
+        await this.assertDocumentTaken(ctx, dto.document);
+      }
+    }
     this.assertContractDates(
       dto.admissionDate ?? current.admissionDate ?? null,
       dto.terminationDate ?? current.terminationDate ?? null,
@@ -46,6 +52,17 @@ export class EmployeeService extends CondominiumScopedService<
   private assertDocument(document: string | null): void {
     if (document && !isValidCpf(document)) {
       throw new BusinessRuleError('CPF informado e invalido.');
+    }
+  }
+
+  private async assertDocumentTaken(
+    ctx: RequestContext,
+    document: string | null,
+    exceptId?: string,
+  ): Promise<void> {
+    if (!document) return;
+    if (await this.repo.documentTaken(ctx.scope, document, exceptId)) {
+      throw new ConflictError('Ja existe um funcionario com este CPF.');
     }
   }
 

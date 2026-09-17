@@ -107,6 +107,8 @@ export const reservationFilters = [
   'requestedById',
 ] as const;
 export const commonAreaFilters = ['condominiumId', 'status', 'requiresApproval'] as const;
+/** A listagem de pedidos LGPD e por condominio e aceita o status como filtro. */
+export const lgpdRequestFilters = ['condominiumId', 'residentId', 'status'] as const;
 
 const condominiumSearchable = ['name', 'document', 'city', 'district'] as const;
 const blockSearchable = ['name', 'description'] as const;
@@ -114,6 +116,8 @@ const unitSearchable = ['number'] as const;
 const residentSearchable = ['name', 'email', 'document', 'phone'] as const;
 const reservationSearchable = ['requestedByName', 'notes'] as const;
 const commonAreaSearchable = ['name', 'description'] as const;
+/** Busca de pedidos pelo repositorio do backend: status e anotacoes. */
+const lgpdRequestSearchable = ['status', 'notes'] as const;
 
 /** O backend aceita ordenar por filtravel + buscavel + os dois timestamps. */
 function sortable(filters: readonly string[], searchable: readonly string[]): readonly string[] {
@@ -126,6 +130,7 @@ export const unitSortable = sortable(unitFilters, unitSearchable);
 export const residentSortable = sortable(residentFilters, residentSearchable);
 export const reservationSortable = sortable(reservationFilters, reservationSearchable);
 export const commonAreaSortable = sortable(commonAreaFilters, commonAreaSearchable);
+export const lgpdRequestSortable = sortable(lgpdRequestFilters, lgpdRequestSearchable);
 
 /** Descarta chaves fora da whitelist antes que virem uma query inocua. */
 export function pickFilters(whitelist: readonly string[], filters: Filters): Filters {
