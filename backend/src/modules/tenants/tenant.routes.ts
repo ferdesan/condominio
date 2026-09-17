@@ -5,7 +5,13 @@ import { idParamSchema } from '@/shared/dto/common.schema';
 import { noContent, ok, page } from '@/shared/http/api-response';
 import { parseQueryOptions } from '@/shared/http/query-parser';
 import { buildRequestContext } from '@/shared/services/request-context';
-import { createTenantSchema, updateTenantSchema, type UpdateTenantDTO } from './tenant.schema';
+import {
+  createTenantSchema,
+  updateLgpdSettingsSchema,
+  updateTenantSchema,
+  type UpdateLgpdSettingsDTO,
+  type UpdateTenantDTO,
+} from './tenant.schema';
 import { tenantService } from './tenant.service';
 
 export const tenantRouter = Router();
@@ -73,6 +79,19 @@ tenantRouter.patch(
   validate({ params: idParamSchema, body: updateTenantSchema }),
   handle((req) =>
     tenantService.update(buildRequestContext(req), req.params.id, req.body as UpdateTenantDTO),
+  ),
+);
+
+tenantRouter.put(
+  '/:id/lgpd-settings',
+  authorize('tenant:update'),
+  validate({ params: idParamSchema, body: updateLgpdSettingsSchema }),
+  handle((req) =>
+    tenantService.updateLgpdSettings(
+      buildRequestContext(req),
+      req.params.id,
+      req.body as UpdateLgpdSettingsDTO,
+    ),
   ),
 );
 
