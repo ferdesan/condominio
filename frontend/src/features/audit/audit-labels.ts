@@ -10,7 +10,7 @@
 import type { AuditAction, AuditLog } from '@/types/audit';
 
 /**
- * As onze acoes registradas pelo servidor.
+ * As dezessete acoes registradas pelo servidor.
  *
  * Nenhum rotulo repete um cabecalho de coluna ("Quando", "Autor", "Acao",
  * "Recurso", "Descricao", "Campos alterados") nem o rotulo de um filtro — a
@@ -28,6 +28,12 @@ export const ACTION_LABELS: Record<AuditAction, string> = {
   PERMISSION_DENIED: 'Permissao negada',
   EXPORT: 'Exportacao',
   IMPORT: 'Importacao',
+  LGPD_DELETE_REQUEST: 'Pedido de exclusao LGPD',
+  LGPD_DELETE: 'Exclusao LGPD executada',
+  LGPD_DELETE_CANCEL: 'Pedido de exclusao cancelado',
+  LGPD_EXPORT: 'Exportacao de dados pessoais',
+  LGPD_CONSENT_GRANTED: 'Consentimento concedido',
+  LGPD_CONSENT_REVOKED: 'Consentimento revogado',
 };
 
 /**
