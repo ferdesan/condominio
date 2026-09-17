@@ -150,7 +150,7 @@ export function UnitFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar unidade' : 'Nova unidade'}</DialogTitle>
             <DialogDescription>

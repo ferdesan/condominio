@@ -114,7 +114,7 @@ export function IncidentStatusDialog({ incident, onClose }: IncidentStatusDialog
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent side="right" dismissible={false}>
         <DialogHeader>
           <DialogTitle>Mudar status da ocorrencia</DialogTitle>
           <DialogDescription>

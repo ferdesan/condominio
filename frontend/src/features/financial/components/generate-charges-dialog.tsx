@@ -95,7 +95,7 @@ export function GenerateChargesDialog({
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Gerar cobrancas do mes</DialogTitle>
           <DialogDescription>

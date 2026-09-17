@@ -101,7 +101,7 @@ export function CategoryFormDialog({ category, condominiumId, onClose }: Categor
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar conta' : 'Nova conta'}</DialogTitle>
             <DialogDescription>

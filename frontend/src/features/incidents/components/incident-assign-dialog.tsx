@@ -96,7 +96,7 @@ export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentA
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent side="right" dismissible={false}>
         <DialogHeader>
           <DialogTitle>Atribuir responsavel</DialogTitle>
           <DialogDescription>
