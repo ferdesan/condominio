@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import {
@@ -77,6 +78,31 @@ export function VehicleFormDialog({
 }: VehicleFormDialogProps) {
   const isEdit = Boolean(vehicle);
   const queryClient = useQueryClient();
+
+  // "Sem vinculo" e a primeira opcao dos dois seletores, e nao um estado a
+  // parte: os dois vinculos sao opcionais no servidor e voltar para la precisa
+  // ser tao alcancavel quanto escolher.
+  const unitOptions = useMemo(
+    () => [
+      { value: NONE, label: 'Sem vinculo' },
+      ...units.map((unit) => ({ value: unit.id, label: unitLabel(unit) })),
+    ],
+    [units],
+  );
+
+  // A unidade vai como dica porque nome nao identifica morador: dois cadastros
+  // podem trazer o mesmo, e ela tambem entra na busca.
+  const residentOptions = useMemo(
+    () => [
+      { value: NONE, label: 'Sem vinculo' },
+      ...residents.map((resident) => ({
+        value: resident.id,
+        label: resident.name,
+        hint: resident.unit ? unitLabel(resident.unit) : undefined,
+      })),
+    ],
+    [residents],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [conflictHint, setConflictHint] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
@@ -264,22 +290,14 @@ export function VehicleFormDialog({
                     description="Opcional. Apenas unidades do condominio selecionado."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value === '' ? NONE : field.value}
+                        options={unitOptions}
+                        searchPlaceholder="Buscar unidade"
+                        emptyMessage="Nenhuma unidade corresponde a busca."
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>Sem vinculo</SelectItem>
-                          {units.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unitLabel(unit)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   </FormField>
                 )}
@@ -296,22 +314,14 @@ export function VehicleFormDialog({
                     description="Opcional. Apenas moradores do condominio selecionado."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value === '' ? NONE : field.value}
+                        options={residentOptions}
+                        searchPlaceholder="Buscar por nome ou unidade"
+                        emptyMessage="Nenhum morador corresponde a busca."
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>Sem vinculo</SelectItem>
-                          {residents.map((resident) => (
-                            <SelectItem key={resident.id} value={resident.id}>
-                              {resident.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   </FormField>
                 )}
