@@ -161,6 +161,7 @@ const REGISTERED = [
   { path: '/auditoria', title: 'Auditoria', permission: 'audit-log:read' },
   { path: '/papeis', title: 'Papeis', permission: 'role:read' },
   { path: '/configuracoes', title: 'Configuracoes', permission: 'tenant:read' },
+  { path: '/lgpd', title: 'LGPD', permission: 'lgpd:read' },
   // Unico item sem permissao declarada em `navigation.ts`.
   { path: '/notificacoes', title: 'Notificacoes', permission: null },
 ] as const;

@@ -1,4 +1,3 @@
-import path from 'node:path';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -77,15 +76,11 @@ export function createApp(): Application {
     );
   }
 
-  // --- Arquivos estaticos de upload ---------------------------------------
-  app.use(
-    '/uploads',
-    express.static(path.resolve(process.cwd(), env.UPLOAD_DIR), {
-      index: false,
-      dotfiles: 'deny',
-      maxAge: '1h',
-    }),
-  );
+  // Nao ha rota estatica para os uploads. Servir o diretorio aqui entregaria
+  // qualquer arquivo guardado sem autenticacao — fora do `API_PREFIX`, o
+  // `authenticate` nem chega a rodar — e a matriz de visibilidade de
+  // `document.service.ts` deixaria de significar alguma coisa. O unico caminho
+  // ate um arquivo e `GET /documents/:id/download` (ADR-001).
 
   // --- API -----------------------------------------------------------------
   app.use(env.API_PREFIX, apiRouter);

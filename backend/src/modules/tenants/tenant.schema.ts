@@ -34,3 +34,15 @@ export const updateTenantSchema = createTenantSchema.partial();
 
 export type CreateTenantDTO = z.infer<typeof createTenantSchema>;
 export type UpdateTenantDTO = z.infer<typeof updateTenantSchema>;
+
+/**
+ * Configuracao LGPD da administradora, gravada no bloco `settings.lgpd` do
+ * tenant por um endpoint dedicado.
+ */
+export const updateLgpdSettingsSchema = z.object({
+  dpoName: z.string().min(2).max(150).optional().nullable(),
+  dpoEmail: emailSchema.optional().nullable(),
+  retentionYears: z.coerce.number().int().min(0).max(30).optional().nullable(),
+});
+
+export type UpdateLgpdSettingsDTO = z.infer<typeof updateLgpdSettingsSchema>;

@@ -223,7 +223,7 @@ export class ReservationService extends CondominiumScopedService<
     await this.notifications.notify({
       tenantId: ctx.scope.tenantId,
       condominiumId: reservation.condominiumId,
-      userIds: [reservation.requestedById],
+      userIds: reservation.requestedById ? [reservation.requestedById] : [],
       title: `Reserva ${labels[status]}`,
       message: `Sua reserva de ${dayjs(reservation.startsAt).format('DD/MM/YYYY HH:mm')} foi ${labels[status]}.${reason ? ` Motivo: ${reason}` : ''}`,
       type: 'RESERVATION',
