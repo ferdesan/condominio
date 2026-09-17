@@ -190,7 +190,7 @@ export function RolesPage() {
       <CrudLayout
         header={
           <PageHeader
-            title="Papeis"
+            title="Papéis"
             description={DESCRIPTION}
             actions={
               canCreate ? (

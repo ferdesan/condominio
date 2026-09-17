@@ -187,7 +187,7 @@ export function NotificationsPage() {
     <CrudLayout
       header={
         <PageHeader
-          title="Notificacoes"
+          title="Notificações"
           description={DESCRIPTION}
           actions={
             canUpdate ? (

@@ -119,7 +119,7 @@ export function CondominiumsPage() {
       <CrudLayout
         header={
           <PageHeader
-            title="Condominios"
+            title="Condomínios"
             description="Cadastro dos condominios geridos pela sua conta."
             actions={
               canCreate ? (

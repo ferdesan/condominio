@@ -177,7 +177,7 @@ export function CommonAreasPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Areas comuns" description={DESCRIPTION} />}
+        header={<PageHeader title="Áreas comuns" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
@@ -196,7 +196,7 @@ export function CommonAreasPage() {
       <CrudLayout
         header={
           <PageHeader
-            title="Areas comuns"
+            title="Áreas comuns"
             description={DESCRIPTION}
             actions={
               canCreate ? (

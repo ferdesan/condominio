@@ -187,7 +187,7 @@ export function VehiclesPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Veiculos" description={DESCRIPTION} />}
+        header={<PageHeader title="Veículos" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
@@ -206,7 +206,7 @@ export function VehiclesPage() {
       <CrudLayout
         header={
           <PageHeader
-            title="Veiculos"
+            title="Veículos"
             description={DESCRIPTION}
             actions={
               canCreate ? (

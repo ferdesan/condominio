@@ -195,7 +195,7 @@ export function EmployeesPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Funcionarios" description={DESCRIPTION} />}
+        header={<PageHeader title="Funcionários" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
@@ -214,7 +214,7 @@ export function EmployeesPage() {
       <CrudLayout
         header={
           <PageHeader
-            title="Funcionarios"
+            title="Funcionários"
             description={DESCRIPTION}
             actions={
               canCreate ? (
