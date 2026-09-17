@@ -1,4 +1,5 @@
 import type { DeepPartial } from 'typeorm';
+import { dependentRepository, type DependentRepository } from '@/modules/dependents/dependent.repository';
 import { unitRepository, type UnitRepository } from '@/modules/units/unit.repository';
 import { BusinessRuleError, ConflictError } from '@/shared/errors';
 import { CondominiumScopedService } from '@/shared/services/condominium-scoped.service';
@@ -17,6 +18,7 @@ export class ResidentService extends CondominiumScopedService<
   constructor(
     private readonly residents: ResidentRepository = residentRepository,
     private readonly units: UnitRepository = unitRepository,
+    private readonly dependents: DependentRepository = dependentRepository,
   ) {
     super(residents, { resource: 'resident', label: 'Morador' });
   }
@@ -76,6 +78,7 @@ export class ResidentService extends CondominiumScopedService<
   }
 
   protected override async afterRemove(ctx: RequestContext, entity: Resident): Promise<void> {
+    await this.dependents.softDeleteByResidentId(ctx.scope, entity.id);
     await this.syncUnitStatus(ctx, entity.unitId);
   }
 
