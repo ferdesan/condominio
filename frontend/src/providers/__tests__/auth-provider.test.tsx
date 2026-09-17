@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { apiGet, apiPost, tokenStorage } from '@/lib/api';
+import { ApiError, apiGet, apiPost, tokenStorage } from '@/lib/api';
 import { RenderResult, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { makeAuthUser } from '@/test/fixtures';
 import type { LoginResponse } from '@/types/api';
@@ -12,6 +12,11 @@ import { useAuth } from '@/hooks/use-auth';
  * morre — e testado no transporte, em `lib/api.test.ts` (UT-046, UT-047, UT-051).
  * Aqui mora o que o transporte nao toca: a restauracao de sessao do boot, o
  * estado da sessao durante ela e o login/logout/updateUser da interface.
+ *
+ * UT-024.E4/E5 completam as bordas pela vision do provedor: o acesso expirado so
+ * vira sessao se o transporte conseguir renovar os tokens (E4), e um refresh que
+ * morre no boot derruba a sessao local e zera os tokens (E5) — o evento
+ * `auth:session-expired`, que o transporte dispara, e o verbo da queda.
  */
 vi.mock('@/lib/api', async () => {
   const actual = await vi.importActual<typeof import('@/lib/api')>('@/lib/api');
@@ -168,5 +173,40 @@ describe('AuthProvider (IT-054)', () => {
 
     await waitFor(() => expect(screen.getByTestId('authenticated').textContent).toBe('false'));
     expect(tokenStorage.accessToken).toBeNull();
+  });
+
+  it('UT-024.E4: acesso expirado restaura a sessao quando o refresh renova os tokens', async () => {
+    tokenStorage.set('expired-access', 'refresh-1');
+    // O transporte, ao ver o acesso velho, chama o refresh e regrava os tokens
+    // novos antes de responder o /auth/me que o provedor pediu (UT-046/UT-047).
+    mockGet.mockImplementation(async (url: string) => {
+      if (url === '/auth/me') {
+        tokenStorage.set('fresh-access', 'fresh-refresh');
+        return { ...admin, id: admin.id };
+      }
+      throw new ApiError('nao encontrado', 404, 'NOT_FOUND');
+    });
+
+    view = renderProvider();
+
+    await waitFor(() => expect(screen.getByTestId('authenticated').textContent).toBe('true'));
+    expect(screen.getByTestId('initializing').textContent).toBe('false');
+    expect(tokenStorage.accessToken).toBe('fresh-access');
+    expect(tokenStorage.refreshToken).toBe('fresh-refresh');
+    expect(mockGet).toHaveBeenCalledWith('/auth/me');
+  });
+
+  it('UT-024.E5: refresh morto no boot derruba a sessao e zera os tokens', async () => {
+    tokenStorage.set('expired-access', 'refresh-1');
+    mockGet.mockRejectedValue(new ApiError('Sessao expirada.', 401, 'UNAUTHORIZED'));
+
+    view = renderProvider();
+    // O transporte nao consegue renovar e dispara o fim da sessao.
+    window.dispatchEvent(new CustomEvent('auth:session-expired'));
+
+    await waitFor(() => expect(screen.getByTestId('initializing').textContent).toBe('false'));
+    expect(screen.getByTestId('authenticated').textContent).toBe('false');
+    expect(tokenStorage.accessToken).toBeNull();
+    expect(tokenStorage.refreshToken).toBeNull();
   });
 });

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "Frontend LGPD Tests"
 type: test
 complexity: low
@@ -32,12 +32,12 @@ Create integration tests for the LGPD frontend page, verifying correct rendering
 
 ## Subtasks
 
-- [ ] 6.1 Create `lgpd-page.test.tsx` with test setup (mock API, render with providers)
-- [ ] 6.2 Test admin view: all 3 tabs visible and rendered
-- [ ] 6.3 Test resident view: Export and Consent tabs visible, Requests shows own requests
-- [ ] 6.4 Test permission gating: user without lgpd:read sees ForbiddenPage
-- [ ] 6.5 Test tab switching: clicking each tab shows correct content
-- [ ] 6.6 Verify all tests pass
+- [x] 6.1 Create `lgpd-page.test.tsx` with test setup (mock API, render with providers)
+- [x] 6.2 Test admin view: all 3 tabs visible and rendered
+- [x] 6.3 Test resident view: Export and Consent tabs visible, Requests shows own requests
+- [x] 6.4 Test permission gating: user without lgpd:read sees ForbiddenPage
+- [x] 6.5 Test tab switching: clicking each tab shows correct content
+- [x] 6.6 Verify all tests pass
 
 ## Implementation Details
 
@@ -64,9 +64,9 @@ Create integration tests for the LGPD frontend page, verifying correct rendering
 
 Cases assigned from `_tests.md`:
 
-- [ ] IT-056 — LGPD page renders tabs for admin user
-- [ ] IT-056.E1 — LGPD page resident view (Export + Consent tabs, own requests)
-- [ ] IT-056.E2 — LGPD page permission gating (user without lgpd:read)
+- [x] IT-056 — LGPD page renders tabs for admin user
+- [x] IT-056.E1 — LGPD page resident view (Export + Consent tabs, own requests)
+- [x] IT-056.E2 — LGPD page permission gating (user without lgpd:read)
 
 ## Success Criteria
 - LGPD page test file created and passing

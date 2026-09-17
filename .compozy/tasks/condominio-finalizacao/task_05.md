@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "Frontend Infrastructure Tests"
 type: test
 complexity: medium
@@ -36,16 +36,16 @@ Create dedicated unit tests for the 3 most security-critical frontend infrastruc
 
 ## Subtasks
 
-- [ ] 5.1 Create `auth-provider.test.tsx` — session restore, login, logout, token refresh, session-expired event
-- [ ] 5.2 Create `permissions.test.ts` — hasPermission, hasAnyPermission, wildcard, manage, edge cases
-- [ ] 5.3 Create `protected-route.test.tsx` — initializing loader, redirect to login, ForbiddenPage, children rendered
-- [ ] 5.4 Create `theme-provider.test.tsx` — localStorage, system preference, toggleTheme, setTheme
-- [ ] 5.5 Create `use-account-theme.test.ts` — account adoption, device choice override, re-mount latch
-- [ ] 5.6 Create `utils.test.ts` — cn(), initials(), sleep()
-- [ ] 5.7 Create `query-provider.test.tsx` — 401 skip, mutation error toast
-- [ ] 5.8 Create `financial-components.test.tsx` — summary, categories, charges, expenses, forms
-- [ ] 5.9 Create `dashboard-components.test.tsx` — stat-card, activity-feed, charts, tooltip
-- [ ] 5.10 Verify all tests pass
+- [x] 5.1 Create `auth-provider.test.tsx` — session restore, login, logout, token refresh, session-expired event
+- [x] 5.2 Create `permissions.test.ts` — hasPermission, hasAnyPermission, wildcard, manage, edge cases
+- [x] 5.3 Create `protected-route.test.tsx` — initializing loader, redirect to login, ForbiddenPage, children rendered
+- [x] 5.4 Create `theme-provider.test.tsx` — localStorage, system preference, toggleTheme, setTheme
+- [x] 5.5 Create `use-account-theme.test.ts` — account adoption, device choice override, re-mount latch
+- [x] 5.6 Create `utils.test.ts` — cn(), initials(), sleep()
+- [x] 5.7 Create `query-provider.test.tsx` — 401 skip, mutation error toast
+- [x] 5.8 Create `financial-components.test.tsx` — summary, categories, charges, expenses, forms
+- [x] 5.9 Create `dashboard-components.test.tsx` — stat-card, activity-feed, charts, tooltip
+- [x] 5.10 Verify all tests pass
 
 ## Implementation Details
 
@@ -79,15 +79,15 @@ Create dedicated unit tests for the 3 most security-critical frontend infrastruc
 
 Cases assigned from `_tests.md`:
 
-- [ ] UT-024 (all sub-cases) — auth-provider session lifecycle
-- [ ] UT-025 (all sub-cases) — permissions.ts authorization logic
-- [ ] UT-026 (all sub-cases) — ProtectedRoute guard behavior
-- [ ] UT-027 (all sub-cases) — theme-provider persistence
-- [ ] UT-028 (all sub-cases) — use-account-theme hook
-- [ ] UT-029 (all sub-cases) — utils.ts pure functions
-- [ ] UT-030 (all sub-cases) — query-provider error handling
-- [ ] UT-031 (all sub-cases) — financial module components
-- [ ] UT-032 (all sub-cases) — dashboard components
+- [x] UT-024 (all sub-cases) — auth-provider session lifecycle
+- [x] UT-025 (all sub-cases) — permissions.ts authorization logic
+- [x] UT-026 (all sub-cases) — ProtectedRoute guard behavior
+- [x] UT-027 (all sub-cases) — theme-provider persistence
+- [x] UT-028 (all sub-cases) — use-account-theme hook
+- [x] UT-029 (all sub-cases) — utils.ts pure functions
+- [x] UT-030 (all sub-cases) — query-provider error handling
+- [x] UT-031 (all sub-cases) — financial module components
+- [x] UT-032 (all sub-cases) — dashboard components
 
 ## Success Criteria
 - All 9 test files created and passing

@@ -49,7 +49,7 @@ function renderProtected(
   );
 }
 
-describe('ProtectedRoute (IT-055)', () => {
+describe('ProtectedRoute (IT-055, UT-026)', () => {
   it('segura a tela enquanto a sessao e restaurada, mesmo com token', () => {
     renderProtected(
       { initializing: true, isAuthenticated: false, can: () => false },
