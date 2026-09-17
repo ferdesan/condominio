@@ -37,7 +37,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           'transition-transform duration-200 ease-out lg:static lg:z-auto lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
-        aria-label="Navegacao principal"
+        aria-label="Navegação principal"
       >
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
           <span className="flex items-center gap-2.5 font-semibold">
