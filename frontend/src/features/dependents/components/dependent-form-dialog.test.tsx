@@ -7,6 +7,8 @@ import {
   createUser,
   renderWithProviders,
   screen,
+  chooseOption,
+  openCombobox,
   selectOption,
   waitFor,
   within,
@@ -131,7 +133,7 @@ describe('Cadastro de dependente', () => {
     expect(within(dialog()).getByLabelText('Unidade')).toHaveValue('');
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Ana Souza');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Ana Souza/);
 
     // A unidade e a do morador titular: o servidor recusa qualquer outra.
     expect(within(dialog()).getByLabelText('Unidade')).toHaveValue('Torre A - 102');
@@ -166,7 +168,7 @@ describe('Cadastro de dependente', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Carlos Pereira');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Carlos Pereira/);
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -193,13 +195,12 @@ describe('Cadastro de dependente', () => {
       condominiumId: 'cond-1',
     });
 
-    const trigger = within(dialog()).getByLabelText('Morador');
-    trigger.focus();
-    clickTrigger(trigger);
-    expect(screen.queryAllByRole('option').map((option) => option.textContent)).toEqual([
-      'Carlos Pereira',
-      'Ana Souza',
-    ]);
+    openCombobox(within(dialog()).getByLabelText('Morador'));
+    // O nome acessivel traz a unidade junto: e ela que distingue dois moradores
+    // de mesmo nome, e o rotulo sozinho nao distinguiria.
+    expect(
+      screen.queryAllByRole('option').map((option) => option.getAttribute('aria-label')),
+    ).toEqual(['Carlos Pereira, Torre A - 101', 'Ana Souza, Torre A - 101']);
   });
 
   it('um nome de dois caracteres e recusado na propria tela', async () => {
@@ -246,7 +247,7 @@ describe('Cadastro de dependente', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Carlos Pereira');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Carlos Pereira/);
 
     const submit = within(dialog()).getByRole('button', { name: 'Cadastrar' });
     clickTrigger(submit);
@@ -272,7 +273,7 @@ describe('Falhas do servidor no formulario de dependente', () => {
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
     await user.type(within(dialog()).getByLabelText('CPF'), '12345678909');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Carlos Pereira');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Carlos Pereira/);
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     const message = await screen.findByText('CPF deve conter 11 digitos.');
@@ -301,7 +302,7 @@ describe('Falhas do servidor no formulario de dependente', () => {
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
     await user.type(within(dialog()).getByLabelText('CPF'), '98765432100');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Carlos Pereira');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Carlos Pereira/);
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     expect(

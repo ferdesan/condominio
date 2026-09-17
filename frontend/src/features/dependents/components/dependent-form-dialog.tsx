@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -134,6 +135,22 @@ export function DependentFormDialog({
   const missingResident = residentId !== '' && selectedResident === undefined;
   const unit = selectedResident?.unit;
 
+  /**
+   * A unidade vai como segunda linha de cada opcao porque **nome nao identifica
+   * morador**: dois cadastros podem trazer o mesmo nome, e a lista mostrava dois
+   * "Ana Silva" sem nada que dissesse qual era qual. A unidade tambem entra na
+   * busca, entao digitar o numero dela encontra o morador.
+   */
+  const residentOptions = useMemo(
+    () =>
+      residents.map((resident) => ({
+        value: resident.id,
+        label: resident.name,
+        hint: resident.unit ? unitLabel(resident.unit) : undefined,
+      })),
+    [residents],
+  );
+
   return (
     <>
       <Dialog
@@ -169,8 +186,13 @@ export function DependentFormDialog({
                     }
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value}
+                        options={residentOptions}
+                        placeholder="Selecione o morador"
+                        searchPlaceholder="Buscar por nome ou unidade"
+                        emptyMessage="Nenhum morador corresponde a busca."
                         onValueChange={(value) => {
                           field.onChange(value);
                           const chosen = residents.find((resident) => resident.id === value);
@@ -179,18 +201,7 @@ export function DependentFormDialog({
                             shouldValidate: true,
                           });
                         }}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue placeholder="Selecione o morador" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {residents.map((resident) => (
-                            <SelectItem key={resident.id} value={resident.id}>
-                              {resident.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   </FormField>
                 )}
