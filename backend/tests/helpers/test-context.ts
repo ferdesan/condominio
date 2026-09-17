@@ -41,6 +41,7 @@ export type AuthenticatedAgent = {
   userId: string;
   get: (path: string) => request.Test;
   post: (path: string) => request.Test;
+  put: (path: string) => request.Test;
   patch: (path: string) => request.Test;
   delete: (path: string) => request.Test;
 };
@@ -69,6 +70,7 @@ export async function login(
     get: (path) => authorize(request(ctx.app).get(`${ctx.api}${path}`)),
     post: (path) => authorize(request(ctx.app).post(`${ctx.api}${path}`)),
     patch: (path) => authorize(request(ctx.app).patch(`${ctx.api}${path}`)),
+    put: (path) => authorize(request(ctx.app).put(`${ctx.api}${path}`)),
     delete: (path) => authorize(request(ctx.app).delete(`${ctx.api}${path}`)),
   };
 }

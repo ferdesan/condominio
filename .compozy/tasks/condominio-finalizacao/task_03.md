@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "Frontend LGPD Module"
 type: frontend
 complexity: high
@@ -39,19 +39,19 @@ Build the complete frontend LGPD feature: types, hooks, Zod schemas, labels, a t
 
 ## Subtasks
 
-- [ ] 3.1 Create `types/lgpd.ts` with all LGPD TypeScript types
-- [ ] 3.2 Create `lgpd-hooks.ts` with React Query hooks for deletion requests, export, consent
-- [ ] 3.3 Create `lgpd-schema.ts` with Zod schemas and form value conversion functions
-- [ ] 3.4 Create `lgpd-labels.ts` with status and type label mappings
-- [ ] 3.5 Create `lgpd-requests-tab.tsx` — admin: DataTable with requests, execute/cancel; resident: own requests + new request button
-- [ ] 3.6 Create `lgpd-export-tab.tsx` — export button with JSON download, admin resident selector
-- [ ] 3.7 Create `lgpd-consent-tab.tsx` — consent toggle with confirmation dialog, admin read-only
-- [ ] 3.8 Create `lgpd-page.tsx` — page layout with Radix Tabs wrapping the 3 tab components
-- [ ] 3.9 Update `navigation.ts` — add "Privacidade" section with LGPD item
-- [ ] 3.10 Update `app-router.tsx` — add route and IMPLEMENTED entry
-- [ ] 3.11 Update `profile-page.tsx` — add deletion request link
-- [ ] 3.12 Implement integration tests for LGPD page rendering and tab switching
-- [ ] 3.13 Verify all tests pass
+- [x] 3.1 Create `types/lgpd.ts` with all LGPD TypeScript types
+- [x] 3.2 Create `lgpd-hooks.ts` with React Query hooks for deletion requests, export, consent
+- [x] 3.3 Create `lgpd-schema.ts` with Zod schemas and form value conversion functions
+- [x] 3.4 Create `lgpd-labels.ts` with status and type label mappings
+- [x] 3.5 Create `lgpd-requests-tab.tsx` — admin: DataTable with requests, execute/cancel; resident: own requests + new request button
+- [x] 3.6 Create `lgpd-export-tab.tsx` — export button with JSON download, admin resident selector
+- [x] 3.7 Create `lgpd-consent-tab.tsx` — consent toggle with confirmation dialog, admin read-only
+- [x] 3.8 Create `lgpd-page.tsx` — page layout with Radix Tabs wrapping the 3 tab components
+- [x] 3.9 Update `navigation.ts` — add "Privacidade" section with LGPD item
+- [x] 3.10 Update `app-router.tsx` — add route and IMPLEMENTED entry
+- [x] 3.11 Update `profile-page.tsx` — add deletion request link
+- [x] 3.12 Implement integration tests for LGPD page rendering and tab switching
+- [x] 3.13 Verify all tests pass
 
 ## Implementation Details
 
@@ -84,6 +84,14 @@ Build the complete frontend LGPD feature: types, hooks, Zod schemas, labels, a t
 - [ADR-002: LGPD Data Export Format](../adrs/adr-002.md) — JSON export structure
 - [ADR-005: LGPD Frontend Route Design](../adrs/adr-005.md) — Tabbed page design
 
+## Progress
+
+- Backend IT-053 implementado nesta tarefa (o unico teste de backend atribuido): `PUT /tenants/:id/lgpd-settings` no modulo de tenants, com `dpoName`/`dpoEmail`/`retentionYears`, validacao Zod no tenant service (convencao 422), registro de auditoria e modos `put` no `AuthenticatedAgent`. Coberto em `backend/tests/integration/lgpd.spec.ts` (IT-053, E1, E2, E3).
+- Frontend entregue em `frontend/src/features/lgpd/`: `types/lgpd.ts`, `lgpd-hooks.ts`, `lgpd-schema.ts`, `lgpd-labels.ts`, `lgpd-page.tsx` (abas controladas por `?tab=`), e os tres componentes de aba. Adicionados `components/ui/tabs.tsx`, `components/ui/switch.tsx` e os parametros `lgpdRequestFilters/Searchable/Sortable` em `lib/crud/query-params.ts`.
+- Integracao: secao "Privacidade" em `navigation.ts` (item LGPD com `lgpd:read`), rota `/lgpd` + `IMPLEMENTED` + `ProtectedRoute permission="lgpd:read"` em `app-router.tsx` (e entrada correspondente no `REGISTERED` de `test/routes.test.tsx`), e link "Solicitar exclusao de dados" no perfil para moradores navegando para `/lgpd?tab=export` (techspec).
+- A aba de consentimento discrimina por papel (RESIDENT) e nao por permissao: o ADMIN carrega `['*']`, que satisfaz `lgpd-consent:create` e receberia o toggle indevido. Per `lgpd:read`, as tres abas sao visiveis (ADR-005); dentro de cada uma o conteudo segue a permissao do papel.
+- Verificacao: backend `npx tsc --noEmit` limpo e suíte com 230 testes passando; frontend `npm run typecheck` e `npm run lint` (0 erros) e suíte vitest com 968 testes passando.
+
 ## Deliverables
 - `frontend/src/types/lgpd.ts` — TypeScript types
 - `frontend/src/features/lgpd/lgpd-hooks.ts` — React Query hooks
@@ -101,10 +109,10 @@ Build the complete frontend LGPD feature: types, hooks, Zod schemas, labels, a t
 
 Cases assigned from `_tests.md`:
 
-- [ ] IT-053, IT-053.E1, IT-053.E2 — DPO configuration (tenant settings)
-- [ ] IT-054, IT-054.E1, IT-054.E2, IT-054.E3, IT-054.E4 — Auth provider session lifecycle
-- [ ] IT-055, IT-055.E1, IT-055.E2, IT-055.E3 — ProtectedRoute guard behavior
-- [ ] IT-056, IT-056.E1, IT-056.E2 — LGPD page rendering and permission gating
+- [x] IT-053, IT-053.E1, IT-053.E2 — DPO configuration (tenant settings)
+- [x] IT-054, IT-054.E1, IT-054.E2, IT-054.E3, IT-054.E4 — Auth provider session lifecycle
+- [x] IT-055, IT-055.E1, IT-055.E2, IT-055.E3 — ProtectedRoute guard behavior
+- [x] IT-056, IT-056.E1, IT-056.E2 — LGPD page rendering and permission gating
 
 ## Success Criteria
 - LGPD page renders with 3 tabs

@@ -29,6 +29,7 @@ import { AssembliesPage } from '@/features/assemblies/assemblies-page';
 import { DocumentsPage } from '@/features/documents/documents-page';
 import { RolesPage } from '@/features/roles/roles-page';
 import { TenantPage } from '@/features/tenant/tenant-page';
+import { LgpdPage } from '@/features/lgpd/lgpd-page';
 import { ProfilePage } from '@/features/profile/profile-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
@@ -61,6 +62,7 @@ const IMPLEMENTED = new Set([
   '/documentos',
   '/configuracoes',
   '/papeis',
+  '/lgpd',
 ]);
 
 export function AppRouter() {
@@ -200,6 +202,17 @@ export function AppRouter() {
                 `tenant:update`, e o servidor recusa os campos comerciais de
                 qualquer forma. */}
             <Route path="/configuracoes" element={<TenantPage />} />
+          </Route>
+
+          {/*
+            LGPD agrupa tres recursos sob uma rota — pedidos, exportacao e
+            consentimento. A guarda e a do item de menu (`lgpd:read`); cada aba
+            checa as proprias permissoes por dentro, porque o morador tem so
+            `lgpd-request:create` e a consulta de consentimento so faz sentido
+            para quem tem morador vinculado.
+          */}
+          <Route element={<ProtectedRoute permission="lgpd:read" />}>
+            <Route path="/lgpd" element={<LgpdPage />} />
           </Route>
 
           {/*

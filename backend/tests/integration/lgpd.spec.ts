@@ -888,4 +888,47 @@ describe('LGPD - integracao (IT-001..048)', () => {
       expect(response.body.data.documents).toHaveLength(0);
     });
   });
+
+  describe('Configuracao do encarregado (IT-053)', () => {
+    const lgpdSettingsUrl = (): string => `/tenants/${ctx.seed.tenantId}/lgpd-settings`;
+    const otherTenantId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+
+    it('IT-053 - PUT /tenants/:id/lgpd-settings grava encarregado e retencao', async () => {
+      const response = await adminAgent
+        .put(lgpdSettingsUrl())
+        .send({ dpoName: 'Maria Encarregada', dpoEmail: 'dpo@exemplo.com.br', retentionYears: 5 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.settings.lgpd).toMatchObject({
+        dpoName: 'Maria Encarregada',
+        dpoEmail: 'dpo@exemplo.com.br',
+        retentionYears: 5,
+      });
+    });
+
+    it('IT-053.E1 - email invalido do encarregado e recusado pelo contrato', async () => {
+      const response = await adminAgent
+        .put(lgpdSettingsUrl())
+        .send({ dpoName: 'Maria Encarregada', dpoEmail: 'nao-e-um-email' });
+
+      expect(response.status).toBe(422);
+    });
+
+    it('IT-053.E2 - um administrador nao altera a politica de outro tenant', async () => {
+      const response = await adminAgent
+        .put(`/tenants/${otherTenantId}/lgpd-settings`)
+        .send({ dpoName: 'Fora do escopo' });
+
+      expect(response.status).toBe(403);
+    });
+
+    it('IT-053.E3 - um morador nao configura a politica', async () => {
+      const response = await moradorAgent
+        .put(lgpdSettingsUrl())
+        .send({ dpoName: 'Intruso', retentionYears: 1 });
+
+      expect(response.status).toBe(403);
+    });
+  });
 });

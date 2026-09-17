@@ -1,4 +1,14 @@
+import { Link } from 'react-router-dom';
+import { ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/use-auth';
 import { ProfileDetailsForm } from './components/profile-details-form';
@@ -52,6 +62,33 @@ export function ProfilePage() {
           <ProfileDetailsForm user={user} />
           <PasswordForm />
           <SessionsPanel />
+
+          {/*
+            A porta de entrada do titular de dados (ADR-005): os direitos LGPD
+            do morador moram na pagina /lgpd, e o perfil e o lugar onde ele os
+            procura. O link abre direto a aba de exportacao — a mesma que o
+            fluxo de "Solicitar exclusao de dados" usa para explicar o que e
+            exportavel antes do pedido.
+          */}
+          {user.role === 'RESIDENT' ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Seus dados pessoais</CardTitle>
+                <CardDescription>
+                  Exerca os seus direitos de titular de dados: exportar o que o condominio guarda
+                  sobre voce ou solicitar a anonimizacao.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline">
+                  <Link to="/lgpd?tab=export">
+                    <ShieldAlert className="size-4" aria-hidden="true" />
+                    Solicitar exclusao de dados
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ) : null}
         </>
       )}
     </div>
