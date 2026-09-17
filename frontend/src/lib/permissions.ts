@@ -6,7 +6,11 @@
  */
 export const WILDCARD_PERMISSION = '*';
 
-export function hasPermission(granted: readonly string[], required?: string): boolean {
+export function hasPermission(
+  granted: readonly string[] | undefined | null,
+  required?: string,
+): boolean {
+  if (!granted) return false;
   if (!required) return true;
   if (granted.includes(WILDCARD_PERMISSION)) return true;
   if (granted.includes(required)) return true;
@@ -14,6 +18,9 @@ export function hasPermission(granted: readonly string[], required?: string): bo
   return granted.includes(`${resource}:manage`);
 }
 
-export function hasAnyPermission(granted: readonly string[], required: readonly string[]): boolean {
+export function hasAnyPermission(
+  granted: readonly string[] | undefined | null,
+  required: readonly string[],
+): boolean {
   return required.length === 0 || required.some((item) => hasPermission(granted, item));
 }
