@@ -287,7 +287,7 @@ export function MaintenancesPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Manutencoes" description={DESCRIPTION} />}
+        header={<PageHeader title="Manutenções" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
@@ -307,7 +307,7 @@ export function MaintenancesPage() {
         header={
           <div className="space-y-4">
             <PageHeader
-              title="Manutencoes"
+              title="Manutenções"
               description={DESCRIPTION}
               actions={
                 canCreate ? (

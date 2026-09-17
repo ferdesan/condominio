@@ -240,7 +240,7 @@ export function CorrespondencesPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Correspondencias" description={DESCRIPTION} />}
+        header={<PageHeader title="Correspondências" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
@@ -260,7 +260,7 @@ export function CorrespondencesPage() {
         header={
           <div className="space-y-4">
             <PageHeader
-              title="Correspondencias"
+              title="Correspondências"
               description={DESCRIPTION}
               actions={
                 canCreate ? (

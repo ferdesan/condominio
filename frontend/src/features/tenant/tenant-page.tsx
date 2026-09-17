@@ -35,7 +35,7 @@ export function TenantPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Configuracoes" description={DESCRIPTION} />
+      <PageHeader title="Configurações" description={DESCRIPTION} />
 
       {query.isPending ? (
         <div className="space-y-4">

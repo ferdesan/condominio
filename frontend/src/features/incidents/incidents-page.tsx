@@ -222,7 +222,7 @@ export function IncidentsPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Ocorrencias" description={DESCRIPTION} />}
+        header={<PageHeader title="Ocorrências" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
@@ -242,7 +242,7 @@ export function IncidentsPage() {
         header={
           <div className="space-y-4">
             <PageHeader
-              title="Ocorrencias"
+              title="Ocorrências"
               description={DESCRIPTION}
               actions={
                 canCreate ? (

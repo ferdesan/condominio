@@ -242,7 +242,7 @@ export function UsersPage() {
       <CrudLayout
         header={
           <PageHeader
-            title="Usuarios"
+            title="Usuários"
             description={DESCRIPTION}
             actions={
               canCreate ? (

@@ -139,31 +139,31 @@ function serveEmptyWorld(): void {
  */
 const REGISTERED = [
   { path: '/', title: 'Dashboard', permission: 'dashboard:read' },
-  { path: '/condominios', title: 'Condominios', permission: 'condominium:read' },
+  { path: '/condominios', title: 'Condomínios', permission: 'condominium:read' },
   { path: '/blocos', title: 'Blocos', permission: 'block:read' },
   { path: '/unidades', title: 'Unidades', permission: 'unit:read' },
   { path: '/moradores', title: 'Moradores', permission: 'resident:read' },
   { path: '/dependentes', title: 'Dependentes', permission: 'dependent:read' },
-  { path: '/funcionarios', title: 'Funcionarios', permission: 'employee:read' },
+  { path: '/funcionarios', title: 'Funcionários', permission: 'employee:read' },
   { path: '/prestadores', title: 'Prestadores', permission: 'service-provider:read' },
   { path: '/visitantes', title: 'Visitantes', permission: 'visitor:read' },
-  { path: '/veiculos', title: 'Veiculos', permission: 'vehicle:read' },
-  { path: '/correspondencias', title: 'Correspondencias', permission: 'correspondence:read' },
-  { path: '/areas-comuns', title: 'Areas comuns', permission: 'common-area:read' },
+  { path: '/veiculos', title: 'Veículos', permission: 'vehicle:read' },
+  { path: '/correspondencias', title: 'Correspondências', permission: 'correspondence:read' },
+  { path: '/areas-comuns', title: 'Áreas comuns', permission: 'common-area:read' },
   { path: '/reservas', title: 'Reservas', permission: 'reservation:read' },
   { path: '/assembleias', title: 'Assembleias', permission: 'assembly:read' },
   { path: '/comunicados', title: 'Comunicados', permission: 'announcement:read' },
   { path: '/financeiro', title: 'Financeiro', permission: 'charge:read' },
-  { path: '/ocorrencias', title: 'Ocorrencias', permission: 'incident:read' },
-  { path: '/manutencoes', title: 'Manutencoes', permission: 'maintenance:read' },
+  { path: '/ocorrencias', title: 'Ocorrências', permission: 'incident:read' },
+  { path: '/manutencoes', title: 'Manutenções', permission: 'maintenance:read' },
   { path: '/documentos', title: 'Documentos', permission: 'document:read' },
-  { path: '/usuarios', title: 'Usuarios', permission: 'user:read' },
+  { path: '/usuarios', title: 'Usuários', permission: 'user:read' },
   { path: '/auditoria', title: 'Auditoria', permission: 'audit-log:read' },
-  { path: '/papeis', title: 'Papeis', permission: 'role:read' },
-  { path: '/configuracoes', title: 'Configuracoes', permission: 'tenant:read' },
+  { path: '/papeis', title: 'Papéis', permission: 'role:read' },
+  { path: '/configuracoes', title: 'Configurações', permission: 'tenant:read' },
   { path: '/lgpd', title: 'LGPD', permission: 'lgpd:read' },
   // Unico item sem permissao declarada em `navigation.ts`.
-  { path: '/notificacoes', title: 'Notificacoes', permission: null },
+  { path: '/notificacoes', title: 'Notificações', permission: null },
 ] as const;
 
 const PLACEHOLDER_MARKER = 'Modulo em construcao';
@@ -246,7 +246,7 @@ describe('Cobertura do menu', () => {
     renderRoute('/notificacoes', { permissions: [] });
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Notificacoes' }),
+      await screen.findByRole('heading', { level: 1, name: 'Notificações' }),
     ).toBeInTheDocument();
   });
 
@@ -259,7 +259,7 @@ describe('Cobertura do menu', () => {
       await screen.findByRole('heading', { level: 1, name: 'Condominio SaaS' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { level: 1, name: 'Notificacoes' }),
+      screen.queryByRole('heading', { level: 1, name: 'Notificações' }),
     ).not.toBeInTheDocument();
   });
 
