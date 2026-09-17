@@ -24,7 +24,12 @@ export type RoleDefinition = {
 };
 
 const OPERATIONAL_RESOURCES = RESOURCES.filter(
-  (resource) => resource !== 'tenant' && resource !== 'role' && resource !== 'audit-log',
+  (resource) =>
+    resource !== 'tenant' &&
+    resource !== 'role' &&
+    resource !== 'audit-log' &&
+    resource !== 'lgpd-request' &&
+    resource !== 'lgpd-consent',
 );
 
 /**
@@ -52,6 +57,8 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     permissions: [
       ...manageAll(...OPERATIONAL_RESOURCES),
       ...readOnly('user', 'audit-log', 'tenant'),
+      ...manageAll('lgpd-request'),
+      'lgpd-consent:read',
     ],
   },
   {
@@ -74,6 +81,8 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
         'document',
         'dashboard',
         'notification',
+        'lgpd-request',
+        'lgpd-consent',
       ),
       'reservation:update',
       'maintenance:update',
@@ -118,6 +127,9 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
       'vehicle:create',
       'vehicle:update',
       'notification:update',
+      'lgpd-request:create',
+      'lgpd-consent:read',
+      'lgpd-consent:create',
     ],
   },
 ];

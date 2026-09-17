@@ -29,6 +29,8 @@ export const RESOURCES = [
   'dashboard',
   'audit-log',
   'notification',
+  'lgpd-request',
+  'lgpd-consent',
 ] as const;
 
 export type Resource = (typeof RESOURCES)[number];

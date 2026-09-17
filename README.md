@@ -369,3 +369,4 @@ Para reportar issues ou sugestões:
 Última atualização: 2026-09-12
 --super@condominio.app
 --Demo@1234
+## compozy tasks run backend-integration-specs --parallel-tasks --ide opencode
