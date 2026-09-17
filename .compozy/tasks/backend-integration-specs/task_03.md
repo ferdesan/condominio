@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "`cadastros.spec.ts` — dependentes, funcionários, prestadores e áreas comuns"
 type: test
 complexity: medium
@@ -33,14 +33,14 @@ Cobre os quatro módulos de cadastro que a suíte de integração nunca tocou. S
 
 ## Subtasks
 
-- [ ] 3.1 Read `_tests.md` for all twenty assigned ids before writing anything.
-- [ ] 3.2 Create the file with the standard skeleton: personas in `beforeAll`, `afterAll(teardownTestContext)` passed by reference.
-- [ ] 3.3 Resolve the morador's unit and the matching `residentId` through the API, for the dependentes block.
-- [ ] 3.4 Write the dependentes cases: the happy path, the mismatched holder, the unknown holder, the update path that escapes the check, the eager relation, and the update-allowed/delete-denied pair.
-- [ ] 3.5 Write the funcionários cases: the CPF checksum, the inverted contract dates, the auto-filled termination date, the numeric salary, and the persona with no access at all.
-- [ ] 3.6 Write the prestadores cases: the two document layers, the inverted contract period, and the rating bounds.
-- [ ] 3.7 Write the áreas comuns cases: both refinements enforced on create, both bypassed on update, and the persona boundary.
-- [ ] 3.8 Run the backend suite and confirm no case interferes with another across the four blocks.
+- [x] 3.1 Read `_tests.md` for all twenty assigned ids before writing anything.
+- [x] 3.2 Create the file with the standard skeleton: personas in `beforeAll`, `afterAll(teardownTestContext)` passed by reference.
+- [x] 3.3 Resolve the morador's unit and the matching `residentId` through the API, for the dependentes block.
+- [x] 3.4 Write the dependentes cases: the happy path, the mismatched holder, the unknown holder, the update path that escapes the check, the eager relation, and the update-allowed/delete-denied pair.
+- [x] 3.5 Write the funcionários cases: the CPF checksum, the inverted contract dates, the auto-filled termination date, the numeric salary, and the persona with no access at all.
+- [x] 3.6 Write the prestadores cases: the two document layers, the inverted contract period, and the rating bounds.
+- [x] 3.7 Write the áreas comuns cases: both refinements enforced on create, both bypassed on update, and the persona boundary.
+- [x] 3.8 Run the backend suite and confirm no case interferes with another across the four blocks.
 
 ## Implementation Details
 
@@ -88,10 +88,10 @@ All four modules are `createCrudRouter` instances, so the route surface is ident
 
 Cases assigned from `_tests.md`, the test contract — read each ID's full definition there before writing tests.
 
-- [ ] IT-237, IT-238, IT-239, IT-240, IT-241, IT-242 — dependentes: holder consistency, unknown holder, the update that escapes the check, the eager relation, the update-allowed/delete-denied pair.
-- [ ] IT-243, IT-244, IT-245, IT-246, IT-247 — funcionários: CPF checksum, contract dates, auto-filled termination, numeric salary, no access for morador.
-- [ ] IT-248, IT-249, IT-250, IT-251 — prestadores: the two document layers, the contract period, the rating bounds.
-- [ ] IT-252, IT-253, IT-254, IT-255, IT-256 — áreas comuns: both refinements on create, both bypassed on update, persona boundary.
+- [x] IT-237, IT-238, IT-239, IT-240, IT-241, IT-242 — dependentes: holder consistency, unknown holder, the update that escapes the check, the eager relation, the update-allowed/delete-denied pair.
+- [x] IT-243, IT-244, IT-245, IT-246, IT-247 — funcionários: CPF checksum, contract dates, auto-filled termination, numeric salary, no access for morador.
+- [x] IT-248, IT-249, IT-250, IT-251 — prestadores: the two document layers, the contract period, the rating bounds.
+- [x] IT-252, IT-253, IT-254, IT-255, IT-256 — áreas comuns: both refinements on create, both bypassed on update, persona boundary.
 
 ## Success Criteria
 
