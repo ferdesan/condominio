@@ -21,7 +21,7 @@ export function ExpensesChart({ data, loading }: { data: CategoryTotal[]; loadin
     <Card>
       <CardHeader>
         <CardTitle>Despesas por categoria</CardTitle>
-        <CardDescription>Maiores gastos do condominio no periodo.</CardDescription>
+        <CardDescription>Maiores gastos do condomínio no período.</CardDescription>
       </CardHeader>
 
       <div className="px-2 pb-5 sm:px-4">
@@ -32,7 +32,7 @@ export function ExpensesChart({ data, loading }: { data: CategoryTotal[]; loadin
             <EmptyState
               icon={PieChart}
               title="Sem despesas lancadas"
-              description="Nada a exibir no periodo."
+              description="Nada a exibir no período."
             />
           </div>
         ) : (

@@ -25,8 +25,8 @@ export function makeAnnouncement(overrides: Partial<Announcement> = {}): Announc
   return {
     id: 'announcement-1',
     condominiumId: 'cond-1',
-    title: 'Manutencao do elevador',
-    content: 'O elevador da Torre A ficara parado na terca-feira, das 8h as 12h.',
+    title: 'Manutenção do elevador',
+    content: 'O elevador da Torre A ficara parado na terça-feira, das 8h as 12h.',
     category: 'MAINTENANCE',
     status: 'DRAFT',
     audience: 'ALL',

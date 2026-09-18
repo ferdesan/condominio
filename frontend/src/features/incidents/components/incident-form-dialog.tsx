@@ -119,11 +119,11 @@ export function IncidentFormDialog({ incident, condominiumId, onClose }: Inciden
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar ocorrencia' : 'Nova ocorrencia'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar ocorrência' : 'Nova ocorrência'}</DialogTitle>
             <DialogDescription>
-              O que aconteceu, onde, de que tipo e com que urgencia.
+              O que aconteceu, onde, de que tipo e com que urgência.
             </DialogDescription>
           </DialogHeader>
 
@@ -131,18 +131,18 @@ export function IncidentFormDialog({ incident, condominiumId, onClose }: Inciden
 
           <form onSubmit={onSubmit} noValidate className="space-y-4">
             {/*
-              O protocolo identifica a ocorrencia em toda comunicacao com o
+              O protocolo identifica a ocorrência em toda comunicação com o
               morador, entao aparece — mas quem o gera e o servidor, em
               `nextProtocol`, e `createIncidentSchema` sequer o aceita no corpo.
-              Editavel, o campo prometeria um controle que nao existe.
+              Editável, o campo prometeria um controle que não existe.
             */}
             <FormField
               id="protocol"
               label="Protocolo"
               description={
                 isEdit
-                  ? 'Gerado pelo servidor quando a ocorrencia foi aberta.'
-                  : 'Sera gerado pelo servidor ao registrar a ocorrencia.'
+                  ? 'Gerado pelo servidor quando a ocorrência foi aberta.'
+                  : 'Será gerado pelo servidor ao registrar a ocorrência.'
               }
             >
               {(aria) => (
@@ -156,13 +156,13 @@ export function IncidentFormDialog({ incident, condominiumId, onClose }: Inciden
               )}
             </FormField>
 
-            <FormField id="title" label="Titulo" error={errors.title?.message}>
+            <FormField id="title" label="Título" error={errors.title?.message}>
               {(aria) => <Input autoFocus maxLength={180} {...aria} {...register('title')} />}
             </FormField>
 
             <FormField
               id="description"
-              label="Descricao"
+              label="Descrição"
               error={errors.description?.message}
               description="O relato completo do que aconteceu."
             >
@@ -180,7 +180,7 @@ export function IncidentFormDialog({ incident, condominiumId, onClose }: Inciden
               id="location"
               label="Local"
               error={errors.location?.message}
-              description="Opcional. Onde no condominio, quando o lugar importa."
+              description="Opcional. Onde no condomínio, quando o lugar importa."
             >
               {(aria) => <Input maxLength={180} {...aria} {...register('location')} />}
             </FormField>
@@ -256,8 +256,8 @@ export function IncidentFormDialog({ incident, condominiumId, onClose }: Inciden
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

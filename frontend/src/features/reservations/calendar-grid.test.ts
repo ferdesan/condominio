@@ -38,8 +38,8 @@ function dayOf(weeks: CalendarDay[][], day: number): CalendarDay {
   return found;
 }
 
-describe('Composicao do calendario', () => {
-  it('UT-076: um mes que comeca numa quarta rende semanas de 7 dias com as bordas marcadas', () => {
+describe('Composição do calendário', () => {
+  it('UT-076: um mês que comeca numa quarta rende semanas de 7 dias com as bordas marcadas', () => {
     // Abril de 2026 comeca numa quarta-feira e tem 30 dias.
     //
     // Nota sobre o contrato: `_tests.md` descreve este caso como "6 semanas x 7
@@ -77,7 +77,7 @@ describe('Composicao do calendario', () => {
     expect(days.filter((cell) => cell.inMonth)).toHaveLength(30);
   });
 
-  it('UT-077: um mes sem entradas rende a grade cheia com todos os dias vazios', () => {
+  it('UT-077: um mês sem entradas rende a grade cheia com todos os dias vazios', () => {
     const grid = buildMonthGrid(new Date(2026, 2, 1), []);
     const days = flatten(grid.weeks);
 
@@ -132,7 +132,7 @@ describe('Composicao do calendario', () => {
     expect(dayOf(second.weeks, 21).entries).toEqual([]);
   });
 
-  it('UT-080: fevereiro bissexto tem 29 dias; um mes de 31 dias iniciando no domingo tem 5 semanas', () => {
+  it('UT-080: fevereiro bissexto tem 29 dias; um mês de 31 dias iniciando no domingo tem 5 semanas', () => {
     // Fevereiro de 2024 comeca numa quinta e tem 29 dias.
     const leap = buildMonthGrid(new Date(2024, 1, 1));
     const leapDays = flatten(leap.weeks).filter((cell) => cell.inMonth);
@@ -156,7 +156,7 @@ describe('Composicao do calendario', () => {
     ).toHaveLength(30);
   });
 
-  it('UT-081: as entradas sao agrupadas por dia preservando a ordem de inicio', () => {
+  it('UT-081: as entradas sao agrupadas por dia preservando a ordem de início', () => {
     const entries = [
       entry({ id: 'noite', startsAt: at(2026, 3, 14, 20), endsAt: at(2026, 3, 14, 22) }),
       entry({ id: 'manha', startsAt: at(2026, 3, 14, 9), endsAt: at(2026, 3, 14, 11) }),
@@ -174,7 +174,7 @@ describe('Composicao do calendario', () => {
     expect(dayOf(grid.weeks, 20).entries.map((item) => item.id)).toEqual(['outro-dia']);
   });
 
-  it('UT-082: a projecao vira uma entrada com area, unidade, faixa de horario e status', () => {
+  it('UT-082: a projeção vira uma entrada com área, unidade, faixa de horário e status', () => {
     const mapped = toCalendarEntry(
       makeAvailabilityEntry({
         id: 'reservation-9',
@@ -202,7 +202,7 @@ describe('Composicao do calendario', () => {
     expect(mapped.endsAt).toBeInstanceOf(Date);
   });
 
-  it('UT-083: area sem nome recebe um rotulo em vez da palavra null', () => {
+  it('UT-083: área sem nome recebe um rotulo em vez da palavra null', () => {
     const mapped = toCalendarEntry(
       makeAvailabilityEntry({ commonAreaName: null, unitNumber: null }),
     );
@@ -213,7 +213,7 @@ describe('Composicao do calendario', () => {
     expect(mapped.unitLabel).not.toMatch(/null/i);
   });
 
-  it('UT-084: monthRange cobre do primeiro ao ultimo instante do mes', () => {
+  it('UT-084: monthRange cobre do primeiro ao último instante do mês', () => {
     const { from, to } = monthRange(new Date(2026, 2, 18, 13, 45));
 
     expect(from.getFullYear()).toBe(2026);
@@ -232,7 +232,7 @@ describe('Composicao do calendario', () => {
     expect(to.getMilliseconds()).toBe(999);
   });
 
-  it('UT-085: a grade de marco nao e afetada por entradas de abril', () => {
+  it('UT-085: a grade de marco não e afetada por entradas de abril', () => {
     const entries = [
       entry({ id: 'marco', startsAt: at(2026, 3, 14, 18), endsAt: at(2026, 3, 14, 22) }),
       entry({ id: 'abril-1', startsAt: at(2026, 4, 1, 18), endsAt: at(2026, 4, 1, 22) }),

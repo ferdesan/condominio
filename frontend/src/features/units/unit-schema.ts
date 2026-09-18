@@ -65,8 +65,8 @@ export const unitSchema = z.object({
   number: z
     .string()
     .trim()
-    .min(1, 'Informe o numero da unidade.')
-    .max(UNIT_MAX_NUMBER_LENGTH, `Use no maximo ${UNIT_MAX_NUMBER_LENGTH} caracteres.`),
+    .min(1, 'Informe o número da unidade.')
+    .max(UNIT_MAX_NUMBER_LENGTH, `Use no máximo ${UNIT_MAX_NUMBER_LENGTH} caracteres.`),
   floor: intInRange(
     UNIT_MIN_FLOOR,
     UNIT_MAX_FLOOR,
@@ -74,13 +74,13 @@ export const unitSchema = z.object({
   ),
   type: z.enum(UNIT_TYPES),
   status: z.enum(UNIT_STATUSES),
-  area: optionalDecimalInRange(0, 100000, 'A area deve estar entre 0 e 100000.'),
-  idealFraction: optionalDecimalInRange(0, 1, 'A fracao ideal deve estar entre 0 e 1.'),
+  area: optionalDecimalInRange(0, 100000, 'A área deve estar entre 0 e 100000.'),
+  idealFraction: optionalDecimalInRange(0, 1, 'A fração ideal deve estar entre 0 e 1.'),
   monthlyFee: optionalDecimalInRange(0, 999999.99, 'A taxa deve estar entre 0 e 999999,99.'),
-  bedrooms: intInRange(0, 20, 'Os dormitorios devem estar entre 0 e 20.'),
+  bedrooms: intInRange(0, 20, 'Os dormitórios devem estar entre 0 e 20.'),
   parkingSpots: intInRange(0, 20, 'As vagas devem estar entre 0 e 20.'),
   petsAllowed: z.boolean(),
-  notes: z.string().trim().max(2000, 'Use no maximo 2000 caracteres.'),
+  notes: z.string().trim().max(2000, 'Use no máximo 2000 caracteres.'),
 });
 
 export type UnitFormValues = z.infer<typeof unitSchema>;

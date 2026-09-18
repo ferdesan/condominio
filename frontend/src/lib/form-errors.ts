@@ -2,7 +2,7 @@ import type { FieldPath, FieldValues, UseFormSetError } from 'react-hook-form';
 import { ApiError } from './api';
 
 /** Usada quando a falha nao veio da API ou chegou sem mensagem. */
-export const GENERIC_FORM_ERROR = 'Nao foi possivel concluir a operacao. Tente novamente.';
+export const GENERIC_FORM_ERROR = 'Não foi possível concluir a operação. Tente novamente.';
 
 /**
  * Leva a falha da API para o formulario.

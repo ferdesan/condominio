@@ -33,7 +33,7 @@ import {
 } from './components/announcement-row-actions';
 
 const DESCRIPTION =
-  'Os avisos da administracao: o que esta em rascunho, o que ja foi publicado e o que saiu do mural.';
+  'Os avisos da administração: o que esta em rascunho, o que já foi publicado e o que saiu do mural.';
 
 /**
  * `announcement: null` cadastra; um registro edita. Ausente mantem o dialogo
@@ -145,13 +145,13 @@ export function AnnouncementsPage() {
   const columns: Column<Announcement>[] = [
     {
       key: 'title',
-      label: 'Titulo',
+      label: 'Título',
       sortable: true,
       render: (_value, row) => (
         <div className="flex items-center gap-2">
           {/*
-            O alfinete diz a fixacao com forma propria, e o rotulo acessivel a
-            diz por extenso: o destaque nao pode depender so de posicao ou cor.
+            O alfinete diz a fixação com forma própria, e o rotulo acessível a
+            diz por extenso: o destaque não pode depender so de posição ou cor.
           */}
           {row.pinned ? (
             <Pin className="size-3.5 shrink-0 text-primary" aria-label="Fixado" />
@@ -170,7 +170,7 @@ export function AnnouncementsPage() {
     },
     {
       key: 'audience',
-      label: 'Publico',
+      label: 'Público',
       sortable: true,
       render: (_value, row) => AUDIENCE_LABELS[row.audience],
     },
@@ -196,7 +196,7 @@ export function AnnouncementsPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <AnnouncementRowActions
           announcement={row}
@@ -227,8 +227,8 @@ export function AnnouncementsPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="Os comunicados sao listados por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="Os comunicados sao listados por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -259,7 +259,7 @@ export function AnnouncementsPage() {
             {/*
               Acima dos filtros: "o que esta no ar agora" e a primeira pergunta
               de quem abre esta tela, e a listagem abaixo — com rascunhos,
-              arquivados e expirados — nao a responde.
+              arquivados e expirados — não a responde.
             */}
             <AnnouncementBoard condominiumId={selectedId} />
             <AnnouncementFilters list={list} />
@@ -289,7 +289,7 @@ export function AnnouncementsPage() {
                 <EmptyState
                   icon={Megaphone}
                   title="Nenhum comunicado registrado"
-                  description="Escreva o primeiro aviso para os moradores deste condominio."
+                  description="Escreva o primeiro aviso para os moradores deste condomínio."
                   action={
                     canCreate ? (
                       <Button

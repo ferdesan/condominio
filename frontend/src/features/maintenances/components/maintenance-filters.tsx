@@ -65,7 +65,7 @@ export function MaintenanceFilters({ list, providers, responsibles }: Maintenanc
   if (list.filters.recurrence) {
     chips.push({
       id: 'recurrence',
-      label: 'Recorrencia',
+      label: 'Recorrência',
       value: labelOf(RECURRENCE_OPTIONS, list.filters.recurrence),
     });
   }
@@ -79,7 +79,7 @@ export function MaintenanceFilters({ list, providers, responsibles }: Maintenanc
   if (list.filters.responsibleId) {
     chips.push({
       id: 'responsibleId',
-      label: 'Responsavel',
+      label: 'Responsável',
       value: labelOf(responsibleOptions, list.filters.responsibleId),
     });
   }
@@ -105,7 +105,7 @@ export function MaintenanceFilters({ list, providers, responsibles }: Maintenanc
             <Input
               id="maintenance-search"
               className="pl-10"
-              placeholder="Titulo, descricao ou ativo"
+              placeholder="Título, descrição ou ativo"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />
@@ -153,7 +153,7 @@ export function MaintenanceFilters({ list, providers, responsibles }: Maintenanc
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="maintenance-recurrence">Recorrencia</Label>
+          <Label htmlFor="maintenance-recurrence">Recorrência</Label>
           <Select
             value={(list.filters.recurrence as string) ?? ANY}
             onValueChange={(value) =>
@@ -197,7 +197,7 @@ export function MaintenanceFilters({ list, providers, responsibles }: Maintenanc
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="maintenance-responsible">Responsavel</Label>
+          <Label htmlFor="maintenance-responsible">Responsável</Label>
           <Select
             value={(list.filters.responsibleId as string) ?? ANY}
             onValueChange={(value) =>
@@ -222,7 +222,7 @@ export function MaintenanceFilters({ list, providers, responsibles }: Maintenanc
       {/*
         Sem gate de permissao: ver registros removidos e leitura, e o servidor
         aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a linha
-        marcada e nenhuma acao de restaurar (ADR-006).
+        marcada e nenhuma ação de restaurar (ADR-006).
       */}
       <div className="flex items-center gap-2">
         <Checkbox

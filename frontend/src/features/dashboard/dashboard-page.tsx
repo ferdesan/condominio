@@ -72,8 +72,8 @@ export function DashboardPage() {
     return (
       <EmptyState
         icon={Building2}
-        title="Nenhum condominio disponivel"
-        description="Cadastre um condominio ou peca acesso ao administrador para ver os indicadores."
+        title="Nenhum condomínio disponível"
+        description="Cadastre um condomínio ou peca acesso ao administrador para ver os indicadores."
       />
     );
   }
@@ -87,8 +87,8 @@ export function DashboardPage() {
         title="Dashboard"
         description={
           selected
-            ? `${selected.name} · competencia ${formatReferenceMonth(data?.referenceMonth)}`
-            : 'Carregando condominio...'
+            ? `${selected.name} · competência ${formatReferenceMonth(data?.referenceMonth)}`
+            : 'Carregando condomínio...'
         }
       />
 
@@ -99,19 +99,19 @@ export function DashboardPage() {
         <StatCard
           label="Unidades ocupadas"
           value={`${formatNumber(data?.units.occupied)} / ${formatNumber(data?.units.total)}`}
-          hint={data ? `${formatPercent(data.units.occupancyRate)} de ocupacao` : undefined}
+          hint={data ? `${formatPercent(data.units.occupancyRate)} de ocupação` : undefined}
           icon={DoorOpen}
           loading={loading}
         />
         <StatCard
           label="Moradores"
           value={formatNumber(data?.people.residents)}
-          hint={data ? `${formatNumber(data.people.employees)} funcionarios ativos` : undefined}
+          hint={data ? `${formatNumber(data.people.employees)} funcionários ativos` : undefined}
           icon={Users}
           loading={loading}
         />
         <StatCard
-          label="Recebido no mes"
+          label="Recebido no mês"
           value={formatCurrency(data?.finance.received)}
           hint={data ? `de ${formatCurrency(data.finance.billed)} faturados` : undefined}
           icon={Wallet}
@@ -119,7 +119,7 @@ export function DashboardPage() {
           loading={loading}
         />
         <StatCard
-          label="Inadimplencia"
+          label="Inadimplência"
           value={formatPercent(data?.finance.delinquencyRate)}
           hint={data ? `${formatCurrency(data.finance.overdue)} em atraso` : undefined}
           icon={TrendingDown}
@@ -136,11 +136,11 @@ export function DashboardPage() {
       </section>
 
       <section
-        aria-label="Pendencias operacionais"
+        aria-label="Pendências operacionais"
         className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
       >
         <StatCard
-          label="Ocorrencias abertas"
+          label="Ocorrências abertas"
           value={formatNumber(data?.operations.openIncidents)}
           icon={TriangleAlert}
           tone={data && data.operations.openIncidents > 0 ? 'warning' : 'default'}
@@ -153,13 +153,13 @@ export function DashboardPage() {
           loading={loading}
         />
         <StatCard
-          label="Correspondencias a retirar"
+          label="Correspondências a retirar"
           value={formatNumber(data?.operations.pendingCorrespondences)}
           icon={Mail}
           loading={loading}
         />
         <StatCard
-          label="Manutencoes proximas"
+          label="Manutenções proximas"
           value={formatNumber(data?.operations.upcomingMaintenances)}
           icon={CalendarClock}
           loading={loading}
@@ -167,10 +167,10 @@ export function DashboardPage() {
       </section>
 
       {/*
-        Logo depois das pendencias operacionais, e nao junto dos graficos
-        financeiros: a pergunta que ele responde — "de que sao as ocorrencias?" —
+        Logo depois das pendências operacionais, e não junto dos graficos
+        financeiros: a pergunta que ele responde — "de que sao as ocorrências?" —
         e a continuacao natural de "quantas estao abertas?", que e a primeira
-        tarja da secao acima.
+        tarja da seção acima.
       */}
       <section className="mt-4">
         <IncidentsChart data={incidents.data ?? []} loading={incidents.isPending} />

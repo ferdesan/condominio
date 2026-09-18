@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DateTimeInput } from '@/components/ui/date-time-input';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import {
@@ -65,6 +66,13 @@ export function VisitorFormDialog({
 }: VisitorFormDialogProps) {
   const isEdit = Boolean(visitor);
   const queryClient = useQueryClient();
+
+  // A lista inteira do condomínio cabe no seletor, mas não cabe no olho: sem
+  // busca, escolher uma unidade vira rolagem.
+  const unitOptions = useMemo(
+    () => units.map((unit) => ({ value: unit.id, label: unitLabel(unit) })),
+    [units],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
@@ -124,11 +132,11 @@ export function VisitorFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar visitante' : 'Novo visitante'}</DialogTitle>
             <DialogDescription>
-              Quem chega, para qual unidade e o periodo previsto da visita.
+              Quem chega, para qual unidade e o período previsto da visita.
             </DialogDescription>
           </DialogHeader>
 
@@ -184,7 +192,7 @@ export function VisitorFormDialog({
                     id="status"
                     label="Status"
                     error={fieldState.error?.message}
-                    description="Previsto gera o codigo de acesso da portaria."
+                    description="Previsto gera o código de acesso da portaria."
                   >
                     {(aria) => (
                       <Select value={field.value} onValueChange={field.onChange}>
@@ -218,21 +226,18 @@ export function VisitorFormDialog({
                     id="unitId"
                     label="Unidade"
                     error={fieldState.error?.message}
-                    description="Apenas unidades do condominio selecionado."
+                    description="Apenas unidades do condomínio selecionado."
                   >
                     {(aria) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger {...aria}>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {units.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unitLabel(unit)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        {...aria}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        options={unitOptions}
+                        placeholder="Selecione"
+                        searchPlaceholder="Buscar unidade"
+                        emptyMessage="Nenhuma unidade corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}
@@ -260,7 +265,7 @@ export function VisitorFormDialog({
                 render={({ field, fieldState }) => (
                   <FormField
                     id="expectedUntil"
-                    label="Previsto ate"
+                    label="Previsto até"
                     error={fieldState.error?.message}
                   >
                     {(aria) => (
@@ -290,7 +295,7 @@ export function VisitorFormDialog({
               </FormField>
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -317,8 +322,8 @@ export function VisitorFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

@@ -3,21 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiGetPaginated, type ApiError, type Paginated } from '@/lib/api';
 import { MAX_PER_PAGE } from '@/lib/crud';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import { useAuth } from '@/hooks/use-auth';
 import { useCondominium } from '@/hooks/use-condominium';
 import type { Resident } from '@/types/api';
@@ -52,16 +40,31 @@ export function LgpdExportTab() {
   });
   const residents = useMemo(() => residentsQuery.data?.data ?? [], [residentsQuery.data]);
 
+  // A unidade vai como dica, e nao por enfeite: dois moradores podem se chamar
+  // "Ana Silva", e aqui escolher o errado exporta os dados pessoais de outra
+  // pessoa. Ela tambem entra na busca, entao "101" acha quem mora la.
+  const residentOptions = useMemo(
+    () =>
+      residents.map((resident) => ({
+        value: resident.id,
+        label: resident.name,
+        hint: resident.unit
+          ? `${resident.unit.number}${resident.unit.block?.name ? ` · ${resident.unit.block.name}` : ''}`
+          : undefined,
+      })),
+    [residents],
+  );
+
   function handleOwnExport(): void {
     exportOwn.mutate(undefined, {
-      onSuccess: () => toast.success('Exportacao dos seus dados gerada.'),
+      onSuccess: () => toast.success('Exportação dos seus dados gerada.'),
     });
   }
 
   function handleResidentExport(): void {
     if (!residentId) return;
     exportResident.mutate(residentId, {
-      onSuccess: () => toast.success('Exportacao dos dados do morador gerada.'),
+      onSuccess: () => toast.success('Exportação dos dados do morador gerada.'),
     });
   }
 
@@ -69,7 +72,7 @@ export function LgpdExportTab() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Exportacao de dados</CardTitle>
+          <CardTitle>Exportação de dados</CardTitle>
           <CardDescription>
             Gere o arquivo JSON com os dados pessoais de um morador, no formato definido para a
             portabilidade (LGPD Art. 18, V).
@@ -78,18 +81,15 @@ export function LgpdExportTab() {
         <CardContent>
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-full max-w-xs">
-              <Select value={residentId ?? undefined} onValueChange={setResidentId}>
-                <SelectTrigger aria-label="Selecionar morador">
-                  <SelectValue placeholder="Selecione um morador" />
-                </SelectTrigger>
-                <SelectContent>
-                  {residents.map((resident) => (
-                    <SelectItem key={resident.id} value={resident.id}>
-                      {resident.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Combobox
+                aria-label="Selecionar morador"
+                value={residentId ?? undefined}
+                onValueChange={setResidentId}
+                options={residentOptions}
+                placeholder="Selecione um morador"
+                searchPlaceholder="Buscar por nome ou unidade"
+                emptyMessage="Nenhum morador corresponde à busca."
+              />
             </div>
             <Button
               disabled={!residentId || exportResident.isPending}
@@ -108,7 +108,7 @@ export function LgpdExportTab() {
       <CardHeader>
         <CardTitle>Seus dados pessoais</CardTitle>
         <CardDescription>
-          Baixe um arquivo JSON com os dados que o condominio guarda sobre voce, para a
+          Baixe um arquivo JSON com os dados que o condomínio guarda sobre você, para a
           portabilidade (LGPD Art. 18, V).
         </CardDescription>
       </CardHeader>

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import {
@@ -35,7 +36,7 @@ import {
   vehicleSchema,
   type VehicleFormValues,
 } from '../vehicle-schema';
-import { STATUS_LABELS, TYPE_LABELS, unitLabel } from '../vehicle-labels';
+import { NO_LINK, STATUS_LABELS, TYPE_LABELS, unitLabel } from '../vehicle-labels';
 
 /**
  * A placa e unica por tenant e a verificacao do servidor alcanca tambem os
@@ -43,7 +44,7 @@ import { STATUS_LABELS, TYPE_LABELS, unitLabel } from '../vehicle-labels';
  * que foi excluido — e ai o caminho e restaurar, nao cadastrar outro (ADR-006).
  */
 const CONFLICT_HINT =
-  'Se o veiculo ja existiu e foi removido, restaure o registro em vez de cadastrar outro: ative "Incluir removidos" na listagem.';
+  'Se o veículo já existiu e foi removido, restaure o registro em vez de cadastrar outro: ative "Incluir removidos" na listagem.';
 
 /** Valor sentinela: o Radix nao aceita `SelectItem` com valor vazio. */
 const NONE = '__none__';
@@ -77,6 +78,31 @@ export function VehicleFormDialog({
 }: VehicleFormDialogProps) {
   const isEdit = Boolean(vehicle);
   const queryClient = useQueryClient();
+
+  // "Sem vinculo" e a primeira opcao dos dois seletores, e nao um estado a
+  // parte: os dois vinculos sao opcionais no servidor e voltar para la precisa
+  // ser tao alcancavel quanto escolher.
+  const unitOptions = useMemo(
+    () => [
+      { value: NONE, label: NO_LINK },
+      ...units.map((unit) => ({ value: unit.id, label: unitLabel(unit) })),
+    ],
+    [units],
+  );
+
+  // A unidade vai como dica porque nome nao identifica morador: dois cadastros
+  // podem trazer o mesmo, e ela tambem entra na busca.
+  const residentOptions = useMemo(
+    () => [
+      { value: NONE, label: NO_LINK },
+      ...residents.map((resident) => ({
+        value: resident.id,
+        label: resident.name,
+        hint: resident.unit ? unitLabel(resident.unit) : undefined,
+      })),
+    ],
+    [residents],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [conflictHint, setConflictHint] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
@@ -139,23 +165,23 @@ export function VehicleFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar veiculo' : 'Novo veiculo'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar veículo' : 'Novo veículo'}</DialogTitle>
             <DialogDescription>
-              Placa, dados do veiculo, estacionamento e os vinculos — que sao opcionais.
+              Placa, dados do veículo, estacionamento e os vinculos — que sao opcionais.
             </DialogDescription>
           </DialogHeader>
 
           <CondominiumScopeNotice condominiumId={condominiumId} />
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
-            <FormSection title="Veiculo">
+            <FormSection title="Veículo">
               <FormField
                 id="plate"
                 label="Placa"
                 error={errors.plate?.message}
-                description="Padrao antigo (ABC1234) ou Mercosul (ABC1D23)."
+                description="Padrão antigo (ABC1234) ou Mercosul (ABC1D23)."
               >
                 {(aria) => <Input autoFocus {...aria} {...register('plate')} />}
               </FormField>
@@ -239,7 +265,7 @@ export function VehicleFormDialog({
 
               <FormField
                 id="stickerNumber"
-                label="Numero do adesivo"
+                label="Número do adesivo"
                 error={errors.stickerNumber?.message}
               >
                 {(aria) => <Input {...aria} {...register('stickerNumber')} />}
@@ -249,8 +275,8 @@ export function VehicleFormDialog({
             {/*
               Os dois vinculos sao opcionais no servidor e independentes entre
               si: o veiculo de um prestador recorrente, ou o de um morador ainda
-              nao cadastrado, existe sem nenhum dos dois. Por isso cada seletor
-              abre em "Sem vinculo" e pode voltar para la.
+              não cadastrado, existe sem nenhum dos dois. Por isso cada seletor
+              abre em "Sem vínculo" e pode voltar para lá.
             */}
             <FormSection title="Vinculo">
               <Controller
@@ -261,25 +287,17 @@ export function VehicleFormDialog({
                     id="unitId"
                     label="Unidade"
                     error={fieldState.error?.message}
-                    description="Opcional. Apenas unidades do condominio selecionado."
+                    description="Opcional. Apenas unidades do condomínio selecionado."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value === '' ? NONE : field.value}
+                        options={unitOptions}
+                        searchPlaceholder="Buscar unidade"
+                        emptyMessage="Nenhuma unidade corresponde à busca."
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>Sem vinculo</SelectItem>
-                          {units.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unitLabel(unit)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   </FormField>
                 )}
@@ -293,32 +311,24 @@ export function VehicleFormDialog({
                     id="residentId"
                     label="Morador"
                     error={fieldState.error?.message}
-                    description="Opcional. Apenas moradores do condominio selecionado."
+                    description="Opcional. Apenas moradores do condomínio selecionado."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value === '' ? NONE : field.value}
+                        options={residentOptions}
+                        searchPlaceholder="Buscar por nome ou unidade"
+                        emptyMessage="Nenhum morador corresponde à busca."
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>Sem vinculo</SelectItem>
-                          {residents.map((resident) => (
-                            <SelectItem key={resident.id} value={resident.id}>
-                              {resident.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   </FormField>
                 )}
               />
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -346,8 +356,8 @@ export function VehicleFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

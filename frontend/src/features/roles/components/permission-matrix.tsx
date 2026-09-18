@@ -172,7 +172,7 @@ function ActionCell({
   // concedida".
   if (!available) {
     return (
-      <td className="px-3 py-2 text-center text-muted-foreground" aria-label="Nao se aplica">
+      <td className="px-3 py-2 text-center text-muted-foreground" aria-label="Não se aplica">
         —
       </td>
     );
@@ -190,7 +190,7 @@ function ActionCell({
         onCheckedChange={(checked) => onToggle(entry, checked === true)}
       />
       {/*
-        O rotulo carrega recurso e acao por extenso e fica so para leitores de
+        O rotulo carrega recurso e ação por extenso e fica so para leitores de
         tela: numa grade de cento e quarenta e cinco caixas, "Ver" sozinho nao
         diz de quê. O cabecalho da coluna nao resolve isso — `Checkbox` do Radix
         e um botao, e nao uma celula que herde `headers`.

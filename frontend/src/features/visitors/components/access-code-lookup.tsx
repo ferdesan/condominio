@@ -74,10 +74,10 @@ export function AccessCodeLookup({ canCheckIn, onCheckIn }: AccessCodeLookupProp
   }
 
   return (
-    <section className="app-surface space-y-3 p-4" aria-label="Consulta por codigo de acesso">
+    <section className="app-surface space-y-3 p-4" aria-label="Consulta por código de acesso">
       <form onSubmit={submit} className="flex flex-wrap items-end gap-3">
         <div className="min-w-48 flex-1 space-y-1.5">
-          <Label htmlFor="visitor-access-code">Codigo de acesso</Label>
+          <Label htmlFor="visitor-access-code">Código de acesso</Label>
           <div className="relative">
             <ScanLine
               className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -121,8 +121,8 @@ export function AccessCodeLookup({ canCheckIn, onCheckIn }: AccessCodeLookupProp
           <KeyRound className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           {/*
             `role="status"` e nao `alert`: e uma resposta da consulta, nao uma
-            falha da tela. A mensagem do servidor ja cobre os dois casos que
-            produzem 409 — codigo inexistente e visita ja registrada.
+            falha da tela. A mensagem do servidor já cobre os dois casos que
+            produzem 409 — código inexistente e visita já registrada.
           */}
           <span>{refusal}</span>
         </p>

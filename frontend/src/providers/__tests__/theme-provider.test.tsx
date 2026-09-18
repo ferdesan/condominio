@@ -12,7 +12,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ThemeProvider } from '../theme-provider';
 import { useTheme } from '@/hooks/use-theme';
 
-const STORAGE_KEY = 'condominio.theme';
+const STORAGE_KEY = 'condomínio.theme';
 
 /** Preenche a lacuna de matchMedia do jsdom com uma preferencia controlada. */
 function setSystemPrefersDark(dark: boolean): void {
@@ -52,7 +52,7 @@ describe('ThemeProvider (UT-027)', () => {
     await waitFor(() => expect(document.documentElement.classList.contains('dark')).toBe(true));
   });
 
-  it('UT-027.E1: valor invalido no storage cai na preferencia do sistema', () => {
+  it('UT-027.E1: valor inválido no storage cai na preferência do sistema', () => {
     localStorage.setItem(STORAGE_KEY, 'azul-escuro');
 
     const { result } = renderHook(() => useTheme(), { wrapper: ThemeHarness });

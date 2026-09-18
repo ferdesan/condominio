@@ -133,7 +133,7 @@ async function settle(): Promise<void> {
 }
 
 describe('Ciclo de vida da conexao', () => {
-  it('sem sessao, nenhuma conexao e tentada', () => {
+  it('sem sessão, nenhuma conexao e tentada', () => {
     mount({ authenticated: false });
 
     // O handshake do servidor recusaria: tentar seria gastar reconexao para
@@ -141,7 +141,7 @@ describe('Ciclo de vida da conexao', () => {
     expect(mockIo).not.toHaveBeenCalled();
   });
 
-  it('com sessao, conecta no caminho que o servidor monta', () => {
+  it('com sessão, conecta no caminho que o servidor monta', () => {
     mount();
 
     expect(mockIo).toHaveBeenCalledTimes(1);
@@ -149,8 +149,8 @@ describe('Ciclo de vida da conexao', () => {
     expect((options as { path?: string })?.path).toBe(SOCKET_PATH);
   });
 
-  it('o token e lido a cada tentativa, e nao fixado na montagem', () => {
-    localStorage.setItem('condominio.accessToken', 'token-inicial');
+  it('o token e lido a cada tentativa, e não fixado na montagem', () => {
+    localStorage.setItem('condomínio.accessToken', 'token-inicial');
     mount();
 
     const [, options] = mockIo.mock.calls[0] ?? [];
@@ -160,7 +160,7 @@ describe('Ciclo de vida da conexao', () => {
 
     // Chamada de novo depois de o interceptor renovar o token: e assim que a
     // reconexao sobrevive a expiracao do access token.
-    localStorage.setItem('condominio.accessToken', 'token-renovado');
+    localStorage.setItem('condomínio.accessToken', 'token-renovado');
     let sent: Record<string, unknown> = {};
     auth?.((data) => {
       sent = data;
@@ -176,7 +176,7 @@ describe('Ciclo de vida da conexao', () => {
     expect(socket.removeAllListeners).toHaveBeenCalled();
   });
 
-  it('sessao expirada de vez desconecta o socket', () => {
+  it('sessão expirada de vez desconecta o socket', () => {
     mount();
 
     // `lib/api.ts` dispara isto quando o refresh falha: manter a conexao seria
@@ -187,14 +187,14 @@ describe('Ciclo de vida da conexao', () => {
   });
 });
 
-describe('Assinatura do condominio', () => {
-  it('assina o condominio selecionado', () => {
+describe('Assinatura do condomínio', () => {
+  it('assina o condomínio selecionado', () => {
     mount();
 
     expect(socket.emit).toHaveBeenCalledWith('subscribe:condominium', 'cond-1');
   });
 
-  it('trocar de condominio cancela o anterior e assina o novo', () => {
+  it('trocar de condomínio cancela o anterior e assina o novo', () => {
     const view = mount({ condominiumId: 'cond-1' });
     socket.emit.mockClear();
 
@@ -230,16 +230,16 @@ describe('Assinatura do condominio', () => {
     expect(socket.emit).toHaveBeenCalledWith('subscribe:condominium', 'cond-2');
   });
 
-  it('sem condominio selecionado, nao assina nada', () => {
+  it('sem condomínio selecionado, não assina nada', () => {
     mount({ condominiumId: null });
 
     expect(socket.emit).not.toHaveBeenCalled();
   });
 });
 
-describe('Mapeamento de evento para invalidacao', () => {
+describe('Mapeamento de evento para invalidação', () => {
   it.each(Object.entries(EVENT_INVALIDATIONS))(
-    '%s invalida exatamente as chaves declaradas',
+    '%s inválida exatamente as chaves declaradas',
     async (event, expected) => {
       mount();
       invalidate.mockClear();
@@ -266,7 +266,7 @@ describe('Mapeamento de evento para invalidacao', () => {
     expect(invalidate).not.toHaveBeenCalled();
   });
 
-  it('evento desconhecido nao derruba o canal', async () => {
+  it('evento desconhecido não derruba o canal', async () => {
     mount();
     invalidate.mockClear();
 
@@ -285,8 +285,8 @@ describe('Mapeamento de evento para invalidacao', () => {
   });
 });
 
-describe('Contencao', () => {
-  it('uma rajada do mesmo recurso produz uma invalidacao so', async () => {
+describe('Contenção', () => {
+  it('uma rajada do mesmo recurso produz uma invalidação so', async () => {
     mount();
     invalidate.mockClear();
 
@@ -315,7 +315,7 @@ describe('Contencao', () => {
     expect(keys).toEqual(['announcements', 'notifications']);
   });
 
-  it('desmontar antes da descarga nao invalida nada', async () => {
+  it('desmontar antes da descarga não inválida nada', async () => {
     const view = mount();
     invalidate.mockClear();
 
@@ -329,16 +329,16 @@ describe('Contencao', () => {
   });
 });
 
-describe('Degradacao silenciosa', () => {
-  it('falha de conexao nao vira toast nem lanca', async () => {
+describe('Degradação silenciosa', () => {
+  it('falha de conexao não vira toast nem lança', async () => {
     const { toast } = await import('sonner');
     mount();
 
-    expect(() => socket.fire('connect_error', new Error('websocket indisponivel'))).not.toThrow();
+    expect(() => socket.fire('connect_error', new Error('websocket indisponível'))).not.toThrow();
     expect(vi.mocked(toast.error)).not.toHaveBeenCalled();
   });
 
-  it('o cliente que lanca na construcao nao derruba a tela', () => {
+  it('o cliente que lança na construção não derruba a tela', () => {
     mockIo.mockImplementation(() => {
       throw new Error('falha ao construir o cliente');
     });

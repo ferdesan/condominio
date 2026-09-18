@@ -37,8 +37,8 @@ export function CondominiumScopeNotice({ condominiumId }: CondominiumScopeNotice
       <Building2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       <span>
         O condominio selecionado mudou depois que este formulario abriu. Ele continua valendo para{' '}
-        <strong>{origin?.name ?? 'o condominio de origem'}</strong>. Feche e abra de novo para
-        trabalhar no condominio agora selecionado.
+        <strong>{origin?.name ?? 'o condomínio de origem'}</strong>. Feche e abra de novo para
+        trabalhar no condomínio agora selecionado.
       </span>
     </p>
   );

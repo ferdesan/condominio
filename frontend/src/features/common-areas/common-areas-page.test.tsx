@@ -91,14 +91,14 @@ function makeRoster(count: number, offset = 0): CommonArea[] {
     const position = offset + index + 1;
     return makeCommonArea({
       id: `area-${position}`,
-      name: `Area ${String(position).padStart(3, '0')}`,
+      name: `Área ${String(position).padStart(3, '0')}`,
     });
   });
 }
 
 /** Abre o dialogo de cadastro e espera o formulario montar. */
 async function openCreateForm(): Promise<void> {
-  clickTrigger(screen.getByRole('button', { name: 'Nova area comum' }));
+  clickTrigger(screen.getByRole('button', { name: 'Nova área comum' }));
   await screen.findByRole('dialog');
 }
 
@@ -112,14 +112,14 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Listagem de areas comuns', () => {
-  it('busca, filtros, paginacao e ordenacao chegam ao servidor como ele os aceita', async () => {
+describe('Listagem de áreas comuns', () => {
+  it('busca, filtros, paginação e ordenação chegam ao servidor como ele os aceita', async () => {
     serve(makeRoster(20));
     world.total = 60;
     const user = createUser();
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Area 001');
+    await screen.findByText('Área 001');
     // Toda consulta nasce presa ao condominio escolhido no shell.
     expect(lastListParams().condominiumId).toBe('cond-1');
 
@@ -128,10 +128,10 @@ describe('Listagem de areas comuns', () => {
 
     // `selectOption` usa `fireEvent`, que o RTL ja embrulha em `act`: o novo
     // pedido sai antes de a chamada retornar, entao a assercao e direta.
-    selectOption(screen.getByLabelText('Status'), 'Em manutencao');
+    selectOption(screen.getByLabelText('Status'), 'Em manutenção');
     expect(lastListParams().status).toBe('MAINTENANCE');
 
-    selectOption(screen.getByLabelText('Aprovacao'), 'Exige aprovacao');
+    selectOption(screen.getByLabelText('Aprovação'), 'Exige aprovação');
     expect(lastListParams().requiresApproval).toBe('true');
 
     // A ordenacao viaja em caixa alta; a tabela fala em caixa baixa e a
@@ -141,10 +141,10 @@ describe('Listagem de areas comuns', () => {
     expect(lastListParams().sortOrder).toBe('ASC');
 
     world.areas = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
-    expect(await screen.findByText('Area 021')).toBeInTheDocument();
+    expect(await screen.findByText('Área 021')).toBeInTheDocument();
     // Os controles anteriores continuam valendo na pagina seguinte.
     expect(lastListParams()).toMatchObject({
       condominiumId: 'cond-1',
@@ -161,8 +161,8 @@ describe('Listagem de areas comuns', () => {
     renderWithProviders(<CommonAreasPage />);
 
     // Sem nenhum registro: o convite e cadastrar o primeiro.
-    expect(await screen.findByText('Nenhuma area comum cadastrada')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cadastrar area comum' })).toBeInTheDocument();
+    expect(await screen.findByText('Nenhuma área comum cadastrada')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cadastrar área comum' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Limpar busca' })).not.toBeInTheDocument();
 
     await user.type(screen.getByLabelText('Buscar'), 'piscina');
@@ -171,14 +171,14 @@ describe('Listagem de areas comuns', () => {
     // distinguiveis, e nao a mesma tela vazia.
     expect(await screen.findByText('Nenhum resultado para esta busca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Cadastrar area comum' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cadastrar área comum' })).not.toBeInTheDocument();
   });
 
-  it('sem condominio selecionado explica a exigencia e nao consulta', async () => {
+  it('sem condomínio selecionado explica a exigência e não consulta', async () => {
     serve([makeCommonArea()]);
     renderWithProviders(<CommonAreasPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(mockGetPaginated.mock.calls.filter(([url]) => url === '/common-areas')).toHaveLength(0);
   });
 
@@ -188,11 +188,11 @@ describe('Listagem de areas comuns', () => {
 
     await screen.findByText('Salao de Festas');
 
-    expect(cellsOf('Descricao')).toEqual(['—']);
+    expect(cellsOf('Descrição')).toEqual(['—']);
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
-  it('capacidade zero e dias nulos sao lidos como ausencia de limite, nao como vazio', async () => {
+  it('capacidade zero e dias nulos sao lidos como ausência de limite, não como vazio', async () => {
     serve([makeCommonArea({ capacity: 0, availableWeekdays: null })]);
     renderWithProviders(<CommonAreasPage />);
 
@@ -212,7 +212,7 @@ describe('Listagem de areas comuns', () => {
   });
 });
 
-describe('Cadastro de area comum', () => {
+describe('Cadastro de área comum', () => {
   it('envia os campos e a lista se atualiza sem refetch manual', async () => {
     serve([]);
     const user = createUser();
@@ -222,29 +222,29 @@ describe('Cadastro de area comum', () => {
     });
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
-    clickTrigger(screen.getByRole('button', { name: 'Cadastrar area comum' }));
+    await screen.findByText('Nenhuma área comum cadastrada');
+    clickTrigger(screen.getByRole('button', { name: 'Cadastrar área comum' }));
     await screen.findByRole('dialog');
 
     await user.type(screen.getByLabelText('Nome'), 'Churrasqueira');
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/common-areas', expect.anything()));
     // A invalidacao da fabrica traz a lista nova: nenhuma tela pede refetch.
     expect(await screen.findByText('Churrasqueira')).toBeInTheDocument();
   });
 
-  it('o corpo carrega o condominio do shell e os padroes do servidor', async () => {
+  it('o corpo carrega o condomínio do shell e os padrões do servidor', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockResolvedValue(makeCommonArea() as never);
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
     await openCreateForm();
 
     await user.type(screen.getByLabelText('Nome'), 'Quadra');
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalled());
     expect(lastCreateBody()).toMatchObject({
@@ -269,45 +269,45 @@ describe('Cadastro de area comum', () => {
     const user = createUser();
     mockPost.mockRejectedValue(
       new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
-        { field: 'name', message: 'Ja existe uma area com este nome.' },
+        { field: 'name', message: 'Já existe uma área com este nome.' },
       ]),
     );
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
     await openCreateForm();
 
     await user.type(screen.getByLabelText('Nome'), 'Salao de Festas');
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
 
-    expect(await screen.findByText('Ja existe uma area com este nome.')).toBeInTheDocument();
+    expect(await screen.findByText('Já existe uma área com este nome.')).toBeInTheDocument();
     // O formulario apresenta a falha por si; o toast global duplicaria.
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('409 sem campo vira mensagem do formulario e preserva o preenchido', async () => {
+  it('409 sem campo vira mensagem do formulário e preserva o preenchido', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Ja existe uma area comum com este nome neste condominio.', 409, 'CONFLICT'),
+      new ApiError('Já existe uma área comum com este nome neste condomínio.', 409, 'CONFLICT'),
     );
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
     await openCreateForm();
 
     await user.type(screen.getByLabelText('Nome'), 'Salao de Festas');
     await user.type(screen.getByLabelText('Capacidade'), '0');
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
 
     const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent('Ja existe uma area comum com este nome neste condominio.');
+    expect(alert).toHaveTextContent('Já existe uma área comum com este nome neste condomínio.');
     // O dialogo continua aberto com o que foi digitado: reescrever tudo seria
     // a punicao errada para um conflito de nome.
     expect(screen.getByLabelText('Nome')).toHaveValue('Salao de Festas');
   });
 
-  it('dois cliques em salvar produzem uma unica requisicao', async () => {
+  it('dois cliques em salvar produzem uma única requisição', async () => {
     serve([]);
     const user = createUser();
     // A requisicao demora o bastante para que o segundo clique caia enquanto a
@@ -317,11 +317,11 @@ describe('Cadastro de area comum', () => {
     );
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
     await openCreateForm();
 
     await user.type(screen.getByLabelText('Nome'), 'Coworking');
-    const submit = screen.getByRole('button', { name: 'Criar area' });
+    const submit = screen.getByRole('button', { name: 'Criar área' });
     clickTrigger(submit);
     clickTrigger(submit);
 
@@ -329,46 +329,46 @@ describe('Cadastro de area comum', () => {
   });
 });
 
-describe('Validacoes cruzadas de area comum', () => {
+describe('Validações cruzadas de área comum', () => {
   it('fechamento anterior a abertura e recusado no campo do fechamento', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
     await openCreateForm();
 
     await user.type(screen.getByLabelText('Nome'), 'Piscina');
     fireEvent.change(screen.getByLabelText('Abre as'), { target: { value: '18:00' } });
     fireEvent.change(screen.getByLabelText('Fecha as'), { target: { value: '09:00' } });
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
 
     const field = screen.getByLabelText('Fecha as');
     await waitFor(() => expect(field).toHaveAttribute('aria-invalid', 'true'));
     expect(
-      screen.getByText('O horario de fechamento deve ser posterior ao de abertura.'),
+      screen.getByText('O horário de fechamento deve ser posterior ao de abertura.'),
     ).toBeInTheDocument();
     // A objecao e local: nada foi enviado.
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('duracao maxima menor que a minima e recusada no campo da maxima', async () => {
+  it('duração máxima menor que a mínima e recusada no campo da máxima', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
     await openCreateForm();
 
     await user.type(screen.getByLabelText('Nome'), 'Piscina');
-    fireEvent.change(screen.getByLabelText('Duracao minima (h)'), { target: { value: '8' } });
-    fireEvent.change(screen.getByLabelText('Duracao maxima (h)'), { target: { value: '2' } });
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    fireEvent.change(screen.getByLabelText('Duração mínima (h)'), { target: { value: '8' } });
+    fireEvent.change(screen.getByLabelText('Duração máxima (h)'), { target: { value: '2' } });
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
 
-    const field = screen.getByLabelText('Duracao maxima (h)');
+    const field = screen.getByLabelText('Duração máxima (h)');
     await waitFor(() => expect(field).toHaveAttribute('aria-invalid', 'true'));
     expect(
-      screen.getByText('A duracao maxima deve ser maior ou igual a minima.'),
+      screen.getByText('A duração máxima deve ser maior ou igual a mínima.'),
     ).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
@@ -381,15 +381,15 @@ describe('Dias da semana', () => {
     mockPost.mockResolvedValue(makeCommonArea() as never);
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
     await openCreateForm();
 
     await user.type(screen.getByLabelText('Nome'), 'Quadra');
     // Sair de "todos os dias" revela as caixas por dia.
     await user.click(screen.getByLabelText('Todos os dias'));
-    await user.click(screen.getByLabelText('Sabado'));
+    await user.click(screen.getByLabelText('Sábado'));
     await user.click(screen.getByLabelText('Domingo'));
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalled());
     // Inteiros e ordenados, com domingo em zero — como o servidor numera.
@@ -402,12 +402,12 @@ describe('Dias da semana', () => {
     mockPost.mockResolvedValue(makeCommonArea() as never);
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
 
     // Primeiro envio: "todos os dias" marcado, que e o padrao.
     await openCreateForm();
     await user.type(screen.getByLabelText('Nome'), 'Quadra');
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
     expect(lastCreateBody().availableWeekdays).toBeNull();
 
@@ -415,7 +415,7 @@ describe('Dias da semana', () => {
     await openCreateForm();
     await user.type(screen.getByLabelText('Nome'), 'Quadra coberta');
     await user.click(screen.getByLabelText('Todos os dias'));
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(2));
 
     // Nulo libera a semana inteira; a lista vazia e uma restricao explicita. Os
@@ -428,25 +428,25 @@ describe('Dias da semana', () => {
     const user = createUser();
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
     await openCreateForm();
 
     await user.click(screen.getByLabelText('Todos os dias'));
 
     expect(
-      screen.getByText(/Nenhum dia liberado: a area nao aceitara reservas/),
+      screen.getByText(/Nenhum dia liberado: a área não aceitara reservas/),
     ).toBeInTheDocument();
   });
 });
 
 describe('Taxa de reserva', () => {
-  it('e exibida como dinheiro no formulario e enviada como numero', async () => {
+  it('e exibida como dinheiro no formulário e enviada como número', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockResolvedValue(makeCommonArea() as never);
     renderWithProviders(<CommonAreasPage />);
 
-    await screen.findByText('Nenhuma area comum cadastrada');
+    await screen.findByText('Nenhuma área comum cadastrada');
     await openCreateForm();
 
     await user.type(screen.getByLabelText('Nome'), 'Salao');
@@ -456,7 +456,7 @@ describe('Taxa de reserva', () => {
     // O campo reformata para moeda assim que o valor chega ao formulario.
     await waitFor(() => expect(fee.value).toMatch(/R\$\s*250,00/));
 
-    clickTrigger(screen.getByRole('button', { name: 'Criar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar área' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalled());
     // O corpo leva numero, e nao o texto formatado.
@@ -464,7 +464,7 @@ describe('Taxa de reserva', () => {
   });
 });
 
-describe('Edicao de area comum', () => {
+describe('Edição de área comum', () => {
   it('os campos vem preenchidos com o registro existente', async () => {
     const area = makeCommonArea({
       name: 'Salao de Festas',
@@ -494,8 +494,8 @@ describe('Edicao de area comum', () => {
 
     // Identificacao.
     expect(form.getByLabelText('Nome')).toHaveValue('Salao de Festas');
-    expect(form.getByLabelText('Descricao')).toHaveValue('Salao com cozinha equipada.');
-    expect(form.getByLabelText('Status')).toHaveTextContent('Em manutencao');
+    expect(form.getByLabelText('Descrição')).toHaveValue('Salao com cozinha equipada.');
+    expect(form.getByLabelText('Status')).toHaveTextContent('Em manutenção');
     expect(form.getByLabelText('Capacidade')).toHaveValue('80');
     expect(form.getByLabelText('Foto (URL)')).toHaveValue('https://exemplo.com/salao.jpg');
 
@@ -504,15 +504,15 @@ describe('Edicao de area comum', () => {
     expect(form.getByLabelText('Fecha as')).toHaveValue('23:00');
     expect(form.getByLabelText('Todos os dias')).not.toBeChecked();
     expect(form.getByLabelText('Sexta-feira')).toBeChecked();
-    expect(form.getByLabelText('Sabado')).toBeChecked();
+    expect(form.getByLabelText('Sábado')).toBeChecked();
     expect(form.getByLabelText('Segunda-feira')).not.toBeChecked();
 
     // Regras de reserva.
-    expect(form.getByLabelText('Duracao minima (h)')).toHaveValue('3');
-    expect(form.getByLabelText('Duracao maxima (h)')).toHaveValue('8');
-    expect(form.getByLabelText('Antecedencia (dias)')).toHaveValue('90');
-    expect(form.getByLabelText('Intervalo minimo (dias)')).toHaveValue('15');
-    expect(form.getByLabelText('Exige aprovacao do sindico')).not.toBeChecked();
+    expect(form.getByLabelText('Duração mínima (h)')).toHaveValue('3');
+    expect(form.getByLabelText('Duração máxima (h)')).toHaveValue('8');
+    expect(form.getByLabelText('Antecedência (dias)')).toHaveValue('90');
+    expect(form.getByLabelText('Intervalo mínimo (dias)')).toHaveValue('15');
+    expect(form.getByLabelText('Exige aprovação do síndico')).not.toBeChecked();
     expect(form.getByLabelText('Regras de uso')).toHaveValue('Devolver limpo.');
 
     // Custo.
@@ -521,7 +521,7 @@ describe('Edicao de area comum', () => {
     );
   });
 
-  it('editar avisa que os parametros governam o formulario de reservas', async () => {
+  it('editar avisa que os parametros governam o formulário de reservas', async () => {
     serve([makeCommonArea()]);
     renderWithProviders(<CommonAreasPage />);
 
@@ -530,11 +530,11 @@ describe('Edicao de area comum', () => {
     await screen.findByRole('dialog');
 
     expect(
-      screen.getByText(/valem imediatamente para o formulario de\s+Reservas/),
+      screen.getByText(/valem imediatamente para o formulário de\s+Reservas/),
     ).toBeInTheDocument();
   });
 
-  it('a edicao envia o parcial e a lista reflete a mudanca', async () => {
+  it('a edição envia o parcial e a lista reflete a mudança', async () => {
     serve([makeCommonArea()]);
     const user = createUser();
     mockPatch.mockImplementation(async () => {
@@ -549,7 +549,7 @@ describe('Edicao de area comum', () => {
 
     await user.clear(screen.getByLabelText('Nome'));
     await user.type(screen.getByLabelText('Nome'), 'Salao Nobre');
-    clickTrigger(screen.getByRole('button', { name: 'Salvar area' }));
+    clickTrigger(screen.getByRole('button', { name: 'Salvar área' }));
 
     await waitFor(() =>
       expect(mockPatch).toHaveBeenCalledWith(
@@ -561,8 +561,8 @@ describe('Edicao de area comum', () => {
   });
 });
 
-describe('Exclusao e restauracao de areas comuns', () => {
-  it('a exclusao pede confirmacao antes de chamar o servidor', async () => {
+describe('Exclusao e restauração de áreas comuns', () => {
+  it('a exclusao pede confirmação antes de chamar o servidor', async () => {
     serve([makeCommonArea()]);
     mockDelete.mockImplementation(async () => {
       world.areas = [];
@@ -573,7 +573,7 @@ describe('Exclusao e restauracao de areas comuns', () => {
     clickTrigger(screen.getByRole('button', { name: 'Excluir Salao de Festas' }));
 
     // O dialogo esta aberto e nada foi enviado ainda.
-    expect(await screen.findByText('Excluir area comum?')).toBeInTheDocument();
+    expect(await screen.findByText('Excluir área comum?')).toBeInTheDocument();
     expect(mockDelete).not.toHaveBeenCalled();
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir' }));
@@ -582,11 +582,11 @@ describe('Exclusao e restauracao de areas comuns', () => {
     await waitFor(() => expect(screen.queryByText('Salao de Festas')).not.toBeInTheDocument());
   });
 
-  it('409 de reservas futuras mostra a mensagem do servidor e mantem a area', async () => {
+  it('409 de reservas futuras mostra a mensagem do servidor e mantem a área', async () => {
     serve([makeCommonArea()]);
     mockDelete.mockRejectedValue(
       new ApiError(
-        'Existem reservas futuras para esta area. Cancele-as antes de remover.',
+        'Existem reservas futuras para esta área. Cancele-as antes de remover.',
         409,
         'BUSINESS_RULE_ERROR',
       ),
@@ -599,7 +599,7 @@ describe('Exclusao e restauracao de areas comuns', () => {
 
     await waitFor(() =>
       expect(mockToastError).toHaveBeenCalledWith(
-        'Existem reservas futuras para esta area. Cancele-as antes de remover.',
+        'Existem reservas futuras para esta área. Cancele-as antes de remover.',
       ),
     );
     // A recusa nao remove nada: a area continua listada.
@@ -628,19 +628,19 @@ describe('Exclusao e restauracao de areas comuns', () => {
   });
 });
 
-describe('Permissoes', () => {
+describe('Permissões', () => {
   it('um operador ve a listagem sem cadastrar, editar ou excluir', async () => {
     serve([makeCommonArea()]);
     renderWithProviders(<CommonAreasPage />, { role: 'STAFF' });
 
     await screen.findByText('Salao de Festas');
 
-    expect(screen.queryByRole('button', { name: 'Nova area comum' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nova área comum' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     serve([makeCommonArea({ deletedAt: '2026-02-01T10:00:00.000Z' })]);
     const user = createUser();
     renderWithProviders(<CommonAreasPage />, { role: 'STAFF' });
@@ -651,11 +651,11 @@ describe('Permissoes', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('a lista vazia nao oferece cadastrar a quem nao pode criar', async () => {
+  it('a lista vazia não oferece cadastrar a quem não pode criar', async () => {
     serve([]);
     renderWithProviders(<CommonAreasPage />, { role: 'STAFF' });
 
-    expect(await screen.findByText('Nenhuma area comum cadastrada')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Cadastrar area comum' })).not.toBeInTheDocument();
+    expect(await screen.findByText('Nenhuma área comum cadastrada')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cadastrar área comum' })).not.toBeInTheDocument();
   });
 });

@@ -20,7 +20,7 @@ import { VISITOR_STATUSES, VISITOR_TYPES, type Visitor } from '@/types/visitor';
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {
-  return z.string().trim().max(max, `Use no maximo ${max} caracteres.`);
+  return z.string().trim().max(max, `Use no máximo ${max} caracteres.`);
 }
 
 /** CPF opcional. A pontuacao e descartada, como o backend faz. */
@@ -38,7 +38,7 @@ function optionalPhone() {
     .transform((value) => value.replace(/\D/g, ''))
     .refine(
       (value) => value === '' || (value.length >= 8 && value.length <= 11),
-      'Telefone invalido.',
+      'Telefone inválido.',
     );
 }
 
@@ -57,10 +57,10 @@ function optionalUrl() {
   return z
     .string()
     .trim()
-    .max(255, 'Use no maximo 255 caracteres.')
+    .max(255, 'Use no máximo 255 caracteres.')
     .refine(
       (value) => value === '' || z.string().url().safeParse(value).success,
-      'Informe uma URL valida.',
+      'Informe uma URL válida.',
     );
 }
 
@@ -89,7 +89,7 @@ export const visitorSchema = visitorFields.refine(
     values.expectedAt === '' ||
     values.expectedUntil === '' ||
     values.expectedUntil > values.expectedAt,
-  { path: ['expectedUntil'], message: 'O fim do periodo deve ser depois do inicio.' },
+  { path: ['expectedUntil'], message: 'O fim do período deve ser depois do início.' },
 );
 
 export type VisitorFormValues = z.infer<typeof visitorSchema>;

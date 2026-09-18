@@ -23,7 +23,7 @@ import { AuditDetailDialog } from './components/audit-detail-dialog';
 import { AuditFilters } from './components/audit-filters';
 
 const DESCRIPTION =
-  'Quem mudou o que, e quando. O registro cobre a administradora inteira e nao pode ser editado nem apagado.';
+  'Quem mudou o que, e quando. O registro cobre a administradora inteira e não pode ser editado nem apagado.';
 
 /**
  * Trilha de auditoria.
@@ -96,7 +96,7 @@ export function AuditPage() {
     },
     {
       key: 'action',
-      label: 'Acao',
+      label: 'Ação',
       sortable: true,
       render: (_value, row) => <AuditActionBadge action={row.action} />,
     },
@@ -108,7 +108,7 @@ export function AuditPage() {
     },
     {
       key: 'description',
-      label: 'Descricao',
+      label: 'Descrição',
       sortable: true,
       render: (_value, row) => row.description ?? '—',
     },
@@ -174,7 +174,7 @@ export function AuditPage() {
                 <EmptyState
                   icon={ScrollText}
                   title="Nenhuma atividade registrada"
-                  description="Assim que alguem criar, alterar ou remover um registro, a acao aparece aqui."
+                  description="Assim que alguem criar, alterar ou remover um registro, a ação aparece aqui."
                 />
               )
             ) : (

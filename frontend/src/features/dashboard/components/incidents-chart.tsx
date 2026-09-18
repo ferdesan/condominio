@@ -36,8 +36,8 @@ export function IncidentsChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Ocorrencias por categoria</CardTitle>
-        <CardDescription>O que mais gera registro no condominio.</CardDescription>
+        <CardTitle>Ocorrências por categoria</CardTitle>
+        <CardDescription>O que mais gera registro no condomínio.</CardDescription>
       </CardHeader>
 
       <div className="px-2 pb-5 sm:px-4">
@@ -49,8 +49,8 @@ export function IncidentsChart({
                 e uma boa noticia, e precisa ser dita. */}
             <EmptyState
               icon={TriangleAlert}
-              title="Nenhuma ocorrencia registrada"
-              description="Nada a exibir para este condominio."
+              title="Nenhuma ocorrência registrada"
+              description="Nada a exibir para este condomínio."
             />
           </div>
         ) : (

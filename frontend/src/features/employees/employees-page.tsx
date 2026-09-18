@@ -160,7 +160,7 @@ export function EmployeesPage() {
       // tipografia secundaria, para nao ser a primeira coisa que se le de uma
       // tela aberta em balcao de portaria.
       key: 'salary',
-      label: 'Salario',
+      label: 'Salário',
       render: (_value, row) => (
         <span className="text-muted-foreground">{formatCurrency(row.salary)}</span>
       ),
@@ -175,7 +175,7 @@ export function EmployeesPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <EmployeeRowActions
           employee={row}
@@ -195,13 +195,13 @@ export function EmployeesPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Funcionarios" description={DESCRIPTION} />}
+        header={<PageHeader title="Funcionários" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="Os funcionarios sao listados por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="Os funcionários sao listados por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -214,14 +214,14 @@ export function EmployeesPage() {
       <CrudLayout
         header={
           <PageHeader
-            title="Funcionarios"
+            title="Funcionários"
             description={DESCRIPTION}
             actions={
               canCreate ? (
                 <Button
                   onClick={() => setFormTarget({ employee: null, condominiumId: selectedId })}
                 >
-                  Novo funcionario
+                  Novo funcionário
                 </Button>
               ) : undefined
             }
@@ -235,7 +235,7 @@ export function EmployeesPage() {
                 <EmptyState
                   icon={SearchX}
                   title="Nenhum resultado para esta busca"
-                  description="Nenhum funcionario corresponde aos termos e filtros aplicados."
+                  description="Nenhum funcionário corresponde aos termos e filtros aplicados."
                   action={
                     <Button
                       variant="outline"
@@ -251,14 +251,14 @@ export function EmployeesPage() {
               ) : (
                 <EmptyState
                   icon={UserCog}
-                  title="Nenhum funcionario cadastrado"
-                  description="Cadastre o primeiro funcionario para saber quem trabalha no condominio."
+                  title="Nenhum funcionário cadastrado"
+                  description="Cadastre o primeiro funcionário para saber quem trabalha no condomínio."
                   action={
                     canCreate ? (
                       <Button
                         onClick={() => setFormTarget({ employee: null, condominiumId: selectedId })}
                       >
-                        Cadastrar funcionario
+                        Cadastrar funcionário
                       </Button>
                     ) : undefined
                   }
@@ -299,7 +299,7 @@ export function EmployeesPage() {
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir funcionario?"
+        title="Excluir funcionário?"
         description={
           deleting
             ? `${deleting.name} deixara de aparecer na listagem e nos quadros de pessoal. A exclusao e logica e pode ser desfeita.`
@@ -328,4 +328,4 @@ export function EmployeesPage() {
   );
 }
 
-const DESCRIPTION = 'Quem trabalha no condominio selecionado, e sob que vinculo.';
+const DESCRIPTION = 'Quem trabalha no condomínio selecionado, e sob que vinculo.';

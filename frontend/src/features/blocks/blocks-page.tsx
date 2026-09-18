@@ -135,12 +135,12 @@ export function BlocksPage() {
     },
     {
       key: 'description',
-      label: 'Descricao',
+      label: 'Descrição',
       sortable: true,
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <BlockRowActions
           block={row}
@@ -165,8 +165,8 @@ export function BlocksPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="Os blocos pertencem a um condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="Os blocos pertencem a um condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -293,4 +293,4 @@ export function BlocksPage() {
   );
 }
 
-const DESCRIPTION = 'Blocos, torres, alas e ruas do condominio selecionado.';
+const DESCRIPTION = 'Blocos, torres, alas e ruas do condomínio selecionado.';

@@ -128,7 +128,7 @@ export function CommonAreasPage() {
     },
     {
       key: 'opensAt',
-      label: 'Horario',
+      label: 'Horário',
       render: (_value, row) => `${row.opensAt} - ${row.closesAt}`,
     },
     {
@@ -138,11 +138,11 @@ export function CommonAreasPage() {
     },
     {
       key: 'requiresApproval',
-      label: 'Aprovacao',
+      label: 'Aprovação',
       sortable: true,
       render: (_value, row) =>
         row.requiresApproval ? (
-          <Badge variant="warning">Exige aprovacao</Badge>
+          <Badge variant="warning">Exige aprovação</Badge>
         ) : (
           <span className="text-muted-foreground">Reserva direta</span>
         ),
@@ -154,10 +154,10 @@ export function CommonAreasPage() {
     },
     // Sem `render`: a tabela ja troca nulo pelo placeholder neutro, e a coluna e
     // buscavel no servidor, entao vale mostrar o que a busca alcanca.
-    { key: 'description', label: 'Descricao', sortable: true },
+    { key: 'description', label: 'Descrição', sortable: true },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <CommonAreaRowActions
           area={row}
@@ -177,13 +177,13 @@ export function CommonAreasPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Areas comuns" description={DESCRIPTION} />}
+        header={<PageHeader title="Áreas comuns" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="As areas comuns pertencem a um condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="As áreas comuns pertencem a um condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -196,12 +196,12 @@ export function CommonAreasPage() {
       <CrudLayout
         header={
           <PageHeader
-            title="Areas comuns"
+            title="Áreas comuns"
             description={DESCRIPTION}
             actions={
               canCreate ? (
                 <Button onClick={() => setFormTarget({ area: null, condominiumId: selectedId })}>
-                  Nova area comum
+                  Nova área comum
                 </Button>
               ) : undefined
             }
@@ -215,7 +215,7 @@ export function CommonAreasPage() {
                 <EmptyState
                   icon={SearchX}
                   title="Nenhum resultado para esta busca"
-                  description="Nenhuma area comum corresponde aos termos e filtros aplicados."
+                  description="Nenhuma área comum corresponde aos termos e filtros aplicados."
                   action={
                     <Button
                       variant="outline"
@@ -231,14 +231,14 @@ export function CommonAreasPage() {
               ) : (
                 <EmptyState
                   icon={Trees}
-                  title="Nenhuma area comum cadastrada"
-                  description="Cadastre a primeira area para que os moradores possam reserva-la."
+                  title="Nenhuma área comum cadastrada"
+                  description="Cadastre a primeira área para que os moradores possam reserva-la."
                   action={
                     canCreate ? (
                       <Button
                         onClick={() => setFormTarget({ area: null, condominiumId: selectedId })}
                       >
-                        Cadastrar area comum
+                        Cadastrar área comum
                       </Button>
                     ) : undefined
                   }
@@ -279,10 +279,10 @@ export function CommonAreasPage() {
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir area comum?"
+        title="Excluir área comum?"
         description={
           deleting
-            ? `${deleting.name} deixara de aparecer na listagem e nao podera receber novas reservas. A exclusao e logica e pode ser desfeita.`
+            ? `${deleting.name} deixara de aparecer na listagem e não podera receber novas reservas. A exclusao e logica e pode ser desfeita.`
             : undefined
         }
         actionLabel="Excluir"
@@ -309,4 +309,4 @@ export function CommonAreasPage() {
 }
 
 const DESCRIPTION =
-  'Espacos reservaveis do condominio selecionado e as regras que governam as reservas.';
+  'Espacos reserváveis do condomínio selecionado e as regras que governam as reservas.';

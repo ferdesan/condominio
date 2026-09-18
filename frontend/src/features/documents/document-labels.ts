@@ -17,11 +17,11 @@ import type { DocumentCategory, DocumentFile, DocumentVisibility } from '@/types
  * filtro — a colisao que ja quebrou consultas por texto em telas anteriores.
  */
 export const CATEGORY_LABELS: Record<DocumentCategory, string> = {
-  CONVENTION: 'Convencao',
+  CONVENTION: 'Convenção',
   REGULATION: 'Regimento interno',
   MINUTES: 'Ata',
   CONTRACT: 'Contrato',
-  FINANCIAL: 'Prestacao de contas',
+  FINANCIAL: 'Prestação de contas',
   REPORT: 'Laudo',
   INSURANCE: 'Apolice',
   OTHER: 'Outro',
@@ -36,9 +36,9 @@ export const CATEGORY_LABELS: Record<DocumentCategory, string> = {
 export const VISIBILITY_LABELS: Record<DocumentVisibility, string> = {
   PUBLIC: 'Qualquer pessoa',
   RESIDENTS: 'Moradores',
-  OWNERS: 'Proprietarios',
-  STAFF: 'Funcionarios',
-  ADMIN: 'Somente a administracao',
+  OWNERS: 'Proprietários',
+  STAFF: 'Funcionários',
+  ADMIN: 'Somente a administração',
 };
 
 /**

@@ -60,7 +60,7 @@ function dialog(): HTMLElement {
 /** Abre o dialogo de cadastro e espera o formulario aparecer. */
 async function openCreateDialog(): Promise<void> {
   clickTrigger(screen.getByRole('button', { name: 'Novo comunicado' }));
-  await screen.findByLabelText('Titulo');
+  await screen.findByLabelText('Título');
 }
 
 function submitCreate(): void {
@@ -97,7 +97,7 @@ function SwitchableShell({ children }: { children: ReactNode }) {
   return (
     <CondominiumContext.Provider value={value}>
       <button type="button" onClick={() => setSelectedId('cond-2')}>
-        Trocar condominio
+        Trocar condomínio
       </button>
       {children}
     </CondominiumContext.Provider>
@@ -114,7 +114,7 @@ describe('Cadastro de comunicado', () => {
     world = serveAnnouncements({ announcements: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
-      world.announcements = [makeAnnouncement({ title: 'Assembleia ordinaria' })];
+      world.announcements = [makeAnnouncement({ title: 'Assembleia ordinária' })];
       return world.announcements[0] as never;
     });
     renderWithProviders(<AnnouncementsPage />);
@@ -122,7 +122,7 @@ describe('Cadastro de comunicado', () => {
     await screen.findByText('Nenhum comunicado registrado');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Titulo'), 'Assembleia ordinaria');
+    await user.type(within(dialog()).getByLabelText('Título'), 'Assembleia ordinária');
     await user.type(within(dialog()).getByLabelText('Conteudo'), 'Dia 20, as 19h, no salao.');
     selectOption(within(dialog()).getByLabelText('Categoria'), 'Assembleia');
     submitCreate();
@@ -131,7 +131,7 @@ describe('Cadastro de comunicado', () => {
     expect(mockPost.mock.calls[0][0]).toBe('/announcements');
     expect(lastCreateBody()).toMatchObject({
       condominiumId: 'cond-1',
-      title: 'Assembleia ordinaria',
+      title: 'Assembleia ordinária',
       content: 'Dia 20, as 19h, no salao.',
       category: 'ASSEMBLY',
       // Os padroes do servidor, espelhados pelo formulario.
@@ -146,7 +146,7 @@ describe('Cadastro de comunicado', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     // A invalidacao da fabrica traz a linha nova: ninguem pediu refetch aqui.
-    expect(await screen.findByText('Assembleia ordinaria')).toBeInTheDocument();
+    expect(await screen.findByText('Assembleia ordinária')).toBeInTheDocument();
   });
 
   it('conteudo longo e aceito e enviado inteiro', async () => {
@@ -170,7 +170,7 @@ describe('Cadastro de comunicado', () => {
     const longBody = 'Artigo primeiro. '.repeat(400);
     expect(longBody.length).toBeGreaterThan(2000);
 
-    await user.type(within(dialog()).getByLabelText('Titulo'), 'Regimento interno');
+    await user.type(within(dialog()).getByLabelText('Título'), 'Regimento interno');
     fill(content, longBody);
     submitCreate();
 
@@ -180,7 +180,7 @@ describe('Cadastro de comunicado', () => {
     expect(String(lastCreateBody().content)).toHaveLength(longBody.trim().length);
   });
 
-  it('sem titulo o envio para no proprio campo', async () => {
+  it('sem título o envio para no próprio campo', async () => {
     world = serveAnnouncements({ announcements: [] });
     const user = createUser();
     renderWithProviders(<AnnouncementsPage />);
@@ -188,16 +188,16 @@ describe('Cadastro de comunicado', () => {
     await screen.findByText('Nenhum comunicado registrado');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Conteudo'), 'Conteudo sem titulo.');
+    await user.type(within(dialog()).getByLabelText('Conteudo'), 'Conteudo sem título.');
     submitCreate();
 
-    const message = await screen.findByText('Informe o titulo do comunicado.');
+    const message = await screen.findByText('Informe o título do comunicado.');
     // A objecao pertence ao campo do titulo, e nao ao formulario inteiro.
     expect(message).toHaveAttribute('id', 'title-error');
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('publico por blocos exige escolher um bloco, e envia os escolhidos', async () => {
+  it('público por blocos exige escolher um bloco, e envia os escolhidos', async () => {
     world = serveAnnouncements({ announcements: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -209,15 +209,15 @@ describe('Cadastro de comunicado', () => {
     await screen.findByText('Nenhum comunicado registrado');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Titulo'), 'Obra na Torre A');
+    await user.type(within(dialog()).getByLabelText('Título'), 'Obra na Torre A');
     await user.type(within(dialog()).getByLabelText('Conteudo'), 'Comeca na segunda-feira.');
-    selectOption(within(dialog()).getByLabelText('Publico'), 'Blocos especificos');
+    selectOption(within(dialog()).getByLabelText('Público'), 'Blocos especificos');
     submitCreate();
 
     // A regra e do servidor (`assertAudience`), mas ele a recusa como 409 sem
     // caminho de campo — dita no campo ela tem conserto obvio.
     const message = await screen.findByText(
-      'Selecione ao menos um bloco para o publico-alvo escolhido.',
+      'Selecione ao menos um bloco para o público-alvo escolhido.',
     );
     expect(message).toHaveAttribute('id', 'targetBlockIds-error');
     expect(mockPost).not.toHaveBeenCalled();
@@ -237,7 +237,7 @@ describe('Cadastro de comunicado', () => {
     const user = createUser();
     mockPost.mockRejectedValue(
       new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
-        { field: 'title', message: 'Ja existe um comunicado com este titulo.' },
+        { field: 'title', message: 'Já existe um comunicado com este título.' },
       ]),
     );
     renderWithProviders(<AnnouncementsPage />);
@@ -245,23 +245,23 @@ describe('Cadastro de comunicado', () => {
     await screen.findByText('Nenhum comunicado registrado');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Titulo'), 'Assembleia ordinaria');
+    await user.type(within(dialog()).getByLabelText('Título'), 'Assembleia ordinária');
     await user.type(within(dialog()).getByLabelText('Conteudo'), 'Dia 20, as 19h.');
     submitCreate();
 
-    const message = await screen.findByText('Ja existe um comunicado com este titulo.');
+    const message = await screen.findByText('Já existe um comunicado com este título.');
     expect(message).toHaveAttribute('id', 'title-error');
     // O formulario define `onError`, entao substitui o toast global em vez de
     // somar a ele: a mesma recusa nao pode aparecer duas vezes.
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('um 409 sem campo aparece como mensagem do formulario, preservando o preenchido', async () => {
+  it('um 409 sem campo aparece como mensagem do formulário, preservando o preenchido', async () => {
     world = serveAnnouncements({ announcements: [] });
     const user = createUser();
     mockPost.mockRejectedValue(
       new ApiError(
-        'Informe ao menos um bloco para o publico-alvo selecionado.',
+        'Informe ao menos um bloco para o público-alvo selecionado.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -271,19 +271,19 @@ describe('Cadastro de comunicado', () => {
     await screen.findByText('Nenhum comunicado registrado');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Titulo'), 'Assembleia ordinaria');
+    await user.type(within(dialog()).getByLabelText('Título'), 'Assembleia ordinária');
     await user.type(within(dialog()).getByLabelText('Conteudo'), 'Dia 20, as 19h.');
     submitCreate();
 
     expect(
-      await screen.findByText('Informe ao menos um bloco para o publico-alvo selecionado.'),
+      await screen.findByText('Informe ao menos um bloco para o público-alvo selecionado.'),
     ).toBeInTheDocument();
     // O dialogo fica, com os valores no lugar, para a correcao.
-    expect(within(dialog()).getByLabelText('Titulo')).toHaveValue('Assembleia ordinaria');
+    expect(within(dialog()).getByLabelText('Título')).toHaveValue('Assembleia ordinária');
     expect(within(dialog()).getByLabelText('Conteudo')).toHaveValue('Dia 20, as 19h.');
   });
 
-  it('dois envios em sequencia produzem um unico POST', async () => {
+  it('dois envios em sequência produzem um único POST', async () => {
     world = serveAnnouncements({ announcements: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -295,7 +295,7 @@ describe('Cadastro de comunicado', () => {
     await screen.findByText('Nenhum comunicado registrado');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Titulo'), 'Assembleia ordinaria');
+    await user.type(within(dialog()).getByLabelText('Título'), 'Assembleia ordinária');
     await user.type(within(dialog()).getByLabelText('Conteudo'), 'Dia 20, as 19h.');
 
     const submit = within(dialog()).getByRole('button', { name: 'Cadastrar' });
@@ -305,7 +305,7 @@ describe('Cadastro de comunicado', () => {
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
   });
 
-  it('o formulario grava no condominio em que abriu, mesmo se o shell mudar', async () => {
+  it('o formulário grava no condomínio em que abriu, mesmo se o shell mudar', async () => {
     world = serveAnnouncements({ announcements: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -321,12 +321,12 @@ describe('Cadastro de comunicado', () => {
     await screen.findByText('Nenhum comunicado registrado');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Titulo'), 'Assembleia ordinaria');
+    await user.type(within(dialog()).getByLabelText('Título'), 'Assembleia ordinária');
     await user.type(within(dialog()).getByLabelText('Conteudo'), 'Dia 20, as 19h.');
 
     // Por papel nao da: o dialogo modal marca o resto da pagina como
     // `aria-hidden`, e `getByRole` nao enxerga fora da arvore acessivel.
-    clickTrigger(screen.getByText('Trocar condominio'));
+    clickTrigger(screen.getByText('Trocar condomínio'));
 
     // A divergencia entre o que o dialogo grava e o que a tela mostra e nomeada,
     // em vez de silenciosamente reapontada (US-027.EC-3).
@@ -339,8 +339,8 @@ describe('Cadastro de comunicado', () => {
   });
 });
 
-describe('Edicao de comunicado', () => {
-  it('editar emite um unico PATCH e a linha reflete', async () => {
+describe('Edição de comunicado', () => {
+  it('editar emite um único PATCH e a linha reflete', async () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement()] });
     const user = createUser();
     mockPatch.mockImplementation(async () => {
@@ -349,14 +349,14 @@ describe('Edicao de comunicado', () => {
     });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
-    clickTrigger(screen.getByRole('button', { name: 'Editar Manutencao do elevador' }));
-    await screen.findByLabelText('Titulo');
+    await screen.findByText('Manutenção do elevador');
+    clickTrigger(screen.getByRole('button', { name: 'Editar Manutenção do elevador' }));
+    await screen.findByLabelText('Título');
 
     // Os valores atuais chegam preenchidos.
-    expect(within(dialog()).getByLabelText('Titulo')).toHaveValue('Manutencao do elevador');
+    expect(within(dialog()).getByLabelText('Título')).toHaveValue('Manutenção do elevador');
     expect(within(dialog()).getByLabelText('Conteudo')).toHaveValue(
-      'O elevador da Torre A ficara parado na terca-feira, das 8h as 12h.',
+      'O elevador da Torre A ficara parado na terça-feira, das 8h as 12h.',
     );
 
     selectOption(within(dialog()).getByLabelText('Categoria'), 'Urgente');

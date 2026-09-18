@@ -111,12 +111,12 @@ export function ReservationsPage() {
   const columns: Column<Reservation>[] = [
     {
       key: 'commonAreaId',
-      label: 'Area comum',
+      label: 'Área comum',
       render: (_value, row) => (
         // A area pode ter sido removida depois da reserva; a linha continua
         // legivel porque o resto dela nao depende desse registro.
         <span className={row.commonArea ? undefined : 'text-muted-foreground'}>
-          {row.commonArea?.name ?? 'Area indisponivel'}
+          {row.commonArea?.name ?? 'Área indisponível'}
         </span>
       ),
     },
@@ -127,7 +127,7 @@ export function ReservationsPage() {
         row.unit ? (
           `Unidade ${row.unit.number}`
         ) : (
-          <span className="text-muted-foreground">Unidade indisponivel</span>
+          <span className="text-muted-foreground">Unidade indisponível</span>
         ),
     },
     // O nome do solicitante e gravado na propria reserva, entao sobrevive a
@@ -135,12 +135,12 @@ export function ReservationsPage() {
     { key: 'requestedByName', label: 'Solicitante', sortable: true },
     {
       key: 'startsAt',
-      label: 'Inicio',
+      label: 'Início',
       render: (_value, row) => formatDateTime(row.startsAt),
     },
     {
       key: 'endsAt',
-      label: 'Termino',
+      label: 'Término',
       render: (_value, row) => formatDateTime(row.endsAt),
     },
     {
@@ -163,7 +163,7 @@ export function ReservationsPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <ReservationRowActions
           reservation={row}
@@ -186,7 +186,7 @@ export function ReservationsPage() {
           <div className="space-y-4">
             <PageHeader
               title="Reservas"
-              description="Agenda das areas comuns, com fila de aprovacao e calendario do mes."
+              description="Agenda das áreas comuns, com fila de aprovação e calendário do mês."
               actions={
                 canCreate && selectedId ? (
                   <Button onClick={() => setCreating(selectedId)}>Nova reserva</Button>
@@ -196,8 +196,8 @@ export function ReservationsPage() {
 
             <div className="flex flex-wrap items-center gap-3">
               {/*
-                Uma interacao so: o contador e o proprio atalho para a fila.
-                Zero continua visivel — a ausencia de pendencias e informacao.
+                Uma interação so: o contador e o próprio atalho para a fila.
+                Zero continua visível — a ausência de pendências e informação.
               */}
               <Button
                 variant={list.filters.status === 'PENDING' ? 'default' : 'outline'}
@@ -213,7 +213,7 @@ export function ReservationsPage() {
                 </Badge>
               </Button>
 
-              <div className="flex items-center gap-1" role="group" aria-label="Visualizacao">
+              <div className="flex items-center gap-1" role="group" aria-label="Visualização">
                 <Button
                   variant={view === 'list' ? 'default' : 'ghost'}
                   size="sm"
@@ -228,7 +228,7 @@ export function ReservationsPage() {
                   aria-pressed={view === 'calendar'}
                   onClick={() => setView('calendar')}
                 >
-                  Calendario
+                  Calendário
                 </Button>
               </div>
             </div>
@@ -257,8 +257,8 @@ export function ReservationsPage() {
             <div className="p-4">
               <EmptyState
                 icon={CalendarPlus}
-                title="Selecione um condominio"
-                description="As reservas sao listadas por condominio. Escolha um no seletor do topo."
+                title="Selecione um condomínio"
+                description="As reservas sao listadas por condomínio. Escolha um no seletor do topo."
               />
             </div>
           ) : showEmpty ? (
@@ -286,7 +286,7 @@ export function ReservationsPage() {
                 <EmptyState
                   icon={CalendarPlus}
                   title="Nenhuma reserva registrada"
-                  description="Registre a primeira reserva de uma area comum deste condominio."
+                  description="Registre a primeira reserva de uma área comum deste condomínio."
                   action={
                     canCreate ? (
                       <Button onClick={() => setCreating(selectedId)}>Nova reserva</Button>

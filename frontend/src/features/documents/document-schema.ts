@@ -23,15 +23,15 @@ const documentFields = z.object({
   title: z
     .string()
     .trim()
-    .min(2, 'Informe o titulo do documento.')
-    .max(180, 'Use no maximo 180 caracteres.'),
-  description: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
+    .min(2, 'Informe o título do documento.')
+    .max(180, 'Use no máximo 180 caracteres.'),
+  description: z.string().trim().max(255, 'Use no máximo 255 caracteres.'),
   category: z.enum(DOCUMENT_CATEGORIES),
   visibility: z.enum(DOCUMENT_VISIBILITIES),
   /** Vazio significa sem validade; o servidor aceita nulo. */
   expiresAt: z.string(),
   /** Uma linha separada por virgulas; o servidor tambem aceita essa forma. */
-  tags: z.string().trim().max(400, 'Use no maximo 400 caracteres.'),
+  tags: z.string().trim().max(400, 'Use no máximo 400 caracteres.'),
   /** Nulo na edicao, onde o arquivo nao participa. */
   file: z.instanceof(File).nullable(),
 });

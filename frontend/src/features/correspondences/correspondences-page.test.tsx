@@ -87,13 +87,13 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Listagem de correspondencias', () => {
+describe('Listagem de correspondências', () => {
   it('percorre busca e os quatro filtros preservando os parametros', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     const user = createUser();
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
     // Toda consulta nasce presa ao condominio escolhido no shell.
     expect(lastListParams().condominiumId).toBe('cond-1');
 
@@ -105,7 +105,7 @@ describe('Listagem de correspondencias', () => {
     selectOption(screen.getByLabelText('Unidade'), 'Torre A - 101');
     expect(lastListParams().unitId).toBe('unit-1');
 
-    selectOption(screen.getByLabelText('Destinatario'), 'Carlos Pereira');
+    selectOption(screen.getByLabelText('Destinatário'), 'Carlos Pereira');
     expect(lastListParams().residentId).toBe('resident-1');
 
     selectOption(screen.getByLabelText('Status'), 'Entregue');
@@ -129,20 +129,20 @@ describe('Listagem de correspondencias', () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
 
-    clickTrigger(screen.getByRole('button', { name: 'Descricao' }));
+    clickTrigger(screen.getByRole('button', { name: 'Descrição' }));
     await waitFor(() => expect(lastListParams().sortBy).toBe('description'));
     expect(lastListParams().sortOrder).toBe('ASC');
 
     // A tabela alterna a direcao; a traducao para a caixa da API e da camada de
     // dados, e e ela que precisa continuar valendo (ADR-009).
-    clickTrigger(screen.getByRole('button', { name: 'Descricao' }));
+    clickTrigger(screen.getByRole('button', { name: 'Descrição' }));
     await waitFor(() => expect(lastListParams().sortOrder).toBe('DESC'));
     expect(lastListParams().sortBy).toBe('description');
   });
 
-  it('trezentas correspondencias paginam no tamanho pedido', async () => {
+  it('trezentas correspondências paginam no tamanho pedido', async () => {
     world = serveCorrespondences({ correspondences: makeRoster(20), total: 300 });
     const user = createUser();
     renderWithProviders(<CorrespondencesPage />);
@@ -152,7 +152,7 @@ describe('Listagem de correspondencias', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.correspondences = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Volume 21')).toBeInTheDocument();
@@ -178,20 +178,20 @@ describe('Listagem de correspondencias', () => {
     await screen.findByText('Aguardando retirada');
     expect(dataRows()).toHaveLength(1);
 
-    expect(cellsOf('Descricao')).toEqual(['—']);
+    expect(cellsOf('Descrição')).toEqual(['—']);
     expect(cellsOf('Transportadora')).toEqual(['—']);
     expect(cellsOf('Rastreio')).toEqual(['—']);
     expect(cellsOf('Recebida por')).toEqual(['—']);
     // Sem destinatario nominal e um estado valido, e nao um dado faltando.
-    expect(cellsOf('Destinatario')).toEqual(['Sem destinatario']);
+    expect(cellsOf('Destinatário')).toEqual(['Sem destinatário']);
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
-  it('uma correspondencia cuja unidade sumiu ainda rende a linha, com a falta explicita', async () => {
+  it('uma correspondência cuja unidade sumiu ainda rende a linha, com a falta explicita', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence({ unit: null })] });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
 
     expect(cellsOf('Unidade')).toEqual(['Unidade removida']);
     expect(dataRows()).toHaveLength(1);
@@ -201,13 +201,13 @@ describe('Listagem de correspondencias', () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
 
     // Whitelist do servidor: condominiumId (vem do shell), unitId, residentId,
     // status e type. Qualquer outro controle pareceria funcionar enquanto o
     // backend o descarta em silencio.
     expect(screen.getByLabelText('Unidade')).toBeInTheDocument();
-    expect(screen.getByLabelText('Destinatario')).toBeInTheDocument();
+    expect(screen.getByLabelText('Destinatário')).toBeInTheDocument();
     expect(screen.getByLabelText('Status')).toBeInTheDocument();
     expect(screen.getByLabelText('Tipo')).toBeInTheDocument();
 
@@ -217,13 +217,13 @@ describe('Listagem de correspondencias', () => {
   });
 });
 
-describe('Estados vazios de correspondencias', () => {
+describe('Estados vazios de correspondências', () => {
   it('lista vazia oferece o cadastro', async () => {
     world = serveCorrespondences({ correspondences: [] });
     renderWithProviders(<CorrespondencesPage />);
 
-    expect(await screen.findByText('Nenhuma correspondencia registrada')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Registrar correspondencia' })).toBeInTheDocument();
+    expect(await screen.findByText('Nenhuma correspondência registrada')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Registrar correspondência' })).toBeInTheDocument();
     expect(screen.queryByText('Nenhum resultado para esta busca')).not.toBeInTheDocument();
   });
 
@@ -232,16 +232,16 @@ describe('Estados vazios de correspondencias', () => {
     const user = createUser();
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
     world.correspondences = [];
     await user.type(screen.getByLabelText('Buscar'), 'Nada');
 
     expect(await screen.findByText('Nenhum resultado para esta busca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeInTheDocument();
     // Os dois vazios sao estados diferentes e dizem coisas diferentes.
-    expect(screen.queryByText('Nenhuma correspondencia registrada')).not.toBeInTheDocument();
+    expect(screen.queryByText('Nenhuma correspondência registrada')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Registrar correspondencia' }),
+      screen.queryByRole('button', { name: 'Registrar correspondência' }),
     ).not.toBeInTheDocument();
   });
 });
@@ -271,7 +271,7 @@ describe('Baixa de entrega', () => {
     await waitFor(() => expect(pendingBadge()).toBe('1'));
     expect(pendingCountRequests().at(-1)).toMatchObject({ condominiumId: 'cond-1' });
 
-    clickTrigger(screen.getByRole('button', { name: 'Dar baixa em Caixa media' }));
+    clickTrigger(screen.getByRole('button', { name: 'Dar baixa em Caixa média' }));
 
     // A baixa exige saber quem retirou, com no minimo tres caracteres, entao a
     // acao de linha pergunta antes de postar.
@@ -288,27 +288,27 @@ describe('Baixa de entrega', () => {
     await waitFor(() => expect(pendingBadge()).toBe('0'));
   });
 
-  it('baixa em item ja entregue e recusada, e a mensagem aparece', async () => {
+  it('baixa em item já entregue e recusada, e a mensagem aparece', async () => {
     world = serveCorrespondences({
       correspondences: [makeCorrespondence({ status: 'DELIVERED', deliveredTo: 'Carlos Pereira' })],
       pending: 0,
     });
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Esta correspondencia ja foi entregue.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('Esta correspondência já foi entregue.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<CorrespondencesPage />);
 
     await screen.findByText('Entregue');
     // A acao e oferecida sem olhar o status: quem decide se a baixa vale e o
     // servidor, e a mensagem dele e a resposta (ADR-003).
-    clickTrigger(screen.getByRole('button', { name: 'Dar baixa em Caixa media' }));
+    clickTrigger(screen.getByRole('button', { name: 'Dar baixa em Caixa média' }));
 
     await screen.findByLabelText('Quem retirou');
     await user.type(screen.getByLabelText('Quem retirou'), 'Carlos Pereira');
     clickTrigger(within(screen.getByRole('dialog')).getByRole('button', { name: 'Dar baixa' }));
 
-    const message = await screen.findByText('Esta correspondencia ja foi entregue.');
+    const message = await screen.findByText('Esta correspondência já foi entregue.');
     // A recusa aparece onde a acao foi tomada, e o registro continua como estava.
     expect(within(screen.getByRole('dialog')).getByRole('alert')).toBe(message);
     // O `onError` proprio substitui o toast global: a mesma recusa nao pode
@@ -316,7 +316,7 @@ describe('Baixa de entrega', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('duas confirmacoes seguidas da baixa produzem um unico POST', async () => {
+  it('duas confirmações seguidas da baixa produzem um único POST', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()], pending: 1 });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -326,8 +326,8 @@ describe('Baixa de entrega', () => {
     });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
-    clickTrigger(screen.getByRole('button', { name: 'Dar baixa em Caixa media' }));
+    await screen.findByText('Caixa média');
+    clickTrigger(screen.getByRole('button', { name: 'Dar baixa em Caixa média' }));
 
     await screen.findByLabelText('Quem retirou');
     await user.type(screen.getByLabelText('Quem retirou'), 'Carlos Pereira');
@@ -339,26 +339,26 @@ describe('Baixa de entrega', () => {
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
   });
 
-  it('a baixa sem dizer quem retirou para no proprio campo', async () => {
+  it('a baixa sem dizer quem retirou para no próprio campo', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()], pending: 1 });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
-    clickTrigger(screen.getByRole('button', { name: 'Dar baixa em Caixa media' }));
+    await screen.findByText('Caixa média');
+    clickTrigger(screen.getByRole('button', { name: 'Dar baixa em Caixa média' }));
 
     await screen.findByLabelText('Quem retirou');
     clickTrigger(within(screen.getByRole('dialog')).getByRole('button', { name: 'Dar baixa' }));
 
-    const message = await screen.findByText('Informe quem retirou a correspondencia.');
+    const message = await screen.findByText('Informe quem retirou a correspondência.');
     expect(message).toHaveAttribute('id', 'deliveredTo-error');
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('contagem de pendentes zero renderiza como zero, e nao some', async () => {
+  it('contagem de pendentes zero renderiza como zero, e não some', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()], pending: 0 });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
 
     // A ausencia de fila e informacao: sumir com o numero faria parecer que o
     // contador nao carregou.
@@ -367,19 +367,19 @@ describe('Baixa de entrega', () => {
   });
 });
 
-describe('Exclusao e restauracao de correspondencias', () => {
-  it('excluir pede confirmacao antes de remover', async () => {
+describe('Exclusao e restauração de correspondências', () => {
+  it('excluir pede confirmação antes de remover', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     mockDelete.mockImplementation(async () => {
       world.correspondences = [];
     });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
-    clickTrigger(screen.getByRole('button', { name: 'Excluir Caixa media' }));
+    await screen.findByText('Caixa média');
+    clickTrigger(screen.getByRole('button', { name: 'Excluir Caixa média' }));
 
     // O pedido so sai depois da confirmacao.
-    expect(await screen.findByText('Excluir correspondencia?')).toBeInTheDocument();
+    expect(await screen.findByText('Excluir correspondência?')).toBeInTheDocument();
     expect(mockDelete).not.toHaveBeenCalled();
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir' }));
@@ -387,26 +387,26 @@ describe('Exclusao e restauracao de correspondencias', () => {
     await waitFor(() =>
       expect(mockDelete).toHaveBeenCalledWith('/correspondences/correspondence-1'),
     );
-    await waitFor(() => expect(screen.queryByText('Caixa media')).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText('Caixa média')).not.toBeInTheDocument());
   });
 
   it('um 409 de impedimento mostra a mensagem do servidor e mantem o registro', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     mockDelete.mockRejectedValue(
-      new ApiError('Esta correspondencia aguarda retirada.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('Esta correspondência aguarda retirada.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
-    clickTrigger(screen.getByRole('button', { name: 'Excluir Caixa media' }));
+    await screen.findByText('Caixa média');
+    clickTrigger(screen.getByRole('button', { name: 'Excluir Caixa média' }));
     clickTrigger(await screen.findByRole('button', { name: 'Excluir' }));
 
     // A exclusao nao passa `onError`, entao herda o toast global — que e a
     // apresentacao certa para um 409 que traz so a mensagem do servidor.
     await waitFor(() =>
-      expect(mockToastError).toHaveBeenCalledWith('Esta correspondencia aguarda retirada.'),
+      expect(mockToastError).toHaveBeenCalledWith('Esta correspondência aguarda retirada.'),
     );
-    expect(screen.getByText('Caixa media')).toBeInTheDocument();
+    expect(screen.getByText('Caixa média')).toBeInTheDocument();
   });
 
   it('incluir removidos envia includeDeleted, e restaurar devolve o registro', async () => {
@@ -420,13 +420,13 @@ describe('Exclusao e restauracao de correspondencias', () => {
     });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
     await user.click(screen.getByLabelText('Incluir removidos'));
 
     await waitFor(() => expect(lastListParams().includeDeleted).toBe(true));
     expect(screen.getByText('Removido')).toBeInTheDocument();
 
-    clickTrigger(await screen.findByRole('button', { name: 'Restaurar Caixa media' }));
+    clickTrigger(await screen.findByRole('button', { name: 'Restaurar Caixa média' }));
 
     await waitFor(() =>
       expect(mockPost).toHaveBeenCalledWith('/correspondences/correspondence-1/restore'),
@@ -435,36 +435,36 @@ describe('Exclusao e restauracao de correspondencias', () => {
   });
 });
 
-describe('Escopo e permissoes de correspondencias', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões de correspondências', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     renderWithProviders(<CorrespondencesPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     // Nem a listagem, nem os seletores de vinculo, nem o contador saem sem
     // condominio.
     expect(mockGetPaginated).not.toHaveBeenCalled();
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('um operador sem update nao recebe a baixa de entrega', async () => {
+  it('um operador sem update não recebe a baixa de entrega', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     renderWithProviders(<CorrespondencesPage />, {
       role: 'STAFF',
       permissions: ['correspondence:read'],
     });
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
 
     // A baixa exige `correspondence:update`; a interface nao oferece o que o
     // servidor recusaria.
     expect(screen.queryByRole('button', { name: /^Dar baixa/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Nova correspondencia' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nova correspondência' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     world = serveCorrespondences({
       correspondences: [makeCorrespondence({ deletedAt: '2026-03-11T10:00:00.000Z' })],
     });
@@ -474,7 +474,7 @@ describe('Escopo e permissoes de correspondencias', () => {
       permissions: ['correspondence:read'],
     });
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
     // Ver removidos e leitura; restaurar exige `update` (ADR-006).
     await user.click(screen.getByLabelText('Incluir removidos'));
 
@@ -482,11 +482,11 @@ describe('Escopo e permissoes de correspondencias', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('os seletores de vinculo tambem ficam presos ao condominio do shell', async () => {
+  it('os seletores de vinculo também ficam presos ao condomínio do shell', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
+    await screen.findByText('Caixa média');
 
     for (const url of ['/units', '/residents']) {
       const call = mockGetPaginated.mock.calls.find(([called]) => called === url);

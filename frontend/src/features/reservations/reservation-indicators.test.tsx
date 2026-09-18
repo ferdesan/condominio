@@ -49,8 +49,8 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Indicadores do mes', () => {
-  it('IT-171: mostra total, detalhamento por area e cancelamentos a partir de contagens com o intervalo do mes', async () => {
+describe('Indicadores do mês', () => {
+  it('IT-171: mostra total, detalhamento por área e cancelamentos a partir de contagens com o intervalo do mês', async () => {
     serveApi({
       areas: AREAS,
       units: UNITS,
@@ -68,7 +68,7 @@ describe('Indicadores do mes', () => {
     await screen.findByText('Carlos Pereira');
 
     await waitFor(() => expect(panel().getByText('11')).toBeInTheDocument());
-    expect(panel().getByText('Reservas no mes')).toBeInTheDocument();
+    expect(panel().getByText('Reservas no mês')).toBeInTheDocument();
     expect(panel().getByText('Cancelamentos')).toBeInTheDocument();
     expect(panel().getByText('3')).toBeInTheDocument();
 
@@ -95,18 +95,18 @@ describe('Indicadores do mes', () => {
     expect(requests.filter((params) => params.status === 'CANCELED')).toHaveLength(1);
   });
 
-  it('IT-172: um mes sem reservas mostra zeros, e nao um estado de carregamento', async () => {
+  it('IT-172: um mês sem reservas mostra zeros, e não um estado de carregamento', async () => {
     serveApi({ areas: AREAS, units: UNITS, reservations: [], count: () => 0 });
 
     renderWithProviders(<ReservationsPage />);
 
     await waitFor(() => expect(panel().getAllByText('0').length).toBeGreaterThanOrEqual(2));
     // Numeros de verdade no lugar dos esqueletos.
-    expect(panel().getByText('Reservas no mes')).toBeInTheDocument();
+    expect(panel().getByText('Reservas no mês')).toBeInTheDocument();
     expect(panel().getByText('Cancelamentos')).toBeInTheDocument();
   });
 
-  it('IT-173: um condominio sem areas comuns explica o detalhamento vazio', async () => {
+  it('IT-173: um condomínio sem áreas comuns explica o detalhamento vazio', async () => {
     serveApi({ areas: [], units: UNITS, reservations: [makeReservation()], count: () => 0 });
 
     renderWithProviders(<ReservationsPage />);
@@ -114,12 +114,12 @@ describe('Indicadores do mes', () => {
 
     await waitFor(() =>
       expect(
-        panel().getByText('Nenhuma area comum cadastrada neste condominio.'),
+        panel().getByText('Nenhuma área comum cadastrada neste condomínio.'),
       ).toBeInTheDocument(),
     );
   });
 
-  it('IT-174: indicadores que falham nao derrubam a lista', async () => {
+  it('IT-174: indicadores que falham não derrubam a lista', async () => {
     serveApi({
       areas: AREAS,
       units: UNITS,
@@ -138,14 +138,14 @@ describe('Indicadores do mes', () => {
     // E a area de indicadores reporta a propria falha.
     await waitFor(() =>
       expect(panel().getByRole('alert')).toHaveTextContent(
-        /Nao foi possivel carregar os indicadores do mes/i,
+        /Não foi possível carregar os indicadores do mês/i,
       ),
     );
   });
 
-  it('IT-175: doze areas comuns rendem um detalhamento legivel, sem transbordar', async () => {
+  it('IT-175: doze áreas comuns rendem um detalhamento legível, sem transbordar', async () => {
     const many = Array.from({ length: 12 }, (_, index) =>
-      makeCommonArea({ id: `area-${index + 1}`, name: `Area ${index + 1}` }),
+      makeCommonArea({ id: `area-${index + 1}`, name: `Área ${index + 1}` }),
     );
 
     serveApi({
@@ -159,7 +159,7 @@ describe('Indicadores do mes', () => {
     await screen.findByText('Carlos Pereira');
 
     // Seis areas listadas e as demais agrupadas numa linha so.
-    await waitFor(() => expect(panel().getByText('Outras 6 areas')).toBeInTheDocument());
+    await waitFor(() => expect(panel().getByText('Outras 6 áreas')).toBeInTheDocument());
     const items = panel().getAllByRole('listitem');
     expect(items).toHaveLength(7);
   });
@@ -179,16 +179,16 @@ describe('Indicadores do mes', () => {
     const signatureBefore = JSON.stringify(rangeRequests());
 
     // Filtra a lista por area.
-    selectOption(screen.getByLabelText('Area comum'), 'Churrasqueira');
+    selectOption(screen.getByLabelText('Área comum'), 'Churrasqueira');
     await waitFor(() =>
-      expect(screen.getByText('Area comum:').closest('div')?.textContent).toContain(
+      expect(screen.getByText('Área comum:').closest('div')?.textContent).toContain(
         'Churrasqueira',
       ),
     );
 
     // O rotulo deixa explicito que os numeros descrevem o mes, e nao o recorte.
     expect(
-      panel().getByText('Numeros do mes inteiro, independentes dos filtros aplicados na lista.'),
+      panel().getByText('Números do mês inteiro, independentes dos filtros aplicados na lista.'),
     ).toBeInTheDocument();
     expect(panel().getByRole('heading', { name: /^Indicadores de /i })).toBeInTheDocument();
 
@@ -200,9 +200,9 @@ describe('Indicadores do mes', () => {
     expect(JSON.stringify(rangeRequests())).toBe(signatureBefore);
 
     // Trocar o mes, esse sim, redescreve os indicadores.
-    clickTrigger(screen.getByRole('button', { name: 'Calendario' }));
+    clickTrigger(screen.getByRole('button', { name: 'Calendário' }));
     await screen.findByRole('table', { name: /Reservas de/ });
-    clickTrigger(screen.getByRole('button', { name: 'Proximo mes' }));
+    clickTrigger(screen.getByRole('button', { name: 'Próximo mês' }));
 
     await waitFor(() => expect(rangeRequests().length).toBeGreaterThan(before));
   });

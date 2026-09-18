@@ -42,7 +42,7 @@ export function PlanSummary({ tenant }: PlanSummaryProps) {
             <Badge variant="neutral">{PLAN_LABELS[tenant.plan] ?? tenant.plan}</Badge>
           </Field>
 
-          <Field label="Situacao">
+          <Field label="Situação">
             {/* A tarja carrega o texto; a cor reforca sem ser a unica pista. */}
             <Badge variant={statusVariant}>
               {TENANT_STATUS_LABELS[tenant.status] ?? tenant.status}
@@ -53,13 +53,13 @@ export function PlanSummary({ tenant }: PlanSummaryProps) {
             <span className="font-mono text-sm">{tenant.slug}</span>
           </Field>
 
-          <Field label="Limite de condominios">{tenant.maxCondominiums}</Field>
-          <Field label="Limite de usuarios">{tenant.maxUsers}</Field>
+          <Field label="Limite de condomínios">{tenant.maxCondominiums}</Field>
+          <Field label="Limite de usuários">{tenant.maxUsers}</Field>
 
           {/* So existe enquanto o plano e de avaliacao; ausente, a linha some
               em vez de mostrar um traco que nao significa nada. */}
           {tenant.trialEndsAt ? (
-            <Field label="Avaliacao ate">{formatDate(tenant.trialEndsAt)}</Field>
+            <Field label="Avaliação até">{formatDate(tenant.trialEndsAt)}</Field>
           ) : null}
         </dl>
       </CardContent>

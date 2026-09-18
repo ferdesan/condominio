@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Controller, useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { DateTimeInput } from '@/components/ui/date-time-input';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
@@ -62,6 +63,13 @@ export function ReservationFormDialog({
   onClose,
 }: ReservationFormDialogProps) {
   const queryClient = useQueryClient();
+
+  // A lista inteira do condomínio cabe no seletor, mas não cabe no olho: sem
+  // busca, escolher uma unidade vira rolagem.
+  const unitOptions = useMemo(
+    () => units.map((unit) => ({ value: unit.id, label: `Unidade ${unit.number}` })),
+    [units],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const submittingRef = useRef(false);
 
@@ -127,11 +135,11 @@ export function ReservationFormDialog({
   if (areas.length === 0) {
     return (
       <Dialog open onOpenChange={(next) => (next ? undefined : onClose())}>
-        <DialogContent>
+        <DialogContent side="right" dismissible={false}>
           <DialogHeader>
             <DialogTitle>Nova reserva</DialogTitle>
             <DialogDescription>
-              Este condominio ainda nao tem areas comuns disponiveis para reserva. Cadastre uma area
+              Este condomínio ainda não tem áreas comuns disponíveis para reserva. Cadastre uma área
               comum antes de registrar reservas.
             </DialogDescription>
           </DialogHeader>
@@ -147,11 +155,11 @@ export function ReservationFormDialog({
 
   return (
     <Dialog open onOpenChange={(next) => (!next && !pending ? onClose() : undefined)}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Nova reserva</DialogTitle>
           <DialogDescription>
-            Area comum, unidade e periodo. As regras da area escolhida aparecem abaixo dela.
+            Área comum, unidade e período. As regras da área escolhida aparecem abaixo dela.
           </DialogDescription>
         </DialogHeader>
 
@@ -162,7 +170,7 @@ export function ReservationFormDialog({
             control={control}
             name="commonAreaId"
             render={({ field, fieldState }) => (
-              <FormField id="commonAreaId" label="Area comum" error={fieldState.error?.message}>
+              <FormField id="commonAreaId" label="Área comum" error={fieldState.error?.message}>
                 {(aria) => (
                   <Select
                     value={field.value}
@@ -174,7 +182,7 @@ export function ReservationFormDialog({
                     }}
                   >
                     <SelectTrigger {...aria}>
-                      <SelectValue placeholder="Selecione a area" />
+                      <SelectValue placeholder="Selecione a área" />
                     </SelectTrigger>
                     <SelectContent>
                       {areas.map((area) => (
@@ -191,7 +199,7 @@ export function ReservationFormDialog({
 
           {selectedArea ? (
             <section
-              aria-label="Regras da area"
+              aria-label="Regras da área"
               className="rounded-md border border-border bg-muted/40 p-3 text-sm"
             >
               <p className="mb-2 flex items-center gap-2 font-medium">
@@ -217,18 +225,15 @@ export function ReservationFormDialog({
             render={({ field, fieldState }) => (
               <FormField id="unitId" label="Unidade" error={fieldState.error?.message}>
                 {(aria) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger {...aria}>
-                      <SelectValue placeholder="Selecione a unidade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {units.map((unit) => (
-                        <SelectItem key={unit.id} value={unit.id}>
-                          Unidade {unit.number}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Combobox
+                    {...aria}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    options={unitOptions}
+                    placeholder="Selecione a unidade"
+                    searchPlaceholder="Buscar unidade"
+                    emptyMessage="Nenhuma unidade corresponde à busca."
+                  />
                 )}
               </FormField>
             )}
@@ -239,7 +244,7 @@ export function ReservationFormDialog({
               control={control}
               name="startsAt"
               render={({ field, fieldState }) => (
-                <FormField id="startsAt" label="Inicio" error={fieldState.error?.message}>
+                <FormField id="startsAt" label="Início" error={fieldState.error?.message}>
                   {(aria) => (
                     <DateTimeInput value={field.value} onChange={field.onChange} {...aria} />
                   )}
@@ -251,7 +256,7 @@ export function ReservationFormDialog({
               control={control}
               name="endsAt"
               render={({ field, fieldState }) => (
-                <FormField id="endsAt" label="Termino" error={fieldState.error?.message}>
+                <FormField id="endsAt" label="Término" error={fieldState.error?.message}>
                   {(aria) => (
                     <DateTimeInput value={field.value} onChange={field.onChange} {...aria} />
                   )}
@@ -273,7 +278,7 @@ export function ReservationFormDialog({
             {(aria) => <Input inputMode="numeric" {...aria} {...register('guestsCount')} />}
           </FormField>
 
-          <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+          <FormField id="notes" label="Observações" error={errors.notes?.message}>
             {(aria) => <Textarea {...aria} {...register('notes')} />}
           </FormField>
 

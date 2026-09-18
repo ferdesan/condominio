@@ -27,9 +27,9 @@ const WEEK_STARTS_ON = 0;
 export const DEFAULT_MAX_ENTRIES_PER_DAY = 3;
 
 /** A area pode ter sido removida depois que a reserva foi criada (US-019 EC-3). */
-export const MISSING_AREA_LABEL = 'Area indisponivel';
+export const MISSING_AREA_LABEL = 'Área indisponível';
 /** Idem para a unidade (US-019 EC-4): a reserva guarda o nome do solicitante. */
-export const MISSING_UNIT_LABEL = 'Unidade indisponivel';
+export const MISSING_UNIT_LABEL = 'Unidade indisponível';
 
 export type CalendarEntry = {
   id: string;

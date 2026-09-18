@@ -63,7 +63,7 @@ function dialog(): HTMLElement {
 
 /** Abre o dialogo de cadastro e espera o formulario aparecer. */
 async function openCreateDialog(): Promise<void> {
-  clickTrigger(screen.getByRole('button', { name: 'Novo usuario' }));
+  clickTrigger(screen.getByRole('button', { name: 'Novo usuário' }));
   await screen.findByLabelText('Nome');
 }
 
@@ -90,7 +90,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Cadastro de usuario', () => {
+describe('Cadastro de usuário', () => {
   it('cadastra e a lista atualiza sem refetch manual', async () => {
     world = serveUsers({ users: [] });
     const user = createUser();
@@ -100,7 +100,7 @@ describe('Cadastro de usuario', () => {
     });
     renderWithProviders(<UsersPage />, { condominiums: TWO_CONDOMINIUMS });
 
-    await screen.findByText('Nenhum usuario cadastrado');
+    await screen.findByText('Nenhum usuário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Paulo Nunes');
@@ -134,7 +134,7 @@ describe('Cadastro de usuario', () => {
     expect(await screen.findByText('Paulo Nunes')).toBeInTheDocument();
   });
 
-  it('a tela nao oferece nem exibe senha em texto', async () => {
+  it('a tela não oferece nem exibe senha em texto', async () => {
     world = serveUsers({ users: [makeUser()] });
     renderWithProviders(<UsersPage />);
 
@@ -149,7 +149,7 @@ describe('Cadastro de usuario', () => {
     expect(dialog().querySelector('input[type="password"]')).toBeNull();
   });
 
-  it('o vinculo com condominios e escolhido no formulario, e nao herdado da tela', async () => {
+  it('o vinculo com condomínios e escolhido no formulário, e não herdado da tela', async () => {
     world = serveUsers({ users: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -158,7 +158,7 @@ describe('Cadastro de usuario', () => {
     });
     renderWithProviders(<UsersPage />, { condominiums: TWO_CONDOMINIUMS });
 
-    await screen.findByText('Nenhum usuario cadastrado');
+    await screen.findByText('Nenhum usuário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Paulo Nunes');
@@ -171,11 +171,11 @@ describe('Cadastro de usuario', () => {
     expect(lastCreateBody().condominiumIds).toEqual(['cond-2']);
   });
 
-  it('o aviso de escopo de condominio nao existe nesta tela', async () => {
+  it('o aviso de escopo de condomínio não existe nesta tela', async () => {
     world = serveUsers({ users: [] });
     renderWithProviders(<UsersPage />, { condominiums: TWO_CONDOMINIUMS });
 
-    await screen.findByText('Nenhum usuario cadastrado');
+    await screen.findByText('Nenhum usuário cadastrado');
     await openCreateDialog();
 
     // O aviso nomeia a divergencia entre o predio do dialogo e o do shell. Aqui
@@ -185,30 +185,30 @@ describe('Cadastro de usuario', () => {
     expect(within(dialog()).queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('sem nome o envio para no proprio campo', async () => {
+  it('sem nome o envio para no próprio campo', async () => {
     world = serveUsers({ users: [] });
     const user = createUser();
     renderWithProviders(<UsersPage />);
 
-    await screen.findByText('Nenhum usuario cadastrado');
+    await screen.findByText('Nenhum usuário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('E-mail'), 'paulo@exemplo.com');
     selectOption(within(dialog()).getByLabelText('Papel'), 'SINDICO');
     submitCreate();
 
-    const message = await screen.findByText('Informe o nome do usuario.');
+    const message = await screen.findByText('Informe o nome do usuário.');
     // A objecao pertence ao campo do nome, e nao ao formulario inteiro.
     expect(message).toHaveAttribute('id', 'name-error');
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('sem papel o envio para no proprio campo', async () => {
+  it('sem papel o envio para no próprio campo', async () => {
     world = serveUsers({ users: [] });
     const user = createUser();
     renderWithProviders(<UsersPage />);
 
-    await screen.findByText('Nenhum usuario cadastrado');
+    await screen.findByText('Nenhum usuário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Paulo Nunes');
@@ -222,7 +222,7 @@ describe('Cadastro de usuario', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('dois cliques em cadastrar disparam uma requisicao so', async () => {
+  it('dois cliques em cadastrar disparam uma requisição so', async () => {
     world = serveUsers({ users: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -231,7 +231,7 @@ describe('Cadastro de usuario', () => {
     });
     renderWithProviders(<UsersPage />);
 
-    await screen.findByText('Nenhum usuario cadastrado');
+    await screen.findByText('Nenhum usuário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Paulo Nunes');
@@ -246,7 +246,7 @@ describe('Cadastro de usuario', () => {
   });
 });
 
-describe('Edicao de usuario', () => {
+describe('Edição de usuário', () => {
   it('edita e a lista atualiza sem refetch manual', async () => {
     world = serveUsers({ users: [makeUser()] });
     const user = createUser();
@@ -302,7 +302,7 @@ describe('Edicao de usuario', () => {
     expect(lastUpdateBody().document).toBe('52998224725');
   });
 
-  it('um CPF incompleto para no proprio campo', async () => {
+  it('um CPF incompleto para no próprio campo', async () => {
     world = serveUsers({ users: [makeUser()] });
     renderWithProviders(<UsersPage />);
 
@@ -318,18 +318,18 @@ describe('Edicao de usuario', () => {
   });
 });
 
-describe('Erros do servidor no formulario de usuario', () => {
-  it('um 422 aponta o campo e nao levanta toast', async () => {
+describe('Erros do servidor no formulário de usuário', () => {
+  it('um 422 aponta o campo e não levanta toast', async () => {
     world = serveUsers({ users: [] });
     const user = createUser();
     mockPost.mockRejectedValue(
       new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
-        { field: 'email', message: 'E-mail invalido.' },
+        { field: 'email', message: 'E-mail inválido.' },
       ]),
     );
     renderWithProviders(<UsersPage />);
 
-    await screen.findByText('Nenhum usuario cadastrado');
+    await screen.findByText('Nenhum usuário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Paulo Nunes');
@@ -337,7 +337,7 @@ describe('Erros do servidor no formulario de usuario', () => {
     selectOption(within(dialog()).getByLabelText('Papel'), 'SINDICO');
     submitCreate();
 
-    const message = await screen.findByText('E-mail invalido.');
+    const message = await screen.findByText('E-mail inválido.');
     expect(message).toHaveAttribute('id', 'email-error');
     // O `onError` do formulario substitui o toast global: a objecao ja esta no
     // campo e nao deve aparecer duas vezes.
@@ -345,15 +345,15 @@ describe('Erros do servidor no formulario de usuario', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
-  it('um 409 vira mensagem do formulario e preserva o que foi preenchido', async () => {
+  it('um 409 vira mensagem do formulário e preserva o que foi preenchido', async () => {
     world = serveUsers({ users: [] });
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Ja existe um usuario com este e-mail nesta administradora.', 409, 'CONFLICT'),
+      new ApiError('Já existe um usuário com este e-mail nesta administradora.', 409, 'CONFLICT'),
     );
     renderWithProviders(<UsersPage />);
 
-    await screen.findByText('Nenhum usuario cadastrado');
+    await screen.findByText('Nenhum usuário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Paulo Nunes');
@@ -364,7 +364,7 @@ describe('Erros do servidor no formulario de usuario', () => {
 
     // Um 409 vem sem caminho de campo: a mensagem pertence ao formulario inteiro.
     const alert = await within(dialog()).findByRole('alert');
-    expect(alert).toHaveTextContent('Ja existe um usuario com este e-mail nesta administradora.');
+    expect(alert).toHaveTextContent('Já existe um usuário com este e-mail nesta administradora.');
     expect(mockToastError).not.toHaveBeenCalled();
 
     // Nada do que foi digitado se perde: refazer o preenchimento seria a punicao

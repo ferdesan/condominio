@@ -24,19 +24,19 @@ const roleFields = z.object({
     .string()
     .trim()
     .min(3, 'Informe o nome do papel.')
-    .max(60, 'Use no maximo 60 caracteres.')
+    .max(60, 'Use no máximo 60 caracteres.')
     // Mesma expressao do servidor. Note que ela **nao** aceita acento: um nome
     // com cedilha seria recusado la, entao e recusado aqui, com a mensagem que
     // explica o que vale.
     .regex(
       /^[A-Za-z0-9_ -]+$/,
-      'Use apenas letras sem acento, numeros, espaco, hifen ou underscore.',
+      'Use apenas letras sem acento, números, espaco, hifen ou underscore.',
     ),
-  description: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
+  description: z.string().trim().max(255, 'Use no máximo 255 caracteres.'),
   permissions: z
     .array(z.string())
     .min(1, 'Selecione ao menos uma permissao.')
-    .max(400, 'Selecao grande demais.'),
+    .max(400, 'Seleção grande demais.'),
 });
 
 export const roleSchema = roleFields;
@@ -55,6 +55,28 @@ export function toRoleFormValues(role: Role): RoleFormValues {
     description: role.description ?? '',
     permissions: [...role.permissions],
   };
+}
+
+/**
+ * Os valores iniciais de uma **copia**: as permissoes do papel de origem, e mais
+ * nada.
+ *
+ * Nome e descricao ficam vazios de proposito. O nome porque o servidor recusa
+ * repetido (`nameTaken`, 409) e um sugerido so adiaria a recusa para o primeiro
+ * salvar; a descricao porque duas linhas identicas na listagem nao descrevem
+ * papel nenhum. O que se copia e o caro de reproduzir: a matriz.
+ *
+ * **O curinga sai quando quem copia nao pode concede-lo.** `assertPermissions`
+ * recusa `*` a quem nao e super-admin, e duplicar o SUPER_ADMIN e o caminho mais
+ * curto para essa recusa — levar o curinga adiante seria montar a tela inteira
+ * para falhar no envio.
+ */
+export function toDuplicateFormValues(role: Role, canGrantWildcard: boolean): RoleFormValues {
+  const permissions = canGrantWildcard
+    ? [...role.permissions]
+    : role.permissions.filter((permission) => permission !== WILDCARD);
+
+  return { name: '', description: '', permissions };
 }
 
 export type RolePayload = {

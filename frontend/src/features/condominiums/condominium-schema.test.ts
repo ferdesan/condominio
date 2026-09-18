@@ -18,8 +18,8 @@ function issueOn(input: CondominiumFormValues, path: string): string | undefined
 }
 
 describe('condominiumSchema', () => {
-  it('UT-002: recusa nome com menos de tres caracteres apontando o campo', () => {
-    expect(issueOn(values({ name: 'Ab' }), 'name')).toBe('Informe o nome do condominio.');
+  it('UT-002: recusa nome com menos de três caracteres apontando o campo', () => {
+    expect(issueOn(values({ name: 'Ab' }), 'name')).toBe('Informe o nome do condomínio.');
     expect(issueOn(values({ name: 'Abc' }), 'name')).toBeUndefined();
   });
 
@@ -40,7 +40,7 @@ describe('condominiumSchema', () => {
 });
 
 describe('toCondominiumPayload', () => {
-  it('envia campo opcional limpo como vazio, e nao como chave ausente', () => {
+  it('envia campo opcional limpo como vazio, e não como chave ausente', () => {
     const payload = toCondominiumPayload(values({ phone: '', notes: '' }));
 
     expect(payload).toHaveProperty('phone', null);

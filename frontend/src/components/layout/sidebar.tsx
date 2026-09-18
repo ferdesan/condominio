@@ -37,14 +37,14 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           'transition-transform duration-200 ease-out lg:static lg:z-auto lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
-        aria-label="Navegacao principal"
+        aria-label="Navegação principal"
       >
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
           <span className="flex items-center gap-2.5 font-semibold">
             <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Building2 className="size-5" aria-hidden="true" />
             </span>
-            <span className="truncate">Condominio</span>
+            <span className="truncate">Condomínio</span>
           </span>
 
           <Button

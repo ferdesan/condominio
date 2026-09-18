@@ -38,17 +38,17 @@ export function UpcomingMaintenances({ condominiumId }: UpcomingMaintenancesProp
         />
         <div>
           <h2 id="maintenance-upcoming-title" className="text-sm font-semibold">
-            Proximas manutencoes
+            Proximas manutenções
           </h2>
           <p className="text-xs text-muted-foreground">
-            As mais proximas do condominio inteiro, independentes dos filtros aplicados na lista.
+            As mais proximas do condomínio inteiro, independentes dos filtros aplicados na lista.
           </p>
         </div>
       </div>
 
       {upcoming.isError ? (
         <p role="alert" className="text-sm text-destructive">
-          Nao foi possivel carregar as proximas manutencoes. A lista continua disponivel.
+          Não foi possível carregar as proximas manutenções. A lista continua disponível.
         </p>
       ) : upcoming.isPending ? (
         <div className="space-y-2">
@@ -56,7 +56,7 @@ export function UpcomingMaintenances({ condominiumId }: UpcomingMaintenancesProp
           <Skeleton className="h-5 w-1/2" />
         </div>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nada agendado adiante neste condominio.</p>
+        <p className="text-sm text-muted-foreground">Nada agendado adiante neste condomínio.</p>
       ) : (
         <ul className="grid gap-x-8 gap-y-1 text-sm sm:grid-cols-2">
           {rows.map((row) => (
@@ -67,7 +67,7 @@ export function UpcomingMaintenances({ condominiumId }: UpcomingMaintenancesProp
               </span>
               {/*
                 A data e o estado juntos: uma ordem atrasada continua "por vir"
-                para o servidor, e o destaque mentiria se nao dissesse isso.
+                para o servidor, e o destaque mentiria se não dissesse isso.
               */}
               <span className="shrink-0 tabular-nums text-muted-foreground">
                 {formatDateTime(row.scheduledFor)} · {STATUS_LABELS[row.status]}

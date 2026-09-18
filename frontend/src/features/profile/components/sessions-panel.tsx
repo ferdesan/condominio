@@ -39,7 +39,7 @@ export function SessionsPanel() {
 
   const logoutAll = useLogoutAll({
     onSuccess: () => {
-      toast.success('Todas as sessoes foram encerradas.');
+      toast.success('Todas as sessões foram encerradas.');
       void logout();
     },
     onError: () => setConfirmOpen(false),
@@ -60,7 +60,7 @@ export function SessionsPanel() {
     },
     {
       key: 'ipAddress',
-      label: 'Endereco IP',
+      label: 'Endereço IP',
       // Ausente quando o proxy nao repassou o cabecalho; o traco diz isso sem
       // sugerir que a sessao veio de lugar nenhum.
       render: (_value, row) => row.ipAddress ?? '—',
@@ -88,7 +88,7 @@ export function SessionsPanel() {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Sessoes ativas</CardTitle>
+          <CardTitle>Sessões ativas</CardTitle>
           <CardDescription>
             Onde sua conta esta aberta. O servidor guarda as vinte mais recentes.
           </CardDescription>
@@ -105,14 +105,14 @@ export function SessionsPanel() {
               role="alert"
               className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
             >
-              Nao foi possivel carregar as sessoes. {query.error.message}
+              Não foi possível carregar as sessões. {query.error.message}
             </div>
           ) : sessions.length === 0 ? (
             // Improvavel e nao impossivel: a sessao que le esta tela tem um
             // refresh token, mas ele pode ter sido revogado noutra aba.
             <EmptyState
               icon={MonitorSmartphone}
-              title="Nenhuma sessao ativa"
+              title="Nenhuma sessão ativa"
               description="Nenhum acesso aberto foi encontrado para esta conta."
             />
           ) : (
@@ -126,7 +126,7 @@ export function SessionsPanel() {
               loading={logoutAll.isPending}
               onClick={() => setConfirmOpen(true)}
             >
-              Encerrar todas as sessoes
+              Encerrar todas as sessões
             </Button>
           </div>
         </CardContent>
@@ -134,8 +134,8 @@ export function SessionsPanel() {
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Encerrar todas as sessoes?"
-        description="Inclusive esta. Voce sera desconectado e precisara entrar de novo em cada dispositivo."
+        title="Encerrar todas as sessões?"
+        description="Inclusive esta. Você será desconectado e precisara entrar de novo em cada dispositivo."
         actionLabel="Encerrar tudo"
         cancelLabel="Cancelar"
         variant="warning"

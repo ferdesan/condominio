@@ -37,21 +37,21 @@ export function IncidentIndicators({ condominiumId }: IncidentIndicatorsProps) {
     <Card role="region" className="p-4" aria-labelledby="incident-indicators-title">
       <div className="mb-3">
         <h2 id="incident-indicators-title" className="text-sm font-semibold">
-          Indicadores de ocorrencias
+          Indicadores de ocorrências
         </h2>
         <p className="text-xs text-muted-foreground">
-          Numeros do condominio inteiro, independentes dos filtros aplicados na lista.
+          Números do condomínio inteiro, independentes dos filtros aplicados na lista.
         </p>
       </div>
 
       {summary.isError ? (
         <p role="alert" className="text-sm text-destructive">
-          Nao foi possivel carregar os indicadores. A lista de ocorrencias continua disponivel.
+          Não foi possível carregar os indicadores. A lista de ocorrências continua disponível.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-8">
           <div>
-            <p className="text-xs text-muted-foreground">Total de ocorrencias</p>
+            <p className="text-xs text-muted-foreground">Total de ocorrências</p>
             {/* O esqueleto ocupa o mesmo espaco do numero: a area nao pula quando carrega. */}
             {summary.isPending ? (
               <Skeleton className="mt-1 h-8 w-16" />

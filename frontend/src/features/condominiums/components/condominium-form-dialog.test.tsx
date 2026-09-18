@@ -50,7 +50,7 @@ function lastUpdateBody(): Record<string, unknown> {
 
 /** Abre o dialogo de cadastro e espera o formulario aparecer. */
 async function openCreateDialog(): Promise<void> {
-  clickTrigger(screen.getByRole('button', { name: 'Novo condominio' }));
+  clickTrigger(screen.getByRole('button', { name: 'Novo condomínio' }));
   await screen.findByLabelText('Nome');
 }
 
@@ -78,12 +78,12 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('Cadastro de condominio', () => {
+describe('Cadastro de condomínio', () => {
   it('IT-010: cadastra, fecha o dialogo e atualiza a lista', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
     const created = makeCondominium({ id: 'cond-9', name: 'Residencial Bosque' });
     mockPost.mockResolvedValue(created);
@@ -103,14 +103,14 @@ describe('Cadastro de condominio', () => {
     expect(await screen.findByText('Residencial Bosque')).toBeInTheDocument();
   });
 
-  it('IT-011: 409 de CNPJ duplicado aparece no formulario, sem marcar campo', async () => {
+  it('IT-011: 409 de CNPJ duplicado aparece no formulário, sem marcar campo', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
     mockPost.mockRejectedValue(
-      new ApiError('Ja existe um condominio cadastrado com este CNPJ.', 409, 'CONFLICT'),
+      new ApiError('Já existe um condomínio cadastrado com este CNPJ.', 409, 'CONFLICT'),
     );
 
     await openCreateDialog();
@@ -118,7 +118,7 @@ describe('Cadastro de condominio', () => {
     submit('Cadastrar');
 
     expect(
-      await screen.findByText('Ja existe um condominio cadastrado com este CNPJ.'),
+      await screen.findByText('Já existe um condomínio cadastrado com este CNPJ.'),
     ).toBeInTheDocument();
     // Sem detalhe de campo, nenhum controle e marcado como invalido.
     expect(document.querySelectorAll('[aria-invalid="true"]')).toHaveLength(0);
@@ -126,14 +126,14 @@ describe('Cadastro de condominio', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('IT-012: conflito com registro removido indica a restauracao e preserva o preenchido', async () => {
+  it('IT-012: conflito com registro removido indica a restauração e preserva o preenchido', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
     mockPost.mockRejectedValue(
-      new ApiError('Ja existe um condominio cadastrado com este CNPJ.', 409, 'CONFLICT'),
+      new ApiError('Já existe um condomínio cadastrado com este CNPJ.', 409, 'CONFLICT'),
     );
 
     await openCreateDialog();
@@ -141,7 +141,7 @@ describe('Cadastro de condominio', () => {
     await user.type(screen.getByLabelText('CNPJ'), '12345678000199');
     submit('Cadastrar');
 
-    await screen.findByText('Ja existe um condominio cadastrado com este CNPJ.');
+    await screen.findByText('Já existe um condomínio cadastrado com este CNPJ.');
     expect(screen.getByText(/restaure o registro/i)).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByLabelText('Nome')).toHaveValue('Residencial Bosque');
@@ -152,9 +152,9 @@ describe('Cadastro de condominio', () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
-    const message = 'O plano BASIC permite ate 1 condominio(s). Faca upgrade para cadastrar mais.';
+    const message = 'O plano BASIC permite até 1 condomínio(s). Faca upgrade para cadastrar mais.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'BUSINESS_RULE_VIOLATION'));
 
     await openCreateDialog();
@@ -167,11 +167,11 @@ describe('Cadastro de condominio', () => {
     expect(screen.queryByText(/restaure o registro/i)).not.toBeInTheDocument();
   });
 
-  it('IT-014: nome curto e dia de vencimento fora da faixa param antes da requisicao', async () => {
+  it('IT-014: nome curto e dia de vencimento fora da faixa param antes da requisição', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
     await openCreateDialog();
     await user.type(screen.getByLabelText('Nome'), 'Ab');
@@ -179,16 +179,16 @@ describe('Cadastro de condominio', () => {
     await user.type(screen.getByLabelText('Dia de vencimento'), '29');
     submit('Cadastrar');
 
-    expect(await screen.findByText('Informe o nome do condominio.')).toBeInTheDocument();
+    expect(await screen.findByText('Informe o nome do condomínio.')).toBeInTheDocument();
     expect(screen.getByText('O dia de vencimento deve estar entre 1 e 28.')).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('IT-015: CNPJ de 13 digitos e recusado no proprio campo', async () => {
+  it('IT-015: CNPJ de 13 digitos e recusado no próprio campo', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
     await openCreateDialog();
     await user.type(screen.getByLabelText('Nome'), 'Residencial Bosque');
@@ -200,11 +200,11 @@ describe('Cadastro de condominio', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('IT-016: dois cliques seguidos produzem uma unica requisicao', async () => {
+  it('IT-016: dois cliques seguidos produzem uma única requisição', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
     let release!: (value: Condominium) => void;
     mockPost.mockImplementation(
@@ -226,22 +226,22 @@ describe('Cadastro de condominio', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
-  it('IT-017: descartar formulario alterado pede confirmacao; o intocado fecha direto', async () => {
+  it('IT-017: descartar formulário alterado pede confirmação; o intocado fecha direto', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
     await openCreateDialog();
     clickTrigger(screen.getByRole('button', { name: 'Cancelar' }));
     await waitFor(() => expect(screen.queryByLabelText('Nome')).not.toBeInTheDocument());
-    expect(screen.queryByText('Descartar alteracoes?')).not.toBeInTheDocument();
+    expect(screen.queryByText('Descartar alterações?')).not.toBeInTheDocument();
 
     await openCreateDialog();
     await user.type(screen.getByLabelText('Nome'), 'Residencial Bosque');
     clickTrigger(screen.getByRole('button', { name: 'Cancelar' }));
 
-    expect(await screen.findByText('Descartar alteracoes?')).toBeInTheDocument();
+    expect(await screen.findByText('Descartar alterações?')).toBeInTheDocument();
     expect(screen.getByLabelText('Nome')).toHaveValue('Residencial Bosque');
 
     clickTrigger(screen.getByRole('button', { name: 'Descartar' }));
@@ -252,10 +252,10 @@ describe('Cadastro de condominio', () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
     mockPost.mockRejectedValue(
-      new ApiError('Nao foi possivel concluir a operacao.', 0, 'NETWORK_ERROR'),
+      new ApiError('Não foi possível concluir a operação.', 0, 'NETWORK_ERROR'),
     );
 
     await openCreateDialog();
@@ -264,7 +264,7 @@ describe('Cadastro de condominio', () => {
     submit('Cadastrar');
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Nao foi possivel concluir a operacao.',
+      'Não foi possível concluir a operação.',
     );
     expect(screen.getByLabelText('Nome')).toHaveValue('Residencial Bosque');
     expect(screen.getByLabelText('Cidade')).toHaveValue('Campinas');
@@ -274,7 +274,7 @@ describe('Cadastro de condominio', () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Nenhum condominio cadastrado');
+    await screen.findByText('Nenhum condomínio cadastrado');
 
     mockPost.mockResolvedValue(makeCondominium({ id: 'cond-9' }));
 
@@ -288,10 +288,10 @@ describe('Cadastro de condominio', () => {
   });
 });
 
-describe('Edicao de condominio', () => {
+describe('Edição de condomínio', () => {
   const record = makeCondominium();
 
-  it('IT-020: edita o telefone e a lista reflete a mudanca', async () => {
+  it('IT-020: edita o telefone e a lista reflete a mudança', async () => {
     serve([record]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
@@ -320,14 +320,14 @@ describe('Edicao de condominio', () => {
     );
   });
 
-  it('IT-021: 409 na edicao mantem o dialogo aberto com o que foi digitado', async () => {
+  it('IT-021: 409 na edição mantem o dialogo aberto com o que foi digitado', async () => {
     serve([record]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
     await screen.findByText('Residencial Aurora');
 
     mockPatch.mockRejectedValue(
-      new ApiError('Ja existe um condominio cadastrado com este CNPJ.', 409, 'CONFLICT'),
+      new ApiError('Já existe um condomínio cadastrado com este CNPJ.', 409, 'CONFLICT'),
     );
 
     await openEditDialog('Residencial Aurora');
@@ -335,19 +335,19 @@ describe('Edicao de condominio', () => {
     await user.type(screen.getByLabelText('CNPJ'), '98765432000188');
     submit('Salvar');
 
-    await screen.findByText('Ja existe um condominio cadastrado com este CNPJ.');
+    await screen.findByText('Já existe um condomínio cadastrado com este CNPJ.');
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByLabelText('CNPJ')).toHaveValue('98765432000188');
   });
 
-  it('IT-022: 404 na edicao fecha o dialogo e recarrega a lista', async () => {
+  it('IT-022: 404 na edição fecha o dialogo e recarrega a lista', async () => {
     serve([record]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
     await screen.findByText('Residencial Aurora');
     const listCallsBefore = mockGetPaginated.mock.calls.length;
 
-    mockPatch.mockRejectedValue(new ApiError('Condominio nao encontrado.', 404, 'NOT_FOUND'));
+    mockPatch.mockRejectedValue(new ApiError('Condomínio não encontrado.', 404, 'NOT_FOUND'));
 
     await openEditDialog('Residencial Aurora');
     await user.type(screen.getByLabelText('Nome'), ' II');
@@ -358,10 +358,10 @@ describe('Edicao de condominio', () => {
     await waitFor(() =>
       expect(mockGetPaginated.mock.calls.length).toBeGreaterThan(listCallsBefore),
     );
-    expect(await screen.findByText('Nenhum condominio cadastrado')).toBeInTheDocument();
+    expect(await screen.findByText('Nenhum condomínio cadastrado')).toBeInTheDocument();
   });
 
-  it('IT-023: a ultima escrita vence e a lista recarregada mostra o valor do servidor', async () => {
+  it('IT-023: a última escrita vence e a lista recarregada mostra o valor do servidor', async () => {
     serve([record]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
@@ -382,7 +382,7 @@ describe('Edicao de condominio', () => {
     expect(await screen.findByText('Residencial Aurora Nova')).toBeInTheDocument();
   });
 
-  it('IT-024: campo opcional limpo e enviado vazio, e nao omitido', async () => {
+  it('IT-024: campo opcional limpo e enviado vazio, e não omitido', async () => {
     serve([record]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);

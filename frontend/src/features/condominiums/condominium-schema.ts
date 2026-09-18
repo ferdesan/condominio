@@ -14,7 +14,7 @@ import { CONDOMINIUM_STATUSES, CONDOMINIUM_TYPES, type Condominium } from '@/typ
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {
-  return z.string().trim().max(max, `Use no maximo ${max} caracteres.`);
+  return z.string().trim().max(max, `Use no máximo ${max} caracteres.`);
 }
 
 /**
@@ -29,7 +29,7 @@ function optionalDigits(length: number, message: string) {
 }
 
 export const condominiumSchema = z.object({
-  name: z.string().trim().min(3, 'Informe o nome do condominio.').max(150),
+  name: z.string().trim().min(3, 'Informe o nome do condomínio.').max(150),
   document: optionalDigits(14, 'CNPJ deve conter 14 digitos.'),
   type: z.enum(CONDOMINIUM_TYPES),
   status: z.enum(CONDOMINIUM_STATUSES),
@@ -51,14 +51,14 @@ export const condominiumSchema = z.object({
     .transform((value) => value.replace(/\D/g, ''))
     .refine(
       (value) => value === '' || (value.length >= 8 && value.length <= 11),
-      'Telefone invalido.',
+      'Telefone inválido.',
     ),
   email: z
     .string()
     .trim()
     .refine(
       (value) => value === '' || z.string().email().safeParse(value).success,
-      'E-mail invalido.',
+      'E-mail inválido.',
     ),
   syndicName: optionalText(150),
   syndicPhone: z
@@ -66,11 +66,11 @@ export const condominiumSchema = z.object({
     .transform((value) => value.replace(/\D/g, ''))
     .refine(
       (value) => value === '' || (value.length >= 8 && value.length <= 11),
-      'Telefone invalido.',
+      'Telefone inválido.',
     ),
   syndicTermEndsAt: z
     .string()
-    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data invalida.'),
+    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data inválida.'),
   chargeDueDay: z
     .string()
     .trim()
@@ -83,7 +83,7 @@ export const condominiumSchema = z.object({
     .trim()
     .refine(
       (value) => value === '' || z.string().url().safeParse(value).success,
-      'Informe uma URL valida.',
+      'Informe uma URL válida.',
     ),
   notes: optionalText(2000),
 });

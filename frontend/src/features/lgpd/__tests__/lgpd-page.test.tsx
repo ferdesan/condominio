@@ -5,7 +5,7 @@ import { makeMeta } from '@/test/fixtures';
 import {
   clickTrigger,
   fireEvent,
-  openSelect,
+  openCombobox,
   renderWithProviders,
   screen,
   waitFor,
@@ -109,7 +109,7 @@ function serve(requests: LgpdRequestView[], consent: LgpdConsent | null = null):
         residentName: 'Carlos Pereira',
         condominiumId: 'cond-1',
         notes: null,
-        warnings: ['Cobrancas ja emitidas serao preservadas.'],
+        warnings: ['Cobranças já emitidas serão preservadas.'],
       };
     }
     if (url.endsWith('/execute')) {
@@ -181,7 +181,7 @@ describe('Pagina LGPD (IT-056)', () => {
     vi.clearAllMocks();
   });
 
-  it('mostra as tres abas e a fila de pedidos para quem le o modulo', async () => {
+  it('mostra as três abas e a fila de pedidos para quem le o modulo', async () => {
     serve([makeRequest()]);
 
     renderWithProviders(<LgpdPage />, { route: '/lgpd' });
@@ -189,16 +189,16 @@ describe('Pagina LGPD (IT-056)', () => {
     expect(screen.getByRole('heading', { name: 'LGPD' })).toBeInTheDocument();
 
     const tabs = screen.getAllByRole('tab');
-    expect(tabs.map((el) => el.textContent)).toEqual(['Solicitacoes', 'Exportar', 'Consentimento']);
+    expect(tabs.map((el) => el.textContent)).toEqual(['Solicitações', 'Exportar', 'Consentimento']);
 
     // Aba padrao: a fila com os pedidos pendentes de decisao.
     await screen.findByText('Carlos Pereira');
     expect(screen.getByText(REQUEST_STATUS_LABELS.PENDING)).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Executar solicitacao de Carlos Pereira' }),
+      screen.getByRole('button', { name: 'Executar solicitação de Carlos Pereira' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Cancelar solicitacao de Carlos Pereira' }),
+      screen.getByRole('button', { name: 'Cancelar solicitação de Carlos Pereira' }),
     ).toBeInTheDocument();
     expect(mockGetPaginated).toHaveBeenCalledWith('/lgpd/delete-requests', expect.anything());
   });
@@ -214,18 +214,16 @@ describe('Pagina LGPD (IT-056)', () => {
     fireEvent.mouseDown(screen.getByRole('tab', { name: 'Consentimento' }));
     await screen.findByText(/o consentimento de tratamento de dados e registrado por morador/i);
 
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Solicitacoes' }));
+    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Solicitações' }));
     await screen.findByText('Carlos Pereira');
   });
 
-  it('abre a aba exportacao pela rota, como o atalho do perfil', async () => {
+  it('abre a aba exportação pela rota, como o atalho do perfil', async () => {
     serve([]);
 
     renderWithProviders(<LgpdPage />, { route: '/lgpd?tab=export' });
 
-    expect(
-      screen.getByRole('button', { name: 'Exportar dados do morador' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Exportar dados do morador' })).toBeInTheDocument();
   });
 
   it('IT-056.E1: administrador executa e cancela um pedido', async () => {
@@ -234,29 +232,29 @@ describe('Pagina LGPD (IT-056)', () => {
     renderWithProviders(<LgpdPage />, { route: '/lgpd' });
 
     const execBtn = await screen.findByRole('button', {
-      name: 'Executar solicitacao de Carlos Pereira',
+      name: 'Executar solicitação de Carlos Pereira',
     });
     clickTrigger(execBtn);
-    expect(screen.getByText(/os dados pessoais de Carlos Pereira serao anonimizados/i));
+    expect(screen.getByText(/os dados pessoais de Carlos Pereira serão anonimizados/i));
     clickTrigger(screen.getByRole('button', { name: 'Executar' }));
 
     await waitFor(() =>
       expect(mockPost).toHaveBeenCalledWith('/lgpd/delete-request/request-1/execute'),
     );
-    await waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith('Anonimizacao executada.'));
+    await waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith('Anonimização executada.'));
 
     const cancelBtn = await screen.findByRole('button', {
-      name: 'Cancelar solicitacao de Carlos Pereira',
+      name: 'Cancelar solicitação de Carlos Pereira',
     });
     clickTrigger(cancelBtn);
-    clickTrigger(screen.getByRole('button', { name: 'Cancelar solicitacao' }));
+    clickTrigger(screen.getByRole('button', { name: 'Cancelar solicitação' }));
 
     await waitFor(() =>
       expect(mockPost).toHaveBeenCalledWith('/lgpd/delete-request/request-1/cancel'),
     );
   });
 
-  it('IT-056.E2: morador so ve a superficie de pedido, nao a de decisao', async () => {
+  it('IT-056.E2: morador so ve a superficie de pedido, não a de decisao', async () => {
     serve([makeRequest()]);
 
     renderWithProviders(<LgpdPage />, {
@@ -269,14 +267,12 @@ describe('Pagina LGPD (IT-056)', () => {
       name: 'Solicitar exclusao de dados',
     });
     expect(solicitBtn).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /executar solicitacao/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /executar solicitação/i })).not.toBeInTheDocument();
 
     // Confirma a criacao do pedido.
     clickTrigger(solicitBtn);
-    expect(screen.getByText(/seus dados pessoais serao anonimizados/i));
-    clickTrigger(screen.getByRole('button', { name: 'Enviar solicitacao' }));
+    expect(screen.getByText(/seus dados pessoais serão anonimizados/i));
+    clickTrigger(screen.getByRole('button', { name: 'Enviar solicitação' }));
 
     await waitFor(() =>
       expect(mockPost).toHaveBeenCalledWith('/lgpd/delete-request', {
@@ -284,11 +280,11 @@ describe('Pagina LGPD (IT-056)', () => {
       }),
     );
     await waitFor(() =>
-      expect(mockToastSuccess).toHaveBeenCalledWith('Solicitacao de exclusao enviada.'),
+      expect(mockToastSuccess).toHaveBeenCalledWith('Solicitação de exclusao enviada.'),
     );
   });
 
-  it('IT-056.E3: morador exporta os proprios dados', async () => {
+  it('IT-056.E3: morador exporta os próprios dados', async () => {
     serve([]);
 
     renderWithProviders(<LgpdPage />, {
@@ -301,7 +297,7 @@ describe('Pagina LGPD (IT-056)', () => {
 
     await waitFor(() => expect(mockGet).toHaveBeenCalledWith('/lgpd/export'));
     await waitFor(() =>
-      expect(mockToastSuccess).toHaveBeenCalledWith('Exportacao dos seus dados gerada.'),
+      expect(mockToastSuccess).toHaveBeenCalledWith('Exportação dos seus dados gerada.'),
     );
   });
 
@@ -311,17 +307,17 @@ describe('Pagina LGPD (IT-056)', () => {
     renderWithProviders(<LgpdPage />, { route: '/lgpd?tab=export' });
 
     const trigger = screen.getByRole('combobox', { name: 'Selecionar morador' });
-    openSelect(trigger);
+    openCombobox(trigger);
     fireEvent.click(await screen.findByRole('option', { name: 'Carlos Pereira' }));
     clickTrigger(screen.getByRole('button', { name: 'Exportar dados do morador' }));
 
     await waitFor(() => expect(mockGet).toHaveBeenCalledWith('/lgpd/export/resident-1'));
     await waitFor(() =>
-      expect(mockToastSuccess).toHaveBeenCalledWith('Exportacao dos dados do morador gerada.'),
+      expect(mockToastSuccess).toHaveBeenCalledWith('Exportação dos dados do morador gerada.'),
     );
   });
 
-  it('morador concede e revoga o consentimento com confirmacao', async () => {
+  it('morador concede e revoga o consentimento com confirmação', async () => {
     serve([], makeConsent());
 
     renderWithProviders(<LgpdPage />, {
@@ -330,7 +326,9 @@ describe('Pagina LGPD (IT-056)', () => {
       route: '/lgpd?tab=consent',
     });
 
-    const toggle = await screen.findByRole('switch', { name: 'Autorizacao de tratamento de dados' });
+    const toggle = await screen.findByRole('switch', {
+      name: 'Autorização de tratamento de dados',
+    });
     expect(toggle).toHaveAttribute('aria-checked', 'false');
 
     // Concede.
@@ -348,7 +346,7 @@ describe('Pagina LGPD (IT-056)', () => {
 
     // A invalidacao re-busca o consentimento concedido.
     const grantedToggle = await screen.findByRole('switch', {
-      name: 'Autorizacao de tratamento de dados',
+      name: 'Autorização de tratamento de dados',
     });
     await waitFor(() => expect(grantedToggle).toHaveAttribute('aria-checked', 'true'));
 
@@ -366,7 +364,7 @@ describe('Pagina LGPD (IT-056)', () => {
     await waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith('Consentimento revogado.'));
   });
 
-  it('demais papeis recebem a vista read-only do consentimento', async () => {
+  it('demais papéis recebem a vista read-only do consentimento', async () => {
     serve([]);
 
     renderWithProviders(<LgpdPage />, { route: '/lgpd?tab=consent' });

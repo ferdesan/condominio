@@ -20,7 +20,7 @@ import { RESIDENT_STATUSES, RESIDENT_TYPES, type Resident } from '@/types/api';
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {
-  return z.string().trim().max(max, `Use no maximo ${max} caracteres.`);
+  return z.string().trim().max(max, `Use no máximo ${max} caracteres.`);
 }
 
 /** Telefone opcional. A pontuacao e descartada, como o backend faz. */
@@ -30,7 +30,7 @@ function optionalPhone() {
     .transform((value) => value.replace(/\D/g, ''))
     .refine(
       (value) => value === '' || (value.length >= 8 && value.length <= 11),
-      'Telefone invalido.',
+      'Telefone inválido.',
     );
 }
 
@@ -38,7 +38,7 @@ function optionalPhone() {
 function optionalDate() {
   return z
     .string()
-    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data invalida.');
+    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data inválida.');
 }
 
 /**
@@ -70,7 +70,7 @@ const residentFields = z.object({
     .trim()
     .refine(
       (value) => value === '' || z.string().email().safeParse(value).success,
-      'E-mail invalido.',
+      'E-mail inválido.',
     ),
   phone: optionalPhone(),
   birthDate: optionalDate(),
@@ -86,7 +86,7 @@ const residentFields = z.object({
     .trim()
     .refine(
       (value) => value === '' || z.string().url().safeParse(value).success,
-      'Informe uma URL valida.',
+      'Informe uma URL válida.',
     ),
   notes: optionalText(2000),
 });
@@ -96,7 +96,7 @@ export const residentSchema = residentFields.superRefine((values, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['moveOutDate'],
-      message: 'A data de saida nao pode ser anterior a data de entrada.',
+      message: 'A data de saída não pode ser anterior a data de entrada.',
     });
   }
 
@@ -104,7 +104,7 @@ export const residentSchema = residentFields.superRefine((values, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['birthDate'],
-      message: 'A data de nascimento nao pode estar no futuro.',
+      message: 'A data de nascimento não pode estar no futuro.',
     });
   }
 
@@ -114,7 +114,7 @@ export const residentSchema = residentFields.superRefine((values, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['moveOutDate'],
-      message: 'Informe a data de saida de um morador que consta como mudado.',
+      message: 'Informe a data de saída de um morador que consta como mudado.',
     });
   }
 });

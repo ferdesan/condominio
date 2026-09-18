@@ -24,7 +24,7 @@ function optionalPhone() {
     .transform((value) => value.replace(/\D/g, ''))
     .refine(
       (value) => value === '' || (value.length >= 8 && value.length <= 11),
-      'Telefone invalido.',
+      'Telefone inválido.',
     );
 }
 
@@ -32,7 +32,7 @@ function optionalPhone() {
 function optionalDate() {
   return z
     .string()
-    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data invalida.');
+    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data inválida.');
 }
 
 /**
@@ -49,7 +49,7 @@ function todayIso(): string {
 }
 
 const dependentFields = z.object({
-  residentId: z.string().min(1, 'Selecione o morador responsavel.'),
+  residentId: z.string().min(1, 'Selecione o morador responsável.'),
   /**
    * Nao e uma escolha: vem do morador. A exigencia esta no `superRefine`, para
    * que esquecer o morador levante uma objecao, e nao duas dizendo o mesmo.
@@ -68,7 +68,7 @@ const dependentFields = z.object({
     .trim()
     .refine(
       (value) => value === '' || z.string().url().safeParse(value).success,
-      'Informe uma URL valida.',
+      'Informe uma URL válida.',
     ),
   hasAccessCard: z.boolean(),
   active: z.boolean(),
@@ -81,7 +81,7 @@ export const dependentSchema = dependentFields.superRefine((values, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['unitId'],
-      message: 'O morador selecionado nao tem unidade vinculada.',
+      message: 'O morador selecionado não tem unidade vinculada.',
     });
   }
 
@@ -89,7 +89,7 @@ export const dependentSchema = dependentFields.superRefine((values, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['birthDate'],
-      message: 'A data de nascimento nao pode estar no futuro.',
+      message: 'A data de nascimento não pode estar no futuro.',
     });
   }
 });

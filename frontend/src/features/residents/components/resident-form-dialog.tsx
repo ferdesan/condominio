@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -49,7 +50,7 @@ import { STATUS_LABELS, TYPE_LABELS } from '../resident-labels';
  * Mensagem invalida nao tem saida alternativa; conflito tem.
  */
 const CONFLICT_HINT =
-  'Se o morador ja existiu e foi removido, restaure o registro em vez de cadastrar outro: ative "Incluir removidos" na listagem.';
+  'Se o morador já existiu e foi removido, restaure o registro em vez de cadastrar outro: ative "Incluir removidos" na listagem.';
 
 export interface ResidentFormDialogProps {
   /** Ausente cadastra; presente edita. */
@@ -77,6 +78,13 @@ export function ResidentFormDialog({
 }: ResidentFormDialogProps) {
   const isEdit = Boolean(resident);
   const queryClient = useQueryClient();
+
+  // A lista inteira do condomínio cabe no seletor, mas não cabe no olho: sem
+  // busca, escolher uma unidade vira rolagem.
+  const unitOptions = useMemo(
+    () => units.map((unit) => ({ value: unit.id, label: unitLabel(unit) })),
+    [units],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [conflictHint, setConflictHint] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
@@ -149,11 +157,11 @@ export function ResidentFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar morador' : 'Novo morador'}</DialogTitle>
             <DialogDescription>
-              Unidade, dados pessoais, contato, periodo de ocupacao e contato de emergencia.
+              Unidade, dados pessoais, contato, período de ocupação e contato de emergência.
             </DialogDescription>
           </DialogHeader>
 
@@ -169,21 +177,18 @@ export function ResidentFormDialog({
                     id="unitId"
                     label="Unidade"
                     error={fieldState.error?.message}
-                    description="Apenas unidades do condominio selecionado."
+                    description="Apenas unidades do condomínio selecionado."
                   >
                     {(aria) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger {...aria}>
-                          <SelectValue placeholder="Selecione a unidade" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {units.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unitLabel(unit)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        {...aria}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        options={unitOptions}
+                        placeholder="Selecione a unidade"
+                        searchPlaceholder="Buscar unidade"
+                        emptyMessage="Nenhuma unidade corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}
@@ -249,13 +254,13 @@ export function ResidentFormDialog({
                         aria-describedby={primaryLocked ? 'isPrimary-description' : undefined}
                       />
                       <Label htmlFor="isPrimary" className="font-normal">
-                        Responsavel principal pela unidade
+                        Responsável principal pela unidade
                       </Label>
                     </div>
                     <p id="isPrimary-description" className="text-sm text-muted-foreground">
                       {primaryLocked
-                        ? 'Apenas um morador ativo pode ser o responsavel pela unidade.'
-                        : 'Ao salvar, qualquer outro responsavel desta unidade deixa de se-lo.'}
+                        ? 'Apenas um morador ativo pode ser o responsável pela unidade.'
+                        : 'Ao salvar, qualquer outro responsável desta unidade deixa de se-lo.'}
                     </p>
                   </div>
                 )}
@@ -323,7 +328,7 @@ export function ResidentFormDialog({
 
               <FormField
                 id="emergencyContact"
-                label="Contato de emergencia"
+                label="Contato de emergência"
                 error={errors.emergencyContact?.message}
                 className="sm:col-span-2"
               >
@@ -336,7 +341,7 @@ export function ResidentFormDialog({
                 render={({ field, fieldState }) => (
                   <FormField
                     id="emergencyPhone"
-                    label="Telefone de emergencia"
+                    label="Telefone de emergência"
                     error={fieldState.error?.message}
                   >
                     {(aria) => (
@@ -353,17 +358,17 @@ export function ResidentFormDialog({
               obrigaria a converter para `Date` e voltar, o que desloca a data em
               um dia em fusos negativos.
             */}
-            <FormSection title="Periodo de ocupacao">
+            <FormSection title="Período de ocupação">
               <FormField id="moveInDate" label="Entrada" error={errors.moveInDate?.message}>
                 {(aria) => <Input type="date" {...aria} {...register('moveInDate')} />}
               </FormField>
 
-              <FormField id="moveOutDate" label="Saida" error={errors.moveOutDate?.message}>
+              <FormField id="moveOutDate" label="Saída" error={errors.moveOutDate?.message}>
                 {(aria) => <Input type="date" {...aria} {...register('moveOutDate')} />}
               </FormField>
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -391,8 +396,8 @@ export function ResidentFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

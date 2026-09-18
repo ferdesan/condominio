@@ -24,7 +24,7 @@ function makeRow(overrides: Partial<Row> = {}): Row {
 function makeServerPage(count: number): Row[] {
   return Array.from({ length: count }, (_, index) => ({
     id: `id-${index + 1}`,
-    name: `Condominio ${index + 1}`,
+    name: `Condomínio ${index + 1}`,
     document: `doc-${index + 1}`,
     units: index + 1,
   }));
@@ -46,7 +46,7 @@ describe('DataTable', () => {
 
     // 20 linhas de dados mais a linha de cabecalho.
     expect(screen.getAllByRole('row')).toHaveLength(21);
-    expect(screen.getByText('Condominio 20')).toBeInTheDocument();
+    expect(screen.getByText('Condomínio 20')).toBeInTheDocument();
 
     // A mesma pagina sem pageSize explicito: o recorte antigo cairia no padrao de
     // 10 e derrubaria metade das linhas sem avisar.
@@ -64,14 +64,14 @@ describe('DataTable', () => {
     expect(screen.getAllByRole('row')).toHaveLength(21);
   });
 
-  it('UT-092: coluna sem renderer com valor nulo mostra o placeholder, nao a palavra null', () => {
+  it('UT-092: coluna sem renderer com valor nulo mostra o placeholder, não a palavra null', () => {
     render(<DataTable columns={columns} data={[makeRow({ document: null })]} idKey="id" />);
 
     expect(screen.getByRole('cell', { name: '—' })).toBeInTheDocument();
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
-  it('UT-093: coluna sem renderer com valor zero mostra 0, nao o placeholder', () => {
+  it('UT-093: coluna sem renderer com valor zero mostra 0, não o placeholder', () => {
     render(<DataTable columns={columns} data={[makeRow({ units: 0 })]} idKey="id" />);
 
     expect(screen.getByRole('cell', { name: '0' })).toBeInTheDocument();
@@ -122,14 +122,14 @@ describe('DataTable', () => {
     expect(screen.getByRole('textbox', { name: 'Buscar' })).toHaveValue('');
   });
 
-  it('UT-096: coluna com identificador livre e renderer proprio compila e renderiza', () => {
+  it('UT-096: coluna com identificador livre e renderer próprio compila e renderiza', () => {
     // O identificador 'actions' nao existe em Row: so vale porque a coluna traz
     // o proprio renderer. O type check do projeto cobre este arquivo.
     const withActions: Column<Row>[] = [
       { key: 'name', label: 'Nome' },
       {
         key: 'actions',
-        label: 'Acoes',
+        label: 'Ações',
         render: (_, row) => (
           <button type="button" onClick={() => undefined}>
             Editar {row.name}
@@ -140,7 +140,7 @@ describe('DataTable', () => {
 
     render(<DataTable columns={withActions} data={[makeRow()]} idKey="id" />);
 
-    expect(screen.getByRole('columnheader', { name: 'Acoes' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Ações' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Editar Alfa' })).toBeInTheDocument();
   });
 
@@ -165,7 +165,7 @@ describe('DataTable', () => {
     expect(onRowClick).toHaveBeenCalledWith(row);
   });
 
-  it('UT-098: a linha clicavel e alcancavel por teclado e expoe um papel acionavel', async () => {
+  it('UT-098: a linha clicável e alcancável por teclado e expoe um papel acionável', async () => {
     const user = userEvent.setup();
 
     render(
@@ -185,7 +185,7 @@ describe('DataTable', () => {
     expect(row).toHaveFocus();
   });
 
-  it('UT-099: a paginacao some com uma pagina e aparece com duas', () => {
+  it('UT-099: a paginação some com uma pagina e aparece com duas', () => {
     const { rerender } = render(
       <DataTable
         columns={columns}
@@ -213,7 +213,7 @@ describe('DataTable', () => {
     expect(screen.getByRole('button', { name: 'Próxima página' })).toBeInTheDocument();
   });
 
-  it('UT-100: aria-sort fica na celula de cabecalho e reflete a direcao ativa', () => {
+  it('UT-100: aria-sort fica na celula de cabecalho e reflete a direção ativa', () => {
     const sortableColumns: Column<Row>[] = [
       { key: 'name', label: 'Nome', sortable: true },
       { key: 'document', label: 'Documento', sortable: true },

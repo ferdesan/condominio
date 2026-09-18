@@ -13,7 +13,7 @@ import { MAINTENANCE_RECURRENCES, MAINTENANCE_TYPES, type Maintenance } from '@/
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {
-  return z.string().trim().max(max, `Use no maximo ${max} caracteres.`);
+  return z.string().trim().max(max, `Use no máximo ${max} caracteres.`);
 }
 
 /** Teto da descricao no servidor — bem acima dos 2000 que o `Textarea` traz. */
@@ -23,12 +23,12 @@ const maintenanceFields = z.object({
   title: z
     .string()
     .trim()
-    .min(3, 'Informe o titulo da manutencao.')
-    .max(180, 'Use no maximo 180 caracteres.'),
+    .min(3, 'Informe o título da manutenção.')
+    .max(180, 'Use no máximo 180 caracteres.'),
   description: optionalText(DESCRIPTION_MAX_LENGTH),
   assetName: optionalText(150),
   /** Valor local do `datetime-local` (`yyyy-MM-ddTHH:mm`); o servidor faz o parse. */
-  scheduledFor: z.string().min(1, 'Informe quando a manutencao esta agendada.'),
+  scheduledFor: z.string().min(1, 'Informe quando a manutenção esta agendada.'),
   type: z.enum(MAINTENANCE_TYPES),
   recurrence: z.enum(MAINTENANCE_RECURRENCES),
   /** Vazio significa "sem vinculo": o seletor usa string vazia, o corpo usa `null`. */

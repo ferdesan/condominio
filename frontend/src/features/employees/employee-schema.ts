@@ -21,7 +21,7 @@ import { EMPLOYEE_CONTRACT_TYPES, EMPLOYEE_STATUSES, type Employee } from '@/typ
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {
-  return z.string().trim().max(max, `Use no maximo ${max} caracteres.`);
+  return z.string().trim().max(max, `Use no máximo ${max} caracteres.`);
 }
 
 /** Telefone opcional. A pontuacao e descartada, como o backend faz. */
@@ -31,7 +31,7 @@ function optionalPhone() {
     .transform((value) => value.replace(/\D/g, ''))
     .refine(
       (value) => value === '' || (value.length >= 8 && value.length <= 11),
-      'Telefone invalido.',
+      'Telefone inválido.',
     );
 }
 
@@ -39,14 +39,14 @@ function optionalPhone() {
 function optionalDate() {
   return z
     .string()
-    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data invalida.');
+    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data inválida.');
 }
 
 /** Teto do schema do servidor para `salary`. */
 export const EMPLOYEE_MAX_SALARY = 9_999_999;
 
 const employeeFields = z.object({
-  name: z.string().trim().min(3, 'Informe o nome do funcionario.').max(150),
+  name: z.string().trim().min(3, 'Informe o nome do funcionário.').max(150),
   document: z
     .string()
     .transform((value) => value.replace(/\D/g, ''))
@@ -60,7 +60,7 @@ const employeeFields = z.object({
     .trim()
     .refine(
       (value) => value === '' || z.string().email().safeParse(value).success,
-      'E-mail invalido.',
+      'E-mail inválido.',
     ),
   phone: optionalPhone(),
   admissionDate: optionalDate(),
@@ -69,15 +69,15 @@ const employeeFields = z.object({
   /** Ausente e `undefined`, e nao zero: sem salario informado nao e salario zero. */
   salary: z
     .number()
-    .min(0, 'O salario nao pode ser negativo.')
-    .max(EMPLOYEE_MAX_SALARY, `O salario deve ser no maximo ${EMPLOYEE_MAX_SALARY}.`)
+    .min(0, 'O salário não pode ser negativo.')
+    .max(EMPLOYEE_MAX_SALARY, `O salário deve ser no máximo ${EMPLOYEE_MAX_SALARY}.`)
     .optional(),
   photoUrl: z
     .string()
     .trim()
     .refine(
       (value) => value === '' || z.string().url().safeParse(value).success,
-      'Informe uma URL valida.',
+      'Informe uma URL válida.',
     ),
   notes: optionalText(2000),
 });
@@ -93,7 +93,7 @@ export const employeeSchema = employeeFields.superRefine((values, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['terminationDate'],
-      message: 'A data de desligamento nao pode ser anterior a admissao.',
+      message: 'A data de desligamento não pode ser anterior a admissao.',
     });
   }
 });

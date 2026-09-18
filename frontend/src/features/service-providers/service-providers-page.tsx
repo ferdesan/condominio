@@ -132,7 +132,7 @@ export function ServiceProvidersPage() {
       sortable: true,
       render: (_value, row) => formatDocument(row.document),
     },
-    { key: 'serviceType', label: 'Tipo de servico', sortable: true },
+    { key: 'serviceType', label: 'Tipo de serviço', sortable: true },
     { key: 'contactName', label: 'Contato', sortable: true },
     {
       key: 'phone',
@@ -144,12 +144,12 @@ export function ServiceProvidersPage() {
       // `contractEnd` nao sao filtraveis nem buscaveis, e o pedido voltaria
       // ordenado por razao social sem dizer nada.
       key: 'contractEnd',
-      label: 'Vigencia',
+      label: 'Vigência',
       render: (_value, row) => contractPeriod(row.contractStart, row.contractEnd),
     },
     {
       key: 'rating',
-      label: 'Avaliacao',
+      label: 'Avaliação',
       render: (_value, row) => <ProviderRating value={row.rating} />,
     },
     {
@@ -162,7 +162,7 @@ export function ServiceProvidersPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <ServiceProviderRowActions
           provider={row}
@@ -187,8 +187,8 @@ export function ServiceProvidersPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="Os prestadores sao listados por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="Os prestadores sao listados por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -239,7 +239,7 @@ export function ServiceProvidersPage() {
                 <EmptyState
                   icon={HardHat}
                   title="Nenhum prestador cadastrado"
-                  description="Cadastre o primeiro prestador para saber quem atende o condominio."
+                  description="Cadastre o primeiro prestador para saber quem atende o condomínio."
                   action={
                     canCreate ? (
                       <Button
@@ -315,7 +315,7 @@ export function ServiceProvidersPage() {
   );
 }
 
-const DESCRIPTION = 'Fornecedores contratados pelo condominio selecionado.';
+const DESCRIPTION = 'Fornecedores contratados pelo condomínio selecionado.';
 
 /**
  * A vigencia como periodo, e nao como duas colunas meio vazias. Um contrato sem
@@ -324,6 +324,6 @@ const DESCRIPTION = 'Fornecedores contratados pelo condominio selecionado.';
 function contractPeriod(start: string | null, end: string | null): string {
   if (start && end) return `${formatDate(start)} a ${formatDate(end)}`;
   if (start) return `desde ${formatDate(start)}`;
-  if (end) return `ate ${formatDate(end)}`;
+  if (end) return `até ${formatDate(end)}`;
   return '—';
 }

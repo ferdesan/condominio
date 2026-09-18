@@ -69,7 +69,7 @@ function saveButton(): Promise<HTMLElement> {
 }
 
 describe('Dados pessoais', () => {
-  it('carrega o formulario com o que a sessao ja conhece, sem ir ao servidor', async () => {
+  it('carrega o formulário com o que a sessão já conhece, sem ir ao servidor', async () => {
     render();
 
     expect(await screen.findByLabelText('Nome')).toHaveValue('Marina Alves');
@@ -98,7 +98,7 @@ describe('Dados pessoais', () => {
     await waitFor(() => expect(vi.mocked(toast.success)).toHaveBeenCalled());
   });
 
-  it('telefone apagado vai como nulo, e nao como chave ausente', async () => {
+  it('telefone apagado vai como nulo, e não como chave ausente', async () => {
     const user = createUser();
     render();
 
@@ -111,7 +111,7 @@ describe('Dados pessoais', () => {
     expect(lastProfilePatch()).toMatchObject({ phone: null });
   });
 
-  it('o botao so habilita depois de alguma mudanca', async () => {
+  it('o botao so habilita depois de alguma mudança', async () => {
     const user = createUser();
     render();
 
@@ -138,7 +138,7 @@ describe('Dados pessoais', () => {
     const user = createUser();
     mockPatch.mockRejectedValue(
       new ApiError('Dados invalidos.', 422, 'UNPROCESSABLE_ENTITY', [
-        { field: 'phone', message: 'Telefone invalido.' },
+        { field: 'phone', message: 'Telefone inválido.' },
       ]),
     );
     render();
@@ -146,10 +146,10 @@ describe('Dados pessoais', () => {
     await user.type(await screen.findByLabelText('Nome'), ' Souza');
     await user.click(await saveButton());
 
-    expect(await screen.findByText('Telefone invalido.')).toBeInTheDocument();
+    expect(await screen.findByText('Telefone inválido.')).toBeInTheDocument();
   });
 
-  it('e-mail e papel aparecem como leitura, sem campo editavel', async () => {
+  it('e-mail e papel aparecem como leitura, sem campo editável', async () => {
     render();
 
     expect(await screen.findByText('marina@exemplo.com')).toBeInTheDocument();
@@ -168,7 +168,7 @@ describe('Senha', () => {
     await user.type(screen.getByLabelText('Repetir a nova senha'), 'SenhaNova1');
   }
 
-  it('pede confirmacao antes de trocar, porque a troca desloga', async () => {
+  it('pede confirmação antes de trocar, porque a troca desloga', async () => {
     const user = createUser();
     render();
 
@@ -196,7 +196,7 @@ describe('Senha', () => {
     });
   });
 
-  it('confirmacao divergente nao chega ao servidor', async () => {
+  it('confirmação divergente não chega ao servidor', async () => {
     const user = createUser();
     render();
 
@@ -205,7 +205,7 @@ describe('Senha', () => {
     await user.type(screen.getByLabelText('Repetir a nova senha'), 'SenhaNova2');
     await user.click(screen.getByRole('button', { name: 'Alterar senha' }));
 
-    expect(await screen.findByText('As senhas nao conferem.')).toBeInTheDocument();
+    expect(await screen.findByText('As senhas não conferem.')).toBeInTheDocument();
     expect(lastPostTo('/auth/change-password')).toBeUndefined();
   });
 
@@ -239,7 +239,7 @@ describe('Senha', () => {
     expect(lastPostTo('/auth/change-password')).toBeUndefined();
   });
 
-  it('401 aqui e senha atual errada, e nao sessao expirada', async () => {
+  it('401 aqui e senha atual errada, e não sessão expirada', async () => {
     const user = createUser();
     mockPost.mockImplementation(async (url) => {
       if (url === '/auth/change-password') {
@@ -258,7 +258,7 @@ describe('Senha', () => {
   });
 });
 
-describe('Sessoes ativas', () => {
+describe('Sessões ativas', () => {
   it('lista o que o servidor devolveu', async () => {
     world.sessions = [
       makeSession({ id: 'session-1', ipAddress: '200.10.0.1' }),
@@ -277,7 +277,7 @@ describe('Sessoes ativas', () => {
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
-  it('nao oferece encerrar uma sessao isolada, porque o servidor nao oferece', async () => {
+  it('não oferece encerrar uma sessão isolada, porque o servidor não oferece', async () => {
     render();
 
     await screen.findByText('Chrome');
@@ -285,35 +285,35 @@ describe('Sessoes ativas', () => {
     expect(within(table).queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('encerrar tudo pede confirmacao e so entao chama a rota', async () => {
+  it('encerrar tudo pede confirmação e so entao chama a rota', async () => {
     const user = createUser();
     render();
 
     await screen.findByText('Chrome');
-    await user.click(screen.getByRole('button', { name: 'Encerrar todas as sessoes' }));
+    await user.click(screen.getByRole('button', { name: 'Encerrar todas as sessões' }));
 
-    expect(await screen.findByText('Encerrar todas as sessoes?')).toBeInTheDocument();
+    expect(await screen.findByText('Encerrar todas as sessões?')).toBeInTheDocument();
     expect(lastPostTo('/auth/logout-all')).toBeUndefined();
 
     await user.click(screen.getByRole('button', { name: 'Encerrar tudo' }));
     await waitFor(() => expect(lastPostTo('/auth/logout-all')).toBeDefined());
   });
 
-  it('sem nenhuma sessao o botao fica indisponivel', async () => {
+  it('sem nenhuma sessão o botao fica indisponível', async () => {
     world.sessions = [];
     render();
 
-    expect(await screen.findByText('Nenhuma sessao ativa')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Encerrar todas as sessoes' })).toBeDisabled();
+    expect(await screen.findByText('Nenhuma sessão ativa')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Encerrar todas as sessões' })).toBeDisabled();
   });
 
-  it('falha na leitura aparece na tela, e nao numa tabela vazia', async () => {
+  it('falha na leitura aparece na tela, e não numa tabela vazia', async () => {
     // Um 4xx de proposito: o `retry` do QueryProvider nao repete erro de
     // cliente, entao o estado de erro aparece no primeiro ciclo. Com 5xx o caso
     // mediria o backoff da repeticao, e nao o que a tela mostra.
-    mockGet.mockRejectedValue(new ApiError('Servico indisponivel.', 422, 'UNPROCESSABLE_ENTITY'));
+    mockGet.mockRejectedValue(new ApiError('Serviço indisponível.', 422, 'UNPROCESSABLE_ENTITY'));
     render();
 
-    expect(await screen.findByText(/Nao foi possivel carregar as sessoes/)).toBeInTheDocument();
+    expect(await screen.findByText(/Não foi possível carregar as sessões/)).toBeInTheDocument();
   });
 });

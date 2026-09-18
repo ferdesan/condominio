@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { formatDateTime } from '@/lib/format';
@@ -68,7 +62,7 @@ export function LgpdConsentTab() {
         <CardContent>
           <p className="text-sm text-muted-foreground">
             O consentimento de tratamento de dados e registrado por morador, no acesso de cada
-            unidade. Por aqui a consulta esta disponivel apenas ao proprio titular.
+            unidade. Por aqui a consulta esta disponível apenas ao próprio titular.
           </p>
         </CardContent>
       </Card>
@@ -81,7 +75,7 @@ export function LgpdConsentTab() {
         <CardHeader>
           <CardTitle>Consentimento LGPD</CardTitle>
           <CardDescription>
-            Tratamento de dados pessoais para a gestao interna do condominio.
+            Tratamento de dados pessoais para a gestao interna do condomínio.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -91,7 +85,7 @@ export function LgpdConsentTab() {
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1">
                 <p className="text-sm">
-                  Autorizo o tratamento dos meus dados pessoais para a gestao do condominio.
+                  Autorizo o tratamento dos meus dados pessoais para a gestao do condomínio.
                 </p>
                 {consent?.grantedAt ? (
                   <p className="text-xs text-muted-foreground">
@@ -108,7 +102,7 @@ export function LgpdConsentTab() {
                 checked={granted}
                 onCheckedChange={handleToggle}
                 disabled={busy || query.isPending}
-                aria-label="Autorizacao de tratamento de dados"
+                aria-label="Autorização de tratamento de dados"
               />
             </div>
           )}
@@ -127,7 +121,7 @@ export function LgpdConsentTab() {
         title={confirming ? 'Autorizar tratamento de dados?' : 'Revogar consentimento?'}
         description={
           confirming
-            ? 'O condominio podera continuar tratando os seus dados pessoais para a gestao interna.'
+            ? 'O condomínio podera continuar tratando os seus dados pessoais para a gestao interna.'
             : 'Seus dados continuarao armazenados, mas deixarao de ser tratados para novas finalidades.'
         }
         actionLabel={confirming ? 'Autorizar' : 'Revogar'}

@@ -11,7 +11,7 @@ export function ActivityFeed({ data, loading }: { data: ActivityEntry[]; loading
     <Card>
       <CardHeader>
         <CardTitle>Atividade recente</CardTitle>
-        <CardDescription>Ultimos registros da trilha de auditoria.</CardDescription>
+        <CardDescription>Últimos registros da trilha de auditoria.</CardDescription>
       </CardHeader>
 
       <div className="px-5 pb-5">

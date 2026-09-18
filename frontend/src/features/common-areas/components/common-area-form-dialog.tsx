@@ -125,21 +125,21 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar area comum' : 'Nova area comum'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar área comum' : 'Nova área comum'}</DialogTitle>
             <DialogDescription>
-              Identificacao, disponibilidade, regras de reserva e custo da area.
+              Identificação, disponibilidade, regras de reserva e custo da área.
             </DialogDescription>
           </DialogHeader>
 
           <CondominiumScopeNotice condominiumId={condominiumId} />
 
           {/*
-            Editar estes parametros muda o que o formulario de reservas aceita:
-            ele deriva as nove regras do registro da area em tempo de execucao
+            Editar estes parametros muda o que o formulário de reservas aceita:
+            ele deriva as nove regras do registro da área em tempo de execução
             (ADR-011). Quem edita precisa saber que nao esta so descrevendo a
-            area — esta mudando o que sera possivel reservar.
+            área — esta mudando o que será possível reservar.
           */}
           {isEdit ? (
             <p
@@ -148,8 +148,8 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
             >
               <CalendarClock className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span>
-                As regras de reserva abaixo valem imediatamente para o formulario de Reservas:
-                horario, dias, duracao, antecedencia e intervalo passam a ser cobrados com os
+                As regras de reserva abaixo valem imediatamente para o formulário de Reservas:
+                horário, dias, duração, antecedência e intervalo passam a ser cobrados com os
                 valores salvos aqui.
               </span>
             </p>
@@ -157,7 +157,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
             <section className="space-y-4">
-              <h3 className="text-sm font-semibold">Identificacao</h3>
+              <h3 className="text-sm font-semibold">Identificação</h3>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField id="common-area-name" label="Nome" error={errors.name?.message}>
@@ -195,7 +195,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
                   id="common-area-capacity"
                   label="Capacidade"
                   error={errors.capacity?.message}
-                  description="Numero de pessoas. Zero nao impoe limite."
+                  description="Número de pessoas. Zero não impoe limite."
                 >
                   {(aria) => <Input inputMode="numeric" {...aria} {...register('capacity')} />}
                 </FormField>
@@ -211,7 +211,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
 
               <FormField
                 id="common-area-description"
-                label="Descricao"
+                label="Descrição"
                 error={errors.description?.message}
               >
                 {(aria) => (
@@ -267,7 +267,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <FormField
                   id="common-area-min-hours"
-                  label="Duracao minima (h)"
+                  label="Duração mínima (h)"
                   error={errors.minHours?.message}
                 >
                   {(aria) => <Input inputMode="numeric" {...aria} {...register('minHours')} />}
@@ -275,7 +275,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
 
                 <FormField
                   id="common-area-max-hours"
-                  label="Duracao maxima (h)"
+                  label="Duração máxima (h)"
                   error={errors.maxHours?.message}
                 >
                   {(aria) => <Input inputMode="numeric" {...aria} {...register('maxHours')} />}
@@ -283,9 +283,9 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
 
                 <FormField
                   id="common-area-advance-booking-days"
-                  label="Antecedencia (dias)"
+                  label="Antecedência (dias)"
                   error={errors.advanceBookingDays?.message}
-                  description="Ate quantos dias no futuro se pode reservar."
+                  description="Até quantos dias no futuro se pode reservar."
                 >
                   {(aria) => (
                     <Input inputMode="numeric" {...aria} {...register('advanceBookingDays')} />
@@ -294,7 +294,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
 
                 <FormField
                   id="common-area-min-interval-days"
-                  label="Intervalo minimo (dias)"
+                  label="Intervalo mínimo (dias)"
                   error={errors.minIntervalDays?.message}
                   description="Entre reservas da mesma unidade."
                 >
@@ -315,7 +315,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
                       onCheckedChange={(checked) => field.onChange(checked === true)}
                     />
                     <Label htmlFor="common-area-requires-approval" className="font-normal">
-                      Exige aprovacao do sindico
+                      Exige aprovação do síndico
                     </Label>
                   </div>
                 )}
@@ -361,7 +361,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
                 Cancelar
               </Button>
               <Button type="submit" loading={pending}>
-                {isEdit ? 'Salvar area' : 'Criar area'}
+                {isEdit ? 'Salvar área' : 'Criar área'}
               </Button>
             </DialogFooter>
           </form>
@@ -370,8 +370,8 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="O que foi preenchido neste formulario sera perdido."
+        title="Descartar alterações?"
+        description="O que foi preenchido neste formulário será perdido."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         onCancel={() => setDiscardOpen(false)}

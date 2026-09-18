@@ -7,6 +7,8 @@ import {
   createUser,
   renderWithProviders,
   screen,
+  chooseOption,
+  openCombobox,
   selectOption,
   waitFor,
   within,
@@ -131,7 +133,7 @@ describe('Cadastro de dependente', () => {
     expect(within(dialog()).getByLabelText('Unidade')).toHaveValue('');
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Ana Souza');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Ana Souza/);
 
     // A unidade e a do morador titular: o servidor recusa qualquer outra.
     expect(within(dialog()).getByLabelText('Unidade')).toHaveValue('Torre A - 102');
@@ -166,7 +168,7 @@ describe('Cadastro de dependente', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Carlos Pereira');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Carlos Pereira/);
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -174,7 +176,7 @@ describe('Cadastro de dependente', () => {
     expect(await screen.findByText('Bruno Souza')).toBeInTheDocument();
   });
 
-  it('o seletor oferece apenas moradores do condominio selecionado', async () => {
+  it('o seletor oferece apenas moradores do condomínio selecionado', async () => {
     serve(
       [],
       [
@@ -193,16 +195,15 @@ describe('Cadastro de dependente', () => {
       condominiumId: 'cond-1',
     });
 
-    const trigger = within(dialog()).getByLabelText('Morador');
-    trigger.focus();
-    clickTrigger(trigger);
-    expect(screen.queryAllByRole('option').map((option) => option.textContent)).toEqual([
-      'Carlos Pereira',
-      'Ana Souza',
-    ]);
+    openCombobox(within(dialog()).getByLabelText('Morador'));
+    // O nome acessivel traz a unidade junto: e ela que distingue dois moradores
+    // de mesmo nome, e o rotulo sozinho nao distinguiria.
+    expect(
+      screen.queryAllByRole('option').map((option) => option.getAttribute('aria-label')),
+    ).toEqual(['Carlos Pereira, Torre A - 101', 'Ana Souza, Torre A - 101']);
   });
 
-  it('um nome de dois caracteres e recusado na propria tela', async () => {
+  it('um nome de dois caracteres e recusado na própria tela', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<DependentsPage />);
@@ -217,7 +218,7 @@ describe('Cadastro de dependente', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('sem morador escolhido a objecao cai no campo, e nada e enviado', async () => {
+  it('sem morador escolhido a objeção cai no campo, e nada e enviado', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<DependentsPage />);
@@ -228,12 +229,12 @@ describe('Cadastro de dependente', () => {
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
-    const message = await screen.findByText('Selecione o morador responsavel.');
+    const message = await screen.findByText('Selecione o morador responsável.');
     expect(message).toHaveAttribute('id', 'residentId-error');
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('dois envios em sequencia produzem um unico POST', async () => {
+  it('dois envios em sequência produzem um único POST', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -246,7 +247,7 @@ describe('Cadastro de dependente', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Carlos Pereira');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Carlos Pereira/);
 
     const submit = within(dialog()).getByRole('button', { name: 'Cadastrar' });
     clickTrigger(submit);
@@ -256,8 +257,8 @@ describe('Cadastro de dependente', () => {
   });
 });
 
-describe('Falhas do servidor no formulario de dependente', () => {
-  it('um 422 que aponta o campo aparece nele, e nao em toast', async () => {
+describe('Falhas do servidor no formulário de dependente', () => {
+  it('um 422 que aponta o campo aparece nele, e não em toast', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockRejectedValue(
@@ -272,7 +273,7 @@ describe('Falhas do servidor no formulario de dependente', () => {
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
     await user.type(within(dialog()).getByLabelText('CPF'), '12345678909');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Carlos Pereira');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Carlos Pereira/);
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     const message = await screen.findByText('CPF deve conter 11 digitos.');
@@ -284,7 +285,7 @@ describe('Falhas do servidor no formulario de dependente', () => {
     expect(screen.queryByText('Dados invalidos.')).not.toBeInTheDocument();
   });
 
-  it('um 409 sem detalhe de campo vira mensagem do formulario, preservando o preenchido', async () => {
+  it('um 409 sem detalhe de campo vira mensagem do formulário, preservando o preenchido', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockRejectedValue(
@@ -301,7 +302,7 @@ describe('Falhas do servidor no formulario de dependente', () => {
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Souza');
     await user.type(within(dialog()).getByLabelText('CPF'), '98765432100');
-    selectOption(within(dialog()).getByLabelText('Morador'), 'Carlos Pereira');
+    chooseOption(within(dialog()).getByLabelText('Morador'), /Carlos Pereira/);
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     expect(
@@ -314,8 +315,8 @@ describe('Falhas do servidor no formulario de dependente', () => {
   });
 });
 
-describe('Edicao de dependente', () => {
-  it('os valores atuais chegam preenchidos e a alteracao sai num unico PATCH', async () => {
+describe('Edição de dependente', () => {
+  it('os valores atuais chegam preenchidos e a alteração sai num único PATCH', async () => {
     serve([makeDependent()]);
     const user = createUser();
     mockPatch.mockImplementation(async () => {
@@ -346,7 +347,7 @@ describe('Edicao de dependente', () => {
     expect(await screen.findByText('Lucas Pereira Neto')).toBeInTheDocument();
   });
 
-  it('o morador vinculado que saiu da lista e nomeado como ausente, e nao some calado', async () => {
+  it('o morador vinculado que saiu da lista e nomeado como ausente, e não some calado', async () => {
     serve(
       [makeDependent()],
       [
@@ -365,7 +366,7 @@ describe('Edicao de dependente', () => {
 
     expect(
       within(dialog()).getByText(
-        'O morador vinculado nao esta mais na lista deste condominio. Escolha outro.',
+        'O morador vinculado não esta mais na lista deste condomínio. Escolha outro.',
       ),
     ).toBeInTheDocument();
   });

@@ -81,7 +81,7 @@ async function openEditDialog(name: string): Promise<void> {
 /** Preenche o minimo que o servidor exige, para que so a objecao sob teste sobre. */
 async function fillRequired(user: ReturnType<typeof createUser>): Promise<void> {
   await user.type(within(dialog()).getByLabelText('Razao social'), 'Jardins e Cia');
-  await user.type(within(dialog()).getByLabelText('Tipo de servico'), 'Jardinagem');
+  await user.type(within(dialog()).getByLabelText('Tipo de serviço'), 'Jardinagem');
 }
 
 function submitCreate(): void {
@@ -109,7 +109,7 @@ function SwitchableShell({ children }: { children: ReactNode }) {
   return (
     <CondominiumContext.Provider value={value}>
       <button type="button" onClick={() => setSelectedId('cond-2')}>
-        Trocar condominio
+        Trocar condomínio
       </button>
       {children}
     </CondominiumContext.Provider>
@@ -161,7 +161,7 @@ describe('Cadastro de prestador', () => {
     const user = createUser();
     mockPost.mockRejectedValue(
       new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
-        { field: 'document', message: 'Documento ja utilizado por outro prestador.' },
+        { field: 'document', message: 'Documento já utilizado por outro prestador.' },
       ]),
     );
     renderWithProviders(<ServiceProvidersPage />);
@@ -171,7 +171,7 @@ describe('Cadastro de prestador', () => {
     await fillRequired(user);
     submitCreate();
 
-    const message = await screen.findByText('Documento ja utilizado por outro prestador.');
+    const message = await screen.findByText('Documento já utilizado por outro prestador.');
     // A objecao pertence ao campo apontado, e nao ao formulario inteiro.
     expect(message).toHaveAttribute('id', 'document-error');
     // O formulario define `onError`, entao substitui o toast global em vez de
@@ -179,11 +179,11 @@ describe('Cadastro de prestador', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('um 409 sem campo aparece como mensagem do formulario, preservando o preenchido', async () => {
+  it('um 409 sem campo aparece como mensagem do formulário, preservando o preenchido', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Documento informado e invalido.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('Documento informado e inválido.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<ServiceProvidersPage />);
 
@@ -193,14 +193,14 @@ describe('Cadastro de prestador', () => {
     await user.type(within(dialog()).getByLabelText('CPF ou CNPJ'), '12345678000100');
     submitCreate();
 
-    expect(await screen.findByText('Documento informado e invalido.')).toBeInTheDocument();
+    expect(await screen.findByText('Documento informado e inválido.')).toBeInTheDocument();
     // O dialogo fica, com os valores no lugar, para a correcao.
     expect(within(dialog()).getByLabelText('Razao social')).toHaveValue('Jardins e Cia');
-    expect(within(dialog()).getByLabelText('Tipo de servico')).toHaveValue('Jardinagem');
+    expect(within(dialog()).getByLabelText('Tipo de serviço')).toHaveValue('Jardinagem');
     expect(within(dialog()).getByLabelText('CPF ou CNPJ')).toHaveValue('12345678000100');
   });
 
-  it('dois envios em sequencia produzem um unico POST', async () => {
+  it('dois envios em sequência produzem um único POST', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -220,7 +220,7 @@ describe('Cadastro de prestador', () => {
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
   });
 
-  it('o formulario grava no condominio em que abriu, mesmo se o shell mudar', async () => {
+  it('o formulário grava no condomínio em que abriu, mesmo se o shell mudar', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -239,7 +239,7 @@ describe('Cadastro de prestador', () => {
 
     // Por papel nao da: o dialogo modal marca o resto da pagina como
     // `aria-hidden`, e `getByRole` nao enxerga fora da arvore acessivel.
-    clickTrigger(screen.getByText('Trocar condominio'));
+    clickTrigger(screen.getByText('Trocar condomínio'));
 
     // A divergencia entre o que o dialogo grava e o que a tela mostra e
     // nomeada, em vez de silenciosamente reapontada (US-027.EC-3).
@@ -252,7 +252,7 @@ describe('Cadastro de prestador', () => {
   });
 });
 
-describe('Documento e avaliacao do prestador', () => {
+describe('Documento e avaliação do prestador', () => {
   it('um CPF de 11 digitos e aceito', async () => {
     serve([]);
     const user = createUser();
@@ -292,7 +292,7 @@ describe('Documento e avaliacao do prestador', () => {
     expect(lastCreateBody()).toMatchObject({ document: '12345678000199' });
   });
 
-  it('um documento de 10 digitos e recusado no proprio campo', async () => {
+  it('um documento de 10 digitos e recusado no próprio campo', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<ServiceProvidersPage />);
@@ -308,7 +308,7 @@ describe('Documento e avaliacao do prestador', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('uma avaliacao fora de 1 a 5 e recusada antes do envio', async () => {
+  it('uma avaliação fora de 1 a 5 e recusada antes do envio', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<ServiceProvidersPage />);
@@ -316,15 +316,15 @@ describe('Documento e avaliacao do prestador', () => {
     await screen.findByText('Nenhum prestador cadastrado');
     await openCreateDialog();
     await fillRequired(user);
-    await user.type(within(dialog()).getByLabelText('Avaliacao'), '9');
+    await user.type(within(dialog()).getByLabelText('Avaliação'), '9');
     submitCreate();
 
-    const message = await screen.findByText('A avaliacao vai de 1 a 5.');
+    const message = await screen.findByText('A avaliação vai de 1 a 5.');
     expect(message).toHaveAttribute('id', 'rating-error');
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('uma avaliacao dentro da faixa vai como inteiro', async () => {
+  it('uma avaliação dentro da faixa vai como inteiro', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -336,7 +336,7 @@ describe('Documento e avaliacao do prestador', () => {
     await screen.findByText('Nenhum prestador cadastrado');
     await openCreateDialog();
     await fillRequired(user);
-    await user.type(within(dialog()).getByLabelText('Avaliacao'), '5');
+    await user.type(within(dialog()).getByLabelText('Avaliação'), '5');
 
     // A previa ao lado do campo le a nota como avaliacao, e nao como numero.
     expect(within(dialog()).getByLabelText('5 de 5 — Excelente')).toBeInTheDocument();
@@ -349,8 +349,8 @@ describe('Documento e avaliacao do prestador', () => {
   });
 });
 
-describe('Edicao de prestador', () => {
-  it('editar emite um unico PATCH e a linha reflete', async () => {
+describe('Edição de prestador', () => {
+  it('editar emite um único PATCH e a linha reflete', async () => {
     serve([makeServiceProvider()]);
     const user = createUser();
     mockPatch.mockImplementation(async () => {
@@ -364,7 +364,7 @@ describe('Edicao de prestador', () => {
 
     // Os valores atuais chegam preenchidos.
     expect(within(dialog()).getByLabelText('Razao social')).toHaveValue('Limpeza Total Ltda');
-    expect(within(dialog()).getByLabelText('Avaliacao')).toHaveValue(4);
+    expect(within(dialog()).getByLabelText('Avaliação')).toHaveValue(4);
 
     await user.clear(within(dialog()).getByLabelText('Razao social'));
     await user.type(within(dialog()).getByLabelText('Razao social'), 'Limpeza Total S.A.');
@@ -376,7 +376,7 @@ describe('Edicao de prestador', () => {
     expect(await screen.findByText('Limpeza Total S.A.')).toBeInTheDocument();
   });
 
-  it('termino anterior ao inicio e recusado no campo do termino', async () => {
+  it('término anterior ao início e recusado no campo do término', async () => {
     serve([makeServiceProvider()]);
     const user = createUser();
     renderWithProviders(<ServiceProvidersPage />);
@@ -384,12 +384,12 @@ describe('Edicao de prestador', () => {
     await screen.findByText('Limpeza Total Ltda');
     await openEditDialog('Limpeza Total Ltda');
 
-    await user.clear(within(dialog()).getByLabelText('Termino'));
-    await user.type(within(dialog()).getByLabelText('Termino'), '2025-12-31');
+    await user.clear(within(dialog()).getByLabelText('Término'));
+    await user.type(within(dialog()).getByLabelText('Término'), '2025-12-31');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
     const message = await screen.findByText(
-      'O termino do contrato nao pode ser anterior ao inicio.',
+      'O término do contrato não pode ser anterior ao início.',
     );
     expect(message).toHaveAttribute('id', 'contractEnd-error');
     expect(mockPatch).not.toHaveBeenCalled();

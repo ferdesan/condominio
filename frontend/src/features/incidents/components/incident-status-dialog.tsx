@@ -114,11 +114,11 @@ export function IncidentStatusDialog({ incident, onClose }: IncidentStatusDialog
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent side="right" dismissible={false}>
         <DialogHeader>
-          <DialogTitle>Mudar status da ocorrencia</DialogTitle>
+          <DialogTitle>Mudar status da ocorrência</DialogTitle>
           <DialogDescription>
-            O morador que abriu a ocorrencia e avisado da mudanca.
+            O morador que abriu a ocorrência e avisado da mudança.
           </DialogDescription>
         </DialogHeader>
 
@@ -157,8 +157,8 @@ export function IncidentStatusDialog({ incident, onClose }: IncidentStatusDialog
             error={errors.resolution?.message}
             description={
               needsResolution
-                ? 'Obrigatoria para resolver ou recusar: o servidor recusa a mudanca sem ela.'
-                : 'Opcional. O que foi feito ate aqui.'
+                ? 'Obrigatória para resolver ou recusar: o servidor recusa a mudança sem ela.'
+                : 'Opcional. O que foi feito até aqui.'
             }
           >
             {(aria) => (
@@ -183,8 +183,8 @@ export function IncidentStatusDialog({ incident, onClose }: IncidentStatusDialog
           <DialogFooter>
             {/*
               "Voltar" e nao "Fechar": o botao de fechar do proprio dialogo ja
-              usa esse nome, e dois controles com o mesmo nome acessivel no mesmo
-              dialogo sao indistinguiveis para quem navega por leitor.
+              usa esse nome, e dois controles com o mesmo nome acessível no mesmo
+              dialogo sao indistinguíveis para quem navega por leitor.
             */}
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
               Voltar

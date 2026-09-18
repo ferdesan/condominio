@@ -6,13 +6,7 @@ import { EmptyState } from '@/components/common/empty-state';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DEFAULT_PER_PAGE,
   lgpdRequestFilters,
@@ -99,8 +93,8 @@ function AdminRequestsList() {
     return (
       <EmptyState
         icon={Building2}
-        title="Selecione um condominio"
-        description="Os pedidos de anonimizacao sao listados por condominio. Escolha um no topo da tela para continuar."
+        title="Selecione um condomínio"
+        description="Os pedidos de anonimização sao listados por condomínio. Escolha um no topo da tela para continuar."
       />
     );
   }
@@ -117,7 +111,11 @@ function AdminRequestsList() {
         </Badge>
       ),
     },
-    { key: 'requestedAt', label: 'Solicitada em', render: (_value, row) => formatDateTime(row.requestedAt) },
+    {
+      key: 'requestedAt',
+      label: 'Solicitada em',
+      render: (_value, row) => formatDateTime(row.requestedAt),
+    },
     {
       key: 'executedAt',
       label: 'Executada em',
@@ -128,17 +126,17 @@ function AdminRequestsList() {
       label: 'Cancelada em',
       render: (_value, row) => formatDateTime(row.cancelledAt),
     },
-    { key: 'notes', label: 'Anotacoes', render: (_value, row) => row.notes ?? '—' },
+    { key: 'notes', label: 'Anotações', render: (_value, row) => row.notes ?? '—' },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) =>
         row.status === 'PENDING' ? (
           <div className="flex items-center gap-2">
             <Button
               size="sm"
               variant="destructive"
-              aria-label={`Executar solicitacao de ${row.residentName}`}
+              aria-label={`Executar solicitação de ${row.residentName}`}
               onClick={() => setExecuting(row)}
             >
               Executar
@@ -146,7 +144,7 @@ function AdminRequestsList() {
             <Button
               size="sm"
               variant="outline"
-              aria-label={`Cancelar solicitacao de ${row.residentName}`}
+              aria-label={`Cancelar solicitação de ${row.residentName}`}
               onClick={() => setCancelling(row)}
             >
               Cancelar
@@ -159,7 +157,7 @@ function AdminRequestsList() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Pedidos de anonimizacao de dados do {selected?.name ?? 'condominio selecionado'}.
+        Pedidos de anonimizacao de dados do {selected?.name ?? 'condomínio selecionado'}.
       </p>
 
       <DataTable
@@ -175,16 +173,16 @@ function AdminRequestsList() {
         currentPage={page}
         totalPages={totalPages ?? 1}
         onPageChange={setPage}
-        emptyTitle="Nenhuma solicitacao"
+        emptyTitle="Nenhuma solicitação"
         emptyDescription="Os pedidos de exclusao de dados aparecerao aqui."
       />
 
       <ConfirmDialog
         open={executing !== null}
-        title="Executar anonimizacao?"
+        title="Executar anonimização?"
         description={
           executing
-            ? `Os dados pessoais de ${executing.residentName} serao anonimizados e o seu acesso ao sistema, encerrado. Esta acao e irreversivel e fica registrada na auditoria.`
+            ? `Os dados pessoais de ${executing.residentName} serão anonimizados e o seu acesso ao sistema, encerrado. Esta ação e irreversível e fica registrada na auditoria.`
             : undefined
         }
         actionLabel="Executar"
@@ -194,7 +192,7 @@ function AdminRequestsList() {
           if (!executing) return;
           withBusyGuard(() =>
             execute.mutate(executing.id, {
-              onSuccess: () => toast.success('Anonimizacao executada.'),
+              onSuccess: () => toast.success('Anonimização executada.'),
               onSettled: releaseBusy,
             }),
           );
@@ -203,13 +201,13 @@ function AdminRequestsList() {
 
       <ConfirmDialog
         open={cancelling !== null}
-        title="Cancelar solicitacao?"
+        title="Cancelar solicitação?"
         description={
           cancelling
-            ? `O pedido de ${cancelling.residentName} nao sera executado e o morador podera faze-lo novamente.`
+            ? `O pedido de ${cancelling.residentName} não será executado e o morador podera faze-lo novamente.`
             : undefined
         }
-        actionLabel="Cancelar solicitacao"
+        actionLabel="Cancelar solicitação"
         variant="warning"
         loading={busy}
         onCancel={() => setCancelling(null)}
@@ -217,7 +215,7 @@ function AdminRequestsList() {
           if (!cancelling) return;
           withBusyGuard(() =>
             cancel.mutate(cancelling.id, {
-              onSuccess: () => toast.success('Solicitacao cancelada.'),
+              onSuccess: () => toast.success('Solicitação cancelada.'),
               onSettled: releaseBusy,
             }),
           );
@@ -245,7 +243,7 @@ function ResidentRequestsPanel() {
         onSuccess: (result) => {
           setCreated(result);
           setOpen(false);
-          toast.success('Solicitacao de exclusao enviada.');
+          toast.success('Solicitação de exclusao enviada.');
           // O servidor avisa o que sera preservado e o que deixa de funcionar.
           for (const warning of result.warnings) toast.message(warning);
         },
@@ -263,7 +261,7 @@ function ResidentRequestsPanel() {
         <CardHeader>
           <CardTitle>Exclusao dos seus dados</CardTitle>
           <CardDescription>
-            Solicite a anonimizacao dos seus dados pessoais, conforme a LGPD (Art. 18, VI).
+            Solicite a anonimização dos seus dados pessoais, conforme a LGPD (Art. 18, VI).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -272,7 +270,7 @@ function ResidentRequestsPanel() {
               <div className="flex items-center gap-2">
                 <Badge>{REQUEST_STATUS_LABELS[created.status]}</Badge>
                 <p className="text-sm text-muted-foreground">
-                  Seu pedido foi registrado e sera apreciado pela administracao.
+                  Seu pedido foi registrado e será apreciado pela administração.
                 </p>
               </div>
             </div>
@@ -286,8 +284,8 @@ function ResidentRequestsPanel() {
         open={open}
         title="Solicitar exclusao de dados?"
         variant="danger"
-        description="Seus dados pessoais serao anonimizados e o acesso a plataforma, encerrado. Cobrancas, reservas e documentos ja emitidos sao preservados por obrigacao legal."
-        actionLabel="Enviar solicitacao"
+        description="Seus dados pessoais serão anonimizados e o acesso a plataforma, encerrado. Cobranças, reservas e documentos já emitidos sao preservados por obrigação legal."
+        actionLabel="Enviar solicitação"
         loading={sending}
         onCancel={() => setOpen(false)}
         onConfirm={submit}

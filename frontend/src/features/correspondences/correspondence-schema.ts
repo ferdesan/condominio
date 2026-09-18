@@ -19,7 +19,7 @@ import {
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {
-  return z.string().trim().max(max, `Use no maximo ${max} caracteres.`);
+  return z.string().trim().max(max, `Use no máximo ${max} caracteres.`);
 }
 
 /** Valor do input nativo `datetime-local`: `yyyy-MM-ddTHH:mm`. */
@@ -29,10 +29,10 @@ function optionalUrl() {
   return z
     .string()
     .trim()
-    .max(255, 'Use no maximo 255 caracteres.')
+    .max(255, 'Use no máximo 255 caracteres.')
     .refine(
       (value) => value === '' || z.string().url().safeParse(value).success,
-      'Informe uma URL valida.',
+      'Informe uma URL válida.',
     );
 }
 
@@ -49,7 +49,7 @@ const correspondenceFields = z.object({
   // recebimento e a informacao que a portaria de fato registra.
   receivedAt: z
     .string()
-    .min(1, 'Informe quando a correspondencia chegou.')
+    .min(1, 'Informe quando a correspondência chegou.')
     .refine((value) => LOCAL_DATE_TIME.test(value), 'Data e hora invalidas.'),
   receivedBy: optionalText(150),
   photoUrl: optionalUrl(),
@@ -187,8 +187,8 @@ export const deliverSchema = z.object({
   deliveredTo: z
     .string()
     .trim()
-    .min(3, 'Informe quem retirou a correspondencia.')
-    .max(150, 'Use no maximo 150 caracteres.'),
+    .min(3, 'Informe quem retirou a correspondência.')
+    .max(150, 'Use no máximo 150 caracteres.'),
   deliveredAt: z
     .string()
     .refine((value) => value === '' || LOCAL_DATE_TIME.test(value), 'Data e hora invalidas.'),

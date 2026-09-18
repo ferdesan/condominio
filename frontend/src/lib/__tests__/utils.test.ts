@@ -12,24 +12,24 @@ describe('cn() (UT-029)', () => {
     expect(cn('a', maybe && 'b', null, 'c')).toBe('a c');
   });
 
-  it('UT-029.E1: a ultima classe vence o conflito de utilidade', () => {
+  it('UT-029.E1: a última classe vence o conflito de utilidade', () => {
     expect(cn('p-2', 'p-4')).toBe('p-4');
     expect(cn('text-sm', 'text-lg')).toBe('text-lg');
   });
 });
 
 describe('initials() (UT-029)', () => {
-  it('UT-029.E2: nome completo vira as iniciais do primeiro e ultimo nome', () => {
+  it('UT-029.E2: nome completo vira as iniciais do primeiro e último nome', () => {
     expect(initials('João Silva')).toBe('JS');
     expect(initials('  marina   alves ')).toBe('MA');
   });
 
-  it('UT-029.E3: nome unico devolve duas letras dele, nao uma so', () => {
+  it('UT-029.E3: nome único devolve duas letras dele, não uma so', () => {
     expect(initials('João')).toBe('JO');
     expect(initials('A')).toBe('A');
   });
 
-  it('UT-029.E4: ausencia de nome devolve string vazia', () => {
+  it('UT-029.E4: ausência de nome devolve string vazia', () => {
     expect(initials('')).toBe('');
     expect(initials(null)).toBe('');
     expect(initials(undefined)).toBe('');

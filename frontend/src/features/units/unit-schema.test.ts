@@ -13,10 +13,10 @@ function issueOn(input: UnitFormValues, path: string): string | undefined {
 }
 
 describe('unitSchema', () => {
-  it('UT-009: andar 201 e fracao 1.5 falham cada um no proprio caminho', () => {
+  it('UT-009: andar 201 e fração 1.5 falham cada um no próprio caminho', () => {
     expect(issueOn(values({ floor: '201' }), 'floor')).toBe('O andar deve estar entre -10 e 200.');
     expect(issueOn(values({ idealFraction: '1.5' }), 'idealFraction')).toBe(
-      'A fracao ideal deve estar entre 0 e 1.',
+      'A fração ideal deve estar entre 0 e 1.',
     );
 
     // Um erro nao contamina o outro campo.

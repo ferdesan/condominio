@@ -112,9 +112,9 @@ export function EmployeeFilters({ list, departments }: EmployeeFiltersProps) {
 
         {/*
           Departamento e texto livre comparado por igualdade no servidor: um
-          campo de digitacao acertaria o filtro so por coincidencia de grafia.
-          As opcoes sao os departamentos que ja existem — e quando nao existe
-          nenhum, nao ha filtro a oferecer.
+          campo de digitação acertaria o filtro so por coincidência de grafia.
+          As opções sao os departamentos que já existem — e quando não existe
+          nenhum, não ha filtro a oferecer.
         */}
         {departments.length > 0 ? (
           <div className="space-y-1.5">
@@ -166,7 +166,7 @@ export function EmployeeFilters({ list, departments }: EmployeeFiltersProps) {
       {/*
         Sem gate de permissao: ver registros removidos e leitura, e o servidor
         aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a linha
-        marcada e nenhuma acao de restaurar (ADR-006).
+        marcada e nenhuma ação de restaurar (ADR-006).
       */}
       <div className="flex items-center gap-2">
         <Checkbox

@@ -18,7 +18,7 @@ import { PROVIDER_STATUSES, type ServiceProvider } from '@/types/api';
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {
-  return z.string().trim().max(max, `Use no maximo ${max} caracteres.`);
+  return z.string().trim().max(max, `Use no máximo ${max} caracteres.`);
 }
 
 /** Telefone opcional. A pontuacao e descartada, como o backend faz. */
@@ -28,7 +28,7 @@ function optionalPhone() {
     .transform((value) => value.replace(/\D/g, ''))
     .refine(
       (value) => value === '' || (value.length >= 8 && value.length <= 11),
-      'Telefone invalido.',
+      'Telefone inválido.',
     );
 }
 
@@ -36,7 +36,7 @@ function optionalPhone() {
 function optionalDate() {
   return z
     .string()
-    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data invalida.');
+    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data inválida.');
 }
 
 const providerFields = z.object({
@@ -49,7 +49,7 @@ const providerFields = z.object({
       (value) => value === '' || value.length === 11 || value.length === 14,
       'Informe um CPF (11 digitos) ou um CNPJ (14 digitos).',
     ),
-  serviceType: z.string().trim().min(2, 'Informe o tipo de servico.').max(100),
+  serviceType: z.string().trim().min(2, 'Informe o tipo de serviço.').max(100),
   contactName: optionalText(150),
   phone: optionalPhone(),
   email: z
@@ -57,7 +57,7 @@ const providerFields = z.object({
     .trim()
     .refine(
       (value) => value === '' || z.string().email().safeParse(value).success,
-      'E-mail invalido.',
+      'E-mail inválido.',
     ),
   status: z.enum(PROVIDER_STATUSES),
   contractStart: optionalDate(),
@@ -66,7 +66,7 @@ const providerFields = z.object({
   // 0, 6 e 10 caem aqui — antes de qualquer envio.
   rating: z
     .string()
-    .refine((value) => value === '' || /^[1-5]$/.test(value), 'A avaliacao vai de 1 a 5.'),
+    .refine((value) => value === '' || /^[1-5]$/.test(value), 'A avaliação vai de 1 a 5.'),
   notes: optionalText(2000),
 });
 
@@ -77,7 +77,7 @@ export const serviceProviderSchema = providerFields.superRefine((values, ctx) =>
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['contractEnd'],
-      message: 'O termino do contrato nao pode ser anterior ao inicio.',
+      message: 'O término do contrato não pode ser anterior ao início.',
     });
   }
 });

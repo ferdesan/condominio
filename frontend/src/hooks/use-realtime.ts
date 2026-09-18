@@ -106,7 +106,7 @@ export function useRealtime(): void {
     /*
       Ouvinte registrado de proposito e deliberadamente inerte.
 
-      Falha de conexao nao e problema de quem esta usando: o socket.io ja repete
+      Falha de conexao não e problema de quem esta usando: o socket.io já repete
       com recuo, e as telas continuam funcionando sem o canal. Um toast culparia
       a tela por algo que nao a impede de nada, e um `console.warn` repetiria a
       cada tentativa de reconexao. O que o ouvinte faz e impedir que o erro suba
@@ -151,13 +151,13 @@ export function useRealtime(): void {
     if (!socket || !selectedId) return;
 
     /*
-      O servidor ja poe o socket nas salas dos condominios do vinculo, na
+      O servidor já poe o socket nas salas dos condomínios do vinculo, na
       conexao. Estes dois eventos existem para o caso de quem enxerga todos do
-      tenant — administrador com vinculo vazio —, que nao entra em sala nenhuma
-      de condominio e so acompanha o que esta olhando agora.
+      tenant — administrador com vinculo vazio —, que não entra em sala nenhuma
+      de condomínio e so acompanha o que esta olhando agora.
 
       `subscribe:condominium` e conferido no servidor contra o escopo do token,
-      entao pedir por um condominio sem acesso simplesmente nao surte efeito.
+      entao pedir por um condomínio sem acesso simplesmente não surte efeito.
     */
     socket.emit('subscribe:condominium', selectedId);
     return () => {

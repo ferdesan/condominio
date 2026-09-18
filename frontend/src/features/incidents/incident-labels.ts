@@ -11,9 +11,9 @@ import type { IncidentCategory, IncidentPriority, IncidentStatus } from '@/types
 
 export const CATEGORY_LABELS: Record<IncidentCategory, string> = {
   NOISE: 'Barulho',
-  SECURITY: 'Seguranca',
-  MAINTENANCE: 'Manutencao',
-  NEIGHBOR: 'Vizinhanca',
+  SECURITY: 'Segurança',
+  MAINTENANCE: 'Manutenção',
+  NEIGHBOR: 'Vizinhança',
   CLEANING: 'Limpeza',
   PET: 'Animais',
   PARKING: 'Estacionamento',
@@ -22,9 +22,9 @@ export const CATEGORY_LABELS: Record<IncidentCategory, string> = {
 
 export const PRIORITY_LABELS: Record<IncidentPriority, string> = {
   LOW: 'Baixa',
-  MEDIUM: 'Media',
+  MEDIUM: 'Média',
   HIGH: 'Alta',
-  CRITICAL: 'Critica',
+  CRITICAL: 'Crítica',
 };
 
 /**
@@ -45,10 +45,10 @@ export const STATUS_LABELS: Record<IncidentStatus, string> = {
 };
 
 /** Dito quando ninguem foi designado para atender a ocorrencia. */
-export const NO_ASSIGNEE = 'Sem responsavel';
+export const NO_ASSIGNEE = 'Sem responsável';
 
 /** Dito quando ha responsavel, mas o usuario referido nao esta na lista carregada. */
-export const ASSIGNEE_UNAVAILABLE = 'Responsavel indisponivel';
+export const ASSIGNEE_UNAVAILABLE = 'Responsável indisponível';
 
 /** Dito quando a ocorrencia foi aberta sem identificar quem a registrou. */
 export const ANONYMOUS_REPORTER = 'Anonimo';

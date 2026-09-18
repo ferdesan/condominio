@@ -87,22 +87,22 @@ export function describeAreaRules(area: CommonArea): string[] {
     const names = weekdays.map((day) => WEEKDAY_NAMES[day] ?? String(day));
     rules.push(`Dias permitidos: ${names.join(', ')}.`);
   } else {
-    rules.push('Disponivel todos os dias da semana.');
+    rules.push('Disponível todos os dias da semana.');
   }
 
-  if (area.minHours > 0) rules.push(`Duracao minima de ${area.minHours}h.`);
-  if (area.maxHours > 0) rules.push(`Duracao maxima de ${area.maxHours}h.`);
-  rules.push(`Antecedencia maxima de ${area.advanceBookingDays} dias.`);
+  if (area.minHours > 0) rules.push(`Duração mínima de ${area.minHours}h.`);
+  if (area.maxHours > 0) rules.push(`Duração máxima de ${area.maxHours}h.`);
+  rules.push(`Antecedência máxima de ${area.advanceBookingDays} dias.`);
   if (area.capacity > 0) rules.push(`Capacidade de ${area.capacity} pessoas.`);
   if (area.minIntervalDays > 0) {
     rules.push(
-      `Intervalo minimo de ${area.minIntervalDays} dia(s) entre reservas da mesma unidade.`,
+      `Intervalo mínimo de ${area.minIntervalDays} dia(s) entre reservas da mesma unidade.`,
     );
   }
   rules.push(
     area.requiresApproval
-      ? 'Esta area exige aprovacao: a reserva nasce pendente.'
-      : 'Esta area nao exige aprovacao: a reserva ja nasce confirmada.',
+      ? 'Esta área exige aprovação: a reserva nasce pendente.'
+      : 'Esta área não exige aprovação: a reserva já nasce confirmada.',
   );
 
   return rules;
@@ -130,7 +130,7 @@ export function checkReservationRules(
 
   // 1. Termino depois do inicio. Unica regra que nao depende da area.
   if (end <= start) {
-    issues.push({ field: 'endsAt', message: 'O termino deve ser posterior ao inicio.' });
+    issues.push({ field: 'endsAt', message: 'O término deve ser posterior ao início.' });
     return issues;
   }
 
@@ -138,14 +138,14 @@ export function checkReservationRules(
 
   // 2. Nada no passado.
   if (start < now) {
-    issues.push({ field: 'startsAt', message: 'Nao e possivel reservar uma data no passado.' });
+    issues.push({ field: 'startsAt', message: 'Não e possível reservar uma data no passado.' });
   }
 
   // 3. Limite de antecedencia.
   if (start > addDays(now, area.advanceBookingDays)) {
     issues.push({
       field: 'startsAt',
-      message: `Reservas podem ser feitas com no maximo ${area.advanceBookingDays} dias de antecedencia.`,
+      message: `Reservas podem ser feitas com no máximo ${area.advanceBookingDays} dias de antecedência.`,
     });
   }
 
@@ -154,13 +154,13 @@ export function checkReservationRules(
   if (area.minHours > 0 && durationHours < area.minHours) {
     issues.push({
       field: 'endsAt',
-      message: `A reserva minima para esta area e de ${area.minHours}h.`,
+      message: `A reserva mínima para esta área e de ${area.minHours}h.`,
     });
   }
   if (area.maxHours > 0 && durationHours > area.maxHours) {
     issues.push({
       field: 'endsAt',
-      message: `A reserva maxima para esta area e de ${area.maxHours}h.`,
+      message: `A reserva máxima para esta área e de ${area.maxHours}h.`,
     });
   }
 
@@ -170,7 +170,7 @@ export function checkReservationRules(
   if (weekdays?.length && !weekdays.includes(getDay(start))) {
     issues.push({
       field: 'startsAt',
-      message: 'A area comum nao esta disponivel neste dia da semana.',
+      message: 'A área comum não esta disponível neste dia da semana.',
     });
   }
 
@@ -191,7 +191,7 @@ export function checkReservationRules(
   if (area.capacity > 0 && Number.isFinite(guests) && guests > area.capacity) {
     issues.push({
       field: 'guestsCount',
-      message: `A area comporta no maximo ${area.capacity} pessoas.`,
+      message: `A área comporta no máximo ${area.capacity} pessoas.`,
     });
   }
 
@@ -200,18 +200,18 @@ export function checkReservationRules(
 }
 
 const baseSchema = z.object({
-  commonAreaId: z.string().min(1, 'Selecione a area comum.'),
+  commonAreaId: z.string().min(1, 'Selecione a área comum.'),
   unitId: z.string().min(1, 'Selecione a unidade.'),
-  startsAt: z.string().min(1, 'Informe a data e hora de inicio.'),
-  endsAt: z.string().min(1, 'Informe a data e hora de termino.'),
+  startsAt: z.string().min(1, 'Informe a data e hora de início.'),
+  endsAt: z.string().min(1, 'Informe a data e hora de término.'),
   guestsCount: z
     .string()
     .trim()
     .refine(
       (value) => value === '' || (/^\d+$/.test(value) && Number(value) <= 10000),
-      'Informe um numero de convidados valido.',
+      'Informe um número de convidados válido.',
     ),
-  notes: z.string().trim().max(NOTES_MAX, `Use no maximo ${NOTES_MAX} caracteres.`),
+  notes: z.string().trim().max(NOTES_MAX, `Use no máximo ${NOTES_MAX} caracteres.`),
 });
 
 export type ReservationSchema = z.ZodType<ReservationFormValues>;
@@ -241,7 +241,7 @@ export const decisionSchema = z.object({
   reason: z
     .string()
     .trim()
-    .max(DECISION_REASON_MAX, `Use no maximo ${DECISION_REASON_MAX} caracteres.`),
+    .max(DECISION_REASON_MAX, `Use no máximo ${DECISION_REASON_MAX} caracteres.`),
 });
 
 export type DecisionFormValues = z.infer<typeof decisionSchema>;

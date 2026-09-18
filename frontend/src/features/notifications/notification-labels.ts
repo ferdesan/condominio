@@ -18,14 +18,14 @@ import type { AppNotification, NotificationType } from '@/types/notification';
  */
 export const TYPE_LABELS: Record<NotificationType, string> = {
   INFO: 'Informativo',
-  SUCCESS: 'Confirmacao',
+  SUCCESS: 'Confirmação',
   WARNING: 'Alerta',
   ERROR: 'Falha',
   ANNOUNCEMENT: 'Comunicado',
-  CHARGE: 'Cobranca',
+  CHARGE: 'Cobrança',
   RESERVATION: 'Reserva',
-  CORRESPONDENCE: 'Correspondencia',
-  INCIDENT: 'Ocorrencia',
+  CORRESPONDENCE: 'Correspondência',
+  INCIDENT: 'Ocorrência',
   ASSEMBLY: 'Assembleia',
   VISITOR: 'Visitante',
 };
@@ -38,10 +38,10 @@ export const TYPE_LABELS: Record<NotificationType, string> = {
  * foi o que ja aconteceu entre um rotulo de status e o botao de um contador.
  */
 export const READ_LABEL = 'Lida';
-export const UNREAD_LABEL = 'Nao lida';
+export const UNREAD_LABEL = 'Não lida';
 
 /** Titulo do indicador; plural, e diferente de `UNREAD_LABEL` por isso. */
-export const UNREAD_COUNT_LABEL = 'Nao lidas';
+export const UNREAD_COUNT_LABEL = 'Não lidas';
 
 /** Dito quando o `actionUrl` nao aponta para nenhuma tela existente. */
 export const NO_DESTINATION = 'Sem tela de origem';

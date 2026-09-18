@@ -31,18 +31,18 @@ export function FinancialSummary({ condominiumId, referenceMonth }: FinancialSum
     <Card role="region" className="p-4" aria-labelledby="financial-summary-title">
       <div className="mb-3">
         <h2 id="financial-summary-title" className="text-sm font-semibold">
-          Posicao financeira
+          Posição financeira
         </h2>
         <p className="text-xs text-muted-foreground">
-          Numeros do condominio inteiro
-          {referenceMonth ? ` na competencia ${referenceMonth}` : ', somando todas as competencias'}
+          Números do condomínio inteiro
+          {referenceMonth ? ` na competência ${referenceMonth}` : ', somando todas as competências'}
           , independentes dos filtros das listas.
         </p>
       </div>
 
       {summary.isError ? (
         <p role="alert" className="text-sm text-destructive">
-          Nao foi possivel carregar a posicao financeira. As listas continuam disponiveis.
+          Não foi possível carregar a posição financeira. As listas continuam disponíveis.
         </p>
       ) : summary.isPending ? (
         <Skeleton className="h-20 w-full" />
@@ -60,7 +60,7 @@ export function FinancialSummary({ condominiumId, referenceMonth }: FinancialSum
             <dt className="text-xs text-muted-foreground">Em aberto</dt>
             <dd className="text-xl font-semibold tabular-nums">{formatCurrency(data?.open)}</dd>
             <p className="text-xs text-muted-foreground">
-              {formatNumber(data?.pendingCount)} cobrancas a receber
+              {formatNumber(data?.pendingCount)} cobranças a receber
             </p>
           </div>
           <div>
@@ -75,8 +75,8 @@ export function FinancialSummary({ condominiumId, referenceMonth }: FinancialSum
       )}
 
       {/*
-        A lista de piores pagadores e do servidor, ja ordenada e limitada a dez:
-        o recorte e dele e nao se refaz aqui.
+        A lista de piores pagadores e do servidor, já ordenada e limitada a dez:
+        o recorte e dele e não se refaz aqui.
       */}
       {delinquency.isError ? null : delinquency.isPending ? null : worst.length > 0 ? (
         <div className="mt-4 border-t border-border pt-3">

@@ -22,13 +22,14 @@ import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
 import type { Role } from '@/types/role';
 import { roleHooks, ROLES_KEY, usePermissionCatalog } from '../role-hooks';
-import { NAME_UPPERCASED, SYSTEM_ROLE_LOCKED } from '../role-labels';
+import { DUPLICATE_INTRO, NAME_UPPERCASED, SYSTEM_ROLE_LOCKED } from '../role-labels';
 import {
   ROLE_FIELDS,
   WILDCARD,
   roleFormDefaults,
   roleSchema,
   splitCatalog,
+  toDuplicateFormValues,
   toRoleFormValues,
   toRolePayload,
   toSystemRolePayload,
@@ -36,9 +37,16 @@ import {
 } from '../role-schema';
 import { PermissionMatrix } from './permission-matrix';
 
-export interface RoleFormDialogProps {
-  /** Ausente cadastra; presente edita. */
-  role?: Role;
+/** O que o dialogo faz ao abrir. */
+export type RoleFormMode = 'create' | 'edit' | 'duplicate';
+
+type RoleFormIntent =
+  // Uniao discriminada, e nao um `role?` solto: em `edit` e `duplicate` o papel
+  // e obrigatorio, e em `create` nao existe — com dois campos opcionais, "modo
+  // duplicar sem origem" seria um estado que compila.
+  { mode: 'create'; role?: undefined } | { mode: 'edit' | 'duplicate'; role: Role };
+
+export type RoleFormDialogProps = RoleFormIntent & {
   /**
    * Se quem edita pode conceder o curinga `*`.
    *
@@ -48,7 +56,7 @@ export interface RoleFormDialogProps {
    */
   canGrantWildcard: boolean;
   onClose: () => void;
-}
+};
 
 /**
  * Cadastro e edicao acontecem sobre a lista para que filtros, busca e pagina
@@ -70,9 +78,14 @@ export interface RoleFormDialogProps {
  * condominio; papel pertence ao tenant, e nao ha escopo herdado do shell que
  * possa divergir.
  */
-export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDialogProps) {
-  const isEdit = Boolean(role);
-  const isSystem = role?.isSystem ?? false;
+export function RoleFormDialog({ mode, role, canGrantWildcard, onClose }: RoleFormDialogProps) {
+  const isEdit = mode === 'edit';
+  const isDuplicate = mode === 'duplicate';
+  // **So a edicao trava.** Duplicar um papel do sistema produz um personalizado,
+  // e o que o servidor recusa e alterar o semeado — nao nascer parecido com ele.
+  // Ler `role.isSystem` sem olhar o modo travaria a copia junto da origem, que e
+  // exatamente o caminho que esta tela existe para abrir.
+  const isSystem = isEdit && (role?.isSystem ?? false);
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
@@ -89,7 +102,11 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
     formState: { errors, isDirty, isSubmitting },
   } = useForm<RoleFormValues>({
     resolver: zodResolver(roleSchema),
-    defaultValues: role ? toRoleFormValues(role) : roleFormDefaults(),
+    defaultValues: role
+      ? isEdit
+        ? toRoleFormValues(role)
+        : toDuplicateFormValues(role, canGrantWildcard)
+      : roleFormDefaults(),
   });
 
   function handleError(error: ApiError): void {
@@ -111,12 +128,16 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
-    const request = role
-      ? update.mutateAsync({
-          id: role.id,
-          data: isSystem ? toSystemRolePayload(values) : toRolePayload(values),
-        })
-      : create.mutateAsync(toRolePayload(values));
+    // Duplicar tem `role` e mesmo assim **cadastra**: o papel de origem so
+    // emprestou as permissoes. Decidir por `role` presente, e nao pelo modo,
+    // faria a copia sobrescrever o original.
+    const request =
+      isEdit && role
+        ? update.mutateAsync({
+            id: role.id,
+            data: isSystem ? toSystemRolePayload(values) : toRolePayload(values),
+          })
+        : create.mutateAsync(toRolePayload(values));
     // A falha ja foi apresentada por `handleError`; aqui so nao se deixa a
     // promessa rejeitar sem dono.
     await request.catch(() => undefined);
@@ -139,13 +160,17 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar papel' : 'Novo papel'}</DialogTitle>
+            <DialogTitle>
+              {isEdit ? 'Editar papel' : isDuplicate ? `Duplicar ${role.name}` : 'Novo papel'}
+            </DialogTitle>
             <DialogDescription>
               {isSystem
                 ? SYSTEM_ROLE_LOCKED
-                : 'O nome identifica o papel; as permissoes definem o que quem o tem pode fazer.'}
+                : isDuplicate
+                  ? DUPLICATE_INTRO
+                  : 'O nome identifica o papel; as permissões definem o que quem o tem pode fazer.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -170,7 +195,7 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
 
               <FormField
                 id="role-description"
-                label="Descricao"
+                label="Descrição"
                 error={errors.description?.message}
                 description="Opcional. Para que serve este papel."
               >
@@ -185,7 +210,7 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
               name="permissions"
               render={({ field, fieldState }) => (
                 <fieldset disabled={isSystem} className="space-y-3">
-                  <legend className="text-sm font-semibold text-foreground">Permissoes</legend>
+                  <legend className="text-sm font-semibold text-foreground">Permissões</legend>
 
                   {fieldState.error ? (
                     <p role="alert" className="text-sm text-destructive">
@@ -199,14 +224,14 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
                     // Sem catalogo nao ha o que oferecer: inventar a lista aqui
                     // divergiria do servidor em silencio.
                     <p role="alert" className="text-sm text-destructive">
-                      Nao foi possivel carregar o catalogo de permissoes.{' '}
+                      Não foi possível carregar o catálogo de permissões.{' '}
                       {catalogQuery.error.message}
                     </p>
                   ) : (
                     <>
                       {/*
-                        O curinga fica fora da matriz — ele nao tem recurso nem
-                        acao — e so aparece para quem pode concede-lo. Oferece-lo
+                        O curinga fica fora da matriz — ele não tem recurso nem
+                        ação — e so aparece para quem pode concede-lo. Oferece-lo
                         a um administrador comum seria oferecer uma recusa.
                       */}
                       {hasWildcard && canGrantWildcard ? (
@@ -272,8 +297,8 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

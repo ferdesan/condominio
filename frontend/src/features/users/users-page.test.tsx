@@ -97,8 +97,8 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Listagem de usuarios', () => {
-  it('percorre busca e os tres filtros preservando os parametros', async () => {
+describe('Listagem de usuários', () => {
+  it('percorre busca e os três filtros preservando os parametros', async () => {
     world = serveUsers({ users: [makeUser()] });
     const user = createUser();
     renderWithProviders(<UsersPage />);
@@ -157,14 +157,14 @@ describe('Listagem de usuarios', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.users = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Conta 21')).toBeInTheDocument();
     expect(lastListParams().perPage).toBe(20);
   });
 
-  it('papel e condominios vinculados aparecem na listagem', async () => {
+  it('papel e condomínios vinculados aparecem na listagem', async () => {
     world = serveUsers({
       users: [
         makeUser({
@@ -183,7 +183,7 @@ describe('Listagem de usuarios', () => {
     // Os dois vem aninhados na resposta (`UserRepository.relations`), e nao por
     // consulta separada — entao a listagem pode exibi-los sem pedir mais nada.
     expect(cellsOf('Papel')).toEqual(['SINDICO']);
-    expect(cellsOf('Condominios')).toEqual(['Residencial Aurora, Residencial Boreal']);
+    expect(cellsOf('Condomínios')).toEqual(['Residencial Aurora, Residencial Boreal']);
   });
 
   it('campos ausentes viram placeholder, nunca a string "null"', async () => {
@@ -196,14 +196,14 @@ describe('Listagem de usuarios', () => {
 
     expect(cellsOf('Telefone')).toEqual(['—']);
     expect(cellsOf('Unidade')).toEqual(['Sem unidade']);
-    expect(cellsOf('Papel')).toEqual(['Papel nao definido']);
+    expect(cellsOf('Papel')).toEqual(['Papel não definido']);
     // Lista vazia significa acesso a todos do tenant, e nao a nenhum: um traco
     // aqui diria o oposto do que o registro significa.
-    expect(cellsOf('Condominios')).toEqual(['Todos os condominios']);
+    expect(cellsOf('Condomínios')).toEqual(['Todos os condomínios']);
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
-  it('a unidade vinculada e nomeada a partir da colecao carregada', async () => {
+  it('a unidade vinculada e nomeada a partir da coleção carregada', async () => {
     world = serveUsers({ users: [makeUser({ unitId: 'unit-1' })] });
     renderWithProviders(<UsersPage />);
 
@@ -227,7 +227,7 @@ describe('Listagem de usuarios', () => {
     // Nao ha filtro de condominio: `UserRepository` nao declara
     // `condominiumField` nem aceita a chave, entao o controle pareceria
     // funcionar enquanto o backend o descarta em silencio.
-    for (const absent of ['Condominio', 'Condominios', 'E-mail']) {
+    for (const absent of ['Condomínio', 'Condomínios', 'E-mail']) {
       expect(screen.queryByLabelText(absent)).not.toBeInTheDocument();
     }
 
@@ -235,13 +235,13 @@ describe('Listagem de usuarios', () => {
     // chave e voltaria a ordem padrao.
     const header = within(screen.getAllByRole('row')[0])
       .getAllByRole('columnheader')
-      .find((item) => item.textContent?.trim().startsWith('Condominios'));
+      .find((item) => item.textContent?.trim().startsWith('Condomínios'));
     expect(within(header as HTMLElement).queryByRole('button')).not.toBeInTheDocument();
   });
 });
 
-describe('Escopo de tenant da tela de usuarios', () => {
-  it('sem condominio selecionado a tela funciona normalmente', async () => {
+describe('Escopo de tenant da tela de usuários', () => {
+  it('sem condomínio selecionado a tela funciona normalmente', async () => {
     world = serveUsers({ users: [makeUser()] });
     renderWithProviders(<UsersPage />, { condominium: null, condominiums: [] });
 
@@ -251,10 +251,10 @@ describe('Escopo de tenant da tela de usuarios', () => {
     expect(dataRows()).toHaveLength(1);
 
     // E o estado de "selecione um condominio" das demais telas nao aparece aqui.
-    expect(screen.queryByText('Selecione um condominio')).not.toBeInTheDocument();
+    expect(screen.queryByText('Selecione um condomínio')).not.toBeInTheDocument();
   });
 
-  it('nenhuma requisicao da tela envia condominiumId', async () => {
+  it('nenhuma requisição da tela envia condominiumId', async () => {
     world = serveUsers({ users: [makeUser()] });
     const user = createUser();
     renderWithProviders(<UsersPage />);
@@ -277,13 +277,13 @@ describe('Escopo de tenant da tela de usuarios', () => {
   });
 });
 
-describe('Estados vazios de usuarios', () => {
+describe('Estados vazios de usuários', () => {
   it('lista vazia oferece o convite', async () => {
     world = serveUsers({ users: [] });
     renderWithProviders(<UsersPage />);
 
-    expect(await screen.findByText('Nenhum usuario cadastrado')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Convidar usuario' })).toBeInTheDocument();
+    expect(await screen.findByText('Nenhum usuário cadastrado')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Convidar usuário' })).toBeInTheDocument();
     expect(screen.queryByText('Nenhum resultado para esta busca')).not.toBeInTheDocument();
   });
 
@@ -299,13 +299,13 @@ describe('Estados vazios de usuarios', () => {
     expect(await screen.findByText('Nenhum resultado para esta busca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeInTheDocument();
     // Os dois vazios sao estados diferentes e dizem coisas diferentes.
-    expect(screen.queryByText('Nenhum usuario cadastrado')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Convidar usuario' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Nenhum usuário cadastrado')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Convidar usuário' })).not.toBeInTheDocument();
   });
 });
 
 describe('Reset de senha', () => {
-  it('com manage, resetar senha e oferecido e pede confirmacao antes de disparar', async () => {
+  it('com manage, resetar senha e oferecido e pede confirmação antes de disparar', async () => {
     world = serveUsers({ users: [makeUser()] });
     mockPost.mockResolvedValue({ temporaryPassword: 'Tmp-48219x' } as never);
     renderWithProviders(<UsersPage />, { permissions: ['user:manage'] });
@@ -327,7 +327,7 @@ describe('Reset de senha', () => {
     expect(mockPost.mock.calls[0][1]).toEqual({});
   });
 
-  it('a senha temporaria gerada aparece uma vez, para ser entregue', async () => {
+  it('a senha temporária gerada aparece uma vez, para ser entregue', async () => {
     world = serveUsers({ users: [makeUser()] });
     mockPost.mockResolvedValue({ temporaryPassword: 'Tmp-48219x' } as never);
     renderWithProviders(<UsersPage />, { permissions: ['user:manage'] });
@@ -339,10 +339,10 @@ describe('Reset de senha', () => {
     // Ela volta uma unica vez — o servidor guarda so o hash —, entao precisa
     // aparecer antes que a tela siga adiante.
     expect(await screen.findByText('Tmp-48219x')).toBeInTheDocument();
-    expect(screen.getByText('Senha temporaria gerada')).toBeInTheDocument();
+    expect(screen.getByText('Senha temporária gerada')).toBeInTheDocument();
   });
 
-  it('dispensar a confirmacao nao dispara requisicao nenhuma', async () => {
+  it('dispensar a confirmação não dispara requisição nenhuma', async () => {
     world = serveUsers({ users: [makeUser()] });
     renderWithProviders(<UsersPage />, { permissions: ['user:manage'] });
 
@@ -354,10 +354,10 @@ describe('Reset de senha', () => {
 
     await waitFor(() => expect(screen.queryByText('Resetar a senha?')).not.toBeInTheDocument());
     expect(mockPost).not.toHaveBeenCalled();
-    expect(screen.queryByText('Senha temporaria gerada')).not.toBeInTheDocument();
+    expect(screen.queryByText('Senha temporária gerada')).not.toBeInTheDocument();
   });
 
-  it('com update mas sem manage, resetar senha nao e oferecido', async () => {
+  it('com update mas sem manage, resetar senha não e oferecido', async () => {
     world = serveUsers({ users: [makeUser()] });
     renderWithProviders(<UsersPage />, { permissions: UPDATE_WITHOUT_MANAGE });
 
@@ -372,24 +372,24 @@ describe('Reset de senha', () => {
 
   it('a recusa do servidor aparece na linha, sem toast em dobro', async () => {
     world = serveUsers({ users: [makeUser()] });
-    mockPost.mockRejectedValue(new ApiError('Usuario nao encontrado.', 404, 'NOT_FOUND'));
+    mockPost.mockRejectedValue(new ApiError('Usuário não encontrado.', 404, 'NOT_FOUND'));
     renderWithProviders(<UsersPage />, { permissions: ['user:manage'] });
 
     await findRows();
     clickTrigger(screen.getByRole('button', { name: `Resetar senha de ${NAME}` }));
     clickTrigger(await screen.findByRole('button', { name: 'Resetar senha' }));
 
-    const message = await screen.findByText('Usuario nao encontrado.');
+    const message = await screen.findByText('Usuário não encontrado.');
     expect(message).toHaveAttribute('role', 'alert');
     // O `onError` proprio substitui o toast global: a mesma recusa nao pode
     // aparecer duas vezes.
     expect(mockToastError).not.toHaveBeenCalled();
-    expect(screen.queryByText('Senha temporaria gerada')).not.toBeInTheDocument();
+    expect(screen.queryByText('Senha temporária gerada')).not.toBeInTheDocument();
   });
 });
 
-describe('Exclusao e restauracao de usuarios', () => {
-  it('excluir pede confirmacao antes de remover', async () => {
+describe('Exclusao e restauração de usuários', () => {
+  it('excluir pede confirmação antes de remover', async () => {
     world = serveUsers({ users: [makeUser()] });
     mockDelete.mockImplementation(async () => {
       world.users = [];
@@ -400,7 +400,7 @@ describe('Exclusao e restauracao de usuarios', () => {
     clickTrigger(screen.getByRole('button', { name: `Excluir ${NAME}` }));
 
     // O pedido so sai depois da confirmacao.
-    expect(await screen.findByText('Excluir usuario?')).toBeInTheDocument();
+    expect(await screen.findByText('Excluir usuário?')).toBeInTheDocument();
     expect(mockDelete).not.toHaveBeenCalled();
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir' }));
@@ -413,7 +413,7 @@ describe('Exclusao e restauracao de usuarios', () => {
     world = serveUsers({ users: [makeUser()] });
     mockDelete.mockRejectedValue(
       new ApiError(
-        'Esta e a unica conta administradora ativa. Promova outro usuario antes de alterar esta.',
+        'Esta e a única conta administradora ativa. Promova outro usuário antes de alterar esta.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -428,7 +428,7 @@ describe('Exclusao e restauracao de usuarios', () => {
     // apresentacao certa para um 409 que traz so a mensagem do servidor.
     await waitFor(() =>
       expect(mockToastError).toHaveBeenCalledWith(
-        'Esta e a unica conta administradora ativa. Promova outro usuario antes de alterar esta.',
+        'Esta e a única conta administradora ativa. Promova outro usuário antes de alterar esta.',
       ),
     );
     expect(screen.getByText(NAME)).toBeInTheDocument();
@@ -455,7 +455,7 @@ describe('Exclusao e restauracao de usuarios', () => {
     await waitFor(() => expect(screen.queryByText('Removido')).not.toBeInTheDocument());
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     world = serveUsers({ users: [makeUser({ deletedAt: '2026-03-11T10:00:00.000Z' })] });
     const user = createUser();
     renderWithProviders(<UsersPage />, { role: 'STAFF', permissions: ['user:read'] });
@@ -468,13 +468,13 @@ describe('Exclusao e restauracao de usuarios', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('um operador sem escrita nao recebe nenhuma acao', async () => {
+  it('um operador sem escrita não recebe nenhuma ação', async () => {
     world = serveUsers({ users: [makeUser()] });
     renderWithProviders(<UsersPage />, { role: 'STAFF', permissions: ['user:read'] });
 
     await findRows();
 
-    expect(screen.queryByRole('button', { name: 'Novo usuario' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Novo usuário' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Resetar senha/ })).not.toBeInTheDocument();

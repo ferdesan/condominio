@@ -5,11 +5,14 @@ export interface RoleRowActionsProps {
   role: Role;
   /** Editar e restaurar exigem `role:update` (ADR-006). */
   canUpdate: boolean;
+  /** Duplicar **cadastra** um papel novo, entao pede `role:create` — nao `update`. */
+  canCreate: boolean;
   canDelete: boolean;
   /** Recusa do servidor para esta linha. Fica onde a acao foi disparada. */
   error?: string;
   onViewPermissions: (role: Role) => void;
   onEdit: (role: Role) => void;
+  onDuplicate: (role: Role) => void;
   onDelete: (role: Role) => void;
   onRestore: (role: Role) => void;
 }
@@ -31,10 +34,12 @@ export interface RoleRowActionsProps {
 export function RoleRowActions({
   role,
   canUpdate,
+  canCreate,
   canDelete,
   error,
   onViewPermissions,
   onEdit,
+  onDuplicate,
   onDelete,
   onRestore,
 }: RoleRowActionsProps) {
@@ -60,10 +65,10 @@ export function RoleRowActions({
         <Button
           variant="outline"
           size="sm"
-          aria-label={`Ver permissoes de ${label}`}
+          aria-label={`Ver permissões de ${label}`}
           onClick={() => onViewPermissions(role)}
         >
-          Permissoes
+          Permissões
         </Button>
 
         {canUpdate ? (
@@ -74,6 +79,23 @@ export function RoleRowActions({
             onClick={() => onEdit(role)}
           >
             Editar
+          </Button>
+        ) : null}
+
+        {/*
+          Duplicar aparece em **todo** papel, e nao so no do sistema. No do
+          sistema ele e a unica saida — as permissoes de um semeado nao mudam —,
+          mas partir de um personalizado parecido poupa a mesma matriz de cento e
+          quarenta e cinco caixas.
+        */}
+        {canCreate ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={`Duplicar ${label}`}
+            onClick={() => onDuplicate(role)}
+          >
+            Duplicar
           </Button>
         ) : null}
 
@@ -91,10 +113,10 @@ export function RoleRowActions({
       </div>
 
       {/*
-        A recusa aparece na linha, e nao em toast: e sobre este papel, e a
-        proxima coisa a fazer esta a dois centimetros dela. O caso mais comum e
-        "existem N usuario(s) com este papel", que se resolve na tela de
-        Usuarios — e a mensagem do servidor ja diz isso.
+        A recusa aparece na linha, e não em toast: e sobre este papel, e a
+        próxima coisa a fazer esta a dois centimetros dela. O caso mais comum e
+        "existem N usuário(s) com este papel", que se resolve na tela de
+        Usuários — e a mensagem do servidor já diz isso.
       */}
       {error ? (
         <p role="alert" className="text-xs text-destructive">

@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth';
 import type { Condominium } from '@/types/api';
 import { CondominiumContext, type CondominiumContextValue } from './condominium-context';
 
-const STORAGE_KEY = 'condominio.selectedCondominium';
+const STORAGE_KEY = 'condomínio.selectedCondominium';
 
 /**
  * Quase toda tela opera sobre um condominio: o dashboard, por exemplo, exige

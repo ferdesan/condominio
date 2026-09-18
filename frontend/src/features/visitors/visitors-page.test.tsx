@@ -109,7 +109,7 @@ describe('Listagem de visitantes', () => {
     selectOption(screen.getByLabelText('Unidade'), 'Torre A - 101');
     expect(lastListParams().unitId).toBe('unit-1');
 
-    selectOption(screen.getByLabelText('Status'), 'No condominio');
+    selectOption(screen.getByLabelText('Status'), 'No condomínio');
     expect(lastListParams().status).toBe('CHECKED_IN');
 
     selectOption(screen.getByLabelText('Tipo'), 'Entrega');
@@ -125,7 +125,7 @@ describe('Listagem de visitantes', () => {
     });
   });
 
-  it('o filtro de autorizacao propria envia o id de quem esta usando a tela', async () => {
+  it('o filtro de autorização própria envia o id de quem esta usando a tela', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     const user = createUser();
     renderWithProviders(<VisitorsPage />);
@@ -163,7 +163,7 @@ describe('Listagem de visitantes', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.visitors = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Visitante 21')).toBeInTheDocument();
@@ -251,7 +251,7 @@ describe('Estados vazios de visitantes', () => {
   });
 });
 
-describe('Portaria: entrada e saida', () => {
+describe('Portaria: entrada e saída', () => {
   it('registrar entrada muda o status e a contagem de presentes acompanha', async () => {
     world = serveVisitors({ visitors: [makeVisitor()], inside: 0 });
     mockPost.mockImplementation(async (url) => {
@@ -272,12 +272,12 @@ describe('Portaria: entrada e saida', () => {
     clickTrigger(screen.getByRole('button', { name: 'Registrar entrada de Joana Ribeiro' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/visitors/visitor-1/check-in', {}));
-    expect(await screen.findByText('No condominio')).toBeInTheDocument();
+    expect(await screen.findByText('No condomínio')).toBeInTheDocument();
     // A invalidacao da acao alcanca listagem e contador de uma vez.
     await waitFor(() => expect(insideBadge()).toBe('1'));
   });
 
-  it('registrar saida no mesmo visitante muda o status de volta e a contagem acompanha', async () => {
+  it('registrar saída no mesmo visitante muda o status de volta e a contagem acompanha', async () => {
     world = serveVisitors({
       visitors: [makeVisitor({ status: 'CHECKED_IN', checkedInAt: '2026-03-14T18:05:00.000Z' })],
       inside: 1,
@@ -296,21 +296,21 @@ describe('Portaria: entrada e saida', () => {
     });
     renderWithProviders(<VisitorsPage />);
 
-    await screen.findByText('No condominio');
+    await screen.findByText('No condomínio');
     await waitFor(() => expect(insideBadge()).toBe('1'));
 
-    clickTrigger(screen.getByRole('button', { name: 'Registrar saida de Joana Ribeiro' }));
+    clickTrigger(screen.getByRole('button', { name: 'Registrar saída de Joana Ribeiro' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/visitors/visitor-1/check-out', {}));
     expect(await screen.findByText('Saiu')).toBeInTheDocument();
     await waitFor(() => expect(insideBadge()).toBe('0'));
   });
 
-  it('saida de quem nao entrou e recusada, e a mensagem aparece na linha', async () => {
+  it('saída de quem não entrou e recusada, e a mensagem aparece na linha', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     mockPost.mockRejectedValue(
       new ApiError(
-        'Somente visitantes com entrada registrada podem ter saida.',
+        'Somente visitantes com entrada registrada podem ter saída.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -320,10 +320,10 @@ describe('Portaria: entrada e saida', () => {
     await screen.findByText('Joana Ribeiro');
     // A acao e oferecida sem olhar o status: quem decide a transicao e o
     // servidor, e a mensagem dele e a resposta (ADR-003).
-    clickTrigger(screen.getByRole('button', { name: 'Registrar saida de Joana Ribeiro' }));
+    clickTrigger(screen.getByRole('button', { name: 'Registrar saída de Joana Ribeiro' }));
 
     const message = await screen.findByText(
-      'Somente visitantes com entrada registrada podem ter saida.',
+      'Somente visitantes com entrada registrada podem ter saída.',
     );
     // A recusa fica na linha que a provocou, e nao num toast solto.
     expect(within(dataRows()[0]).getByRole('alert')).toBe(message);
@@ -333,7 +333,7 @@ describe('Portaria: entrada e saida', () => {
     expect(screen.getByText('Previsto')).toBeInTheDocument();
   });
 
-  it('dois cliques em registrar entrada disparam uma requisicao so', async () => {
+  it('dois cliques em registrar entrada disparam uma requisição so', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     mockPost.mockImplementation(async () => {
       world.visitors = [makeVisitor({ status: 'CHECKED_IN' })];
@@ -352,8 +352,8 @@ describe('Portaria: entrada e saida', () => {
   });
 });
 
-describe('Exclusao e restauracao de visitantes', () => {
-  it('excluir pede confirmacao antes de remover', async () => {
+describe('Exclusao e restauração de visitantes', () => {
+  it('excluir pede confirmação antes de remover', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     mockDelete.mockImplementation(async () => {
       world.visitors = [];
@@ -418,18 +418,18 @@ describe('Exclusao e restauracao de visitantes', () => {
   });
 });
 
-describe('Escopo e permissoes de visitantes', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões de visitantes', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     renderWithProviders(<VisitorsPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     // Nem a listagem, nem o seletor de unidade, nem o contador saem sem condominio.
     expect(mockGetPaginated).not.toHaveBeenCalled();
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('um operador sem update nao recebe as acoes de portaria', async () => {
+  it('um operador sem update não recebe as ações de portaria', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     renderWithProviders(<VisitorsPage />, { role: 'STAFF', permissions: ['visitor:read'] });
 
@@ -438,13 +438,13 @@ describe('Escopo e permissoes de visitantes', () => {
     // Entrada e saida exigem `visitor:update`; a interface nao oferece o que o
     // servidor recusaria.
     expect(screen.queryByRole('button', { name: /^Registrar entrada/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^Registrar saida/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Registrar saída/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Novo visitante' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     world = serveVisitors({ visitors: [makeVisitor({ deletedAt: '2026-03-11T10:00:00.000Z' })] });
     const user = createUser();
     renderWithProviders(<VisitorsPage />, { role: 'STAFF', permissions: ['visitor:read'] });
@@ -457,7 +457,7 @@ describe('Escopo e permissoes de visitantes', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('o seletor de unidade tambem fica preso ao condominio do shell', async () => {
+  it('o seletor de unidade também fica preso ao condomínio do shell', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     renderWithProviders(<VisitorsPage />);
 
@@ -470,10 +470,10 @@ describe('Escopo e permissoes de visitantes', () => {
   });
 });
 
-describe('Consulta por codigo de acesso', () => {
+describe('Consulta por código de acesso', () => {
   /** Preenche o campo do balcao e dispara a consulta. */
   async function lookup(user: ReturnType<typeof createUser>, code: string): Promise<void> {
-    await user.type(screen.getByLabelText('Codigo de acesso'), code);
+    await user.type(screen.getByLabelText('Código de acesso'), code);
     await user.click(screen.getByRole('button', { name: 'Consultar' }));
   }
 
@@ -494,11 +494,11 @@ describe('Consulta por codigo de acesso', () => {
     await screen.findByText('Joana Ribeiro');
     await lookup(user, 'A1B2C3');
 
-    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    const panel = screen.getByRole('region', { name: 'Consulta por código de acesso' });
     expect(await within(panel).findByText('Joana Ribeiro')).toBeInTheDocument();
   });
 
-  it('o codigo vai em maiusculas, como o servidor o guarda', async () => {
+  it('o código vai em maiusculas, como o servidor o guarda', async () => {
     const user = createUser();
     serveVisitors({
       visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'EXPECTED' })],
@@ -509,11 +509,11 @@ describe('Consulta por codigo de acesso', () => {
     // Digitado em minusculas; sem a normalizacao seria um 409 de caixa.
     await lookup(user, 'a1b2c3');
 
-    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    const panel = screen.getByRole('region', { name: 'Consulta por código de acesso' });
     expect(await within(panel).findByText('Joana Ribeiro')).toBeInTheDocument();
   });
 
-  it('codigo desconhecido e resposta da consulta, e nao falha da tela', async () => {
+  it('código desconhecido e resposta da consulta, e não falha da tela', async () => {
     const user = createUser();
     serveVisitors({ visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'EXPECTED' })] });
     renderWithProviders(<VisitorsPage />);
@@ -523,12 +523,12 @@ describe('Consulta por codigo de acesso', () => {
 
     // 409 e o desfecho normal do balcao: aparece na propria consulta, sem toast.
     expect(
-      await screen.findByText('Codigo de acesso invalido ou ja utilizado.'),
+      await screen.findByText('Código de acesso inválido ou já utilizado.'),
     ).toBeInTheDocument();
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('visita que ja entrou tambem nao e encontrada', async () => {
+  it('visita que já entrou também não e encontrada', async () => {
     const user = createUser();
     // O servidor procura apenas entre os `EXPECTED`; quem ja entrou "nao existe"
     // para esta rota, e a mensagem cobre os dois casos.
@@ -539,23 +539,23 @@ describe('Consulta por codigo de acesso', () => {
     await lookup(user, 'A1B2C3');
 
     expect(
-      await screen.findByText('Codigo de acesso invalido ou ja utilizado.'),
+      await screen.findByText('Código de acesso inválido ou já utilizado.'),
     ).toBeInTheDocument();
   });
 
-  it('codigo curto demais nem chega ao servidor', async () => {
+  it('código curto demais nem chega ao servidor', async () => {
     const user = createUser();
     serveVisitors({ visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'EXPECTED' })] });
     renderWithProviders(<VisitorsPage />);
 
     await screen.findByText('Joana Ribeiro');
-    await user.type(screen.getByLabelText('Codigo de acesso'), 'A1');
+    await user.type(screen.getByLabelText('Código de acesso'), 'A1');
 
     // O servidor exige de 4 a 12 caracteres; abaixo disso o botao nem habilita.
     expect(screen.getByRole('button', { name: 'Consultar' })).toBeDisabled();
   });
 
-  it('a consulta nao mexe nos filtros nem na paginacao da lista', async () => {
+  it('a consulta não mexe nos filtros nem na paginação da lista', async () => {
     const user = createUser();
     serveVisitors({ visitors: [makeVisitor({ accessCode: 'A1B2C3', status: 'EXPECTED' })] });
     renderWithProviders(<VisitorsPage />);
@@ -565,7 +565,7 @@ describe('Consulta por codigo de acesso', () => {
     await lookup(user, 'A1B2C3');
     // Escopado no painel: a linha da tabela oferece a mesma acao, com o mesmo
     // rotulo acessivel.
-    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    const panel = screen.getByRole('region', { name: 'Consulta por código de acesso' });
     await within(panel).findByRole('button', { name: 'Registrar entrada de Joana Ribeiro' });
 
     // Sao gestos diferentes: o balcao devolve um visitante, a lista devolve uma
@@ -583,7 +583,7 @@ describe('Consulta por codigo de acesso', () => {
     await screen.findByText('Joana Ribeiro');
     await lookup(user, 'A1B2C3');
 
-    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    const panel = screen.getByRole('region', { name: 'Consulta por código de acesso' });
     await user.click(
       await within(panel).findByRole('button', { name: 'Registrar entrada de Joana Ribeiro' }),
     );
@@ -598,7 +598,7 @@ describe('Consulta por codigo de acesso', () => {
     await screen.findByText('Joana Ribeiro');
     await lookup(user, 'A1B2C3');
 
-    const panel = screen.getByRole('region', { name: 'Consulta por codigo de acesso' });
+    const panel = screen.getByRole('region', { name: 'Consulta por código de acesso' });
     await within(panel).findByText('Joana Ribeiro');
     expect(
       within(panel).queryByRole('button', { name: /Registrar entrada/ }),

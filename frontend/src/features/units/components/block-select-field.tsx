@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
 import { FormField } from '@/components/ui/form-field';
 import {
   Select,
@@ -93,7 +95,7 @@ export function BlockSelectField({
       <div className="space-y-1.5">
         <p className="text-sm font-medium">{label}</p>
         <p className="text-sm text-muted-foreground">
-          Este condominio ainda nao tem blocos. Toda unidade pertence a um.
+          Este condomínio ainda não tem blocos. Toda unidade pertence a um.
         </p>
         <Button type="button" variant="outline" onClick={() => setCreating(true)}>
           Cadastrar o primeiro bloco
@@ -127,14 +129,22 @@ export function BlockSelectField({
             </Select>
 
             {canCreate ? (
-              <Button
-                type="button"
-                variant="outline"
-                className="shrink-0"
-                onClick={() => setCreating(true)}
-              >
-                Novo bloco
-              </Button>
+              // Icone, e nao texto: o campo divide a largura com o seletor
+              // dentro de uma coluna do formulario, e "Novo bloco" por extenso
+              // transbordava sobre o campo vizinho. O `aria-label` mantem o nome
+              // acessivel — a tarja e reforco visual, nao a fonte do significado.
+              <Tooltip label="Novo bloco">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0"
+                  aria-label="Novo bloco"
+                  onClick={() => setCreating(true)}
+                >
+                  <Plus aria-hidden="true" />
+                </Button>
+              </Tooltip>
             ) : null}
           </div>
         )}

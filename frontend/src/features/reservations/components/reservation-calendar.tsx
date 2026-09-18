@@ -57,8 +57,8 @@ export function ReservationCalendar({
       <div className="p-4">
         <EmptyState
           icon={CalendarOff}
-          title="Selecione um condominio"
-          description="O calendario mostra as reservas de um condominio por vez. Escolha um no seletor do topo para ver a agenda do mes."
+          title="Selecione um condomínio"
+          description="O calendário mostra as reservas de um condomínio por vez. Escolha um no seletor do topo para ver a agenda do mês."
         />
       </div>
     );
@@ -74,7 +74,7 @@ export function ReservationCalendar({
           <Button
             variant="outline"
             size="sm"
-            aria-label="Mes anterior"
+            aria-label="Mês anterior"
             onClick={() => onMonthChange(addMonths(month, -1))}
           >
             <ChevronLeft className="size-4" aria-hidden="true" />
@@ -86,7 +86,7 @@ export function ReservationCalendar({
           <Button
             variant="outline"
             size="sm"
-            aria-label="Proximo mes"
+            aria-label="Próximo mês"
             onClick={() => onMonthChange(addMonths(month, 1))}
           >
             <ChevronRight className="size-4" aria-hidden="true" />
@@ -94,7 +94,7 @@ export function ReservationCalendar({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="calendar-area">Area comum</Label>
+          <Label htmlFor="calendar-area">Área comum</Label>
           <Select
             value={areaId ?? ANY}
             onValueChange={(value) => onAreaChange(value === ANY ? undefined : value)}
@@ -168,7 +168,7 @@ function DayCell({ day }: { day: CalendarDay }) {
         !day.inMonth && 'bg-muted/40 text-muted-foreground',
         isToday(day.date) && 'ring-1 ring-inset ring-primary',
       )}
-      aria-label={day.inMonth ? label : `${label} (fora do mes)`}
+      aria-label={day.inMonth ? label : `${label} (fora do mês)`}
     >
       <div className="flex items-center justify-between">
         <span className={cn('text-xs font-medium', !day.inMonth && 'opacity-60')}>

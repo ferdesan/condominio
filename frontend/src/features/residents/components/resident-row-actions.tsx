@@ -53,13 +53,13 @@ export function ResidentRowActions({
           disabled={primaryBlocked}
           title={
             primaryBlocked
-              ? 'Apenas um morador ativo pode ser o responsavel pela unidade.'
+              ? 'Apenas um morador ativo pode ser o responsável pela unidade.'
               : undefined
           }
-          aria-label={`Tornar ${resident.name} responsavel pela unidade`}
+          aria-label={`Tornar ${resident.name} responsável pela unidade`}
           onClick={() => onDesignatePrimary(resident)}
         >
-          Tornar responsavel
+          Tornar responsável
         </Button>
       ) : null}
 

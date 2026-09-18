@@ -127,13 +127,13 @@ export function DocumentFormDialog({ document, condominiumId, onClose }: Documen
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar documento' : 'Enviar documento'}</DialogTitle>
             <DialogDescription>
               {isEdit
-                ? 'O arquivo enviado nao muda; aqui se corrigem o titulo, a classificacao e quem pode ve-lo.'
-                : 'O arquivo e as informacoes que permitem encontra-lo depois.'}
+                ? 'O arquivo enviado não muda; aqui se corrigem o título, a classificação e quem pode ve-lo.'
+                : 'O arquivo e as informações que permitem encontra-lo depois.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -158,7 +158,7 @@ export function DocumentFormDialog({ document, condominiumId, onClose }: Documen
                     id="file"
                     label="Arquivo"
                     error={fieldState.error?.message}
-                    description={`${ACCEPTED_EXTENSIONS}. Ate ${MAX_FILE_SIZE_MB} MB.`}
+                    description={`${ACCEPTED_EXTENSIONS}. Até ${MAX_FILE_SIZE_MB} MB.`}
                   >
                     {(aria) => (
                       <Input
@@ -178,13 +178,13 @@ export function DocumentFormDialog({ document, condominiumId, onClose }: Documen
               />
             )}
 
-            <FormField id="title" label="Titulo" error={errors.title?.message}>
+            <FormField id="title" label="Título" error={errors.title?.message}>
               {(aria) => <Input autoFocus maxLength={180} {...aria} {...register('title')} />}
             </FormField>
 
             <FormField
               id="description"
-              label="Descricao"
+              label="Descrição"
               error={errors.description?.message}
               description="Opcional. Uma linha sobre o que o documento contem."
             >
@@ -225,7 +225,7 @@ export function DocumentFormDialog({ document, condominiumId, onClose }: Documen
                     id="visibility"
                     label="Quem ve"
                     error={fieldState.error?.message}
-                    description="Vale no download; a lista continua visivel a quem administra."
+                    description="Vale no download; a lista continua visível a quem administra."
                   >
                     {(aria) => (
                       <Select value={field.value} onValueChange={field.onChange}>
@@ -251,7 +251,7 @@ export function DocumentFormDialog({ document, condominiumId, onClose }: Documen
                 O servidor guarda e devolve `AAAA-MM-DD`, e o input nativo fala
                 exatamente esse formato; passar pelo `DatePicker` obrigaria a
                 converter para `Date` e voltar, o que so adiciona fuso horario a
-                um campo que nao tem hora.
+                um campo que não tem hora.
               */}
               <FormField
                 id="expiresAt"
@@ -302,8 +302,8 @@ export function DocumentFormDialog({ document, condominiumId, onClose }: Documen
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

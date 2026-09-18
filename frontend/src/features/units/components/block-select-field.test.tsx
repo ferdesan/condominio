@@ -61,13 +61,13 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('Criacao de bloco dentro do cadastro de unidade', () => {
-  it('IT-194: cria o bloco sem perder o que ja foi digitado e o deixa escolhido', async () => {
+describe('Criação de bloco dentro do cadastro de unidade', () => {
+  it('IT-194: cria o bloco sem perder o que já foi digitado e o deixa escolhido', async () => {
     const user = createUser();
     renderForm({ blocks: [] });
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
     await user.clear(screen.getByLabelText('Andar'));
     await user.type(screen.getByLabelText('Andar'), '7');
 
@@ -88,19 +88,19 @@ describe('Criacao de bloco dentro do cadastro de unidade', () => {
     // De volta ao cadastro da unidade: nada do que foi preenchido se perdeu, e o
     // bloco recem-criado ja esta escolhido.
     await waitFor(() => expect(screen.queryByLabelText('Nome')).not.toBeInTheDocument());
-    expect(screen.getByLabelText('Numero')).toHaveValue('101');
+    expect(screen.getByLabelText('Número')).toHaveValue('101');
     expect(screen.getByLabelText('Andar')).toHaveValue('7');
     expect(screen.getByLabelText('Bloco')).toHaveTextContent('Torre Nova');
   });
 
-  it('IT-195: nome de bloco duplicado preserva os dados da unidade ja digitados', async () => {
-    const message = 'Ja existe um bloco com este nome neste condominio.';
+  it('IT-195: nome de bloco duplicado preserva os dados da unidade já digitados', async () => {
+    const message = 'Já existe um bloco com este nome neste condomínio.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'CONFLICT'));
     const user = createUser();
     renderForm({ blocks: [] });
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
 
     await openInlineCreation();
     await user.type(within(topDialog()).getByLabelText('Nome'), 'Torre A');
@@ -112,21 +112,21 @@ describe('Criacao de bloco dentro do cadastro de unidade', () => {
 
     clickTrigger(within(topDialog()).getByRole('button', { name: 'Cancelar' }));
     await waitFor(() => expect(screen.queryByLabelText('Nome')).not.toBeInTheDocument());
-    expect(screen.getByLabelText('Numero')).toHaveValue('101');
+    expect(screen.getByLabelText('Número')).toHaveValue('101');
   });
 
-  it('IT-196: cancelar a criacao devolve o formulario intacto e sem bloco escolhido', async () => {
+  it('IT-196: cancelar a criação devolve o formulário intacto e sem bloco escolhido', async () => {
     const user = createUser();
     renderForm({ blocks: [] });
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
 
     await openInlineCreation();
     clickTrigger(within(topDialog()).getByRole('button', { name: 'Cancelar' }));
 
     await waitFor(() => expect(screen.queryByLabelText('Nome')).not.toBeInTheDocument());
-    expect(screen.getByLabelText('Numero')).toHaveValue('101');
+    expect(screen.getByLabelText('Número')).toHaveValue('101');
     expect(mockPost).not.toHaveBeenCalled();
     // Sem bloco criado, a oferta continua sendo criar o primeiro.
     expect(screen.getByRole('button', { name: 'Cadastrar o primeiro bloco' })).toBeInTheDocument();
@@ -136,8 +136,8 @@ describe('Criacao de bloco dentro do cadastro de unidade', () => {
     const user = createUser();
     renderForm({ blocks: [] });
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
 
     mockPost.mockResolvedValueOnce(makeBlock({ id: 'block-9', name: 'Torre Nova' }));
     await openInlineCreation();
@@ -145,7 +145,7 @@ describe('Criacao de bloco dentro do cadastro de unidade', () => {
     clickTrigger(within(topDialog()).getByRole('button', { name: /Criar bloco$/ }));
     await waitFor(() => expect(screen.queryByLabelText('Nome')).not.toBeInTheDocument());
 
-    const message = 'Ja existe uma unidade com este numero neste bloco.';
+    const message = 'Já existe uma unidade com este número neste bloco.';
     mockPost.mockRejectedValueOnce(new ApiError(message, 409, 'CONFLICT'));
     clickTrigger(within(topDialog()).getByRole('button', { name: /Cadastrar$/ }));
 
@@ -166,7 +166,7 @@ describe('Criacao de bloco dentro do cadastro de unidade', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('IT-199: zero andares na criacao em linha e recusado sem requisicao', async () => {
+  it('IT-199: zero andares na criação em linha e recusado sem requisição', async () => {
     const user = createUser();
     renderForm({ blocks: [] });
 
@@ -177,7 +177,7 @@ describe('Criacao de bloco dentro do cadastro de unidade', () => {
     clickTrigger(within(topDialog()).getByRole('button', { name: /Criar bloco$/ }));
 
     expect(
-      await screen.findByText('O numero de andares deve estar entre 1 e 200.'),
+      await screen.findByText('O número de andares deve estar entre 1 e 200.'),
     ).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
@@ -186,16 +186,16 @@ describe('Criacao de bloco dentro do cadastro de unidade', () => {
     const user = createUser();
     renderForm({ blocks: [TOWER_A] });
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
 
     // O servidor confere o bloco antes de criar a unidade: removido, responde 404.
-    mockPost.mockRejectedValue(new ApiError('Bloco nao encontrado.', 404, 'NOT_FOUND'));
+    mockPost.mockRejectedValue(new ApiError('Bloco não encontrado.', 404, 'NOT_FOUND'));
     clickTrigger(within(topDialog()).getByRole('button', { name: /Cadastrar$/ }));
 
     // O dialogo permanece: no cadastro, 404 e o bloco que sumiu, nao a unidade.
-    expect(await screen.findByText('Bloco nao encontrado.')).toBeInTheDocument();
+    expect(await screen.findByText('Bloco não encontrado.')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByLabelText('Numero')).toHaveValue('101');
+    expect(screen.getByLabelText('Número')).toHaveValue('101');
   });
 });

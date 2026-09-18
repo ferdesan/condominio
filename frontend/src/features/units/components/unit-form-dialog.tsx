@@ -50,7 +50,7 @@ import { BlockSelectField } from './block-select-field';
  * acontece, e o que aparece depois de salvar e sempre o que o servidor devolveu.
  */
 const STATUS_NOTE =
-  'Ocupada e Vaga sao recalculadas a partir dos moradores da unidade e substituem o valor escolhido aqui. Em reforma e Bloqueada permanecem ate serem alteradas.';
+  'Ocupada e Vaga sao recalculadas a partir dos moradores da unidade e substituem o valor escolhido aqui. Em reforma e Bloqueada permanecem até serem alteradas.';
 
 export interface UnitFormDialogProps {
   condominiumId: string;
@@ -150,18 +150,18 @@ export function UnitFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar unidade' : 'Nova unidade'}</DialogTitle>
             <DialogDescription>
-              A unidade pertence ao condominio selecionado no topo da aplicacao.
+              A unidade pertence ao condomínio selecionado no topo da aplicação.
             </DialogDescription>
           </DialogHeader>
 
           <CondominiumScopeNotice condominiumId={condominiumId} />
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
-            <FormSection title="Identificacao">
+            <FormSection title="Identificação">
               <Controller
                 control={control}
                 name="blockId"
@@ -180,7 +180,7 @@ export function UnitFormDialog({
                 )}
               />
 
-              <FormField id="unit-number" label="Numero" error={errors.number?.message}>
+              <FormField id="unit-number" label="Número" error={errors.number?.message}>
                 {(aria) => <Input autoFocus {...aria} {...register('number')} />}
               </FormField>
 
@@ -249,7 +249,7 @@ export function UnitFormDialog({
             <FormSection title="Caracteristicas">
               <FormField
                 id="unit-area"
-                label="Area (m2)"
+                label="Área (m2)"
                 error={errors.area?.message}
                 description="Opcional."
               >
@@ -258,7 +258,7 @@ export function UnitFormDialog({
 
               <FormField
                 id="unit-ideal-fraction"
-                label="Fracao ideal"
+                label="Fração ideal"
                 error={errors.idealFraction?.message}
                 description="Entre 0 e 1. Opcional."
               >
@@ -273,7 +273,7 @@ export function UnitFormDialog({
                 {(aria) => <Input inputMode="decimal" {...aria} {...register('monthlyFee')} />}
               </FormField>
 
-              <FormField id="unit-bedrooms" label="Dormitorios" error={errors.bedrooms?.message}>
+              <FormField id="unit-bedrooms" label="Dormitórios" error={errors.bedrooms?.message}>
                 {(aria) => <Input inputMode="numeric" {...aria} {...register('bedrooms')} />}
               </FormField>
 
@@ -299,7 +299,7 @@ export function UnitFormDialog({
               />
             </FormSection>
 
-            <FormField id="unit-notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="unit-notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -311,12 +311,12 @@ export function UnitFormDialog({
                 <p>{formError}</p>
                 {/*
                   O bloco foi criado antes de a unidade falhar, e continua criado.
-                  Sem dizer isso, o usuario nao sabe o que ficou salvo.
+                  Sem dizer isso, o usuário não sabe o que ficou salvo.
                 */}
                 {createdBlock ? (
                   <p className="mt-1 text-xs">
                     O bloco &quot;{createdBlock.name}&quot; foi criado e continua cadastrado; apenas
-                    a unidade nao foi salva.
+                    a unidade não foi salva.
                   </p>
                 ) : null}
               </div>
@@ -336,8 +336,8 @@ export function UnitFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

@@ -157,7 +157,7 @@ function SwitchableShell({ first, second }: { first: Condominium; second: Condom
       }}
     >
       <button type="button" onClick={() => setSelected(second)}>
-        Trocar condominio
+        Trocar condomínio
       </button>
       <UnitsPage />
     </CondominiumContext.Provider>
@@ -170,7 +170,7 @@ beforeEach(() => {
 });
 
 describe('Listagem de unidades', () => {
-  it('IT-044: percorre filtros, ordenacao e paginacao preservando os parametros', async () => {
+  it('IT-044: percorre filtros, ordenação e paginação preservando os parametros', async () => {
     serveManyUnits(25);
     renderWithProviders(<UnitsPage />);
 
@@ -180,7 +180,7 @@ describe('Listagem de unidades', () => {
     clickTrigger(screen.getByLabelText('Vaga'));
     await waitFor(() => expect(lastListParams().status).toBe('VACANT'));
 
-    clickTrigger(screen.getByRole('button', { name: 'Numero' }));
+    clickTrigger(screen.getByRole('button', { name: 'Número' }));
     await waitFor(() => expect(lastListParams().sortBy).toBe('number'));
 
     selectBlock('Torre B');
@@ -199,17 +199,17 @@ describe('Listagem de unidades', () => {
     });
   });
 
-  it('IT-045: sem condominio selecionado a tela explica a exigencia e nao pede nada', async () => {
+  it('IT-045: sem condomínio selecionado a tela explica a exigência e não pede nada', async () => {
     serve({ units: [makeUnit()] });
     renderWithProviders(<UnitsPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     // Nenhuma consulta parte sem escopo — nem a listagem, nem os indicadores.
     expect(mockGetPaginated).not.toHaveBeenCalled();
   });
 
-  it('IT-046: condominio sem unidades oferece cadastro individual e geracao em lote', async () => {
+  it('IT-046: condomínio sem unidades oferece cadastro individual e geração em lote', async () => {
     serve({ units: [] });
     renderWithProviders(<UnitsPage />);
 
@@ -220,7 +220,7 @@ describe('Listagem de unidades', () => {
     expect(screen.queryByText('Nenhum resultado para esta busca')).not.toBeInTheDocument();
   });
 
-  it('IT-047: filtros sem resultado mostram um estado distinto, com acao de limpar', async () => {
+  it('IT-047: filtros sem resultado mostram um estado distinto, com ação de limpar', async () => {
     serve({ units: [makeUnit()] });
     renderWithProviders(<UnitsPage />);
     await screen.findByText('101');
@@ -233,7 +233,7 @@ describe('Listagem de unidades', () => {
     expect(screen.queryByText('Nenhuma unidade cadastrada')).not.toBeInTheDocument();
   });
 
-  it('IT-048: trocar de condominio limpa o filtro de bloco do anterior', async () => {
+  it('IT-048: trocar de condomínio limpa o filtro de bloco do anterior', async () => {
     serve({ units: [makeUnit()] });
     const other = makeCondominium({ id: 'cond-2', name: 'Residencial Bosque' });
     renderWithProviders(<SwitchableShell first={makeCondominium()} second={other} />);
@@ -242,7 +242,7 @@ describe('Listagem de unidades', () => {
     selectBlock('Torre A');
     expect(lastListParams().blockId).toBe('block-1');
 
-    clickTrigger(screen.getByRole('button', { name: 'Trocar condominio' }));
+    clickTrigger(screen.getByRole('button', { name: 'Trocar condomínio' }));
 
     // O bloco pertencia ao condominio anterior: mantido, a lista voltaria vazia
     // sem dizer por que.
@@ -250,7 +250,7 @@ describe('Listagem de unidades', () => {
     expect(lastListParams()).not.toHaveProperty('blockId');
   });
 
-  it('IT-049: um condominio de 200 unidades pagina sem perder linhas', async () => {
+  it('IT-049: um condomínio de 200 unidades pagina sem perder linhas', async () => {
     serveManyUnits(200);
     renderWithProviders(<UnitsPage />);
 
@@ -265,7 +265,7 @@ describe('Listagem de unidades', () => {
     expect(lastListParams()).toMatchObject({ page: 10, perPage: 20 });
   });
 
-  it('IT-050: buscar por um prefixo lista todas as correspondencias, paginadas', async () => {
+  it('IT-050: buscar por um prefixo lista todas as correspondências, paginadas', async () => {
     const matching = [
       makeUnit({ id: 'unit-1', number: '10' }),
       makeUnit({ id: 'unit-2', number: '101' }),
@@ -284,7 +284,7 @@ describe('Listagem de unidades', () => {
     expect(screen.getByText(/Página 1 de 3/)).toBeInTheDocument();
   });
 
-  it('IT-051: area e fracao ausentes viram placeholder, mas zero vagas e zero', async () => {
+  it('IT-051: área e fração ausentes viram placeholder, mas zero vagas e zero', async () => {
     serve({
       units: [makeUnit({ area: null, idealFraction: null, parkingSpots: 0 })],
     });

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -134,6 +135,22 @@ export function DependentFormDialog({
   const missingResident = residentId !== '' && selectedResident === undefined;
   const unit = selectedResident?.unit;
 
+  /**
+   * A unidade vai como segunda linha de cada opcao porque **nome nao identifica
+   * morador**: dois cadastros podem trazer o mesmo nome, e a lista mostrava dois
+   * "Ana Silva" sem nada que dissesse qual era qual. A unidade tambem entra na
+   * busca, entao digitar o numero dela encontra o morador.
+   */
+  const residentOptions = useMemo(
+    () =>
+      residents.map((resident) => ({
+        value: resident.id,
+        label: resident.name,
+        hint: resident.unit ? unitLabel(resident.unit) : undefined,
+      })),
+    [residents],
+  );
+
   return (
     <>
       <Dialog
@@ -142,7 +159,7 @@ export function DependentFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar dependente' : 'Novo dependente'}</DialogTitle>
             <DialogDescription>
@@ -164,13 +181,18 @@ export function DependentFormDialog({
                     error={fieldState.error?.message}
                     description={
                       missingResident
-                        ? 'O morador vinculado nao esta mais na lista deste condominio. Escolha outro.'
-                        : 'Apenas moradores do condominio selecionado.'
+                        ? 'O morador vinculado não esta mais na lista deste condomínio. Escolha outro.'
+                        : 'Apenas moradores do condomínio selecionado.'
                     }
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value}
+                        options={residentOptions}
+                        placeholder="Selecione o morador"
+                        searchPlaceholder="Buscar por nome ou unidade"
+                        emptyMessage="Nenhum morador corresponde à busca."
                         onValueChange={(value) => {
                           field.onChange(value);
                           const chosen = residents.find((resident) => resident.id === value);
@@ -179,18 +201,7 @@ export function DependentFormDialog({
                             shouldValidate: true,
                           });
                         }}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue placeholder="Selecione o morador" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {residents.map((resident) => (
-                            <SelectItem key={resident.id} value={resident.id}>
-                              {resident.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   </FormField>
                 )}
@@ -203,8 +214,8 @@ export function DependentFormDialog({
                 description="Definida pelo morador escolhido."
               >
                 {/*
-                  Somente leitura, e nao desabilitado: o valor continua legivel
-                  e alcancavel pelo teclado, que e como quem navega assim
+                  Somente leitura, e não desabilitado: o valor continua legível
+                  e alcancável pelo teclado, que e como quem navega assim
                   confere para onde o dependente esta indo.
                 */}
                 {(aria) => (
@@ -350,8 +361,8 @@ export function DependentFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

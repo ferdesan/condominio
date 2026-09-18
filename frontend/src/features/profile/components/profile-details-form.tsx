@@ -97,7 +97,7 @@ export function ProfileDetailsForm({ user }: ProfileDetailsFormProps) {
       <CardHeader>
         <CardTitle>Dados pessoais</CardTitle>
         <CardDescription>
-          Como voce aparece para as outras pessoas do sistema, e como esta tela se apresenta a voce.
+          Como você aparece para as outras pessoas do sistema, e como esta tela se apresenta a você.
         </CardDescription>
       </CardHeader>
 
@@ -125,7 +125,7 @@ export function ProfileDetailsForm({ user }: ProfileDetailsFormProps) {
                   id="profile-theme"
                   label="Tema"
                   error={fieldState.error?.message}
-                  description="Aplicado agora e guardado na sua conta, para valer tambem em outro dispositivo."
+                  description="Aplicado agora e guardado na sua conta, para valer também em outro dispositivo."
                 >
                   {(aria) => (
                     <Select value={field.value} onValueChange={field.onChange}>
@@ -150,12 +150,12 @@ export function ProfileDetailsForm({ user }: ProfileDetailsFormProps) {
             <ReadOnlyField
               label="E-mail"
               value={user.email}
-              note="Trocar o endereco de acesso e feito em Usuarios, por quem administra a conta."
+              note="Trocar o endereço de acesso e feito em Usuários, por quem administra a conta."
             />
             <ReadOnlyField
               label="Papel"
               value={roleLabel(user.role)}
-              note="Define o que voce pode fazer no sistema."
+              note="Define o que você pode fazer no sistema."
             />
           </dl>
 
