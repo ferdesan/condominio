@@ -3,12 +3,11 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
-      - develop
+      - master
   pull_request:
     branches:
-      - main
-      - develop
+      - master
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -150,26 +149,26 @@ jobs:
         run: npm --prefix frontend run build
 
       - name: Upload backend build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-build
           path: backend/dist
           retention-days: 5
 
       - name: Upload frontend build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: frontend/dist
           retention-days: 5
 
-  # ===== DOCKER BUILD (apenas na main) =====
+  # ===== DOCKER BUILD (apenas na master) =====
   docker-build:
     name: Build & Push Docker Images
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     permissions:
       contents: read
       packages: write
@@ -222,6 +221,9 @@ jobs:
     name: Security Scanning
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout code
@@ -236,7 +238,7 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
 
