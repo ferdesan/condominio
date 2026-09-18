@@ -122,3 +122,21 @@ export type CreateExpenseDTO = z.infer<typeof createExpenseSchema>;
 export type UpdateExpenseDTO = z.infer<typeof updateExpenseSchema>;
 export type PayExpenseDTO = z.infer<typeof payExpenseSchema>;
 export type FinancialSummaryQuery = z.infer<typeof financialSummaryQuerySchema>;
+
+// ---------------------------------------------------------------------------
+// Balancete mensal
+// ---------------------------------------------------------------------------
+
+export const closingMonthParamsSchema = z.object({ referenceMonth: referenceMonthSchema });
+
+export const closingQuerySchema = z.object({ condominiumId: uuidSchema });
+
+/**
+ * `validate` **substitui** `req.query` pelo objeto parseado, entao um schema
+ * estrito descartaria `page` e `perPage` e a listagem devolveria sempre a
+ * primeira pagina, sem erro nenhum a apontar o motivo. Dai o `passthrough`.
+ */
+export const closingListQuerySchema = closingQuerySchema.passthrough();
+
+export type ClosingMonthParams = z.infer<typeof closingMonthParamsSchema>;
+export type ClosingQuery = z.infer<typeof closingQuerySchema>;

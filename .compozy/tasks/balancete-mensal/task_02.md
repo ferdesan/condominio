@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "O cálculo e as duas rotas de leitura"
 type: backend
 complexity: high
@@ -38,15 +38,15 @@ número existe, ainda que nada o congele.
 
 ## Subtasks
 
-- [ ] 2.1 Escrever as agregações no repositório: receita por categoria, despesa por categoria, despesas pagas sem data, e o recorte de inadimplência do mês
-- [ ] 2.2 Escrever a montagem de linhas — nomes resolvidos, "Sem categoria", ordenação, e os totais derivados das próprias linhas
-- [ ] 2.3 Escrever a resolução do saldo de abertura, com os dois caminhos e a provenência
-- [ ] 2.4 Montar `ClosingService.statement`, devolvendo a forma `MonthlyStatement` do TechSpec
-- [ ] 2.5 Escrever `ClosingService.list` sobre o repositório, escopado por condomínio
-- [ ] 2.6 Criar `closing.routes.ts` com as duas rotas de leitura e seus schemas, e montá-lo em `financial.routes.ts`
-- [ ] 2.7 Documentar as rotas no bloco escrito à mão de `swagger.ts`, ao lado das que já estão lá
-- [ ] 2.8 Escrever os casos unitários e de integração atribuídos
-- [ ] 2.9 Rodar o pipeline do backend e comparar a contagem
+- [x] 2.1 Escrever as agregações no repositório: receita por categoria, despesa por categoria, despesas pagas sem data, e o recorte de inadimplência do mês
+- [x] 2.2 Escrever a montagem de linhas — nomes resolvidos, "Sem categoria", ordenação, e os totais derivados das próprias linhas
+- [x] 2.3 Escrever a resolução do saldo de abertura, com os dois caminhos e a provenência
+- [x] 2.4 Montar `ClosingService.statement`, devolvendo a forma `MonthlyStatement` do TechSpec
+- [x] 2.5 Escrever `ClosingService.list` sobre o repositório, escopado por condomínio
+- [x] 2.6 Criar `closing.routes.ts` com as duas rotas de leitura e seus schemas, e montá-lo em `financial.routes.ts`
+- [x] 2.7 Documentar as rotas no bloco escrito à mão de `swagger.ts`, ao lado das que já estão lá
+- [x] 2.8 Escrever os casos unitários e de integração atribuídos
+- [x] 2.9 Rodar o pipeline do backend e comparar a contagem
 
 ## Implementation Details
 
@@ -109,13 +109,13 @@ Ver "Core Interfaces", "Data Models" e "API Endpoints" no
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's
 full definition there before writing tests.
 
-- [ ] UT-105, UT-106, UT-107, UT-108, UT-109 — resolução do saldo de abertura: herança, cálculo, linha `OPEN` que não herda, corte nulo e o zero legítimo
-- [ ] UT-110, UT-111, UT-112, UT-113, UT-114, UT-115 — montagem das linhas: nomes, "Sem categoria", categoria removida, o total que é a soma das linhas, o conjunto vazio e a categoria órfã
-- [ ] IT-258, IT-259, IT-260, IT-261, IT-262 — o regime de caixa nas duas pontas, inclusive o pagamento parcial e a despesa paga fora da competência
-- [ ] IT-263, IT-264, IT-265, IT-266, IT-267 — categoria nula, a igualdade entre topo e linhas, a identidade do saldo final, a inadimplência fora do resultado e a despesa paga sem data
-- [ ] IT-268, IT-269, IT-270, IT-271 — mês sem lançamento, mês malformado, `condominiumId` ausente e condomínio fora do escopo
-- [ ] IT-272, IT-273, IT-274 — o saldo de abertura nos três cenários: primeiro mês, herança de um mês fechado e a data de corte que exclui
-- [ ] IT-296, IT-297 — a listagem, sua ordem e seu escopo
+- [x] UT-105, UT-106, UT-107, UT-108, UT-109 — resolução do saldo de abertura: herança, cálculo, linha `OPEN` que não herda, corte nulo e o zero legítimo
+- [x] UT-110, UT-111, UT-112, UT-113, UT-114, UT-115 — montagem das linhas: nomes, "Sem categoria", categoria removida, o total que é a soma das linhas, o conjunto vazio e a categoria órfã
+- [x] IT-258, IT-259, IT-260, IT-261, IT-262 — o regime de caixa nas duas pontas, inclusive o pagamento parcial e a despesa paga fora da competência
+- [x] IT-263, IT-264, IT-265, IT-266, IT-267 — categoria nula, a igualdade entre topo e linhas, a identidade do saldo final, a inadimplência fora do resultado e a despesa paga sem data
+- [x] IT-268, IT-269, IT-270, IT-271 — mês sem lançamento, mês malformado, `condominiumId` ausente e condomínio fora do escopo
+- [x] IT-272, IT-273, IT-274 — o saldo de abertura nos três cenários: primeiro mês, herança de um mês fechado e a data de corte que exclui
+- [x] IT-296, IT-297 — a listagem, sua ordem e seu escopo
 
 ## Notas de execução
 
@@ -129,6 +129,55 @@ full definition there before writing tests.
   inadimplentes a cada nove). Prefira afirmar relações — "o total é a soma das
   linhas", "o mês X difere de `charges/summary`" — a fixar constantes que uma
   mudança no seed quebraria sem nada ter regredido.
+
+## Execução — o que foi descoberto e o que ficou provado
+
+**O seed não serve para demonstrar o regime sozinho.** Ele paga toda cobrança
+dentro da própria competência (`paidAt = reference.date(8)`), então caixa e
+competência coincidem em todo dado semeado. IT-258 cria a divergência de
+propósito: quita agora uma cobrança vencida do mês anterior, e afirma que o caixa
+do mês corrente cresce exatamente o valor pago **enquanto** o `received` de
+`charges/summary` do mês corrente não se move. É a mesma quantia respondendo a
+duas perguntas diferentes.
+
+**As asserções são de delta, não de constante.** Quase todos os casos leem o
+balancete antes, provocam um lançamento e leem de novo, comparando a diferença.
+Fixar o total do seed teria quebrado na primeira mudança de semente sem nada ter
+regredido.
+
+**Duas canárias, ambas mordem:**
+
+| Defeito plantado | Casos que caem |
+|---|---|
+| `toStatementLines` descarta linha de categoria nula | 5 — IT-263, IT-264 e UT-111, UT-113, UT-115 |
+| a despesa ignora a janela de datas e soma tudo que está pago | 2 — IT-262 e IT-268 |
+
+**Uma decisão de escopo.** `statement` já traz o ramo que serve o documento
+gravado (`fromSnapshot`), embora nada possa fechar um mês antes da task_03. Sem
+ele, a leitura de um mês fechado recalcularia — um defeito que nasceria pronto no
+instante em que a task_03 entrasse. A **tolerância** do desserializador a um
+`breakdown` de forma anterior continua sendo da task_03, com UT-116 e UT-117.
+
+**Um desvio do plano da task.** As agregações não ficaram em
+`financial-closing.repository.ts`: elas consultam `payments`, `expenses` e
+`financial_categories`, e cada repositório já aplica o escopo de tenant e de
+condomínio da sua própria tabela pelo `baseQuery`. Colocá-las no repositório do
+fechamento exigiria construtor cru sobre tabelas alheias, perdendo esse escopo —
+que é justamente a proteção multi-tenant. Ficaram em `payment.repository.ts`,
+`expense.repository.ts` e `financial-category.repository.ts`.
+
+**A inadimplência auxiliar reusa `chargeRepository.totals`**, em vez de ganhar
+uma consulta própria. O módulo já tem três definições divergentes de "valor da
+cobrança"; uma quarta seria uma a mais.
+
+**`validate` substitui `req.query` pelo objeto parseado**, então o schema da
+listagem precisou de `passthrough`: sem ele, `page` e `perPage` seriam
+descartados e a rota devolveria sempre a primeira página, sem erro que apontasse
+o motivo.
+
+**IT-297 mudou de tenant.** Ele precisa de dois condomínios, e um tenant
+auto-registrado nasce com limite de um (`maxCondominiums`) — o segundo `POST
+/condominiums` responde 409. O caso roda no tenant demo, onde o admin pode criar.
 
 ## Success Criteria
 
