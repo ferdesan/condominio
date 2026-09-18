@@ -103,6 +103,27 @@ describe('Cadastro de condomínio', () => {
     expect(await screen.findByText('Residencial Bosque')).toBeInTheDocument();
   });
 
+  it('IT-316: o saldo de abertura aceita virgula decimal e chega como numero', async () => {
+    serve([]);
+    const user = createUser();
+    renderWithProviders(<CondominiumsPage />);
+    await screen.findByText('Nenhum condomínio cadastrado');
+
+    mockPost.mockResolvedValue(makeCondominium({ id: 'cond-8' }));
+
+    await openCreateDialog();
+    await user.type(screen.getByLabelText('Nome'), 'Residencial Vertice');
+
+    const balance = screen.getByLabelText('Saldo de abertura');
+    await user.clear(balance);
+    await user.type(balance, '1500,50');
+    submit('Cadastrar');
+
+    await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
+    // `type="number"` engoliria a virgula e enviaria 150050 — cem vezes o valor.
+    expect(lastCreateBody().openingBalance).toBe(1500.5);
+  });
+
   it('IT-011: 409 de CNPJ duplicado aparece no formulário, sem marcar campo', async () => {
     serve([]);
     const user = createUser();

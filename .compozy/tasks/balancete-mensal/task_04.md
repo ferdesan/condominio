@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "A seção Balancete na tela de Financeiro"
 type: frontend
 complexity: high
@@ -39,16 +39,16 @@ número entra no sistema pela primeira vez.
 
 ## Subtasks
 
-- [ ] 4.1 Espelhar a forma de resposta em `types/financial.ts`
-- [ ] 4.2 Escrever os hooks — leitura por mês e as duas mutações — com a chave de consulta e a invalidação
-- [ ] 4.3 Acrescentar a entrada em `SECTIONS` e os rótulos, inclusive o texto de procedência do saldo
-- [ ] 4.4 Escrever `closing-section.tsx`: seletor de mês, quadro de saldos, duas tabelas, resultado, estado vazio e estado de carregamento
-- [ ] 4.5 Ligar as duas ações, com confirmação no fechamento e apresentação da recusa do servidor na própria seção
-- [ ] 4.6 Ligar o ramo no ternário de `financial-page.tsx` e esconder a seção de quem não pode lê-la
-- [ ] 4.7 Estender `serveFinancial` com as URLs novas e as fixtures do balancete
-- [ ] 4.8 Acrescentar os dois campos ao schema, ao formulário e ao cartão de condomínio
-- [ ] 4.9 Escrever os casos atribuídos, inclusive o que prova que o boot não lê o balancete
-- [ ] 4.10 Rodar o pipeline do frontend e comparar a contagem
+- [x] 4.1 Espelhar a forma de resposta em `types/financial.ts`
+- [x] 4.2 Escrever os hooks — leitura por mês e as duas mutações — com a chave de consulta e a invalidação
+- [x] 4.3 Acrescentar a entrada em `SECTIONS` e os rótulos, inclusive o texto de procedência do saldo
+- [x] 4.4 Escrever `closing-section.tsx`: seletor de mês, quadro de saldos, duas tabelas, resultado, estado vazio e estado de carregamento
+- [x] 4.5 Ligar as duas ações, com confirmação no fechamento e apresentação da recusa do servidor na própria seção
+- [x] 4.6 Ligar o ramo no ternário de `financial-page.tsx` e esconder a seção de quem não pode lê-la
+- [x] 4.7 Estender `serveFinancial` com as URLs novas e as fixtures do balancete
+- [x] 4.8 Acrescentar os dois campos ao schema, ao formulário e ao cartão de condomínio
+- [x] 4.9 Escrever os casos atribuídos, inclusive o que prova que o boot não lê o balancete
+- [x] 4.10 Rodar o pipeline do frontend e comparar a contagem
 
 ## Implementation Details
 
@@ -117,12 +117,12 @@ forma da resposta.
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's
 full definition there before writing tests.
 
-- [ ] UT-123, UT-124 — o texto de procedência do saldo de abertura, nos dois caminhos
-- [ ] IT-305, IT-306, IT-307 — a seção rendendo, o seletor de mês refazendo a leitura e o estado vazio
-- [ ] IT-308, IT-309, IT-310, IT-311 — mês fechado, as duas ações escondidas por permissão e a confirmação antes do fechamento
-- [ ] IT-312, IT-313 — a seção escondida de quem não pode lê-la, e a recusa 409 apresentada na seção
-- [ ] IT-315 — a prova de que `/financeiro` não lê o balancete na montagem
-- [ ] IT-316, IT-317 — o saldo de abertura com vírgula decimal chegando como `1500.5`, e os dois campos no cartão
+- [x] UT-123, UT-124 — o texto de procedência do saldo de abertura, nos dois caminhos
+- [x] IT-305, IT-306, IT-307 — a seção rendendo, o seletor de mês refazendo a leitura e o estado vazio
+- [x] IT-308, IT-309, IT-310, IT-311 — mês fechado, as duas ações escondidas por permissão e a confirmação antes do fechamento
+- [x] IT-312, IT-313 — a seção escondida de quem não pode lê-la, e a recusa 409 apresentada na seção
+- [x] IT-315 — a prova de que `/financeiro` não lê o balancete na montagem
+- [x] IT-316, IT-317 — o saldo de abertura com vírgula decimal chegando como `1500.5`, e os dois campos no cartão
 
 ## Notas de execução
 
@@ -137,6 +137,36 @@ full definition there before writing tests.
   inteira antes de escrever caso novo, para separar "quebrei" de "faltou servir".
 - Rótulo repetido entre o painel e o diálogo quebra `getByLabelText` mesmo com ids
   distintos — escopar em `within(dialog)` resolve, renomear o campo não.
+
+## Execução — o que foi decidido e o que ficou provado
+
+**Um texto repetido virou correção de tela, e não contorno de teste.** O quadro
+de saldos e a tabela usavam ambos o rótulo "Entradas", e o caso quebrou por
+ambiguidade. A regra deste repositório manda escopar com `within` em vez de
+renomear — mas aqui os dois nomes descreviam coisas diferentes com a mesma
+palavra: um é o total do mês, o outro é a quebra por categoria. As tabelas
+passaram a se chamar "Entradas por categoria" e "Saídas por categoria", e a
+tabela é nomeada pelo próprio título (`aria-labelledby`) em vez de repetir o
+texto numa `caption`.
+
+**IT-316 morde.** Removendo a conversão de vírgula do schema, `1500,50` deixa de
+validar e o formulário nem envia — o caso fica vermelho. O que ele prova é a
+conversão no schema, que é a parte testável; o comportamento do `type="number"`
+em si é do navegador e o `jsdom` não o reproduz. Por isso o motivo está escrito
+no comentário do campo, e não só no teste.
+
+**A seção some do alternador por filtro, e não por `null` no ternário.**
+`visibleSections` filtra `SECTIONS` antes do `map`, então quem não tem
+`financial-closing:read` não vê o botão — e as outras três seções continuam
+intactas, o que IT-312 afirma junto.
+
+**`AUXILIARY_READS` não ganhou entrada nenhuma**, e `routes.test.tsx` não foi
+tocado: o diff do arquivo é vazio. O hook do balancete é chamado dentro do
+componente da seção, que só monta quando escolhida, e IT-315 afirma isso pela
+lista de requisições feitas na montagem de `/financeiro`.
+
+**Pipeline:** 89 arquivos / 1078 casos (de 87 / 1063), lint nos mesmos **5
+avisos** conhecidos, typecheck e build limpos.
 
 ## Success Criteria
 

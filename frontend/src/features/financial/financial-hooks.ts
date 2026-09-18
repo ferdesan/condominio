@@ -29,6 +29,7 @@ import type {
   Expense,
   FinancialCategory,
   GenerateChargesResult,
+  MonthlyStatement,
   Payment,
   RegisterPaymentResult,
 } from '@/types/financial';
@@ -371,6 +372,81 @@ export function usePayExpense(
     mutationFn: ({ id, data }) => apiPost<Expense>(`/financial/expenses/${id}/pay`, data),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: [EXPENSES_KEY] });
+      callbacks.onSuccess?.(data, variables);
+    },
+    ...(callbacks.onError ? { onError: callbacks.onError } : {}),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Balancete mensal
+// ---------------------------------------------------------------------------
+
+export const CLOSINGS_KEY = 'financial/closings';
+
+export type ClosingVariables = { condominiumId: string; referenceMonth: string };
+
+/**
+ * O balancete de um mes. Fica fora da fabrica do ADR-008 pelo mesmo motivo de
+ * `useChargePayments`: ha uma leitura e duas acoes, e a fabrica monta as seis
+ * operacoes de um roteador CRUD sobre um recurso.
+ *
+ * **E chamado dentro da secao, e nunca no nivel da pagina.** A secao so monta
+ * quando escolhida, e e isso que mantem o boot de `/financeiro` sem esta
+ * requisicao — o que `IT-315` afirma.
+ */
+export function useClosing(
+  condominiumId: string | null,
+  referenceMonth: string,
+): UseQueryResult<MonthlyStatement, ApiError> {
+  return useQuery<MonthlyStatement, ApiError>({
+    queryKey: [CLOSINGS_KEY, 'detail', condominiumId, referenceMonth],
+    queryFn: () =>
+      apiGet<MonthlyStatement>(`/financial/closings/${referenceMonth}`, {
+        params: { condominiumId: condominiumId ?? '' },
+      }),
+    enabled: Boolean(condominiumId) && Boolean(referenceMonth),
+  });
+}
+
+/**
+ * Fecha o mes. Exige **`financial-closing:create`**.
+ *
+ * Invalida tambem a raiz de cobrancas e despesas: depois do fechamento, toda
+ * escrita que moveria o caixa daquele mes passa a ser recusada, e as telas
+ * precisam refletir o estado novo.
+ */
+export function useCloseMonth(
+  callbacks: MutationCallbacks<MonthlyStatement, ClosingVariables> = {},
+): UseMutationResult<MonthlyStatement, ApiError, ClosingVariables> {
+  const queryClient = useQueryClient();
+
+  return useMutation<MonthlyStatement, ApiError, ClosingVariables>({
+    mutationFn: ({ condominiumId, referenceMonth }) =>
+      apiPost<MonthlyStatement>(`/financial/closings/${referenceMonth}/close`, { condominiumId }),
+    onSuccess: (data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: [CLOSINGS_KEY] });
+      callbacks.onSuccess?.(data, variables);
+    },
+    ...(callbacks.onError ? { onError: callbacks.onError } : {}),
+  });
+}
+
+/**
+ * Reabre o mes. Exige **`financial-closing:manage`**, estritamente mais forte do
+ * que a permissao de fechar: fechar e rotina mensal, desfazer uma prestacao de
+ * contas publicada nao e.
+ */
+export function useReopenMonth(
+  callbacks: MutationCallbacks<MonthlyStatement, ClosingVariables> = {},
+): UseMutationResult<MonthlyStatement, ApiError, ClosingVariables> {
+  const queryClient = useQueryClient();
+
+  return useMutation<MonthlyStatement, ApiError, ClosingVariables>({
+    mutationFn: ({ condominiumId, referenceMonth }) =>
+      apiPost<MonthlyStatement>(`/financial/closings/${referenceMonth}/reopen`, { condominiumId }),
+    onSuccess: (data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: [CLOSINGS_KEY] });
       callbacks.onSuccess?.(data, variables);
     },
     ...(callbacks.onError ? { onError: callbacks.onError } : {}),

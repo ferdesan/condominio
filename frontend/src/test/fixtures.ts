@@ -46,6 +46,8 @@ export function makeCondominium(overrides: Partial<Condominium> = {}): Condomini
     syndicPhone: '11988887777',
     syndicTermEndsAt: '2027-03-31',
     chargeDueDay: 10,
+    openingBalance: 0,
+    openingBalanceDate: null,
     logoUrl: null,
     notes: null,
     ...TIMESTAMPS,
