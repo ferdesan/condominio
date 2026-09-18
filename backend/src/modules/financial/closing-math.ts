@@ -1,4 +1,5 @@
 import type {
+  ClosingBreakdown,
   ClosingStatus,
   OpeningBalanceSource,
   StatementLine,
@@ -66,6 +67,28 @@ export function openingBalanceWindow(
   return {
     from: openingBalanceDate ? new Date(`${openingBalanceDate}T00:00:00`) : null,
     toExclusive: monthStart,
+  };
+}
+
+/**
+ * Le o `breakdown` gravado tolerando forma anterior.
+ *
+ * A coluna e `simple-json`: o banco nao valida nada, e um documento fechado hoje
+ * pode ser lido por um codigo que ganhou campos depois. Preencher com vazio o que
+ * falta e a diferenca entre um balancete antigo que abre com uma linha a menos e
+ * um balancete antigo que nao abre.
+ */
+export function readBreakdown(raw: unknown): ClosingBreakdown {
+  const value = (raw ?? {}) as Partial<ClosingBreakdown>;
+  const unresolved = value.unresolvedPaidExpenses;
+
+  return {
+    income: Array.isArray(value.income) ? value.income : [],
+    expense: Array.isArray(value.expense) ? value.expense : [],
+    unresolvedPaidExpenses: {
+      count: Number(unresolved?.count ?? 0),
+      total: Number(unresolved?.total ?? 0),
+    },
   };
 }
 

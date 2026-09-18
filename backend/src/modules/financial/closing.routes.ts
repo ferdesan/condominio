@@ -5,6 +5,7 @@ import { ok, page } from '@/shared/http/api-response';
 import { parseQueryOptions } from '@/shared/http/query-parser';
 import { buildRequestContext } from '@/shared/services/request-context';
 import {
+  closingBodySchema,
   closingListQuerySchema,
   closingMonthParamsSchema,
   closingQuerySchema,
@@ -41,6 +42,41 @@ closingRouter.get(
       const context = buildRequestContext(req);
       const { condominiumId } = req.query as unknown as ClosingQuery;
       ok(res, await closingService.statement(context, condominiumId, req.params.referenceMonth));
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+closingRouter.post(
+  '/:referenceMonth/close',
+  authorize('financial-closing:create'),
+  validate({ params: closingMonthParamsSchema, body: closingBodySchema }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = buildRequestContext(req);
+      const { condominiumId } = req.body as ClosingQuery;
+      ok(res, await closingService.close(context, condominiumId, req.params.referenceMonth));
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * Reabrir exige `manage`, e nao `create`: `hasPermission` trata `manage` como
+ * curinga do recurso, entao quem so tem `create` fecha e nao desfaz. Fechar e
+ * rotina mensal; desfazer uma prestacao de contas ja publicada nao e.
+ */
+closingRouter.post(
+  '/:referenceMonth/reopen',
+  authorize('financial-closing:manage'),
+  validate({ params: closingMonthParamsSchema, body: closingBodySchema }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = buildRequestContext(req);
+      const { condominiumId } = req.body as ClosingQuery;
+      ok(res, await closingService.reopen(context, condominiumId, req.params.referenceMonth));
     } catch (error) {
       next(error);
     }

@@ -1,11 +1,18 @@
 import { condominiumRepository, type CondominiumRepository } from '@/modules/condominiums/condominium.repository';
-import { NotFoundError } from '@/shared/errors';
+import { auditService, type AuditService } from '@/modules/audit/audit.service';
+import { BusinessRuleError, NotFoundError } from '@/shared/errors';
 import type { Paginated, QueryOptions } from '@/shared/types/pagination';
 import { assertCondominiumAccess } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
-import { dayjs, monthRange, REFERENCE_MONTH } from '@/shared/utils/date.util';
+import {
+  currentReferenceMonth,
+  dayjs,
+  monthRange,
+  REFERENCE_MONTH,
+} from '@/shared/utils/date.util';
 import {
   openingBalanceWindow,
+  readBreakdown,
   resolveOpeningBalance,
   round2,
   toStatementLines,
@@ -69,6 +76,7 @@ export class ClosingService {
     private readonly charges: ChargeRepository = chargeRepository,
     private readonly categories: FinancialCategoryRepository = financialCategoryRepository,
     private readonly condominiums: CondominiumRepository = condominiumRepository,
+    private readonly audit: AuditService = auditService,
   ) {}
 
   /**
@@ -97,9 +105,129 @@ export class ClosingService {
     return this.closings.findMany(ctx.scope, options);
   }
 
+  /**
+   * Congela o mes: recalcula uma ultima vez, grava o documento inteiro e passa a
+   * servi-lo dali em diante (ADR-005).
+   */
+  async close(
+    ctx: RequestContext,
+    condominiumId: string,
+    referenceMonth: string,
+  ): Promise<MonthlyStatement> {
+    await assertCondominiumAccess(ctx.scope, condominiumId);
+
+    // Congelar um mes que ainda recebe dinheiro transforma a guarda numa
+    // armadilha sobre a escrita mais usada do modulo: dali ate o fim do mes,
+    // toda baixa seria recusada.
+    if (referenceMonth >= currentReferenceMonth()) {
+      throw new BusinessRuleError(
+        `A competencia ${referenceMonth} ainda nao terminou e por isso nao pode ser fechada.`,
+      );
+    }
+
+    const existing = await this.closings.findByMonth(ctx.scope, condominiumId, referenceMonth);
+    if (existing?.status === 'CLOSED') {
+      throw new BusinessRuleError(`A competencia ${referenceMonth} ja esta fechada.`);
+    }
+
+    const statement = await this.compute(ctx, condominiumId, referenceMonth, existing);
+
+    const document = {
+      condominiumId,
+      referenceMonth,
+      status: 'CLOSED' as const,
+      openingBalance: statement.openingBalance.amount,
+      openingBalanceSource: statement.openingBalance.source,
+      openingBalanceFrom: statement.openingBalance.from,
+      totalIncome: statement.totalIncome,
+      totalExpense: statement.totalExpense,
+      closingBalance: statement.closingBalance,
+      overdueAmount: statement.delinquency.amount,
+      overdueCount: statement.delinquency.count,
+      breakdown: {
+        income: statement.income,
+        expense: statement.expense,
+        unresolvedPaidExpenses: statement.unresolvedPaidExpenses,
+      },
+      closedAt: new Date(),
+      closedById: ctx.actor.userId,
+      closedByName: ctx.actor.name ?? null,
+    };
+
+    // O indice unico por competencia torna o refechamento uma atualizacao da
+    // mesma linha, e nao uma segunda linha — estrutural, e nao convencao.
+    const saved = existing
+      ? await this.closings.update(ctx.scope, existing.id, document)
+      : await this.closings.create(ctx.scope, document);
+
+    if (!saved) throw new NotFoundError('Balancete');
+
+    await this.audit.record({
+      tenantId: ctx.scope.tenantId,
+      action: 'UPDATE',
+      resource: 'financial-closing',
+      resourceId: saved.id,
+      description: `Balancete de ${referenceMonth} fechado.`,
+      before: existing ? { status: existing.status, closingBalance: existing.closingBalance } : null,
+      after: { status: 'CLOSED', closingBalance: saved.closingBalance },
+      actor: ctx.actor,
+      ipAddress: ctx.ipAddress,
+      userAgent: ctx.userAgent,
+      requestId: ctx.requestId,
+    });
+
+    return this.fromSnapshot(saved);
+  }
+
+  /**
+   * Devolve o mes ao estado vivo, deixando registro de quem e quando. Exige
+   * permissao estritamente mais forte do que fechar: fechar e rotina, desfazer
+   * uma prestacao de contas nao e (ADR-003).
+   */
+  async reopen(
+    ctx: RequestContext,
+    condominiumId: string,
+    referenceMonth: string,
+  ): Promise<MonthlyStatement> {
+    await assertCondominiumAccess(ctx.scope, condominiumId);
+
+    const existing = await this.closings.findByMonth(ctx.scope, condominiumId, referenceMonth);
+    if (!existing || existing.status !== 'CLOSED') {
+      throw new BusinessRuleError(`A competencia ${referenceMonth} nao esta fechada.`);
+    }
+
+    const reopened = await this.closings.update(ctx.scope, existing.id, {
+      status: 'OPEN',
+      reopenedAt: new Date(),
+      reopenedById: ctx.actor.userId,
+      reopenedByName: ctx.actor.name ?? null,
+      reopenCount: existing.reopenCount + 1,
+    });
+
+    if (!reopened) throw new NotFoundError('Balancete');
+
+    await this.audit.record({
+      tenantId: ctx.scope.tenantId,
+      action: 'UPDATE',
+      resource: 'financial-closing',
+      resourceId: existing.id,
+      description: `Balancete de ${referenceMonth} reaberto.`,
+      before: { status: 'CLOSED', reopenCount: existing.reopenCount },
+      after: { status: 'OPEN', reopenCount: reopened.reopenCount },
+      actor: ctx.actor,
+      ipAddress: ctx.ipAddress,
+      userAgent: ctx.userAgent,
+      requestId: ctx.requestId,
+    });
+
+    // Reaberto volta a ser calculado: os totais gravados descrevem um mes que
+    // voltou a receber lancamento.
+    return this.statement(ctx, condominiumId, referenceMonth);
+  }
+
   /** O documento gravado, devolvido como foi gravado. Nenhuma agregacao roda aqui. */
   private fromSnapshot(row: FinancialClosing): MonthlyStatement {
-    const breakdown = row.breakdown;
+    const breakdown = readBreakdown(row.breakdown);
 
     return {
       condominiumId: row.condominiumId,

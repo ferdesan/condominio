@@ -55,6 +55,19 @@ export function overlaps(startA: Date, endA: Date, startB: Date, endB: Date): bo
  * de 2027 sem avisar, e um balancete emitido para o mes errado e pior do que um
  * balancete que nao sai.
  */
+/**
+ * A competencia a que um instante pertence — o inverso de `monthRange`, e mora
+ * ao lado dele de proposito.
+ *
+ * `monthRange(referenceMonthOf(t))` contem `t` por construcao. As duas juntas
+ * sao a unica aritmetica de mes do projeto: a guarda de mes fechado decide por
+ * esta, as agregacoes filtram por aquela, e por isso um pagamento nao pode ser
+ * recusado por cair num mes e depois somado em outro.
+ */
+export function referenceMonthOf(when: string | Date): string {
+  return dayjs(when).format(REFERENCE_MONTH);
+}
+
 export function monthRange(referenceMonth: string): { start: Date; endExclusive: Date } {
   if (!/^[0-9]{4}-(0[1-9]|1[0-2])$/.test(referenceMonth)) {
     throw new RangeError(`Competencia invalida: "${referenceMonth}". Use o formato AAAA-MM.`);
