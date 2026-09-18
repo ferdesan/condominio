@@ -85,6 +85,12 @@ export const createExpenseSchema = z.object({
   dueDate: z.string().date('Data de vencimento invalida.'),
   amount: moneySchema,
   status: z.enum(EXPENSE_STATUSES).default('PENDING'),
+  /**
+   * Aceito na criacao para que uma despesa ja quitada possa ser registrada numa
+   * requisicao so. O servico recusa a combinacao incoerente — `PAID` sem data —,
+   * e nao a despesa nascer paga.
+   */
+  paidAt: z.coerce.date().optional().nullable(),
   paymentMethod: z.enum(PAYMENT_METHODS).optional().nullable(),
   documentUrl: z.string().url().max(255).optional().nullable(),
   documentNumber: z.string().max(60).optional().nullable(),
@@ -92,9 +98,7 @@ export const createExpenseSchema = z.object({
   notes: z.string().max(1000).optional().nullable(),
 });
 
-export const updateExpenseSchema = createExpenseSchema.partial().extend({
-  paidAt: z.coerce.date().optional().nullable(),
-});
+export const updateExpenseSchema = createExpenseSchema.partial();
 
 export const payExpenseSchema = z.object({
   paidAt: z.coerce.date().default(() => new Date()),
