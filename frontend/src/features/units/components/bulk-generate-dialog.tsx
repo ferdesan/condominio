@@ -139,7 +139,7 @@ export function BulkGenerateDialog({
       >
         <DialogContent side="right" dismissible={false}>
           <DialogHeader>
-            <DialogTitle>Geracao concluida</DialogTitle>
+            <DialogTitle>Geração concluida</DialogTitle>
           </DialogHeader>
 
           <p role="status" className="text-sm">
@@ -147,7 +147,7 @@ export function BulkGenerateDialog({
               ? 'Nenhuma unidade nova foi criada.'
               : `${formatNumber(created)} ${created === 1 ? 'unidade criada' : 'unidades criadas'}.`}
             {created < projected
-              ? ` De ${formatNumber(projected)} numeros pedidos, os que ja existiam no bloco foram mantidos como estavam.`
+              ? ` De ${formatNumber(projected)} números pedidos, os que já existiam no bloco foram mantidos como estavam.`
               : ''}
           </p>
 
@@ -170,7 +170,7 @@ export function BulkGenerateDialog({
         <DialogHeader>
           <DialogTitle>Gerar unidades</DialogTitle>
           <DialogDescription>
-            Cria as unidades de um bloco inteiro em uma operacao. Numeros que ja existem no bloco
+            Cria as unidades de um bloco inteiro em uma operação. Números que já existem no bloco
             sao mantidos como estao.
           </DialogDescription>
         </DialogHeader>
@@ -226,7 +226,7 @@ export function BulkGenerateDialog({
 
           <FormField
             id="bulk-number-pattern"
-            label="Padrao de numeracao"
+            label="Padrão de numeração"
             error={errors.numberPattern?.message}
             description="Use {floor} para o andar e {index} para a posicao, que sai com dois digitos."
           >
@@ -263,7 +263,7 @@ export function BulkGenerateDialog({
 
             <FormField
               id="bulk-area"
-              label="Area (m2)"
+              label="Área (m2)"
               error={errors.area?.message}
               description="Opcional."
             >
@@ -274,7 +274,7 @@ export function BulkGenerateDialog({
           {/* A projecao antes de confirmar: quantas unidades e com quais numeros. */}
           <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
             <p>
-              Serao geradas <strong>{formatNumber(projected)}</strong>{' '}
+              Serão geradas <strong>{formatNumber(projected)}</strong>{' '}
               {projected === 1 ? 'unidade' : 'unidades'}
               {firstNumber && lastNumber ? (
                 <>
@@ -285,9 +285,9 @@ export function BulkGenerateDialog({
             </p>
             {blockId && existingCount > 0 ? (
               <p className="mt-1 text-muted-foreground">
-                Este bloco ja possui {formatNumber(existingCount)}{' '}
-                {existingCount === 1 ? 'unidade' : 'unidades'}. Numeros que ja existem serao pulados
-                e nada do que esta cadastrado sera alterado.
+                Este bloco já possui {formatNumber(existingCount)}{' '}
+                {existingCount === 1 ? 'unidade' : 'unidades'}. Números que já existem serão pulados
+                e nada do que esta cadastrado será alterado.
               </p>
             ) : null}
             {projected >= BULK_LARGE_GRID ? (
@@ -299,8 +299,8 @@ export function BulkGenerateDialog({
 
           {/*
             Recusa de regra de negocio. Nao usa `role="alert"` nem a cor de erro:
-            "todos os numeros ja existem" e o relato de um desfecho, e apresenta-lo
-            como falha de sistema faria o operador procurar um problema que nao ha.
+            "todos os números já existem" e o relato de um desfecho, e apresenta-lo
+            como falha de sistema faria o operador procurar um problema que não ha.
           */}
           {outcome ? (
             <div role="status" className="rounded-md bg-muted px-3 py-2 text-sm">

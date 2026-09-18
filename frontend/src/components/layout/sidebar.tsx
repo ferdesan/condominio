@@ -44,7 +44,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Building2 className="size-5" aria-hidden="true" />
             </span>
-            <span className="truncate">Condominio</span>
+            <span className="truncate">Condomínio</span>
           </span>
 
           <Button

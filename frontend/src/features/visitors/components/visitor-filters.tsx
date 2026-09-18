@@ -65,7 +65,7 @@ export function VisitorFilters({ list, units, currentUserId }: VisitorFiltersPro
     chips.push({ id: 'type', label: 'Tipo', value: labelOf(TYPE_OPTIONS, list.filters.type) });
   }
   if (authorizedByMe) {
-    chips.push({ id: 'authorizedById', label: 'Autorizacao', value: 'Minhas' });
+    chips.push({ id: 'authorizedById', label: 'Autorização', value: 'Minhas' });
   }
 
   /** O painel devolve os chips que sobraram; os que sairam viram filtro limpo. */
@@ -176,7 +176,7 @@ export function VisitorFilters({ list, units, currentUserId }: VisitorFiltersPro
         {/*
           Sem gate de permissao: ver registros removidos e leitura, e o servidor
           aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a
-          linha marcada e nenhuma acao de restaurar (ADR-006).
+          linha marcada e nenhuma ação de restaurar (ADR-006).
         */}
         <div className="flex items-center gap-2">
           <Checkbox

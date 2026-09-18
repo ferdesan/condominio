@@ -25,7 +25,7 @@ const STATUS_OPTIONS = Object.entries(COMMON_AREA_STATUS_LABELS).map(([value, la
 }));
 
 const APPROVAL_OPTIONS = [
-  { value: 'true', label: 'Exige aprovacao' },
+  { value: 'true', label: 'Exige aprovação' },
   { value: 'false', label: 'Reserva direta' },
 ];
 
@@ -52,7 +52,7 @@ export function CommonAreaFilters({ list }: CommonAreaFiltersProps) {
   if (list.filters.requiresApproval) {
     chips.push({
       id: 'requiresApproval',
-      label: 'Aprovacao',
+      label: 'Aprovação',
       value: labelOf(APPROVAL_OPTIONS, list.filters.requiresApproval),
     });
   }
@@ -78,7 +78,7 @@ export function CommonAreaFilters({ list }: CommonAreaFiltersProps) {
             <Input
               id="common-area-search"
               className="pl-10"
-              placeholder="Nome ou descricao"
+              placeholder="Nome ou descrição"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />
@@ -106,7 +106,7 @@ export function CommonAreaFilters({ list }: CommonAreaFiltersProps) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="common-area-approval-filter">Aprovacao</Label>
+          <Label htmlFor="common-area-approval-filter">Aprovação</Label>
           <Select
             value={(list.filters.requiresApproval as string) ?? ANY}
             onValueChange={(value) =>
@@ -131,7 +131,7 @@ export function CommonAreaFilters({ list }: CommonAreaFiltersProps) {
       {/*
         Sem gate de permissao: ver registros removidos e leitura, e o servidor
         aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a linha
-        marcada e nenhuma acao de restaurar (ADR-006).
+        marcada e nenhuma ação de restaurar (ADR-006).
       */}
       <div className="flex items-center gap-2">
         <Checkbox

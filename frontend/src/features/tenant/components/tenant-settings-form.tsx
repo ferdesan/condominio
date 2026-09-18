@@ -60,7 +60,7 @@ export function TenantSettingsForm({ tenant, canUpdate }: TenantSettingsFormProp
       // normalizado por ele — o CNPJ volta so com digitos, por exemplo.
       reset(toTenantFormValues(saved));
       setFormError(null);
-      toast.success('Configuracoes salvas.');
+      toast.success('Configurações salvas.');
     },
     onError: (error: ApiError) => applyApiError(error, setError, setFormError, TENANT_FIELDS),
   });
@@ -86,9 +86,9 @@ export function TenantSettingsForm({ tenant, canUpdate }: TenantSettingsFormProp
       <fieldset disabled={!canUpdate} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Identificacao</CardTitle>
+            <CardTitle>Identificação</CardTitle>
             <CardDescription>
-              Como a administradora aparece nos documentos e nas comunicacoes do sistema.
+              Como a administradora aparece nos documentos e nas comunicações do sistema.
             </CardDescription>
           </CardHeader>
 
@@ -110,7 +110,7 @@ export function TenantSettingsForm({ tenant, canUpdate }: TenantSettingsFormProp
               id="tenant-email"
               label="E-mail"
               error={errors.email?.message}
-              description="Opcional. Contato da administradora, e nao o seu."
+              description="Opcional. Contato da administradora, e não o seu."
             >
               {(aria) => <Input type="email" maxLength={180} {...aria} {...register('email')} />}
             </FormField>
@@ -128,7 +128,7 @@ export function TenantSettingsForm({ tenant, canUpdate }: TenantSettingsFormProp
               id="tenant-logo"
               label="Logo"
               error={errors.logoUrl?.message}
-              description="Opcional. URL completa de uma imagem ja hospedada — nao ha upload."
+              description="Opcional. URL completa de uma imagem já hospedada — não ha upload."
               className="sm:col-span-2"
             >
               {(aria) => (
@@ -148,18 +148,18 @@ export function TenantSettingsForm({ tenant, canUpdate }: TenantSettingsFormProp
           <CardHeader>
             <CardTitle>Politica de encargos</CardTitle>
             <CardDescription>
-              O que se aplica a uma cobranca vencida. Estes tres valores sao os que o botao
+              O que se aplica a uma cobrança vencida. Estes três valores sao os que o botao
               &ldquo;aplicar encargos&rdquo;, na tela de Financeiro, usa ao percorrer as cobrancas
-              em atraso — nao ha outro lugar onde eles sejam definidos.
+              em atraso — não ha outro lugar onde eles sejam definidos.
             </CardDescription>
           </CardHeader>
 
           <CardContent className="grid gap-4 sm:grid-cols-3">
             <FormField
               id="tenant-grace-days"
-              label="Carencia"
+              label="Carência"
               error={errors.chargeGraceDays?.message}
-              description={`Dias apos o vencimento antes de qualquer encargo. 0 a ${GRACE_DAYS_MAX}.`}
+              description={`Dias após o vencimento antes de qualquer encargo. 0 a ${GRACE_DAYS_MAX}.`}
             >
               {(aria) => (
                 <Input
@@ -179,7 +179,7 @@ export function TenantSettingsForm({ tenant, canUpdate }: TenantSettingsFormProp
               A diferenca e o separador decimal: num `input type="number"` a
               virgula e descartada pelo navegador, e "1,5" digitado vira "15" —
               juros de quinze por cento no lugar de um e meio, sem nenhum aviso.
-              A carencia e inteira e nao corre esse risco, entao mantem o
+              A carência e inteira e não corre esse risco, entao mantem o
               controle numerico. `inputMode="decimal"` preserva o teclado certo
               no celular; a faixa continua conferida pelo schema.
             */}
@@ -187,7 +187,7 @@ export function TenantSettingsForm({ tenant, canUpdate }: TenantSettingsFormProp
               id="tenant-penalty"
               label="Multa (%)"
               error={errors.latePenaltyPercent?.message}
-              description={`Percentual unico sobre o valor. 0 a ${PERCENT_MAX}. Use virgula ou ponto.`}
+              description={`Percentual único sobre o valor. 0 a ${PERCENT_MAX}. Use virgula ou ponto.`}
             >
               {(aria) => (
                 <Input
@@ -202,7 +202,7 @@ export function TenantSettingsForm({ tenant, canUpdate }: TenantSettingsFormProp
 
             <FormField
               id="tenant-interest"
-              label="Juros (% ao mes)"
+              label="Juros (% ao mês)"
               error={errors.lateInterestPercent?.message}
               description={`Proporcional aos dias de atraso. 0 a ${PERCENT_MAX}. Use virgula ou ponto.`}
             >

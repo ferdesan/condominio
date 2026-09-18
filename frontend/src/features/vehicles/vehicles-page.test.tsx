@@ -121,7 +121,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Listagem de veiculos', () => {
+describe('Listagem de veículos', () => {
   it('percorre busca e os quatro filtros preservando os parametros', async () => {
     serve([makeVehicle()]);
     const user = createUser();
@@ -170,7 +170,7 @@ describe('Listagem de veiculos', () => {
     await waitFor(() => expect(lastListParams().search).toBe('XYZ9876'));
   });
 
-  it('um termo que nao e placa passa intacto para a busca', async () => {
+  it('um termo que não e placa passa intacto para a busca', async () => {
     serve([makeVehicle()]);
     const user = createUser();
     renderWithProviders(<VehiclesPage />);
@@ -200,7 +200,7 @@ describe('Listagem de veiculos', () => {
     expect(lastListParams().sortBy).toBe('plate');
   });
 
-  it('trezentos veiculos paginam no tamanho pedido', async () => {
+  it('trezentos veículos paginam no tamanho pedido', async () => {
     serve(makeRoster(20));
     world.total = 300;
     const user = createUser();
@@ -211,14 +211,14 @@ describe('Listagem de veiculos', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.vehicles = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('ABC1D21')).toBeInTheDocument();
     expect(lastListParams().perPage).toBe(20);
   });
 
-  it('a placa do padrao antigo sai com hifen, e a Mercosul sem', async () => {
+  it('a placa do padrão antigo sai com hifen, e a Mercosul sem', async () => {
     serve([
       makeVehicle({ id: 'v1', plate: 'XYZ9876' }),
       makeVehicle({ id: 'v2', plate: 'ABC1D23' }),
@@ -252,7 +252,7 @@ describe('Listagem de veiculos', () => {
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
-  it('um veiculo sem unidade e sem morador rende a linha, com a falta nomeada', async () => {
+  it('um veículo sem unidade e sem morador rende a linha, com a falta nomeada', async () => {
     serve([makeVehicle({ unitId: null, residentId: null, unit: null })]);
     renderWithProviders(<VehiclesPage />);
 
@@ -263,7 +263,7 @@ describe('Listagem de veiculos', () => {
     expect(dataRows()).toHaveLength(1);
   });
 
-  it('um veiculo cuja unidade sumiu ainda rende a linha, com a falta explicita', async () => {
+  it('um veículo cuja unidade sumiu ainda rende a linha, com a falta explicita', async () => {
     serve([makeVehicle({ unitId: 'unit-1', unit: null })]);
     renderWithProviders(<VehiclesPage />);
 
@@ -295,13 +295,13 @@ describe('Listagem de veiculos', () => {
   });
 });
 
-describe('Estados vazios de veiculos', () => {
+describe('Estados vazios de veículos', () => {
   it('lista vazia oferece o cadastro', async () => {
     serve([]);
     renderWithProviders(<VehiclesPage />);
 
-    expect(await screen.findByText('Nenhum veiculo cadastrado')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cadastrar veiculo' })).toBeInTheDocument();
+    expect(await screen.findByText('Nenhum veículo cadastrado')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cadastrar veículo' })).toBeInTheDocument();
     expect(screen.queryByText('Nenhum resultado para esta busca')).not.toBeInTheDocument();
   });
 
@@ -317,13 +317,13 @@ describe('Estados vazios de veiculos', () => {
     expect(await screen.findByText('Nenhum resultado para esta busca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeInTheDocument();
     // Os dois vazios sao estados diferentes e dizem coisas diferentes.
-    expect(screen.queryByText('Nenhum veiculo cadastrado')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Cadastrar veiculo' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Nenhum veículo cadastrado')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cadastrar veículo' })).not.toBeInTheDocument();
   });
 });
 
-describe('Exclusao e restauracao de veiculos', () => {
-  it('excluir pede confirmacao antes de remover', async () => {
+describe('Exclusao e restauração de veículos', () => {
+  it('excluir pede confirmação antes de remover', async () => {
     serve([makeVehicle()]);
     mockDelete.mockImplementation(async () => {
       world.vehicles = [];
@@ -334,7 +334,7 @@ describe('Exclusao e restauracao de veiculos', () => {
     clickTrigger(screen.getByRole('button', { name: 'Excluir ABC1D23' }));
 
     // O pedido so sai depois da confirmacao.
-    expect(await screen.findByText('Excluir veiculo?')).toBeInTheDocument();
+    expect(await screen.findByText('Excluir veículo?')).toBeInTheDocument();
     expect(mockDelete).not.toHaveBeenCalled();
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir' }));
@@ -346,7 +346,7 @@ describe('Exclusao e restauracao de veiculos', () => {
   it('um 409 de impedimento mostra a mensagem do servidor e mantem o registro', async () => {
     serve([makeVehicle()]);
     mockDelete.mockRejectedValue(
-      new ApiError('Ha um acesso em aberto para este veiculo.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('Ha um acesso em aberto para este veículo.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<VehiclesPage />);
 
@@ -357,7 +357,7 @@ describe('Exclusao e restauracao de veiculos', () => {
     // Acao de linha nao passa `onError`, entao herda o toast global — que e a
     // apresentacao certa para um 409 que traz so a mensagem do servidor.
     await waitFor(() =>
-      expect(mockToastError).toHaveBeenCalledWith('Ha um acesso em aberto para este veiculo.'),
+      expect(mockToastError).toHaveBeenCalledWith('Ha um acesso em aberto para este veículo.'),
     );
     expect(screen.getByText('ABC1D23')).toBeInTheDocument();
   });
@@ -384,12 +384,12 @@ describe('Exclusao e restauracao de veiculos', () => {
   });
 });
 
-describe('Escopo e permissoes de veiculos', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões de veículos', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     serve([makeVehicle()]);
     renderWithProviders(<VehiclesPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     // Nem a listagem nem os seletores de vinculo saem sem condominio.
     expect(mockGetPaginated).not.toHaveBeenCalled();
   });
@@ -401,12 +401,12 @@ describe('Escopo e permissoes de veiculos', () => {
 
     await screen.findByText('ABC1D23');
 
-    expect(screen.queryByRole('button', { name: 'Novo veiculo' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Novo veículo' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     serve([makeVehicle({ deletedAt: '2026-02-01T10:00:00.000Z' })]);
     const user = createUser();
     renderWithProviders(<VehiclesPage />, { role: 'STAFF', permissions: ['vehicle:read'] });
@@ -419,7 +419,7 @@ describe('Escopo e permissoes de veiculos', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('os seletores de vinculo tambem ficam presos ao condominio do shell', async () => {
+  it('os seletores de vinculo também ficam presos ao condomínio do shell', async () => {
     serve([makeVehicle()]);
     renderWithProviders(<VehiclesPage />);
 

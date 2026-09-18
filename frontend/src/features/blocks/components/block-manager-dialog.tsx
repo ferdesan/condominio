@@ -97,9 +97,9 @@ export function BlockManagerDialog({ condominiumId, onClose }: BlockManagerDialo
       >
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Blocos do condominio</DialogTitle>
+            <DialogTitle>Blocos do condomínio</DialogTitle>
             <DialogDescription>
-              Blocos, torres, alas e ruas do condominio selecionado. Toda unidade pertence a um
+              Blocos, torres, alas e ruas do condomínio selecionado. Toda unidade pertence a um
               deles.
             </DialogDescription>
           </DialogHeader>

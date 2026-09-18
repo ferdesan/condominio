@@ -60,10 +60,10 @@ export function RoleRowActions({
         <Button
           variant="outline"
           size="sm"
-          aria-label={`Ver permissoes de ${label}`}
+          aria-label={`Ver permissões de ${label}`}
           onClick={() => onViewPermissions(role)}
         >
-          Permissoes
+          Permissões
         </Button>
 
         {canUpdate ? (
@@ -91,10 +91,10 @@ export function RoleRowActions({
       </div>
 
       {/*
-        A recusa aparece na linha, e nao em toast: e sobre este papel, e a
-        proxima coisa a fazer esta a dois centimetros dela. O caso mais comum e
-        "existem N usuario(s) com este papel", que se resolve na tela de
-        Usuarios — e a mensagem do servidor ja diz isso.
+        A recusa aparece na linha, e não em toast: e sobre este papel, e a
+        próxima coisa a fazer esta a dois centimetros dela. O caso mais comum e
+        "existem N usuário(s) com este papel", que se resolve na tela de
+        Usuários — e a mensagem do servidor já diz isso.
       */}
       {error ? (
         <p role="alert" className="text-xs text-destructive">

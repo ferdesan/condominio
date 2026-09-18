@@ -35,7 +35,7 @@ export function FinancialChart({
     <Card>
       <CardHeader>
         <CardTitle>Faturado x recebido</CardTitle>
-        <CardDescription>Evolucao mensal das cobrancas do condominio.</CardDescription>
+        <CardDescription>Evolução mensal das cobranças do condomínio.</CardDescription>
       </CardHeader>
 
       <div className="px-2 pb-4 sm:px-4">
@@ -99,14 +99,14 @@ export function FinancialChart({
             {/* A mesma serie em texto: leitura alternativa ao canal de cor. */}
             <details className="mt-2 px-3">
               <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
-                Ver os numeros em tabela
+                Ver os números em tabela
               </summary>
               <div className="mt-2 overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border text-left text-muted-foreground">
                       <th scope="col" className="py-2 pr-4 font-medium">
-                        Mes
+                        Mês
                       </th>
                       <th scope="col" className="py-2 pr-4 text-right font-medium">
                         Faturado

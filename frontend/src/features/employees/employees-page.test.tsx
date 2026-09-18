@@ -108,7 +108,7 @@ function makeRoster(count: number, offset = 0): Employee[] {
     const position = offset + index + 1;
     return makeEmployee({
       id: `employee-${position}`,
-      name: `Funcionario ${String(position).padStart(3, '0')}`,
+      name: `Funcionário ${String(position).padStart(3, '0')}`,
       document: null,
     });
   });
@@ -148,8 +148,8 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Listagem de funcionarios', () => {
-  it('busca, filtros e ordenacao chegam ao servidor com o nome e o formato que ele aceita', async () => {
+describe('Listagem de funcionários', () => {
+  it('busca, filtros e ordenação chegam ao servidor com o nome e o formato que ele aceita', async () => {
     serve([makeEmployee()]);
     const user = createUser();
     renderWithProviders(<EmployeesPage />);
@@ -199,25 +199,25 @@ describe('Listagem de funcionarios', () => {
     await waitFor(() => expect(lastListParams().search).toBe('12345678909'));
   });
 
-  it('trezentos funcionarios paginam, e a proxima pagina e pedida ao servidor', async () => {
+  it('trezentos funcionários paginam, e a próxima pagina e pedida ao servidor', async () => {
     serve(makeRoster(20));
     world.total = 300;
     const user = createUser();
     renderWithProviders(<EmployeesPage />);
 
-    await screen.findByText('Funcionario 001');
+    await screen.findByText('Funcionário 001');
     expect(dataRows()).toHaveLength(20);
     expect(lastListParams().perPage).toBe(20);
 
     world.employees = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
-    expect(await screen.findByText('Funcionario 021')).toBeInTheDocument();
+    expect(await screen.findByText('Funcionário 021')).toBeInTheDocument();
     expect(lastListParams().perPage).toBe(20);
   });
 
-  it('o salario aparece formatado como moeda na listagem', async () => {
+  it('o salário aparece formatado como moeda na listagem', async () => {
     serve([makeEmployee({ salary: 2500 })]);
     renderWithProviders(<EmployeesPage />);
 
@@ -225,10 +225,10 @@ describe('Listagem de funcionarios', () => {
 
     // O separador entre o simbolo e o numero e um espaco nao separavel: o que
     // se afirma e o formato pt-BR, nao o code point exato do ICU em uso.
-    expect(cellsOf('Salario')[0]).toMatch(/^R\$\s?2\.500,00$/);
+    expect(cellsOf('Salário')[0]).toMatch(/^R\$\s?2\.500,00$/);
   });
 
-  it('CPF, departamento, telefone, admissao e salario ausentes viram placeholder, nunca "null"', async () => {
+  it('CPF, departamento, telefone, admissao e salário ausentes viram placeholder, nunca "null"', async () => {
     serve([
       makeEmployee({
         document: null,
@@ -246,7 +246,7 @@ describe('Listagem de funcionarios', () => {
     expect(cellsOf('Departamento')).toEqual(['—']);
     expect(cellsOf('Telefone')).toEqual(['—']);
     expect(cellsOf('Admissao')).toEqual(['—']);
-    expect(cellsOf('Salario')).toEqual(['—']);
+    expect(cellsOf('Salário')).toEqual(['—']);
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
@@ -263,12 +263,12 @@ describe('Listagem de funcionarios', () => {
     expect(screen.getByLabelText('Departamento')).toBeInTheDocument();
     expect(screen.getByLabelText('Contrato')).toBeInTheDocument();
 
-    for (const absent of ['Cargo', 'CPF', 'Salario', 'Admissao', 'Condominio']) {
+    for (const absent of ['Cargo', 'CPF', 'Salário', 'Admissao', 'Condomínio']) {
       expect(screen.queryByLabelText(absent)).not.toBeInTheDocument();
     }
   });
 
-  it('sem nenhum departamento cadastrado o filtro nao e oferecido', async () => {
+  it('sem nenhum departamento cadastrado o filtro não e oferecido', async () => {
     serve([makeEmployee({ department: null })]);
     renderWithProviders(<EmployeesPage />);
 
@@ -280,18 +280,18 @@ describe('Listagem de funcionarios', () => {
   });
 });
 
-describe('Estados vazios de funcionarios', () => {
+describe('Estados vazios de funcionários', () => {
   it('lista vazia oferece o cadastro', async () => {
     serve([]);
     renderWithProviders(<EmployeesPage />);
 
-    expect(await screen.findByText('Nenhum funcionario cadastrado')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cadastrar funcionario' })).toBeInTheDocument();
+    expect(await screen.findByText('Nenhum funcionário cadastrado')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cadastrar funcionário' })).toBeInTheDocument();
     // O vazio por ausencia de cadastro nao oferece limpar: nao ha o que limpar.
     expect(screen.queryByRole('button', { name: 'Limpar busca' })).not.toBeInTheDocument();
   });
 
-  it('busca sem resultado oferece limpar, e nao se confunde com a lista vazia', async () => {
+  it('busca sem resultado oferece limpar, e não se confunde com a lista vazia', async () => {
     serve([makeEmployee()]);
     const user = createUser();
     renderWithProviders(<EmployeesPage />);
@@ -302,12 +302,12 @@ describe('Estados vazios de funcionarios', () => {
 
     expect(await screen.findByText('Nenhum resultado para esta busca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeInTheDocument();
-    expect(screen.queryByText('Nenhum funcionario cadastrado')).not.toBeInTheDocument();
+    expect(screen.queryByText('Nenhum funcionário cadastrado')).not.toBeInTheDocument();
   });
 });
 
-describe('Exclusao e restauracao de funcionarios', () => {
-  it('a exclusao pede confirmacao antes de chegar ao servidor', async () => {
+describe('Exclusao e restauração de funcionários', () => {
+  it('a exclusao pede confirmação antes de chegar ao servidor', async () => {
     serve([makeEmployee()]);
     mockDelete.mockResolvedValue(undefined);
     renderWithProviders(<EmployeesPage />);
@@ -315,7 +315,7 @@ describe('Exclusao e restauracao de funcionarios', () => {
     await screen.findByText('Joana Ribeiro');
     clickTrigger(screen.getByRole('button', { name: 'Excluir Joana Ribeiro' }));
 
-    expect(await screen.findByText('Excluir funcionario?')).toBeInTheDocument();
+    expect(await screen.findByText('Excluir funcionário?')).toBeInTheDocument();
     expect(mockDelete).not.toHaveBeenCalled();
 
     mockDelete.mockImplementation(async () => {
@@ -331,7 +331,7 @@ describe('Exclusao e restauracao de funcionarios', () => {
     serve([makeEmployee()]);
     mockDelete.mockRejectedValue(
       new ApiError(
-        'O funcionario responde por chamados abertos e nao pode ser excluido.',
+        'O funcionário responde por chamados abertos e não pode ser excluido.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -344,7 +344,7 @@ describe('Exclusao e restauracao de funcionarios', () => {
 
     await waitFor(() =>
       expect(mockToastError).toHaveBeenCalledWith(
-        'O funcionario responde por chamados abertos e nao pode ser excluido.',
+        'O funcionário responde por chamados abertos e não pode ser excluido.',
       ),
     );
     expect(screen.getByText('Joana Ribeiro')).toBeInTheDocument();
@@ -375,12 +375,12 @@ describe('Exclusao e restauracao de funcionarios', () => {
   });
 });
 
-describe('Escopo e permissoes de funcionarios', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões de funcionários', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     serve([makeEmployee()]);
     renderWithProviders(<EmployeesPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(mockGetPaginated).not.toHaveBeenCalled();
   });
 
@@ -390,12 +390,12 @@ describe('Escopo e permissoes de funcionarios', () => {
 
     await screen.findByText('Joana Ribeiro');
 
-    expect(screen.queryByRole('button', { name: 'Novo funcionario' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Novo funcionário' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     serve([makeEmployee({ deletedAt: '2026-02-01T10:00:00.000Z' })]);
     const user = createUser();
     renderWithProviders(<EmployeesPage />, { role: 'STAFF' });
@@ -406,7 +406,7 @@ describe('Escopo e permissoes de funcionarios', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('o levantamento de departamentos tambem fica preso ao condominio do shell', async () => {
+  it('o levantamento de departamentos também fica preso ao condomínio do shell', async () => {
     serve([makeEmployee()]);
     renderWithProviders(<EmployeesPage />);
 

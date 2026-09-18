@@ -145,7 +145,7 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
             <DialogDescription>
               {isSystem
                 ? SYSTEM_ROLE_LOCKED
-                : 'O nome identifica o papel; as permissoes definem o que quem o tem pode fazer.'}
+                : 'O nome identifica o papel; as permissões definem o que quem o tem pode fazer.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -170,7 +170,7 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
 
               <FormField
                 id="role-description"
-                label="Descricao"
+                label="Descrição"
                 error={errors.description?.message}
                 description="Opcional. Para que serve este papel."
               >
@@ -185,7 +185,7 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
               name="permissions"
               render={({ field, fieldState }) => (
                 <fieldset disabled={isSystem} className="space-y-3">
-                  <legend className="text-sm font-semibold text-foreground">Permissoes</legend>
+                  <legend className="text-sm font-semibold text-foreground">Permissões</legend>
 
                   {fieldState.error ? (
                     <p role="alert" className="text-sm text-destructive">
@@ -199,14 +199,14 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
                     // Sem catalogo nao ha o que oferecer: inventar a lista aqui
                     // divergiria do servidor em silencio.
                     <p role="alert" className="text-sm text-destructive">
-                      Nao foi possivel carregar o catalogo de permissoes.{' '}
+                      Não foi possível carregar o catálogo de permissões.{' '}
                       {catalogQuery.error.message}
                     </p>
                   ) : (
                     <>
                       {/*
-                        O curinga fica fora da matriz — ele nao tem recurso nem
-                        acao — e so aparece para quem pode concede-lo. Oferece-lo
+                        O curinga fica fora da matriz — ele não tem recurso nem
+                        ação — e so aparece para quem pode concede-lo. Oferece-lo
                         a um administrador comum seria oferecer uma recusa.
                       */}
                       {hasWildcard && canGrantWildcard ? (
@@ -272,8 +272,8 @@ export function RoleFormDialog({ role, canGrantWildcard, onClose }: RoleFormDial
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

@@ -5,7 +5,7 @@ import { formatCurrency, formatDate, formatDocument, formatPhone } from './forma
 const PLACEHOLDER = '—';
 
 describe('format', () => {
-  it('UT-086: formatDocument(null) devolve o placeholder, nao a palavra null', () => {
+  it('UT-086: formatDocument(null) devolve o placeholder, não a palavra null', () => {
     expect(formatDocument(null)).toBe(PLACEHOLDER);
     expect(formatDocument(null)).not.toContain('null');
   });
@@ -20,14 +20,14 @@ describe('format', () => {
     expect(formatDocument('12345678000195')).toBe('12.345.678/0001-95');
   });
 
-  it('UT-089: formatCurrency(0) devolve zero formatado, nao o placeholder', () => {
+  it('UT-089: formatCurrency(0) devolve zero formatado, não o placeholder', () => {
     const formatted = formatCurrency(0);
 
     expect(formatted).not.toBe(PLACEHOLDER);
     expect(formatted).toContain('0,00');
   });
 
-  it('UT-090: formatDate com data invalida devolve o placeholder em vez de lancar', () => {
+  it('UT-090: formatDate com data inválida devolve o placeholder em vez de lancar', () => {
     expect(() => formatDate('nao-e-uma-data')).not.toThrow();
     expect(formatDate('nao-e-uma-data')).toBe(PLACEHOLDER);
   });

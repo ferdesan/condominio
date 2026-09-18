@@ -25,7 +25,7 @@ export function makeAssembly(overrides: Partial<Assembly> = {}): Assembly {
     id: 'assembly-1',
     condominiumId: 'cond-1',
     title: 'AGO 2026',
-    description: 'Prestacao de contas e eleicao do sindico.',
+    description: 'Prestação de contas e eleição do síndico.',
     type: 'ORDINARY',
     status: 'SCHEDULED',
     mode: 'HYBRID',
@@ -63,7 +63,7 @@ export function makePoll(overrides: Partial<Poll> = {}): Poll {
     id: 'poll-1',
     condominiumId: 'cond-1',
     assemblyId: 'assembly-1',
-    title: 'Aprovacao das contas de 2025',
+    title: 'Aprovação das contas de 2025',
     description: null,
     status: 'DRAFT',
     voterType: 'OWNERS',
@@ -85,7 +85,7 @@ export function makePoll(overrides: Partial<Poll> = {}): Poll {
 export function makePollResults(overrides: Partial<PollResults> = {}): PollResults {
   return {
     pollId: 'poll-1',
-    title: 'Aprovacao das contas de 2025',
+    title: 'Aprovação das contas de 2025',
     status: 'CLOSED',
     totalVotes: 30,
     eligibleUnits: 48,

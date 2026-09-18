@@ -11,6 +11,6 @@ export const STATUS_LABELS: Record<EmployeeStatus, string> = {
 export const CONTRACT_TYPE_LABELS: Record<EmployeeContractType, string> = {
   CLT: 'CLT',
   PJ: 'PJ',
-  TEMPORARY: 'Temporario',
+  TEMPORARY: 'Temporário',
   OUTSOURCED: 'Terceirizado',
 };

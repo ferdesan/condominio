@@ -24,7 +24,7 @@ describe('Filtros de morador', () => {
   });
 });
 
-describe('Normalizacao do termo de busca', () => {
+describe('Normalização do termo de busca', () => {
   it('UT-015: um CPF pontuado vira apenas digitos antes de ser enviado', () => {
     expect(normaliseDocument('123.456.789-09')).toBe('12345678909');
   });
@@ -33,7 +33,7 @@ describe('Normalizacao do termo de busca', () => {
     expect(normaliseDocument('Carlos Pereira')).toBe('Carlos Pereira');
   });
 
-  it('um telefone pontuado tambem vira digitos: e guardado sem pontuacao', () => {
+  it('um telefone pontuado também vira digitos: e guardado sem pontuação', () => {
     expect(normaliseDocument('(11) 97777-6666')).toBe('11977776666');
   });
 });
@@ -49,13 +49,13 @@ describe('Schema do morador', () => {
     }
   });
 
-  it('UT-024: uma saida anterior a entrada falha no caminho moveOutDate', () => {
+  it('UT-024: uma saída anterior a entrada falha no caminho moveOutDate', () => {
     const values = valid({ moveInDate: '2026-03-10', moveOutDate: '2026-03-09' });
 
     expect(issuePaths(values)).toEqual(['moveOutDate']);
   });
 
-  it('UT-024: uma saida posterior a entrada passa', () => {
+  it('UT-024: uma saída posterior a entrada passa', () => {
     expect(issuePaths(valid({ moveInDate: '2026-03-10', moveOutDate: '2026-03-11' }))).toEqual([]);
   });
 
@@ -69,12 +69,12 @@ describe('Schema do morador', () => {
     expect(issuePaths(valid({ birthDate: '1985-06-20' }))).toEqual([]);
   });
 
-  it('quem consta como mudado precisa da data de saida', () => {
+  it('quem consta como mudado precisa da data de saída', () => {
     expect(issuePaths(valid({ status: 'MOVED_OUT', moveOutDate: '' }))).toEqual(['moveOutDate']);
     expect(issuePaths(valid({ status: 'MOVED_OUT', moveOutDate: '2026-03-11' }))).toEqual([]);
   });
 
-  it('CPF e e-mail sao opcionais, e o CPF chega ao servidor sem pontuacao', () => {
+  it('CPF e e-mail sao opcionais, e o CPF chega ao servidor sem pontuação', () => {
     expect(issuePaths(valid({ document: '', email: '' }))).toEqual([]);
 
     const result = residentSchema.safeParse(valid({ document: '123.456.789-09' }));

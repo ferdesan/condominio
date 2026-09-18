@@ -32,8 +32,8 @@ export const ASSEMBLY_STATUS_LABELS: Record<AssemblyStatus, string> = {
 };
 
 export const ASSEMBLY_TYPE_LABELS: Record<AssemblyType, string> = {
-  ORDINARY: 'Ordinaria',
-  EXTRAORDINARY: 'Extraordinaria',
+  ORDINARY: 'Ordinária',
+  EXTRAORDINARY: 'Extraordinária',
 };
 
 export const ASSEMBLY_MODE_LABELS: Record<AssemblyMode, string> = {
@@ -56,7 +56,7 @@ export const POLL_STATUS_LABELS: Record<PollStatus, string> = {
 };
 
 export const POLL_VOTER_LABELS: Record<PollVoterType, string> = {
-  OWNERS: 'Somente proprietarios',
+  OWNERS: 'Somente proprietários',
   ALL_RESIDENTS: 'Todos os moradores',
 };
 
@@ -64,13 +64,13 @@ export const POLL_VOTER_LABELS: Record<PollVoterType, string> = {
 export const NO_LOCATION = 'Sem local definido';
 
 /** Dito quando a assembleia ainda nao tem ata publicada. */
-export const NO_MINUTES = 'Ata nao publicada';
+export const NO_MINUTES = 'Ata não publicada';
 
 /** Dito quando a assembleia nao tem segunda convocacao. */
-export const NO_SECOND_CALL = 'Sem segunda convocacao';
+export const NO_SECOND_CALL = 'Sem segunda convocação';
 
 /** Dito quando a assembleia nao tem nenhuma deliberacao registrada. */
-export const NO_POLLS = 'Nenhuma deliberacao registrada nesta assembleia.';
+export const NO_POLLS = 'Nenhuma deliberação registrada nesta assembleia.';
 
 /** Identifica a assembleia nos rotulos acessiveis das acoes de linha. */
 export function assemblyLabel(assembly: Assembly): string {
@@ -90,5 +90,5 @@ export function pollLabel(poll: Poll): string {
  * leia o percentual como "quantas pessoas".
  */
 export function weightingLabel(weighted: boolean): string {
-  return weighted ? 'Ponderado pela fracao ideal' : 'Um voto por unidade';
+  return weighted ? 'Ponderado pela fração ideal' : 'Um voto por unidade';
 }

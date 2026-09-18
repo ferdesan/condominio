@@ -25,22 +25,22 @@ const userFields = z.object({
   name: z
     .string()
     .trim()
-    .min(3, 'Informe o nome do usuario.')
-    .max(150, 'Use no maximo 150 caracteres.'),
+    .min(3, 'Informe o nome do usuário.')
+    .max(150, 'Use no máximo 150 caracteres.'),
   email: z
     .string()
     .trim()
-    .min(1, 'Informe o e-mail do usuario.')
-    .email('E-mail invalido.')
-    .max(180, 'Use no maximo 180 caracteres.'),
+    .min(1, 'Informe o e-mail do usuário.')
+    .email('E-mail inválido.')
+    .max(180, 'Use no máximo 180 caracteres.'),
   /** Opcional, mas o servidor exige forma quando presente (`phoneSchema`). */
   phone: z
     .string()
     .trim()
     .refine((value) => value === '' || value.replace(/\D/g, '').length >= 8, {
-      message: 'Telefone invalido.',
+      message: 'Telefone inválido.',
     })
-    .refine((value) => value.length <= 20, { message: 'Use no maximo 20 caracteres.' }),
+    .refine((value) => value.length <= 20, { message: 'Use no máximo 20 caracteres.' }),
   /** CPF: o servidor normaliza para digitos e exige exatamente onze. */
   document: z
     .string()

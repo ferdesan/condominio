@@ -76,7 +76,7 @@ export function DependentFilters({ list, residents, units }: DependentFiltersPro
   if (list.filters.active) {
     chips.push({
       id: 'active',
-      label: 'Situacao',
+      label: 'Situação',
       value: labelOf(ACTIVE_OPTIONS, list.filters.active),
     });
   }
@@ -174,7 +174,7 @@ export function DependentFilters({ list, residents, units }: DependentFiltersPro
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="dependent-active">Situacao</Label>
+          <Label htmlFor="dependent-active">Situação</Label>
           <Select
             value={(list.filters.active as string) ?? ANY}
             onValueChange={(value) => list.setFilter('active', value === ANY ? undefined : value)}
@@ -197,7 +197,7 @@ export function DependentFilters({ list, residents, units }: DependentFiltersPro
       {/*
         Sem gate de permissao: ver registros removidos e leitura, e o servidor
         aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a linha
-        marcada e nenhuma acao de restaurar (ADR-006).
+        marcada e nenhuma ação de restaurar (ADR-006).
       */}
       <div className="flex items-center gap-2">
         <Checkbox

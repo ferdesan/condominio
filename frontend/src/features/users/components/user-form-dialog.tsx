@@ -132,14 +132,14 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
       >
         <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar usuario' : 'Novo usuario'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar usuário' : 'Novo usuário'}</DialogTitle>
             <DialogDescription>
               Quem e a pessoa, o que ela pode fazer e a que predios ela tem acesso.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
-            <FormSection title="Identificacao">
+            <FormSection title="Identificação">
               <FormField id="name" label="Nome" error={errors.name?.message}>
                 {(aria) => <Input autoFocus maxLength={150} {...aria} {...register('name')} />}
               </FormField>
@@ -151,7 +151,7 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
                 description={
                   isEdit
                     ? 'Mudar o e-mail muda por onde a pessoa entra.'
-                    : 'O convite e a senha temporaria vao para este endereco.'
+                    : 'O convite e a senha temporária vao para este endereço.'
                 }
               >
                 {(aria) => <Input type="email" maxLength={180} {...aria} {...register('email')} />}
@@ -267,7 +267,7 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
               render={({ field, fieldState }) => (
                 <FormField
                   id="condominiumIds"
-                  label="Condominios"
+                  label="Condomínios"
                   error={fieldState.error?.message}
                   // Vazio nao e ausencia de acesso: e acesso a tudo. O servidor
                   // le o vinculo ausente como "todos do tenant", e um rotulo que
@@ -327,8 +327,8 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

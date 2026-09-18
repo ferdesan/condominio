@@ -92,7 +92,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Exclusao de condominio', () => {
+describe('Exclusao de condomínio', () => {
   it('IT-032: confirma nomeando o registro e o remove da lista e do seletor', async () => {
     serveSelectorAndList([AURORA, BOSQUE], [AURORA, BOSQUE]);
     renderWithProviders(
@@ -131,7 +131,7 @@ describe('Exclusao de condominio', () => {
     await screen.findByText('Residencial Aurora');
 
     const message =
-      'Condominio possui unidades cadastradas. Remova ou transfira as unidades antes de excluir.';
+      'Condomínio possui unidades cadastradas. Remova ou transfira as unidades antes de excluir.';
     mockDelete.mockRejectedValue(new ApiError(message, 409, 'BUSINESS_RULE_VIOLATION'));
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir Residencial Aurora' }));
@@ -143,8 +143,8 @@ describe('Exclusao de condominio', () => {
     expect(screen.getByText('Residencial Aurora')).toBeInTheDocument();
   });
 
-  it('IT-034: excluir o condominio selecionado move a selecao para outro', async () => {
-    localStorage.setItem('condominio.selectedCondominium', 'cond-1');
+  it('IT-034: excluir o condomínio selecionado move a seleção para outro', async () => {
+    localStorage.setItem('condomínio.selectedCondominium', 'cond-1');
     serveSelectorAndList([AURORA, BOSQUE], [AURORA, BOSQUE]);
     renderWithProviders(
       <CondominiumProvider>
@@ -163,7 +163,7 @@ describe('Exclusao de condominio', () => {
     expect(await screen.findByText('Selecionado: Residencial Bosque')).toBeInTheDocument();
   });
 
-  it('IT-035: excluir o ultimo condominio leva ao estado sem condominio', async () => {
+  it('IT-035: excluir o último condomínio leva ao estado sem condomínio', async () => {
     serveSelectorAndList([AURORA], [AURORA]);
     renderWithProviders(
       <CondominiumProvider>
@@ -181,7 +181,7 @@ describe('Exclusao de condominio', () => {
 
     // Nada quebra: o seletor fica sem opcao e a listagem explica a ausencia.
     expect(await screen.findByText('Selecionado: nenhum')).toBeInTheDocument();
-    expect(await screen.findByText('Nenhum condominio cadastrado')).toBeInTheDocument();
+    expect(await screen.findByText('Nenhum condomínio cadastrado')).toBeInTheDocument();
   });
 
   it('IT-036: 404 na exclusao recarrega a lista', async () => {
@@ -190,17 +190,17 @@ describe('Exclusao de condominio', () => {
     await screen.findByText('Residencial Aurora');
     const before = mockGetPaginated.mock.calls.length;
 
-    mockDelete.mockRejectedValue(new ApiError('Condominio nao encontrado.', 404, 'NOT_FOUND'));
+    mockDelete.mockRejectedValue(new ApiError('Condomínio não encontrado.', 404, 'NOT_FOUND'));
     serve([]);
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir Residencial Aurora' }));
     clickTrigger(await screen.findByRole('button', { name: /Excluir$/ }));
 
     await waitFor(() => expect(mockGetPaginated.mock.calls.length).toBeGreaterThan(before));
-    expect(await screen.findByText('Nenhum condominio cadastrado')).toBeInTheDocument();
+    expect(await screen.findByText('Nenhum condomínio cadastrado')).toBeInTheDocument();
   });
 
-  it('IT-037: dispensar a confirmacao nao dispara requisicao', async () => {
+  it('IT-037: dispensar a confirmação não dispara requisição', async () => {
     serve([AURORA]);
     renderWithProviders(<CondominiumsPage />);
     await screen.findByText('Residencial Aurora');
@@ -213,7 +213,7 @@ describe('Exclusao de condominio', () => {
     expect(screen.getByText('Residencial Aurora')).toBeInTheDocument();
   });
 
-  it('IT-038: duas confirmacoes seguidas disparam uma unica exclusao', async () => {
+  it('IT-038: duas confirmações seguidas disparam uma única exclusao', async () => {
     serve([AURORA]);
     renderWithProviders(<CondominiumsPage />);
     await screen.findByText('Residencial Aurora');
@@ -240,7 +240,7 @@ describe('Exclusao de condominio', () => {
   });
 });
 
-describe('Restauracao de condominio', () => {
+describe('Restauração de condomínio', () => {
   const deleted = makeCondominium({
     id: 'cond-3',
     name: 'Residencial Antigo',
@@ -269,7 +269,7 @@ describe('Restauracao de condominio', () => {
     );
   });
 
-  it('IT-040: alternador ligado sem registros removidos mantem a lista e o proprio estado', async () => {
+  it('IT-040: alternador ligado sem registros removidos mantem a lista e o próprio estado', async () => {
     serveWithDeleted([AURORA], []);
     renderWithProviders(<CondominiumsPage />);
     await screen.findByText('Residencial Aurora');
@@ -305,7 +305,7 @@ describe('Restauracao de condominio', () => {
     expect(within(liveRow).queryByRole('button', { name: /Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('IT-042: 409 na restauracao mostra a mensagem e o registro segue removido', async () => {
+  it('IT-042: 409 na restauração mostra a mensagem e o registro segue removido', async () => {
     serveWithDeleted([AURORA], [deleted]);
     renderWithProviders(<CondominiumsPage />);
     await screen.findByText('Residencial Aurora');
@@ -313,7 +313,7 @@ describe('Restauracao de condominio', () => {
     clickTrigger(screen.getByRole('checkbox', { name: 'Incluir removidos' }));
     await screen.findByText('Residencial Antigo');
 
-    const message = 'Ja existe um condominio cadastrado com este CNPJ.';
+    const message = 'Já existe um condomínio cadastrado com este CNPJ.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'CONFLICT'));
 
     clickTrigger(screen.getByRole('button', { name: 'Restaurar Residencial Antigo' }));
@@ -322,23 +322,23 @@ describe('Restauracao de condominio', () => {
     expect(within(rowOf('Residencial Antigo')).getByText('Removido')).toBeInTheDocument();
   });
 
-  it('IT-043: paginar com o alternador ligado mantem includeDeleted em toda requisicao', async () => {
+  it('IT-043: paginar com o alternador ligado mantem includeDeleted em toda requisição', async () => {
     mockGetPaginated.mockImplementation(async (_url, config) => {
       const params = (config?.params ?? {}) as { page?: number; includeDeleted?: boolean };
       const page = params.page ?? 1;
       return {
-        data: [makeCondominium({ id: `cond-p${page}`, name: `Condominio pagina ${page}` })],
+        data: [makeCondominium({ id: `cond-p${page}`, name: `Condomínio pagina ${page}` })],
         meta: makeMeta({ page, perPage: 20, total: 25, totalPages: 2 }),
       };
     });
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Condominio pagina 1');
+    await screen.findByText('Condomínio pagina 1');
 
     clickTrigger(screen.getByRole('checkbox', { name: 'Incluir removidos' }));
     await waitFor(() => expect(lastListParams().includeDeleted).toBe(true));
 
     clickTrigger(screen.getByRole('button', { name: 'Próxima página' }));
-    await screen.findByText('Condominio pagina 2');
+    await screen.findByText('Condomínio pagina 2');
 
     expect(lastListParams()).toMatchObject({ page: 2, includeDeleted: true });
     // Nenhuma requisicao apos ligar o alternador perdeu a inclusao.
@@ -350,7 +350,7 @@ describe('Restauracao de condominio', () => {
 });
 
 describe('Seletor do shell', () => {
-  it('reflete tambem a restauracao, e nao so criacao e exclusao', async () => {
+  it('reflete também a restauração, e não so criação e exclusao', async () => {
     const gone = makeCondominium({
       id: 'cond-8',
       name: 'Residencial Antigo',
@@ -406,7 +406,7 @@ describe('Gating por permissao', () => {
     renderWithProviders(<CondominiumsPage />, { role: 'STAFF' });
     await screen.findByText('Residencial Aurora');
 
-    expect(screen.queryByRole('button', { name: 'Novo condominio' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Novo condomínio' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
 
@@ -421,7 +421,7 @@ describe('Gating por permissao', () => {
     expect(screen.getByRole('link', { name: 'Ver Residencial Aurora' })).toBeInTheDocument();
   });
 
-  it('quem edita mas nao exclui mantem restaurar e perde excluir', async () => {
+  it('quem edita mas não exclui mantem restaurar e perde excluir', async () => {
     serveWithDeleted(
       [AURORA],
       [
@@ -446,6 +446,6 @@ describe('Gating por permissao', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Editar Residencial Aurora' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Novo condominio' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Novo condomínio' })).not.toBeInTheDocument();
   });
 });

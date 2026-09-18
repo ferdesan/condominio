@@ -37,7 +37,7 @@ import { CorrespondenceRowActions } from './components/correspondence-row-action
 const DESCRIPTION = 'O que a portaria recebeu, para quem, e o que ainda aguarda retirada.';
 
 /** Dito quando havia destinatario e o morador referido nao esta mais acessivel. */
-const RESIDENT_UNAVAILABLE = 'Destinatario indisponivel';
+const RESIDENT_UNAVAILABLE = 'Destinatário indisponível';
 
 /**
  * `correspondence: null` cadastra; um registro edita. Ausente mantem o dialogo
@@ -160,7 +160,7 @@ export function CorrespondencesPage() {
   const columns: Column<Correspondence>[] = [
     {
       key: 'description',
-      label: 'Descricao',
+      label: 'Descrição',
       sortable: true,
       render: (_value, row) => (
         <div className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export function CorrespondencesPage() {
     },
     {
       key: 'residentId',
-      label: 'Destinatario',
+      label: 'Destinatário',
       render: (_value, row) => residentCell(row),
     },
     {
@@ -214,7 +214,7 @@ export function CorrespondencesPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <CorrespondenceRowActions
           correspondence={row}
@@ -245,8 +245,8 @@ export function CorrespondencesPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="As correspondencias sao listadas por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="As correspondências sao listadas por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -269,18 +269,18 @@ export function CorrespondencesPage() {
                       setFormTarget({ correspondence: null, condominiumId: selectedId })
                     }
                   >
-                    Nova correspondencia
+                    Nova correspondência
                   </Button>
                 ) : undefined
               }
             />
 
             {/*
-              Uma interacao so: o contador e o proprio atalho para a fila de
-              retirada. Zero continua visivel — a portaria vazia e informacao, e
-              some-la faria a ausencia do numero parecer falha de carregamento.
+              Uma interação so: o contador e o próprio atalho para a fila de
+              retirada. Zero continua visível — a portaria vazia e informação, e
+              some-la faria a ausência do número parecer falha de carregamento.
               O numero vem de `/correspondences/pending-count`, que conta pelo
-              status no servidor, e nao do total de uma listagem filtrada.
+              status no servidor, e não do total de uma listagem filtrada.
             */}
             <div className="flex flex-wrap items-center gap-3">
               <Button
@@ -291,7 +291,7 @@ export function CorrespondencesPage() {
                 {/*
                   "Fila de retirada", e nao "Aguardando retirada": esse ja e o
                   rotulo do status na coluna, e o mesmo texto em duas coisas
-                  diferentes da mesma tela as torna indistinguiveis.
+                  diferentes da mesma tela as torna indistinguíveis.
                 */}
                 Fila de retirada
                 <Badge variant="warning" className="ml-2">
@@ -309,7 +309,7 @@ export function CorrespondencesPage() {
                 <EmptyState
                   icon={SearchX}
                   title="Nenhum resultado para esta busca"
-                  description="Nenhuma correspondencia corresponde aos termos e filtros aplicados."
+                  description="Nenhuma correspondência corresponde aos termos e filtros aplicados."
                   action={
                     <Button
                       variant="outline"
@@ -325,7 +325,7 @@ export function CorrespondencesPage() {
               ) : (
                 <EmptyState
                   icon={PackagePlus}
-                  title="Nenhuma correspondencia registrada"
+                  title="Nenhuma correspondência registrada"
                   description="Registre a primeira entrega recebida na portaria."
                   action={
                     canCreate ? (
@@ -334,7 +334,7 @@ export function CorrespondencesPage() {
                           setFormTarget({ correspondence: null, condominiumId: selectedId })
                         }
                       >
-                        Registrar correspondencia
+                        Registrar correspondência
                       </Button>
                     ) : undefined
                   }
@@ -386,7 +386,7 @@ export function CorrespondencesPage() {
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir correspondencia?"
+        title="Excluir correspondência?"
         description={
           deleting
             ? `${correspondenceLabel(deleting)} deixara de aparecer na listagem. A exclusao e logica e pode ser desfeita.`

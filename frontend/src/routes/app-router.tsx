@@ -71,11 +71,11 @@ export function AppRouter() {
       <Route path="/login" element={<LoginPage />} />
 
       {/*
-        Publicas, como o login: quem precisa delas e justamente quem nao
-        consegue entrar. Nenhuma das duas redireciona sessao existente — o link
-        de redefinicao chega por e-mail e precisa funcionar independentemente do
-        que este navegador tenha guardado. Fora da navegacao, tambem: nao
-        pertencem ao menu de quem ja entrou.
+        Publicas, como o login: quem precisa delas e justamente quem não
+        consegue entrar. Nenhuma das duas redireciona sessão existente — o link
+        de redefinição chega por e-mail e precisa funcionar independentemente do
+        que este navegador tenha guardado. Fora da navegação, também: não
+        pertencem ao menu de quem já entrou.
       */}
       <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
       <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
@@ -167,7 +167,7 @@ export function AppRouter() {
 
           <Route element={<ProtectedRoute permission="role:read" />}>
             {/* Tambem por tenant. A guarda e a de leitura; criar, editar e
-                excluir sao conferidos por dentro, e o servidor recusa as tres
+                excluir sao conferidos por dentro, e o servidor recusa as três
                 operacoes sobre um papel do sistema de qualquer forma. */}
             <Route path="/papeis" element={<RolesPage />} />
           </Route>
@@ -178,10 +178,10 @@ export function AppRouter() {
           </Route>
 
           {/*
-            Financeiro reune tres recursos sob uma rota — cobrancas, despesas e
+            Financeiro reune três recursos sob uma rota — cobranças, despesas e
             plano de contas. A guarda e a do item de menu (`charge:read`); as
-            outras duas secoes checam as proprias permissoes por dentro, porque
-            um papel pode ler cobrancas sem ler despesas.
+            outras duas seções checam as próprias permissões por dentro, porque
+            um papel pode ler cobranças sem ler despesas.
           */}
           <Route element={<ProtectedRoute permission="charge:read" />}>
             <Route path="/financeiro" element={<FinancialPage />} />
@@ -198,16 +198,16 @@ export function AppRouter() {
 
           <Route element={<ProtectedRoute permission="tenant:read" />}>
             {/* Por tenant, como /usuarios e /auditoria. A guarda e a de leitura
-                porque o SINDICO so a tem; a edicao e conferida por dentro, com
+                porque o SINDICO so a tem; a edição e conferida por dentro, com
                 `tenant:update`, e o servidor recusa os campos comerciais de
                 qualquer forma. */}
             <Route path="/configuracoes" element={<TenantPage />} />
           </Route>
 
           {/*
-            LGPD agrupa tres recursos sob uma rota — pedidos, exportacao e
+            LGPD agrupa três recursos sob uma rota — pedidos, exportação e
             consentimento. A guarda e a do item de menu (`lgpd:read`); cada aba
-            checa as proprias permissoes por dentro, porque o morador tem so
+            checa as próprias permissões por dentro, porque o morador tem so
             `lgpd-request:create` e a consulta de consentimento so faz sentido
             para quem tem morador vinculado.
           */}
@@ -216,9 +216,9 @@ export function AppRouter() {
           </Route>
 
           {/*
-            Unica rota sem guarda de permissao, e de proposito: o item de
-            navegacao nao declara nenhuma porque o servidor tambem nao exige uma
-            que distinga papeis — os cinco papeis do sistema tem
+            Única rota sem guarda de permissao, e de proposito: o item de
+            navegação não declara nenhuma porque o servidor também não exige uma
+            que distinga papéis — os cinco papéis do sistema tem
             `notification:read`. Inventar uma aqui esconderia a tela de quem a
             API atenderia. Continua dentro do `ProtectedRoute` de sessao acima,
             entao ela exige login como todas as outras.
@@ -232,10 +232,10 @@ export function AppRouter() {
           ))}
 
           {/*
-            Fora da navegacao e sem guarda de permissao: chega-se pelo menu do
+            Fora da navegação e sem guarda de permissao: chega-se pelo menu do
             usuario na topbar, e as quatro rotas de `/auth` que a tela usa sao
             protegidas so por `authenticate` — o alvo vem do token, entao uma
-            pessoa sempre pode editar a propria conta. Continua dentro do
+            pessoa sempre pode editar a própria conta. Continua dentro do
             `ProtectedRoute` de sessao acima, como todas as outras.
           */}
           <Route path="/perfil" element={<ProfilePage />} />

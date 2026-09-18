@@ -25,7 +25,7 @@ import { NotificationRowActions } from './components/notification-row-actions';
 import { NotificationSummary } from './components/notification-summary';
 
 const DESCRIPTION =
-  'O que o sistema avisou a voce. A central e pessoal: ninguem mais ve esta lista, e ela nao muda com o condominio selecionado.';
+  'O que o sistema avisou a você. A central e pessoal: ninguem mais ve esta lista, e ela não muda com o condomínio selecionado.';
 
 /** Recusa do servidor apresentada na linha que a provocou. */
 type RowError = { id: string; message: string } | null;
@@ -141,7 +141,7 @@ export function NotificationsPage() {
       // Nao ordenavel: `readAt` nao esta no conjunto ordenavel do servidor — a
       // chave seria descartada em silencio e a ordem voltaria para a padrao.
       key: 'readAt',
-      label: 'Situacao',
+      label: 'Situação',
       render: (_value, row) => <NotificationReadBadge readAt={row.readAt} />,
     },
     {
@@ -167,7 +167,7 @@ export function NotificationsPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <NotificationRowActions
           notification={row}
@@ -215,7 +215,7 @@ export function NotificationsPage() {
               <EmptyState
                 icon={SearchX}
                 title="Nenhum resultado para esta busca"
-                description="Nenhuma notificacao corresponde aos termos e filtros aplicados."
+                description="Nenhuma notificação corresponde aos termos e filtros aplicados."
                 action={
                   <Button
                     variant="outline"
@@ -231,8 +231,8 @@ export function NotificationsPage() {
             ) : (
               <EmptyState
                 icon={BellOff}
-                title="Nenhuma notificacao ate agora"
-                description="Reservas, correspondencias e ocorrencias avisam voce por aqui assim que acontecerem."
+                title="Nenhuma notificação até agora"
+                description="Reservas, correspondências e ocorrências avisam você por aqui assim que acontecerem."
               />
             )
           ) : (

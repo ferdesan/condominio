@@ -52,7 +52,7 @@ const mockToastError = vi.mocked(toast.error);
 
 let world: DocumentWorld;
 
-const TITLE = 'Convencao do condominio';
+const TITLE = 'Convenção do condomínio';
 
 /** Permissoes de quem le o acervo e nao pode mexer nele. */
 const READ_ONLY = ['document:read'];
@@ -121,7 +121,7 @@ afterEach(() => {
 });
 
 describe('Listagem do acervo', () => {
-  it('percorre busca e os dois filtros preservando o condominio', async () => {
+  it('percorre busca e os dois filtros preservando o condomínio', async () => {
     world = serveDocuments({ documents: [makeDocument()] });
     const user = createUser();
     renderWithProviders(<DocumentsPage />);
@@ -134,7 +134,7 @@ describe('Listagem do acervo', () => {
 
     // `selectOption` usa `fireEvent`, que o RTL ja embrulha em `act`: o novo
     // pedido sai antes de a chamada retornar, entao a assercao e direta.
-    selectOption(screen.getByLabelText('Categoria'), 'Convencao');
+    selectOption(screen.getByLabelText('Categoria'), 'Convenção');
     expect(lastListParams().category).toBe('CONVENTION');
 
     selectOption(screen.getByLabelText('Quem ve'), 'Moradores');
@@ -149,15 +149,15 @@ describe('Listagem do acervo', () => {
     });
   });
 
-  it('sem condominio selecionado explica a exigencia e nao consulta nada', async () => {
+  it('sem condomínio selecionado explica a exigência e não consulta nada', async () => {
     world = serveDocuments({ documents: [makeDocument()] });
     renderWithProviders(<DocumentsPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(mockGetPaginated).not.toHaveBeenCalled();
   });
 
-  it('documento vencido e marcado por texto, e nao so por cor', async () => {
+  it('documento vencido e marcado por texto, e não so por cor', async () => {
     world = serveDocuments({
       documents: [
         makeDocument({ expiresAt: '2020-01-31' }),
@@ -183,7 +183,7 @@ describe('Listagem do acervo', () => {
     expect(cellsOf('Marcadores')[0]).toBe('Sem marcadores');
   });
 
-  it('lista vazia renderiza estado vazio, e nao tabela em branco', async () => {
+  it('lista vazia renderiza estado vazio, e não tabela em branco', async () => {
     world = serveDocuments({ documents: [] });
     renderWithProviders(<DocumentsPage />);
 
@@ -209,7 +209,7 @@ describe('Envio de documento', () => {
     // dialogo sao escopadas nele, senao resolvem para o controle errado.
     const dialog = await screen.findByRole('dialog');
     await user.upload(within(dialog).getByLabelText('Arquivo'), makeFile());
-    await user.type(within(dialog).getByLabelText('Titulo'), 'Ata de marco');
+    await user.type(within(dialog).getByLabelText('Título'), 'Ata de marco');
     await user.type(within(dialog).getByLabelText('Marcadores'), 'assembleia, 2026');
     selectOption(within(dialog).getByLabelText('Categoria'), 'Ata');
 
@@ -241,7 +241,7 @@ describe('Envio de documento', () => {
     expect(fields).not.toHaveProperty('expiresAt');
   });
 
-  it('sem arquivo escolhido, a exigencia aparece no campo e nada e enviado', async () => {
+  it('sem arquivo escolhido, a exigência aparece no campo e nada e enviado', async () => {
     world = serveDocuments({ documents: [] });
     const user = createUser();
     renderWithProviders(<DocumentsPage />);
@@ -250,7 +250,7 @@ describe('Envio de documento', () => {
     clickTrigger(screen.getByRole('button', { name: 'Enviar documento' }));
 
     const dialog = await screen.findByRole('dialog');
-    await user.type(within(dialog).getByLabelText('Titulo'), 'Ata sem arquivo');
+    await user.type(within(dialog).getByLabelText('Título'), 'Ata sem arquivo');
     await user.click(within(dialog).getByRole('button', { name: 'Enviar' }));
 
     expect(await screen.findByText('Escolha o arquivo do documento.')).toBeInTheDocument();
@@ -271,7 +271,7 @@ describe('Envio de documento', () => {
     Object.defineProperty(big, 'size', { value: 11 * 1024 * 1024 });
 
     await user.upload(within(dialog).getByLabelText('Arquivo'), big);
-    await user.type(within(dialog).getByLabelText('Titulo'), 'Arquivo grande');
+    await user.type(within(dialog).getByLabelText('Título'), 'Arquivo grande');
     await user.click(within(dialog).getByRole('button', { name: 'Enviar' }));
 
     expect(await screen.findByText('O arquivo excede o limite de 10 MB.')).toBeInTheDocument();
@@ -285,7 +285,7 @@ describe('Envio de documento', () => {
     const user = createUser();
     mockPost.mockRejectedValue(
       new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
-        { field: 'title', message: 'Ja existe um documento com este titulo.' },
+        { field: 'title', message: 'Já existe um documento com este título.' },
       ]),
     );
     renderWithProviders(<DocumentsPage />);
@@ -295,22 +295,22 @@ describe('Envio de documento', () => {
 
     const dialog = await screen.findByRole('dialog');
     await user.upload(within(dialog).getByLabelText('Arquivo'), makeFile());
-    await user.type(within(dialog).getByLabelText('Titulo'), 'Repetido');
+    await user.type(within(dialog).getByLabelText('Título'), 'Repetido');
     await user.click(within(dialog).getByRole('button', { name: 'Enviar' }));
 
-    expect(await screen.findByText('Ja existe um documento com este titulo.')).toBeInTheDocument();
+    expect(await screen.findByText('Já existe um documento com este título.')).toBeInTheDocument();
     // O `onError` proprio substitui o toast global: a mesma recusa nao pode
     // aparecer duas vezes.
     expect(mockToastError).not.toHaveBeenCalled();
   });
 });
 
-describe('Edicao de metadados', () => {
+describe('Edição de metadados', () => {
   it('edita sem tocar no arquivo, e nem oferece troca-lo', async () => {
     world = serveDocuments({ documents: [makeDocument()] });
     const user = createUser();
     mockPatch.mockImplementation(
-      async () => makeDocument({ title: 'Convencao revisada' }) as never,
+      async () => makeDocument({ title: 'Convenção revisada' }) as never,
     );
     renderWithProviders(<DocumentsPage />);
 
@@ -322,21 +322,21 @@ describe('Edicao de metadados', () => {
     // vez de existir desabilitado, prometendo algo que o servidor nao faz.
     expect(within(dialog).queryByLabelText('Arquivo')).not.toBeInTheDocument();
     // Mas o nome do arquivo aparece, para nao editar o documento errado.
-    expect(within(dialog).getByText('convencao.pdf')).toBeInTheDocument();
+    expect(within(dialog).getByText('convenção.pdf')).toBeInTheDocument();
 
-    const title = within(dialog).getByLabelText('Titulo');
+    const title = within(dialog).getByLabelText('Título');
     await user.clear(title);
-    await user.type(title, 'Convencao revisada');
+    await user.type(title, 'Convenção revisada');
     await user.click(within(dialog).getByRole('button', { name: 'Salvar' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(1));
     const [url, body] = mockPatch.mock.calls[0];
     expect(url).toBe('/documents/document-1');
-    expect(body).toMatchObject({ title: 'Convencao revisada', category: 'CONVENTION' });
+    expect(body).toMatchObject({ title: 'Convenção revisada', category: 'CONVENTION' });
     expect(body).not.toHaveProperty('file');
   });
 
-  it('descricao apagada vira nulo, e nao texto vazio', async () => {
+  it('descrição apagada vira nulo, e não texto vazio', async () => {
     world = serveDocuments({ documents: [makeDocument()] });
     const user = createUser();
     mockPatch.mockResolvedValue(makeDocument({ description: null }) as never);
@@ -346,7 +346,7 @@ describe('Edicao de metadados', () => {
     clickTrigger(screen.getByRole('button', { name: `Editar ${TITLE}` }));
 
     const dialog = await screen.findByRole('dialog');
-    await user.clear(within(dialog).getByLabelText('Descricao'));
+    await user.clear(within(dialog).getByLabelText('Descrição'));
     await user.click(within(dialog).getByRole('button', { name: 'Salvar' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(1));
@@ -389,7 +389,7 @@ describe('Download', () => {
     await waitFor(() => expect(cellsOf('Downloads')[0]).toBe('13'));
   });
 
-  it('dois cliques em sequencia baixam uma vez so', async () => {
+  it('dois cliques em sequência baixam uma vez so', async () => {
     world = serveDocuments({ documents: [makeDocument()] });
     renderWithProviders(<DocumentsPage />);
 
@@ -401,7 +401,7 @@ describe('Download', () => {
     await waitFor(() => expect(mockApiGet).toHaveBeenCalledTimes(1));
   });
 
-  it('a recusa por visibilidade aparece na linha, com a razao legivel', async () => {
+  it('a recusa por visibilidade aparece na linha, com a razao legível', async () => {
     world = serveDocuments({ documents: [makeDocument({ visibility: 'ADMIN' })] });
     mockApiGet.mockRejectedValue(new ApiError('Request failed', 403, 'FORBIDDEN'));
     renderWithProviders(<DocumentsPage />);
@@ -412,7 +412,7 @@ describe('Download', () => {
     // O corpo de erro de uma resposta `blob` tambem e um blob, entao a mensagem
     // do servidor nao chega: o status e o que sobra, e ele basta aqui.
     const message = await screen.findByText(
-      'Este documento nao esta disponivel para o seu perfil.',
+      'Este documento não esta disponível para o seu perfil.',
     );
     expect(message).toHaveAttribute('role', 'alert');
     expect(mockToastError).not.toHaveBeenCalled();
@@ -420,7 +420,7 @@ describe('Download', () => {
 });
 
 describe('Exclusao definitiva', () => {
-  it('avisa que nao ha volta antes de excluir', async () => {
+  it('avisa que não ha volta antes de excluir', async () => {
     world = serveDocuments({ documents: [makeDocument()] });
     mockDelete.mockImplementation(async () => {
       world.documents = [];
@@ -432,7 +432,7 @@ describe('Exclusao definitiva', () => {
 
     // Nas demais telas "excluir" e reversivel; aqui o arquivo sai do disco, e a
     // confirmacao precisa dizer isso antes de qualquer requisicao.
-    expect(await screen.findByText(/definitiva e nao pode ser desfeita/i)).toBeInTheDocument();
+    expect(await screen.findByText(/definitiva e não pode ser desfeita/i)).toBeInTheDocument();
     expect(mockDelete).not.toHaveBeenCalled();
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir definitivamente' }));
@@ -440,7 +440,7 @@ describe('Exclusao definitiva', () => {
     expect(await screen.findByText('Nenhum documento no acervo')).toBeInTheDocument();
   });
 
-  it('nao oferece restaurar nem incluir removidos em lugar nenhum', async () => {
+  it('não oferece restaurar nem incluir removidos em lugar nenhum', async () => {
     world = serveDocuments({ documents: [makeDocument()] });
     renderWithProviders(<DocumentsPage />);
 
@@ -453,8 +453,8 @@ describe('Exclusao definitiva', () => {
   });
 });
 
-describe('Permissoes', () => {
-  it('sem escrita, so a leitura e a baixa continuam disponiveis', async () => {
+describe('Permissões', () => {
+  it('sem escrita, so a leitura e a baixa continuam disponíveis', async () => {
     world = serveDocuments({ documents: [makeDocument()] });
     renderWithProviders(<DocumentsPage />, { permissions: READ_ONLY });
 
@@ -467,7 +467,7 @@ describe('Permissoes', () => {
     expect(screen.getByRole('button', { name: `Baixar ${TITLE}` })).toBeInTheDocument();
   });
 
-  it('paginacao pede a proxima pagina com os parametros certos', async () => {
+  it('paginação pede a próxima pagina com os parametros certos', async () => {
     const roster = (count: number, offset = 0): DocumentFile[] =>
       Array.from({ length: count }, (_, index) => {
         const position = offset + index + 1;
@@ -485,7 +485,7 @@ describe('Permissoes', () => {
     expect(dataRows()).toHaveLength(20);
 
     world.documents = roster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Documento 21')).toBeInTheDocument();

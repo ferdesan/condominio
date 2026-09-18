@@ -54,7 +54,7 @@ const STATUS_LABELS: Record<CondominiumFormValues['status'], string> = {
  * contra violacao de regra de negocio — entao e por ele que decidimos.
  */
 const CONFLICT_HINT =
-  'Se o condominio ja existiu e foi removido, restaure o registro em vez de cadastrar outro: ative "Incluir removidos" na listagem.';
+  'Se o condomínio já existiu e foi removido, restaure o registro em vez de cadastrar outro: ative "Incluir removidos" na listagem.';
 
 export interface CondominiumFormDialogProps {
   /** Ausente cadastra; presente edita. */
@@ -137,14 +137,14 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
       >
         <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar condominio' : 'Novo condominio'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar condomínio' : 'Novo condomínio'}</DialogTitle>
             <DialogDescription>
-              Identificacao, endereco, contato e dados do sindico.
+              Identificação, endereço, contato e dados do síndico.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
-            <FormSection title="Identificacao">
+            <FormSection title="Identificação">
               <FormField
                 id="name"
                 label="Nome"
@@ -219,7 +219,7 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
               </FormField>
             </FormSection>
 
-            <FormSection title="Endereco">
+            <FormSection title="Endereço">
               <FormField
                 id="zipCode"
                 label="CEP"
@@ -238,7 +238,7 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
                 {(aria) => <Input {...aria} {...register('street')} />}
               </FormField>
 
-              <FormField id="number" label="Numero" error={errors.number?.message}>
+              <FormField id="number" label="Número" error={errors.number?.message}>
                 {(aria) => <Input {...aria} {...register('number')} />}
               </FormField>
 
@@ -291,8 +291,8 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
               </FormField>
             </FormSection>
 
-            <FormSection title="Sindico">
-              <FormField id="syndicName" label="Nome do sindico" error={errors.syndicName?.message}>
+            <FormSection title="Síndico">
+              <FormField id="syndicName" label="Nome do síndico" error={errors.syndicName?.message}>
                 {(aria) => <Input {...aria} {...register('syndicName')} />}
               </FormField>
 
@@ -302,7 +302,7 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
                 render={({ field, fieldState }) => (
                   <FormField
                     id="syndicPhone"
-                    label="Telefone do sindico"
+                    label="Telefone do síndico"
                     error={fieldState.error?.message}
                   >
                     {(aria) => (
@@ -327,7 +327,7 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
               </FormField>
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -355,8 +355,8 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

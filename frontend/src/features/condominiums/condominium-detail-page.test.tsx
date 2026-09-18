@@ -82,12 +82,12 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('Detalhe do condominio', () => {
-  it('IT-025: identificador inexistente rende o estado de nao encontrado com volta para a lista', async () => {
-    serveDetail(new ApiError('Condominio nao encontrado.', 404, 'NOT_FOUND'), STATS);
+describe('Detalhe do condomínio', () => {
+  it('IT-025: identificador inexistente rende o estado de não encontrado com volta para a lista', async () => {
+    serveDetail(new ApiError('Condomínio não encontrado.', 404, 'NOT_FOUND'), STATS);
     renderDetail('cond-inexistente');
 
-    expect(await screen.findByText('Condominio nao encontrado')).toBeInTheDocument();
+    expect(await screen.findByText('Condomínio não encontrado')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Voltar para a listagem' })).toHaveAttribute(
       'href',
       '/condominios',
@@ -112,9 +112,9 @@ describe('Detalhe do condominio', () => {
       ['Unidades', '48'],
       ['Unidades ocupadas', '41'],
       ['Moradores', '96'],
-      ['Veiculos', '63'],
-      ['Ocorrencias abertas', '3'],
-      ['Cobrancas pendentes', '12'],
+      ['Veículos', '63'],
+      ['Ocorrências abertas', '3'],
+      ['Cobranças pendentes', '12'],
       ['Reservas pendentes', '2'],
     ];
     for (const [label, value] of expected) {
@@ -127,8 +127,8 @@ describe('Detalhe do condominio', () => {
     const updated = makeCondominium({ syndicName: 'Joana Ribeiro' });
     mockPatch.mockResolvedValue(updated);
     clickTrigger(screen.getByRole('button', { name: 'Editar' }));
-    await user.clear(await screen.findByLabelText('Nome do sindico'));
-    await user.type(screen.getByLabelText('Nome do sindico'), 'Joana Ribeiro');
+    await user.clear(await screen.findByLabelText('Nome do síndico'));
+    await user.type(screen.getByLabelText('Nome do síndico'), 'Joana Ribeiro');
     serveDetail(updated, STATS);
     clickTrigger(within(screen.getByRole('dialog')).getByRole('button', { name: /Salvar$/ }));
 
@@ -136,24 +136,24 @@ describe('Detalhe do condominio', () => {
     expect(await screen.findByText('Joana Ribeiro')).toBeInTheDocument();
   });
 
-  it('IT-027: condominio removido rende nao encontrado', async () => {
-    serveDetail(new ApiError('Condominio nao encontrado.', 404, 'NOT_FOUND'), STATS);
+  it('IT-027: condomínio removido rende não encontrado', async () => {
+    serveDetail(new ApiError('Condomínio não encontrado.', 404, 'NOT_FOUND'), STATS);
     renderDetail('cond-removido');
 
-    expect(await screen.findByText('Condominio nao encontrado')).toBeInTheDocument();
+    expect(await screen.findByText('Condomínio não encontrado')).toBeInTheDocument();
   });
 
-  it('IT-028: identificador malformado rende nao encontrado, e nao uma falha sem explicacao', async () => {
+  it('IT-028: identificador malformado rende não encontrado, e não uma falha sem explicação', async () => {
     // O servidor valida o parametro antes de consultar: um id que nao e UUID
     // volta como 422, mas para quem chegou pelo link e a mesma ausencia.
-    serveDetail(new ApiError('Identificador invalido.', 422, 'VALIDATION_ERROR'), STATS);
+    serveDetail(new ApiError('Identificador inválido.', 422, 'VALIDATION_ERROR'), STATS);
     renderDetail('nao-e-um-uuid');
 
-    expect(await screen.findByText('Condominio nao encontrado')).toBeInTheDocument();
+    expect(await screen.findByText('Condomínio não encontrado')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Voltar para a listagem' })).toBeInTheDocument();
   });
 
-  it('IT-029: indicadores zerados mostram zeros, nao os espacos de carregamento', async () => {
+  it('IT-029: indicadores zerados mostram zeros, não os espacos de carregamento', async () => {
     serveDetail(makeCondominium(), ZERO_STATS);
     renderDetail();
     await screen.findByRole('heading', { name: 'Residencial Aurora' });
@@ -170,7 +170,7 @@ describe('Detalhe do condominio', () => {
 
     expect(await screen.findByRole('heading', { name: 'Residencial Aurora' })).toBeInTheDocument();
     expect(
-      await screen.findByText('Nao foi possivel carregar os indicadores.', undefined, {
+      await screen.findByText('Não foi possível carregar os indicadores.', undefined, {
         timeout: 6000,
       }),
     ).toBeInTheDocument();
@@ -191,10 +191,10 @@ describe('Detalhe do condominio', () => {
     renderDetail('cond-de-outro-sindico');
 
     expect(await screen.findByText('Acesso negado')).toBeInTheDocument();
-    expect(screen.queryByText('Condominio nao encontrado')).not.toBeInTheDocument();
+    expect(screen.queryByText('Condomínio não encontrado')).not.toBeInTheDocument();
   });
 
-  it('o operador consulta o detalhe sem a acao de editar', async () => {
+  it('o operador consulta o detalhe sem a ação de editar', async () => {
     serveDetail(makeCondominium(), STATS);
     renderDetail('cond-1', { role: 'STAFF' });
 

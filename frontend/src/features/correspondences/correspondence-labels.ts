@@ -25,7 +25,7 @@ export const STATUS_LABELS: Record<CorrespondenceStatus, string> = {
 export const UNIT_REMOVED = 'Unidade removida';
 
 /** Dito quando a portaria nao identificou o morador destinatario. */
-export const NO_RESIDENT = 'Sem destinatario';
+export const NO_RESIDENT = 'Sem destinatário';
 
 /** O bloco desambigua numeros repetidos entre torres; sem ele, some. */
 export function unitLabel(unit: Pick<Unit, 'number' | 'block'>): string {
@@ -43,6 +43,6 @@ export function correspondenceLabel(correspondence: Correspondence): string {
   if (correspondence.description) return correspondence.description;
   if (correspondence.trackingCode) return correspondence.trackingCode;
   return correspondence.unit
-    ? `correspondencia da unidade ${correspondence.unit.number}`
+    ? `correspondência da unidade ${correspondence.unit.number}`
     : 'correspondencia';
 }

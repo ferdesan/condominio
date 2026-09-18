@@ -104,7 +104,7 @@ beforeEach(() => {
 });
 
 describe('Listagem da central', () => {
-  it('distingue lida de nao lida por texto, e nao so por cor', async () => {
+  it('distingue lida de não lida por texto, e não so por cor', async () => {
     world = serveNotifications({
       notifications: [
         makeNotification(),
@@ -117,10 +117,10 @@ describe('Listagem da central', () => {
     await findRows();
 
     // A tarja nomeia o estado: cor sozinha nao distingue lida de nao lida.
-    expect(cellsOf('Situacao')).toEqual(['Nao lida', 'Lida']);
+    expect(cellsOf('Situação')).toEqual(['Não lida', 'Lida']);
   });
 
-  it('lista paginada pede a proxima pagina com os parametros certos', async () => {
+  it('lista paginada pede a próxima pagina com os parametros certos', async () => {
     world = serveNotifications({ notifications: makeInbox(20), unread: 20, total: 300 });
     const user = createUser();
     renderWithProviders(<NotificationsPage />);
@@ -130,13 +130,13 @@ describe('Listagem da central', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.notifications = makeInbox(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Aviso 21')).toBeInTheDocument();
   });
 
-  it('busca e filtro de tipo se somam, e nenhum recorte por condominio e enviado', async () => {
+  it('busca e filtro de tipo se somam, e nenhum recorte por condomínio e enviado', async () => {
     world = serveNotifications({ notifications: [makeNotification()], unread: 1 });
     const user = createUser();
     renderWithProviders(<NotificationsPage />);
@@ -158,17 +158,17 @@ describe('Listagem da central', () => {
     expect(lastListParams()).not.toHaveProperty('userId');
   });
 
-  it('lista vazia renderiza estado vazio, e nao tabela em branco', async () => {
+  it('lista vazia renderiza estado vazio, e não tabela em branco', async () => {
     world = serveNotifications({ notifications: [], unread: 0 });
     renderWithProviders(<NotificationsPage />);
 
-    expect(await screen.findByText('Nenhuma notificacao ate agora')).toBeInTheDocument();
+    expect(await screen.findByText('Nenhuma notificação até agora')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 });
 
-describe('Contagem de nao lidas', () => {
-  it('vem do endpoint dedicado, e nao do total da listagem', async () => {
+describe('Contagem de não lidas', () => {
+  it('vem do endpoint dedicado, e não do total da listagem', async () => {
     // O total da lista e um; a contagem e tres. Se a tela lesse `meta.total`,
     // mostraria o numero errado.
     world = serveNotifications({ notifications: [makeNotification()], unread: 3 });
@@ -182,7 +182,7 @@ describe('Contagem de nao lidas', () => {
     );
   });
 
-  it('contagem zero aparece como zero, e nao some', async () => {
+  it('contagem zero aparece como zero, e não some', async () => {
     world = serveNotifications({
       notifications: [makeNotification({ readAt: READ_AT })],
       unread: 0,
@@ -198,7 +198,7 @@ describe('Contagem de nao lidas', () => {
 });
 
 describe('Marcar como lida', () => {
-  it('reduz a contagem e muda a aparencia da entrada', async () => {
+  it('reduz a contagem e muda a aparência da entrada', async () => {
     world = serveNotifications({ notifications: [makeNotification()], unread: 3 });
     mockPost.mockImplementation(async () => {
       world.notifications = [makeNotification({ readAt: READ_AT })];
@@ -214,11 +214,11 @@ describe('Marcar como lida', () => {
 
     // A invalidacao alcanca a lista e a contagem, que voltam coerentes.
     expect(await within(summary()).findByText('2')).toBeInTheDocument();
-    await waitFor(() => expect(cellsOf('Situacao')).toEqual(['Lida']));
+    await waitFor(() => expect(cellsOf('Situação')).toEqual(['Lida']));
     expect(mockPost).toHaveBeenCalledWith('/notifications/read', { ids: ['notification-1'] });
   });
 
-  it('dois cliques em sequencia disparam uma requisicao so', async () => {
+  it('dois cliques em sequência disparam uma requisição so', async () => {
     world = serveNotifications({ notifications: [makeNotification()], unread: 1 });
     mockPost.mockImplementation(async () => {
       world.notifications = [makeNotification({ readAt: READ_AT })];
@@ -259,13 +259,13 @@ describe('Marcar como lida', () => {
 
   it('a recusa do servidor aparece na linha, sem duplicar em toast', async () => {
     world = serveNotifications({ notifications: [makeNotification()], unread: 1 });
-    mockPost.mockRejectedValue(new ApiError('Notificacao ja marcada como lida.', 409, 'CONFLICT'));
+    mockPost.mockRejectedValue(new ApiError('Notificação já marcada como lida.', 409, 'CONFLICT'));
     renderWithProviders(<NotificationsPage />);
 
     await findRows();
     clickTrigger(screen.getByRole('button', { name: `Marcar ${TITLE} como lida` }));
 
-    const message = await screen.findByText('Notificacao ja marcada como lida.');
+    const message = await screen.findByText('Notificação já marcada como lida.');
     expect(message).toHaveAttribute('role', 'alert');
     // O `onError` proprio substitui o toast global: a mesma recusa nao pode
     // aparecer duas vezes.
@@ -302,7 +302,7 @@ describe('Tela de origem', () => {
     );
   }
 
-  it('entrada apontando para uma tela existente navega ate ela', async () => {
+  it('entrada apontando para uma tela existente navega até ela', async () => {
     world = serveNotifications({
       notifications: [
         makeNotification({
@@ -338,7 +338,7 @@ describe('Tela de origem', () => {
     expect(await screen.findByText('Cheguei em /reservas')).toBeInTheDocument();
   });
 
-  it('entrada sem actionUrl nao oferece link', async () => {
+  it('entrada sem actionUrl não oferece link', async () => {
     world = serveNotifications({
       notifications: [makeNotification({ title: 'Aviso geral', actionUrl: null })],
       unread: 1,
@@ -351,16 +351,16 @@ describe('Tela de origem', () => {
     expect(screen.getByText('Sem tela de origem')).toBeInTheDocument();
   });
 
-  it('entrada apontando para modulo que nao existe no menu tambem nao oferece link', async () => {
+  it('entrada apontando para modulo que não existe no menu também não oferece link', async () => {
     world = serveNotifications({
       notifications: [
-        makeNotification({ title: 'Relatorio pronto', actionUrl: '/relatorios/2026-03' }),
+        makeNotification({ title: 'Relatório pronto', actionUrl: '/relatorios/2026-03' }),
       ],
       unread: 1,
     });
     renderWithProviders(<NotificationsPage />);
 
-    await findRows('Relatorio pronto');
+    await findRows('Relatório pronto');
 
     // Prometer navegacao e entregar 404 e pior do que dizer que nao ha destino.
     expect(screen.queryByRole('link', { name: /^Abrir origem/ })).not.toBeInTheDocument();
@@ -369,7 +369,7 @@ describe('Tela de origem', () => {
 });
 
 describe('Central somente leitura', () => {
-  it('nao oferece criar, editar, excluir nem restaurar', async () => {
+  it('não oferece criar, editar, excluir nem restaurar', async () => {
     world = serveNotifications({ notifications: [makeNotification()], unread: 1 });
     renderWithProviders(<NotificationsPage />);
 

@@ -6,7 +6,7 @@ import { LgpdExportTab } from './components/lgpd-export-tab';
 import { LgpdConsentTab } from './components/lgpd-consent-tab';
 
 const DESCRIPTION =
-  'Seus direitos de titular de dados: solicitar a anonimizacao dos dados pessoais, exporta-los e registrar o consentimento de tratamento.';
+  'Seus direitos de titular de dados: solicitar a anonimização dos dados pessoais, exporta-los e registrar o consentimento de tratamento.';
 
 const TABS = ['requests', 'export', 'consent'] as const;
 type LgpdTab = (typeof TABS)[number];
@@ -36,7 +36,7 @@ export function LgpdPage() {
 
       <Tabs value={tab} onValueChange={handleValueChange}>
         <TabsList aria-label="Privacidade e LGPD">
-          <TabsTrigger value="requests">Solicitacoes</TabsTrigger>
+          <TabsTrigger value="requests">Solicitações</TabsTrigger>
           <TabsTrigger value="export">Exportar</TabsTrigger>
           <TabsTrigger value="consent">Consentimento</TabsTrigger>
         </TabsList>

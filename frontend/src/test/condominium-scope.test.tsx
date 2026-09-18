@@ -88,7 +88,7 @@ function SwitchableShell({ children }: { children: ReactNode }) {
         a busca pelo botao usa `hidden`.
       */}
       <button type="button" onClick={() => setSelected(BOSQUE)}>
-        Trocar condominio
+        Trocar condomínio
       </button>
       {children}
     </CondominiumContext.Provider>
@@ -96,7 +96,7 @@ function SwitchableShell({ children }: { children: ReactNode }) {
 }
 
 function switchCondominium(): void {
-  clickTrigger(screen.getByRole('button', { name: 'Trocar condominio', hidden: true }));
+  clickTrigger(screen.getByRole('button', { name: 'Trocar condomínio', hidden: true }));
 }
 
 function dialog() {
@@ -108,8 +108,8 @@ beforeEach(() => {
   serveAll(WORLD);
 });
 
-describe('Escopo de condominio', () => {
-  it('IT-182: toda requisicao das tres telas escopadas carrega o condominio selecionado', async () => {
+describe('Escopo de condomínio', () => {
+  it('IT-182: toda requisição das três telas escopadas carrega o condomínio selecionado', async () => {
     const scoped = makeCondominium({ id: 'cond-7', name: 'Residencial Sete' });
 
     const screens = [
@@ -129,28 +129,28 @@ describe('Escopo de condominio', () => {
       ).toBeGreaterThan(0);
 
       const requests = allRequests().filter((request) => !UNSCOPED.includes(request.url));
-      expect(requests.length, `${name} nao fez requisicao nenhuma`).toBeGreaterThan(0);
+      expect(requests.length, `${name} não fez requisição nenhuma`).toBeGreaterThan(0);
 
       const unscoped = requests.filter((request) => request.params.condominiumId !== 'cond-7');
       expect(
         unscoped.map((request) => request.url),
-        `${name} pediu sem o condominio selecionado`,
+        `${name} pediu sem o condomínio selecionado`,
       ).toEqual([]);
 
       view.unmount();
     }
   });
 
-  it('IT-182: sem condominio selecionado a tela explica, em vez de listar vazio', async () => {
+  it('IT-182: sem condomínio selecionado a tela explica, em vez de listar vazio', async () => {
     // Uma lista vazia e indistinguivel de um condominio sem registros; o pedido
     // tambem nao sai, porque nao ha escopo a que ele pertenca (US-027.AC-4).
     renderWithProviders(<UnitsPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(allRequests()).toEqual([]);
   });
 
-  it('IT-185: trocar de condominio com o formulario de unidade aberto grava no de origem', async () => {
+  it('IT-185: trocar de condomínio com o formulário de unidade aberto grava no de origem', async () => {
     const user = createUser();
     renderWithProviders(
       <SwitchableShell>
@@ -162,13 +162,13 @@ describe('Escopo de condominio', () => {
     clickTrigger(screen.getByRole('button', { name: 'Nova unidade' }));
     await screen.findByRole('dialog');
     selectOption(dialog().getByLabelText('Bloco'), 'Torre A');
-    await user.type(dialog().getByLabelText('Numero'), '404');
+    await user.type(dialog().getByLabelText('Número'), '404');
 
     switchCondominium();
 
     // O formulario continua aberto, com o que foi digitado, e diz para onde grava.
     await screen.findByRole('alert');
-    expect(dialog().getByLabelText('Numero')).toHaveValue('404');
+    expect(dialog().getByLabelText('Número')).toHaveValue('404');
     expect(screen.getByRole('alert')).toHaveTextContent('Residencial Aurora');
 
     mockPost.mockResolvedValue(makeUnit({ id: 'unit-404', number: '404' }));
@@ -180,7 +180,7 @@ describe('Escopo de condominio', () => {
     expect(body).toMatchObject({ condominiumId: 'cond-1', number: '404' });
   });
 
-  it('IT-185: trocar de condominio com o formulario de morador aberto grava no de origem', async () => {
+  it('IT-185: trocar de condomínio com o formulário de morador aberto grava no de origem', async () => {
     const user = createUser();
     renderWithProviders(
       <SwitchableShell>
@@ -208,7 +208,7 @@ describe('Escopo de condominio', () => {
     expect(body).toMatchObject({ condominiumId: 'cond-1', name: 'Beatriz Lima' });
   });
 
-  it('IT-185: a gestao de blocos acompanha a troca, mas o formulario dentro dela nao', async () => {
+  it('IT-185: a gestao de blocos acompanha a troca, mas o formulário dentro dela não', async () => {
     // As duas metades da regra no mesmo caso: a listagem e do condominio do
     // shell (IT-205), o formulario aberto e do condominio em que comecou.
     const user = createUser();
@@ -225,7 +225,7 @@ describe('Escopo de condominio', () => {
     await screen.findByText('101');
 
     clickTrigger(screen.getByRole('button', { name: 'Gerenciar blocos' }));
-    await screen.findByText('Blocos do condominio');
+    await screen.findByText('Blocos do condomínio');
     clickTrigger(dialog().getByRole('button', { name: 'Novo bloco' }));
     await screen.findByLabelText('Nome');
     await user.type(dialog().getByLabelText('Nome'), 'Ala Nova');

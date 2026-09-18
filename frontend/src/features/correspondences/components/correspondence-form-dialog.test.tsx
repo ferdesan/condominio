@@ -57,8 +57,8 @@ function dialog(): HTMLElement {
 
 /** Abre o dialogo de cadastro e espera o formulario aparecer. */
 async function openCreateDialog(): Promise<void> {
-  clickTrigger(screen.getByRole('button', { name: 'Nova correspondencia' }));
-  await screen.findByLabelText('Descricao');
+  clickTrigger(screen.getByRole('button', { name: 'Nova correspondência' }));
+  await screen.findByLabelText('Descrição');
 }
 
 function submitCreate(): void {
@@ -86,7 +86,7 @@ function SwitchableShell({ children }: { children: ReactNode }) {
   return (
     <CondominiumContext.Provider value={value}>
       <button type="button" onClick={() => setSelectedId('cond-2')}>
-        Trocar condominio
+        Trocar condomínio
       </button>
       {children}
     </CondominiumContext.Provider>
@@ -98,7 +98,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Cadastro de correspondencia', () => {
+describe('Cadastro de correspondência', () => {
   it('cadastra e a lista atualiza sem refetch manual', async () => {
     world = serveCorrespondences({ correspondences: [] });
     const user = createUser();
@@ -109,10 +109,10 @@ describe('Cadastro de correspondencia', () => {
     });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Nenhuma correspondencia registrada');
+    await screen.findByText('Nenhuma correspondência registrada');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Descricao'), 'Envelope registrado');
+    await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
     selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     submitCreate();
 
@@ -136,15 +136,15 @@ describe('Cadastro de correspondencia', () => {
     expect(await screen.findByText('Envelope registrado')).toBeInTheDocument();
   });
 
-  it('sem unidade destinataria o envio para no proprio campo', async () => {
+  it('sem unidade destinataria o envio para no próprio campo', async () => {
     world = serveCorrespondences({ correspondences: [] });
     const user = createUser();
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Nenhuma correspondencia registrada');
+    await screen.findByText('Nenhuma correspondência registrada');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Descricao'), 'Envelope registrado');
+    await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
     submitCreate();
 
     const message = await screen.findByText('Selecione a unidade destinataria.');
@@ -158,55 +158,55 @@ describe('Cadastro de correspondencia', () => {
     const user = createUser();
     mockPost.mockRejectedValue(
       new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
-        { field: 'trackingCode', message: 'Codigo de rastreio ja registrado.' },
+        { field: 'trackingCode', message: 'Código de rastreio já registrado.' },
       ]),
     );
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Nenhuma correspondencia registrada');
+    await screen.findByText('Nenhuma correspondência registrada');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Descricao'), 'Envelope registrado');
+    await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
     selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
-    await user.type(within(dialog()).getByLabelText('Codigo de rastreio'), 'BR123456789BR');
+    await user.type(within(dialog()).getByLabelText('Código de rastreio'), 'BR123456789BR');
     submitCreate();
 
-    const message = await screen.findByText('Codigo de rastreio ja registrado.');
+    const message = await screen.findByText('Código de rastreio já registrado.');
     expect(message).toHaveAttribute('id', 'trackingCode-error');
     // O formulario define `onError`, entao substitui o toast global em vez de
     // somar a ele: a mesma recusa nao pode aparecer duas vezes.
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('um 409 sem campo aparece como mensagem do formulario, preservando o preenchido', async () => {
+  it('um 409 sem campo aparece como mensagem do formulário, preservando o preenchido', async () => {
     world = serveCorrespondences({ correspondences: [] });
     const user = createUser();
     mockPost.mockRejectedValue(
       new ApiError(
-        'A unidade informada pertence a outro condominio.',
+        'A unidade informada pertence a outro condomínio.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
     );
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Nenhuma correspondencia registrada');
+    await screen.findByText('Nenhuma correspondência registrada');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Descricao'), 'Envelope registrado');
+    await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
     selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     await user.type(within(dialog()).getByLabelText('Transportadora'), 'Correios');
     submitCreate();
 
     expect(
-      await screen.findByText('A unidade informada pertence a outro condominio.'),
+      await screen.findByText('A unidade informada pertence a outro condomínio.'),
     ).toBeInTheDocument();
     // O dialogo fica, com os valores no lugar, para a correcao.
-    expect(within(dialog()).getByLabelText('Descricao')).toHaveValue('Envelope registrado');
+    expect(within(dialog()).getByLabelText('Descrição')).toHaveValue('Envelope registrado');
     expect(within(dialog()).getByLabelText('Transportadora')).toHaveValue('Correios');
   });
 
-  it('dois envios em sequencia produzem um unico POST', async () => {
+  it('dois envios em sequência produzem um único POST', async () => {
     world = serveCorrespondences({ correspondences: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -215,10 +215,10 @@ describe('Cadastro de correspondencia', () => {
     });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Nenhuma correspondencia registrada');
+    await screen.findByText('Nenhuma correspondência registrada');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Descricao'), 'Envelope registrado');
+    await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
     selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
 
     const submit = within(dialog()).getByRole('button', { name: 'Cadastrar' });
@@ -228,7 +228,7 @@ describe('Cadastro de correspondencia', () => {
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
   });
 
-  it('o formulario grava no condominio em que abriu, mesmo se o shell mudar', async () => {
+  it('o formulário grava no condomínio em que abriu, mesmo se o shell mudar', async () => {
     world = serveCorrespondences({ correspondences: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -241,15 +241,15 @@ describe('Cadastro de correspondencia', () => {
       </SwitchableShell>,
     );
 
-    await screen.findByText('Nenhuma correspondencia registrada');
+    await screen.findByText('Nenhuma correspondência registrada');
     await openCreateDialog();
 
-    await user.type(within(dialog()).getByLabelText('Descricao'), 'Envelope registrado');
+    await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
     selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
 
     // Por papel nao da: o dialogo modal marca o resto da pagina como
     // `aria-hidden`, e `getByRole` nao enxerga fora da arvore acessivel.
-    clickTrigger(screen.getByText('Trocar condominio'));
+    clickTrigger(screen.getByText('Trocar condomínio'));
 
     // A divergencia entre o que o dialogo grava e o que a tela mostra e nomeada,
     // em vez de silenciosamente reapontada (US-027.EC-3).
@@ -262,8 +262,8 @@ describe('Cadastro de correspondencia', () => {
   });
 });
 
-describe('Edicao de correspondencia', () => {
-  it('editar emite um unico PATCH e a linha reflete', async () => {
+describe('Edição de correspondência', () => {
+  it('editar emite um único PATCH e a linha reflete', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     const user = createUser();
     mockPatch.mockImplementation(async () => {
@@ -272,13 +272,13 @@ describe('Edicao de correspondencia', () => {
     });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
-    clickTrigger(screen.getByRole('button', { name: 'Editar Caixa media' }));
-    await screen.findByLabelText('Descricao');
+    await screen.findByText('Caixa média');
+    clickTrigger(screen.getByRole('button', { name: 'Editar Caixa média' }));
+    await screen.findByLabelText('Descrição');
 
     // Os valores atuais chegam preenchidos.
-    expect(within(dialog()).getByLabelText('Descricao')).toHaveValue('Caixa media');
-    expect(within(dialog()).getByLabelText('Codigo de rastreio')).toHaveValue('BR123456789BR');
+    expect(within(dialog()).getByLabelText('Descrição')).toHaveValue('Caixa média');
+    expect(within(dialog()).getByLabelText('Código de rastreio')).toHaveValue('BR123456789BR');
 
     await user.clear(within(dialog()).getByLabelText('Transportadora'));
     await user.type(within(dialog()).getByLabelText('Transportadora'), 'Jadlog');
@@ -290,7 +290,7 @@ describe('Edicao de correspondencia', () => {
     expect(await screen.findByText('Jadlog')).toBeInTheDocument();
   });
 
-  it('desfazer o destinatario envia null, e nao a chave ausente', async () => {
+  it('desfazer o destinatário envia null, e não a chave ausente', async () => {
     world = serveCorrespondences({ correspondences: [makeCorrespondence()] });
     mockPatch.mockImplementation(async () => {
       world.correspondences = [makeCorrespondence({ residentId: null })];
@@ -298,16 +298,16 @@ describe('Edicao de correspondencia', () => {
     });
     renderWithProviders(<CorrespondencesPage />);
 
-    await screen.findByText('Caixa media');
-    clickTrigger(screen.getByRole('button', { name: 'Editar Caixa media' }));
-    await screen.findByLabelText('Descricao');
+    await screen.findByText('Caixa média');
+    clickTrigger(screen.getByRole('button', { name: 'Editar Caixa média' }));
+    await screen.findByLabelText('Descrição');
 
-    selectOption(within(dialog()).getByLabelText('Destinatario'), 'Sem destinatario');
+    selectOption(within(dialog()).getByLabelText('Destinatário'), 'Sem destinatário');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(1));
     // Omitir a chave deixaria o vinculo antigo de pe: apagar precisa de `null`.
     expect(lastUpdateBody()).toMatchObject({ residentId: null });
-    await waitFor(() => expect(screen.getByText('Sem destinatario')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Sem destinatário')).toBeInTheDocument());
   });
 });

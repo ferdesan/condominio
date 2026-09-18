@@ -115,8 +115,8 @@ export function AnnouncementRowActions({
       </div>
 
       {/*
-        A recusa aparece na linha, e nao em toast: e sobre este comunicado, e a
-        proxima coisa a fazer esta a dois centimetros dela.
+        A recusa aparece na linha, e não em toast: e sobre este comunicado, e a
+        próxima coisa a fazer esta a dois centimetros dela.
       */}
       {error ? (
         <p role="alert" className="text-xs text-destructive">

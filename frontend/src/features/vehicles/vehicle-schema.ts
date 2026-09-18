@@ -26,7 +26,7 @@ export const PLATE_PATTERN = /^[A-Z]{3}[0-9][0-9A-Z][0-9]{2}$/;
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {
-  return z.string().trim().max(max, `Use no maximo ${max} caracteres.`);
+  return z.string().trim().max(max, `Use no máximo ${max} caracteres.`);
 }
 
 const vehicleFields = z.object({
@@ -36,10 +36,10 @@ const vehicleFields = z.object({
   plate: z
     .string()
     .transform((value) => value.toUpperCase().replace(/[^A-Z0-9]/g, ''))
-    .refine((value) => value !== '', 'Informe a placa do veiculo.')
+    .refine((value) => value !== '', 'Informe a placa do veículo.')
     .refine(
       (value) => value === '' || PLATE_PATTERN.test(value),
-      'Placa invalida. Use o formato ABC1234 ou ABC1D23.',
+      'Placa inválida. Use o formato ABC1234 ou ABC1D23.',
     ),
   brand: optionalText(60),
   model: optionalText(60),

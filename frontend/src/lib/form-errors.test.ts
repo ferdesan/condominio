@@ -26,21 +26,21 @@ function applyTo(error: unknown, fields: ReadonlySet<string>) {
 describe('applyApiError', () => {
   it('UT-053: leva o detalhe de campo ao campo e deixa a mensagem geral nula', () => {
     const error = new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
-      { field: 'document', message: 'Documento ja cadastrado.' },
+      { field: 'document', message: 'Documento já cadastrado.' },
     ]);
 
     const { setError, setFormError } = applyTo(error, new Set(['name', 'document']));
 
-    expect(setError).toHaveBeenCalledWith('document', { message: 'Documento ja cadastrado.' });
+    expect(setError).toHaveBeenCalledWith('document', { message: 'Documento já cadastrado.' });
     expect(setFormError).toHaveBeenCalledWith(null);
   });
 
-  it('UT-054: um 409 sem detalhes vira mensagem geral e nao toca em nenhum campo', () => {
-    const error = new ApiError('Ja existe um condominio com este documento.', 409, 'CONFLICT');
+  it('UT-054: um 409 sem detalhes vira mensagem geral e não toca em nenhum campo', () => {
+    const error = new ApiError('Já existe um condomínio com este documento.', 409, 'CONFLICT');
 
     const { setError, setFormError } = applyTo(error, new Set(['name', 'document']));
 
-    expect(setFormError).toHaveBeenCalledWith('Ja existe um condominio com este documento.');
+    expect(setFormError).toHaveBeenCalledWith('Já existe um condomínio com este documento.');
     expect(setError).not.toHaveBeenCalled();
   });
 
@@ -53,9 +53,9 @@ describe('applyApiError', () => {
     expect(setError).not.toHaveBeenCalled();
   });
 
-  it('UT-056: campo que o formulario nao possui cai na mensagem geral em vez de sumir', () => {
+  it('UT-056: campo que o formulário não possui cai na mensagem geral em vez de sumir', () => {
     const error = new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
-      { field: 'ownerId', message: 'Proprietario nao encontrado.' },
+      { field: 'ownerId', message: 'Proprietário não encontrado.' },
     ]);
 
     const { setError, setFormError } = applyTo(error, new Set(['name', 'document']));
@@ -64,7 +64,7 @@ describe('applyApiError', () => {
     expect(setFormError).toHaveBeenCalledWith('Dados invalidos.');
   });
 
-  it('UT-057: caminho aninhado chega a setError sem alteracao', () => {
+  it('UT-057: caminho aninhado chega a setError sem alteração', () => {
     const error = new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
       { field: 'address.city', message: 'Informe a cidade.' },
     ]);
@@ -75,7 +75,7 @@ describe('applyApiError', () => {
     expect(setFormError).toHaveBeenCalledWith(null);
   });
 
-  it('UT-058: falha que nao veio da API usa a mensagem generica, nao uma string vazia', () => {
+  it('UT-058: falha que não veio da API usa a mensagem generica, não uma string vazia', () => {
     const { setError, setFormError } = applyTo(new TypeError('Failed to fetch'), new Set(['name']));
 
     expect(setFormError).toHaveBeenCalledWith(GENERIC_FORM_ERROR);

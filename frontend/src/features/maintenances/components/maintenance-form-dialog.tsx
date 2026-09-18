@@ -138,9 +138,9 @@ export function MaintenanceFormDialog({
       >
         <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar manutencao' : 'Nova manutencao'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar manutenção' : 'Nova manutenção'}</DialogTitle>
             <DialogDescription>
-              O que sera feito, em que ativo, quando e por quem.
+              O que será feito, em que ativo, quando e por quem.
             </DialogDescription>
           </DialogHeader>
 
@@ -148,15 +148,15 @@ export function MaintenanceFormDialog({
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
             <FormSection title="Ordem" columns={1}>
-              <FormField id="title" label="Titulo" error={errors.title?.message}>
+              <FormField id="title" label="Título" error={errors.title?.message}>
                 {(aria) => <Input autoFocus maxLength={180} {...aria} {...register('title')} />}
               </FormField>
 
               <FormField
                 id="description"
-                label="Descricao"
+                label="Descrição"
                 error={errors.description?.message}
-                description="Opcional. O servico a executar, com o detalhe que o prestador precisa."
+                description="Opcional. O serviço a executar, com o detalhe que o prestador precisa."
               >
                 {(aria) => (
                   // O teto do servidor e 5000; o `Textarea` traz 2000 por padrao
@@ -174,7 +174,7 @@ export function MaintenanceFormDialog({
             {/* A secao nao repete o nome do campo "Agendamento": um `legend` com o
                 mesmo texto de um rotulo deixa duas coisas com o mesmo nome no
                 mesmo dialogo. */}
-            <FormSection title="Programacao">
+            <FormSection title="Programação">
               <FormField
                 id="assetName"
                 label="Ativo"
@@ -229,7 +229,7 @@ export function MaintenanceFormDialog({
                 render={({ field, fieldState }) => (
                   <FormField
                     id="recurrence"
-                    label="Recorrencia"
+                    label="Recorrência"
                     error={fieldState.error?.message}
                     className="sm:col-span-3"
                   >
@@ -253,7 +253,7 @@ export function MaintenanceFormDialog({
             </FormSection>
 
             {/*
-              Os dois vinculos sao do condominio: o prestador porque o proprio
+              Os dois vinculos sao do condomínio: o prestador porque o próprio
               servidor escopa `/service-providers`, e o responsavel porque a tela
               recorta `/users`, que e por tenant. Sao tambem o que o servico
               confere em `assertReferences` antes de gravar.
@@ -296,7 +296,7 @@ export function MaintenanceFormDialog({
                 render={({ field, fieldState }) => (
                   <FormField
                     id="responsibleId"
-                    label="Responsavel"
+                    label="Responsável"
                     error={fieldState.error?.message}
                   >
                     {(aria) => (
@@ -345,8 +345,8 @@ export function MaintenanceFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

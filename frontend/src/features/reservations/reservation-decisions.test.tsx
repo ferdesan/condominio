@@ -100,11 +100,11 @@ function pendingBadge(): HTMLElement {
 }
 
 async function showCalendarFor(date: Date): Promise<void> {
-  clickTrigger(screen.getByRole('button', { name: 'Calendario' }));
+  clickTrigger(screen.getByRole('button', { name: 'Calendário' }));
   await screen.findByRole('table', { name: /Reservas de/ });
   const steps = differenceInCalendarMonths(startOfMonth(date), startOfMonth(new Date()));
   for (let step = 0; step < steps; step += 1) {
-    clickTrigger(screen.getByRole('button', { name: 'Proximo mes' }));
+    clickTrigger(screen.getByRole('button', { name: 'Próximo mês' }));
   }
 }
 
@@ -113,7 +113,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Aprovacao de reservas', () => {
+describe('Aprovação de reservas', () => {
   it('IT-153: aprova uma reserva pendente com motivo e a fila diminui', async () => {
     const state: State = {
       reservations: [makeReservation({ id: 'reservation-1', status: 'PENDING' })],
@@ -127,7 +127,7 @@ describe('Aprovacao de reservas', () => {
           makeReservation({
             id: 'reservation-1',
             status: 'CONFIRMED',
-            statusReason: 'Area liberada',
+            statusReason: 'Área liberada',
           }),
         ];
         state.pending = 2;
@@ -141,25 +141,25 @@ describe('Aprovacao de reservas', () => {
     await waitFor(() => expect(within(pendingBadge()).getByText('3')).toBeInTheDocument());
 
     await openDecision(/^Aprovar reserva de/);
-    typeReason('Area liberada');
+    typeReason('Área liberada');
     clickTrigger(dialog().getByRole('button', { name: 'Aprovar' }));
 
     await waitFor(() => expect(decisionCalls('approve')).toHaveLength(1));
-    expect(decisionCalls('approve')[0][1]).toEqual({ reason: 'Area liberada' });
+    expect(decisionCalls('approve')[0][1]).toEqual({ reason: 'Área liberada' });
 
     // O status na lista e a fila acompanham a decisao.
     await waitFor(() => expect(screen.getByText('Confirmada')).toBeInTheDocument());
     await waitFor(() => expect(within(pendingBadge()).getByText('2')).toBeInTheDocument());
   });
 
-  it('IT-154: um 409 de horario ja confirmado aparece literal e deixa a reserva pendente', async () => {
+  it('IT-154: um 409 de horário já confirmado aparece literal e deixa a reserva pendente', async () => {
     const state: State = {
       reservations: [makeReservation({ id: 'reservation-1', status: 'PENDING' })],
       pending: 1,
     };
     serveState(state);
 
-    const message = 'Ja existe uma reserva confirmada para este horario.';
+    const message = 'Já existe uma reserva confirmada para este horário.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'BUSINESS_RULE'));
 
     renderWithProviders(<ReservationsPage />);
@@ -172,7 +172,7 @@ describe('Aprovacao de reservas', () => {
     expect(screen.getByText('Pendente')).toBeInTheDocument();
   });
 
-  it('IT-155: um 409 de reserva nao mais pendente atualiza a lista', async () => {
+  it('IT-155: um 409 de reserva não mais pendente atualiza a lista', async () => {
     const state: State = {
       reservations: [makeReservation({ id: 'reservation-1', status: 'PENDING' })],
       pending: 1,
@@ -197,7 +197,7 @@ describe('Aprovacao de reservas', () => {
     await waitFor(() => expect(screen.getByText('Recusada')).toBeInTheDocument());
   });
 
-  it('IT-156: dois cliques seguidos em aprovar produzem uma unica chamada', async () => {
+  it('IT-156: dois cliques seguidos em aprovar produzem uma única chamada', async () => {
     const state: State = {
       reservations: [makeReservation({ id: 'reservation-1', status: 'PENDING' })],
       pending: 1,
@@ -218,7 +218,7 @@ describe('Aprovacao de reservas', () => {
     expect(decisionCalls('approve')).toHaveLength(1);
   });
 
-  it('IT-157: uma decisao concorrente de outro administrador aparece apos a atualizacao', async () => {
+  it('IT-157: uma decisao concorrente de outro administrador aparece após a atualização', async () => {
     const state: State = {
       reservations: [makeReservation({ id: 'reservation-1', status: 'PENDING' })],
       pending: 1,
@@ -263,7 +263,7 @@ describe('Aprovacao de reservas', () => {
     expect(screen.getByRole('button', { name: /^Cancelar reserva de/ })).toBeInTheDocument();
   });
 
-  it('IT-159: aprovar uma reserva ja iniciada mostra o status que o servidor devolveu', async () => {
+  it('IT-159: aprovar uma reserva já iniciada mostra o status que o servidor devolveu', async () => {
     const started = makeReservation({
       id: 'reservation-1',
       status: 'PENDING',
@@ -291,7 +291,7 @@ describe('Aprovacao de reservas', () => {
 });
 
 describe('Recusa de reservas', () => {
-  it('IT-160: recusa com motivo, o motivo fica visivel e a fila diminui', async () => {
+  it('IT-160: recusa com motivo, o motivo fica visível e a fila diminui', async () => {
     const state: State = {
       reservations: [makeReservation({ id: 'reservation-1', status: 'PENDING' })],
       pending: 2,
@@ -303,7 +303,7 @@ describe('Recusa de reservas', () => {
         makeReservation({
           id: 'reservation-1',
           status: 'REJECTED',
-          statusReason: 'Area em manutencao',
+          statusReason: 'Área em manutenção',
         }),
       ];
       state.pending = 1;
@@ -315,18 +315,18 @@ describe('Recusa de reservas', () => {
     await waitFor(() => expect(within(pendingBadge()).getByText('2')).toBeInTheDocument());
 
     await openDecision(/^Recusar reserva de/);
-    typeReason('Area em manutencao');
+    typeReason('Área em manutenção');
     clickTrigger(dialog().getByRole('button', { name: 'Recusar' }));
 
     await waitFor(() => expect(decisionCalls('reject')).toHaveLength(1));
-    expect(decisionCalls('reject')[0][1]).toEqual({ reason: 'Area em manutencao' });
+    expect(decisionCalls('reject')[0][1]).toEqual({ reason: 'Área em manutenção' });
 
     await waitFor(() => expect(screen.getByText('Recusada')).toBeInTheDocument());
-    expect(screen.getByText('Motivo: Area em manutencao')).toBeInTheDocument();
+    expect(screen.getByText('Motivo: Área em manutenção')).toBeInTheDocument();
     await waitFor(() => expect(within(pendingBadge()).getByText('1')).toBeInTheDocument());
   });
 
-  it('IT-161: um 409 numa reserva ja decidida aparece e atualiza a lista', async () => {
+  it('IT-161: um 409 numa reserva já decidida aparece e atualiza a lista', async () => {
     const state: State = {
       reservations: [makeReservation({ id: 'reservation-1', status: 'PENDING' })],
       pending: 1,
@@ -386,12 +386,12 @@ describe('Recusa de reservas', () => {
     clickTrigger(dialog().getByRole('button', { name: 'Recusar' }));
 
     await waitFor(() =>
-      expect(dialog().getByText('Use no maximo 255 caracteres.')).toBeInTheDocument(),
+      expect(dialog().getByText('Use no máximo 255 caracteres.')).toBeInTheDocument(),
     );
     expect(decisionCalls('reject')).toHaveLength(0);
   });
 
-  it('IT-164: aprovar depois de recusar informa que a reserva nao esta mais pendente', async () => {
+  it('IT-164: aprovar depois de recusar informa que a reserva não esta mais pendente', async () => {
     const state: State = {
       reservations: [makeReservation({ id: 'reservation-1', status: 'PENDING' })],
       pending: 1,
@@ -423,7 +423,7 @@ describe('Recusa de reservas', () => {
 });
 
 describe('Cancelamento de reservas', () => {
-  it('IT-165: cancela uma reserva futura com motivo e ela some do calendario', async () => {
+  it('IT-165: cancela uma reserva futura com motivo e ela some do calendário', async () => {
     const future = makeReservation({
       id: 'reservation-1',
       status: 'CONFIRMED',
@@ -462,7 +462,7 @@ describe('Cancelamento de reservas', () => {
     });
   });
 
-  it('IT-166: como operador, cancelar uma reserva ja iniciada mostra a restricao da administracao', async () => {
+  it('IT-166: como operador, cancelar uma reserva já iniciada mostra a restrição da administração', async () => {
     serveState({
       reservations: [
         makeReservation({
@@ -475,7 +475,7 @@ describe('Cancelamento de reservas', () => {
       pending: 0,
     });
 
-    const message = 'Reservas ja iniciadas so podem ser canceladas pela administracao.';
+    const message = 'Reservas já iniciadas so podem ser canceladas pela administração.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'BUSINESS_RULE'));
 
     renderWithProviders(<ReservationsPage />, { role: 'STAFF' });
@@ -487,13 +487,13 @@ describe('Cancelamento de reservas', () => {
     await waitFor(() => expect(dialog().getByRole('alert')).toHaveTextContent(message));
   });
 
-  it('IT-167: um 409 de reserva ja cancelada aparece com a mensagem do servidor', async () => {
+  it('IT-167: um 409 de reserva já cancelada aparece com a mensagem do servidor', async () => {
     serveState({
       reservations: [makeReservation({ id: 'reservation-1', status: 'CONFIRMED' })],
       pending: 0,
     });
 
-    const message = 'Reserva ja esta cancelada.';
+    const message = 'Reserva já esta cancelada.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'BUSINESS_RULE'));
 
     renderWithProviders(<ReservationsPage />);
@@ -513,7 +513,7 @@ describe('Cancelamento de reservas', () => {
       pending: 0,
     });
 
-    const message = 'Reservas concluidas nao podem ser canceladas.';
+    const message = 'Reservas concluidas não podem ser canceladas.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'BUSINESS_RULE'));
 
     renderWithProviders(<ReservationsPage />);
@@ -524,7 +524,7 @@ describe('Cancelamento de reservas', () => {
     await waitFor(() => expect(dialog().getByRole('alert')).toHaveTextContent(message));
   });
 
-  it('IT-169: dois cliques seguidos em cancelar produzem uma unica chamada', async () => {
+  it('IT-169: dois cliques seguidos em cancelar produzem uma única chamada', async () => {
     serveState({
       reservations: [makeReservation({ id: 'reservation-1', status: 'CONFIRMED' })],
       pending: 0,

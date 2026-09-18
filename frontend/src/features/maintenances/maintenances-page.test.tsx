@@ -86,7 +86,7 @@ function cellsOf(label: string): string[] {
 
 /** O painel de destaque, nomeado para nao se confundir com a tabela. */
 function upcomingPanel(): HTMLElement {
-  return screen.getByRole('region', { name: 'Proximas manutencoes' });
+  return screen.getByRole('region', { name: 'Proximas manutenções' });
 }
 
 /**
@@ -106,7 +106,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Listagem de manutencoes', () => {
+describe('Listagem de manutenções', () => {
   it('percorre busca e os cinco filtros preservando os parametros', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance()] });
     const user = createUser();
@@ -127,13 +127,13 @@ describe('Listagem de manutencoes', () => {
     selectOption(screen.getByLabelText('Tipo'), 'Preventiva');
     expect(lastListParams().type).toBe('PREVENTIVE');
 
-    selectOption(screen.getByLabelText('Recorrencia'), 'Semestral');
+    selectOption(screen.getByLabelText('Recorrência'), 'Semestral');
     expect(lastListParams().recurrence).toBe('SEMIANNUAL');
 
     selectOption(screen.getByLabelText('Prestador'), 'Limpeza Total');
     expect(lastListParams().serviceProviderId).toBe('provider-1');
 
-    selectOption(screen.getByLabelText('Responsavel'), 'Joana Ribeiro');
+    selectOption(screen.getByLabelText('Responsável'), 'Joana Ribeiro');
     expect(lastListParams().responsibleId).toBe('user-2');
 
     // Os controles se somam em vez de se substituirem.
@@ -154,13 +154,13 @@ describe('Listagem de manutencoes', () => {
 
     await findRows();
 
-    clickTrigger(screen.getByRole('button', { name: 'Titulo' }));
+    clickTrigger(screen.getByRole('button', { name: 'Título' }));
     await waitFor(() => expect(lastListParams().sortBy).toBe('title'));
     expect(lastListParams().sortOrder).toBe('ASC');
 
     // A tabela alterna a direcao; a traducao para a caixa da API e da camada de
     // dados, e e ela que precisa continuar valendo (ADR-009).
-    clickTrigger(screen.getByRole('button', { name: 'Titulo' }));
+    clickTrigger(screen.getByRole('button', { name: 'Título' }));
     await waitFor(() => expect(lastListParams().sortOrder).toBe('DESC'));
     expect(lastListParams().sortBy).toBe('title');
   });
@@ -175,7 +175,7 @@ describe('Listagem de manutencoes', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.maintenances = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Ordem 21')).toBeInTheDocument();
@@ -194,9 +194,9 @@ describe('Listagem de manutencoes', () => {
 
     // Cada ausencia e um estado nomeado, e nao um dado faltando: uma ordem sem
     // prestador e feita pela equipe propria, e nao "sem informacao".
-    expect(cellsOf('Ativo')).toEqual(['Ativo nao informado']);
-    expect(cellsOf('Prestador')).toEqual(['Equipe propria']);
-    expect(cellsOf('Responsavel')).toEqual(['Sem responsavel']);
+    expect(cellsOf('Ativo')).toEqual(['Ativo não informado']);
+    expect(cellsOf('Prestador')).toEqual(['Equipe própria']);
+    expect(cellsOf('Responsável')).toEqual(['Sem responsável']);
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
@@ -209,10 +209,10 @@ describe('Listagem de manutencoes', () => {
     // Whitelist do servidor: condominiumId (vem do shell), status, type,
     // recurrence, serviceProviderId e responsibleId. Qualquer outro controle
     // pareceria funcionar enquanto o backend o descarta em silencio.
-    for (const present of ['Status', 'Tipo', 'Recorrencia', 'Prestador', 'Responsavel']) {
+    for (const present of ['Status', 'Tipo', 'Recorrência', 'Prestador', 'Responsável']) {
       expect(screen.getByLabelText(present)).toBeInTheDocument();
     }
-    for (const absent of ['Ativo', 'Agendamento', 'Titulo']) {
+    for (const absent of ['Ativo', 'Agendamento', 'Título']) {
       expect(screen.queryByLabelText(absent)).not.toBeInTheDocument();
     }
 
@@ -227,13 +227,13 @@ describe('Listagem de manutencoes', () => {
   });
 });
 
-describe('Estados vazios de manutencoes', () => {
+describe('Estados vazios de manutenções', () => {
   it('lista vazia oferece o cadastro', async () => {
     world = serveMaintenances({ maintenances: [] });
     renderWithProviders(<MaintenancesPage />);
 
-    expect(await screen.findByText('Nenhuma manutencao registrada')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Agendar manutencao' })).toBeInTheDocument();
+    expect(await screen.findByText('Nenhuma manutenção registrada')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Agendar manutenção' })).toBeInTheDocument();
     expect(screen.queryByText('Nenhum resultado para esta busca')).not.toBeInTheDocument();
   });
 
@@ -249,13 +249,13 @@ describe('Estados vazios de manutencoes', () => {
     expect(await screen.findByText('Nenhum resultado para esta busca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeInTheDocument();
     // Os dois vazios sao estados diferentes e dizem coisas diferentes.
-    expect(screen.queryByText('Nenhuma manutencao registrada')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Agendar manutencao' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Nenhuma manutenção registrada')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Agendar manutenção' })).not.toBeInTheDocument();
   });
 });
 
-describe('Ciclo de vida da manutencao', () => {
-  it('uma agendada oferece iniciar e cancelar, e nao oferece concluir', async () => {
+describe('Ciclo de vida da manutenção', () => {
+  it('uma agendada oferece iniciar e cancelar, e não oferece concluir', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance({ status: 'SCHEDULED' })] });
     renderWithProviders(<MaintenancesPage />);
 
@@ -280,7 +280,7 @@ describe('Ciclo de vida da manutencao', () => {
     expect(cellsOf('Status')).toEqual(['Atrasada']);
   });
 
-  it('uma iniciada oferece concluir e cancelar, e nao oferece iniciar', async () => {
+  it('uma iniciada oferece concluir e cancelar, e não oferece iniciar', async () => {
     world = serveMaintenances({
       maintenances: [
         makeMaintenance({ status: 'IN_PROGRESS', startedAt: '2026-04-02T09:10:00.000Z' }),
@@ -293,10 +293,10 @@ describe('Ciclo de vida da manutencao', () => {
     expect(screen.getByRole('button', { name: `Concluir ${TITLE}` })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: `Cancelar ${TITLE}` })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Iniciar/ })).not.toBeInTheDocument();
-    expect(cellsOf('Status')).toEqual(['Em execucao']);
+    expect(cellsOf('Status')).toEqual(['Em execução']);
   });
 
-  it('uma concluida nao oferece nenhuma das tres', async () => {
+  it('uma concluida não oferece nenhuma das três', async () => {
     world = serveMaintenances({
       maintenances: [
         makeMaintenance({ status: 'COMPLETED', completedAt: '2026-04-02T11:00:00.000Z' }),
@@ -315,7 +315,7 @@ describe('Ciclo de vida da manutencao', () => {
     expect(cellsOf('Status')).toEqual(['Concluida']);
   });
 
-  it('uma cancelada tambem nao oferece nenhuma das tres', async () => {
+  it('uma cancelada também não oferece nenhuma das três', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance({ status: 'CANCELED' })] });
     renderWithProviders(<MaintenancesPage />);
 
@@ -346,7 +346,7 @@ describe('Ciclo de vida da manutencao', () => {
 
     // A invalidacao da acao traz a lista nova: o status acompanha, e agora e a
     // vez de concluir.
-    await waitFor(() => expect(cellsOf('Status')).toEqual(['Em execucao']));
+    await waitFor(() => expect(cellsOf('Status')).toEqual(['Em execução']));
     expect(screen.getByRole('button', { name: `Concluir ${TITLE}` })).toBeInTheDocument();
   });
 
@@ -386,19 +386,19 @@ describe('Ciclo de vida da manutencao', () => {
     await waitFor(() => expect(cellsOf('Status')).toEqual(['Cancelada']));
   });
 
-  it('a recusa do servidor numa transicao aparece na linha, e o status nao muda', async () => {
+  it('a recusa do servidor numa transição aparece na linha, e o status não muda', async () => {
     // A ordem foi concluida por outra pessoa enquanto esta lista estava aberta:
     // a tela ainda a mostra como agendada, e o servidor recusa.
     world = serveMaintenances({ maintenances: [makeMaintenance({ status: 'SCHEDULED' })] });
     mockPost.mockRejectedValue(
-      new ApiError('Manutencao ja concluida.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('Manutenção já concluida.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<MaintenancesPage />);
 
     await findRows();
     clickTrigger(screen.getByRole('button', { name: `Iniciar ${TITLE}` }));
 
-    const message = await screen.findByText('Manutencao ja concluida.');
+    const message = await screen.findByText('Manutenção já concluida.');
     // A recusa aparece onde a acao foi tomada, e o registro continua como estava.
     expect(message).toHaveAttribute('role', 'alert');
     expect(cellsOf('Status')).toEqual(['Agendada']);
@@ -407,7 +407,7 @@ describe('Ciclo de vida da manutencao', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('dois cliques em iniciar disparam uma requisicao so', async () => {
+  it('dois cliques em iniciar disparam uma requisição so', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance({ status: 'SCHEDULED' })] });
     mockPost.mockImplementation(async () => {
       world.maintenances = [makeMaintenance({ status: 'IN_PROGRESS' })];
@@ -424,7 +424,7 @@ describe('Ciclo de vida da manutencao', () => {
   });
 });
 
-describe('Proximas manutencoes', () => {
+describe('Proximas manutenções', () => {
   it('o destaque vem de /maintenances/upcoming, e nao das linhas carregadas', async () => {
     // A lista mostra uma ordem; o destaque mostra outra. Se a tela filtrasse as
     // linhas carregadas, a do destaque nao teria como aparecer — e a da lista
@@ -435,7 +435,7 @@ describe('Proximas manutencoes', () => {
         makeMaintenance({
           id: 'maintenance-9',
           title: 'Limpeza da caixa dagua',
-          assetName: 'Reservatorio superior',
+          assetName: 'Reservatório superior',
           scheduledFor: '2026-04-05T08:00:00.000Z',
         }),
       ],
@@ -460,11 +460,11 @@ describe('Proximas manutencoes', () => {
     await findRows();
 
     expect(
-      await within(upcomingPanel()).findByText('Nada agendado adiante neste condominio.'),
+      await within(upcomingPanel()).findByText('Nada agendado adiante neste condomínio.'),
     ).toBeInTheDocument();
   });
 
-  it('uma falha no destaque nao leva a lista junto', async () => {
+  it('uma falha no destaque não leva a lista junto', async () => {
     world = serveMaintenances({
       maintenances: [makeMaintenance()],
       // Um 4xx nao e repetido pelo cliente; um 5xx seria tentado tres vezes
@@ -481,8 +481,8 @@ describe('Proximas manutencoes', () => {
   });
 });
 
-describe('Exclusao e restauracao de manutencoes', () => {
-  it('excluir pede confirmacao antes de remover', async () => {
+describe('Exclusao e restauração de manutenções', () => {
+  it('excluir pede confirmação antes de remover', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance()] });
     mockDelete.mockImplementation(async () => {
       world.maintenances = [];
@@ -493,7 +493,7 @@ describe('Exclusao e restauracao de manutencoes', () => {
     clickTrigger(screen.getByRole('button', { name: `Excluir ${TITLE}` }));
 
     // O pedido so sai depois da confirmacao.
-    expect(await screen.findByText('Excluir manutencao?')).toBeInTheDocument();
+    expect(await screen.findByText('Excluir manutenção?')).toBeInTheDocument();
     expect(mockDelete).not.toHaveBeenCalled();
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir' }));
@@ -505,7 +505,7 @@ describe('Exclusao e restauracao de manutencoes', () => {
   it('um 409 de impedimento mostra a mensagem do servidor e mantem o registro', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance()] });
     mockDelete.mockRejectedValue(
-      new ApiError('Manutencao em execucao nao pode ser excluida.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('Manutenção em execução não pode ser excluida.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<MaintenancesPage />);
 
@@ -516,7 +516,7 @@ describe('Exclusao e restauracao de manutencoes', () => {
     // A exclusao nao passa `onError`, entao herda o toast global — que e a
     // apresentacao certa para um 409 que traz so a mensagem do servidor.
     await waitFor(() =>
-      expect(mockToastError).toHaveBeenCalledWith('Manutencao em execucao nao pode ser excluida.'),
+      expect(mockToastError).toHaveBeenCalledWith('Manutenção em execução não pode ser excluida.'),
     );
     expect(screen.getByText(TITLE)).toBeInTheDocument();
   });
@@ -547,19 +547,19 @@ describe('Exclusao e restauracao de manutencoes', () => {
   });
 });
 
-describe('Escopo e permissoes de manutencoes', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões de manutenções', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance()] });
     renderWithProviders(<MaintenancesPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     // Nem a listagem, nem as colecoes auxiliares, nem o destaque saem sem
     // condominio.
     expect(mockGetPaginated).not.toHaveBeenCalled();
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('a colecao de prestadores fica presa ao condominio do shell', async () => {
+  it('a coleção de prestadores fica presa ao condomínio do shell', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance()] });
     renderWithProviders(<MaintenancesPage />);
 
@@ -583,7 +583,7 @@ describe('Escopo e permissoes de manutencoes', () => {
     expect(call?.[1]?.params).not.toHaveProperty('condominiumId');
   });
 
-  it('um responsavel de outro condominio fica fora do seletor', async () => {
+  it('um responsável de outro condomínio fica fora do seletor', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance()] });
     world.users = [
       ...world.users,
@@ -600,7 +600,7 @@ describe('Escopo e permissoes de manutencoes', () => {
 
     await findRows();
 
-    openSelect(screen.getByLabelText('Responsavel'));
+    openSelect(screen.getByLabelText('Responsável'));
 
     expect(await screen.findByRole('option', { name: 'Joana Ribeiro' })).toBeInTheDocument();
     // Lista vazia significa "todos do tenant": um perfil administrativo entra.
@@ -608,7 +608,7 @@ describe('Escopo e permissoes de manutencoes', () => {
     expect(screen.queryByRole('option', { name: 'Paulo Nunes' })).not.toBeInTheDocument();
   });
 
-  it('um operador sem update nao recebe as acoes do ciclo', async () => {
+  it('um operador sem update não recebe as ações do ciclo', async () => {
     world = serveMaintenances({ maintenances: [makeMaintenance({ status: 'SCHEDULED' })] });
     renderWithProviders(<MaintenancesPage />, {
       role: 'STAFF',
@@ -622,12 +622,12 @@ describe('Escopo e permissoes de manutencoes', () => {
     expect(screen.queryByRole('button', { name: /^Iniciar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Concluir/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Cancelar/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Nova manutencao' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nova manutenção' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     world = serveMaintenances({
       maintenances: [makeMaintenance({ deletedAt: '2026-03-11T10:00:00.000Z' })],
     });

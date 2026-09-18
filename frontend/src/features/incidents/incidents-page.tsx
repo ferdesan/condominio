@@ -159,7 +159,7 @@ export function IncidentsPage() {
         </div>
       ),
     },
-    { key: 'title', label: 'Titulo', sortable: true },
+    { key: 'title', label: 'Título', sortable: true },
     {
       key: 'category',
       label: 'Categoria',
@@ -181,7 +181,7 @@ export function IncidentsPage() {
     { key: 'location', label: 'Local', sortable: true },
     {
       key: 'assignedToId',
-      label: 'Responsavel',
+      label: 'Responsável',
       sortable: true,
       render: (_value, row) => assigneeCell(row),
     },
@@ -199,7 +199,7 @@ export function IncidentsPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <IncidentRowActions
           incident={row}
@@ -227,8 +227,8 @@ export function IncidentsPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="As ocorrencias sao listadas por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="As ocorrências sao listadas por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -249,7 +249,7 @@ export function IncidentsPage() {
                   <Button
                     onClick={() => setFormTarget({ incident: null, condominiumId: selectedId })}
                   >
-                    Nova ocorrencia
+                    Nova ocorrência
                   </Button>
                 ) : undefined
               }
@@ -271,7 +271,7 @@ export function IncidentsPage() {
                 <EmptyState
                   icon={SearchX}
                   title="Nenhum resultado para esta busca"
-                  description="Nenhuma ocorrencia corresponde aos termos e filtros aplicados."
+                  description="Nenhuma ocorrência corresponde aos termos e filtros aplicados."
                   action={
                     <Button
                       variant="outline"
@@ -287,14 +287,14 @@ export function IncidentsPage() {
               ) : (
                 <EmptyState
                   icon={TriangleAlert}
-                  title="Nenhuma ocorrencia registrada"
-                  description="Nada foi relatado neste condominio ate agora."
+                  title="Nenhuma ocorrência registrada"
+                  description="Nada foi relatado neste condomínio até agora."
                   action={
                     canCreate ? (
                       <Button
                         onClick={() => setFormTarget({ incident: null, condominiumId: selectedId })}
                       >
-                        Registrar ocorrencia
+                        Registrar ocorrência
                       </Button>
                     ) : undefined
                   }
@@ -353,7 +353,7 @@ export function IncidentsPage() {
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir ocorrencia?"
+        title="Excluir ocorrência?"
         description={
           deleting
             ? `${deleting.protocol} deixara de aparecer na listagem. A exclusao e logica e pode ser desfeita.`

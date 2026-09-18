@@ -64,7 +64,7 @@ describe('Login: a porta que faltava', () => {
   });
 });
 
-describe('Pedido de recuperacao', () => {
+describe('Pedido de recuperação', () => {
   it('envia o e-mail digitado', async () => {
     const user = createUser();
     render(<ForgotPasswordPage />);
@@ -83,11 +83,11 @@ describe('Pedido de recuperacao', () => {
     await user.type(await screen.findByLabelText('E-mail'), 'marina@');
     await user.click(screen.getByRole('button', { name: 'Enviar link' }));
 
-    expect(await screen.findByText('E-mail invalido.')).toBeInTheDocument();
+    expect(await screen.findByText('E-mail inválido.')).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('duplo clique dispara uma requisicao so', async () => {
+  it('duplo clique dispara uma requisição so', async () => {
     const user = createUser();
     render(<ForgotPasswordPage />);
 
@@ -100,7 +100,7 @@ describe('Pedido de recuperacao', () => {
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
-  it('a tela nao revela se a conta existe: os dois casos sao identicos', async () => {
+  it('a tela não revela se a conta existe: os dois casos sao identicos', async () => {
     /**
      * `authService.forgotPassword` sempre responde 202 — e a protecao contra
      * enumeracao de contas. O caso compara os **dois** resultados em vez de so
@@ -153,7 +153,7 @@ describe('Pedido de recuperacao', () => {
     expect(view.container.textContent).not.toContain('token-de-desenvolvimento');
   });
 
-  it('o sucesso mostra o endereco digitado e a frase em condicional', async () => {
+  it('o sucesso mostra o endereço digitado e a frase em condicional', async () => {
     const user = createUser();
     render(<ForgotPasswordPage />);
 
@@ -167,7 +167,7 @@ describe('Pedido de recuperacao', () => {
     expect(screen.getByText(/estiver cadastrado/)).toBeInTheDocument();
   });
 
-  it('usar outro e-mail volta ao formulario', async () => {
+  it('usar outro e-mail volta ao formulário', async () => {
     const user = createUser();
     render(<ForgotPasswordPage />);
 
@@ -179,7 +179,7 @@ describe('Pedido de recuperacao', () => {
     expect(await screen.findByLabelText('E-mail')).toBeInTheDocument();
   });
 
-  it('limite de tentativas do servidor vira aviso, e nao silencio', async () => {
+  it('limite de tentativas do servidor vira aviso, e não silencio', async () => {
     const user = createUser();
     mockPost.mockRejectedValue(
       new ApiError(
@@ -198,7 +198,7 @@ describe('Pedido de recuperacao', () => {
   });
 });
 
-describe('Redefinicao', () => {
+describe('Redefinição', () => {
   it('envia o token da query junto da nova senha', async () => {
     const user = createUser();
     render(<ResetPasswordPage />, `/redefinir-senha?token=${TOKEN}`);
@@ -215,7 +215,7 @@ describe('Redefinicao', () => {
     });
   });
 
-  it('sem token na URL, explica e nao mostra formulario de senha', async () => {
+  it('sem token na URL, explica e não mostra formulário de senha', async () => {
     render(<ResetPasswordPage />, '/redefinir-senha');
 
     expect(await screen.findByRole('heading', { name: 'Link incompleto' })).toBeInTheDocument();
@@ -235,13 +235,13 @@ describe('Redefinicao', () => {
     expect(screen.queryByLabelText('Nova senha')).not.toBeInTheDocument();
   });
 
-  it('avisa que a redefinicao desconecta todos os dispositivos, antes do envio', async () => {
+  it('avisa que a redefinição desconecta todos os dispositivos, antes do envio', async () => {
     render(<ResetPasswordPage />, `/redefinir-senha?token=${TOKEN}`);
 
     // `resetPassword` chama `revokeAllForUser`: descobrir isso depois seria
     // descobrir tarde.
     expect(
-      await screen.findByText(/sera desconectada em todos os dispositivos/),
+      await screen.findByText(/será desconectada em todos os dispositivos/),
     ).toBeInTheDocument();
   });
 
@@ -259,7 +259,7 @@ describe('Redefinicao', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('confirmacao divergente e barrada no cliente', async () => {
+  it('confirmação divergente e barrada no cliente', async () => {
     const user = createUser();
     render(<ResetPasswordPage />, `/redefinir-senha?token=${TOKEN}`);
 
@@ -267,14 +267,14 @@ describe('Redefinicao', () => {
     await user.type(screen.getByLabelText('Repetir a nova senha'), 'SenhaNova2');
     await user.click(screen.getByRole('button', { name: 'Redefinir senha' }));
 
-    expect(await screen.findByText('As senhas nao conferem.')).toBeInTheDocument();
+    expect(await screen.findByText('As senhas não conferem.')).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('token recusado mostra a mensagem do servidor e a saida', async () => {
+  it('token recusado mostra a mensagem do servidor e a saída', async () => {
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Token de recuperacao invalido ou expirado.', 400, 'BAD_REQUEST'),
+      new ApiError('Token de recuperação inválido ou expirado.', 400, 'BAD_REQUEST'),
     );
     render(<ResetPasswordPage />, `/redefinir-senha?token=${TOKEN}`);
 
@@ -283,16 +283,16 @@ describe('Redefinicao', () => {
     await user.click(screen.getByRole('button', { name: 'Redefinir senha' }));
 
     const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent('Token de recuperacao invalido ou expirado.');
+    expect(alert).toHaveTextContent('Token de recuperação inválido ou expirado.');
     // A recusa e sobre o token, e nao sobre o que a pessoa digitou: a saida e
     // pedir um link novo.
     expect(screen.getByRole('link', { name: 'Pedir um novo link' })).toBeInTheDocument();
   });
 
-  it('a recusa do token nao culpa os campos de senha', async () => {
+  it('a recusa do token não culpa os campos de senha', async () => {
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Token de recuperacao invalido ou expirado.', 400, 'BAD_REQUEST'),
+      new ApiError('Token de recuperação inválido ou expirado.', 400, 'BAD_REQUEST'),
     );
     render(<ResetPasswordPage />, `/redefinir-senha?token=${TOKEN}`);
 
@@ -316,7 +316,7 @@ describe('Redefinicao', () => {
     await waitFor(() => expect(vi.mocked(toast.success)).toHaveBeenCalled());
   });
 
-  it('duplo clique dispara uma requisicao so', async () => {
+  it('duplo clique dispara uma requisição so', async () => {
     const user = createUser();
     render(<ResetPasswordPage />, `/redefinir-senha?token=${TOKEN}`);
 

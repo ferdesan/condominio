@@ -28,7 +28,7 @@ function render(data: IncidentCategoryTotal[], loading = false) {
  * nenhum rotulo de eixo chega ao DOM. Afirmar sobre o texto renderizado seria
  * afirmar sobre o que a biblioteca faz, e nao sobre a decisao que e nossa.
  */
-describe('Recorte do grafico de ocorrencias', () => {
+describe('Recorte do grafico de ocorrências', () => {
   it('traduz a categoria do servidor para o rotulo do produto', () => {
     const [first] = rankIncidentCategories([make('NOISE', 7)]);
 
@@ -36,7 +36,7 @@ describe('Recorte do grafico de ocorrencias', () => {
     expect(first?.label).toBe('Barulho');
   });
 
-  it('categoria desconhecida mantem o proprio valor, e nao some', () => {
+  it('categoria desconhecida mantem o próprio valor, e não some', () => {
     const ranked = rankIncidentCategories([make('DRONE', 3)]);
 
     // Um enum que cresca no servidor precisa aparecer incompleto, e nunca
@@ -70,7 +70,7 @@ describe('Recorte do grafico de ocorrencias', () => {
     expect(ranked.map((item) => item.category)).toContain('PARKING');
   });
 
-  it('nao reordena o array recebido', () => {
+  it('não reordena o array recebido', () => {
     // O argumento vem do cache do React Query, que outras partes da tela leem.
     const data = [make('NOISE', 1), make('SECURITY', 9)];
     rankIncidentCategories(data);
@@ -79,24 +79,24 @@ describe('Recorte do grafico de ocorrencias', () => {
   });
 });
 
-describe('Estados do grafico de ocorrencias', () => {
-  it('sem ocorrencias, diz isso em vez de desenhar um grafico vazio', () => {
+describe('Estados do grafico de ocorrências', () => {
+  it('sem ocorrências, diz isso em vez de desenhar um grafico vazio', () => {
     render([]);
 
     // Nenhuma ocorrencia registrada e uma boa noticia, e precisa ser dita.
-    expect(screen.getByText('Nenhuma ocorrencia registrada')).toBeInTheDocument();
+    expect(screen.getByText('Nenhuma ocorrência registrada')).toBeInTheDocument();
   });
 
-  it('carregando nao mostra o estado vazio', () => {
+  it('carregando não mostra o estado vazio', () => {
     render([], true);
 
     // Anunciar "nenhuma ocorrencia" antes de ter perguntado seria falso.
-    expect(screen.queryByText('Nenhuma ocorrencia registrada')).not.toBeInTheDocument();
+    expect(screen.queryByText('Nenhuma ocorrência registrada')).not.toBeInTheDocument();
   });
 
-  it('o titulo nomeia o que o grafico mede', () => {
+  it('o título nomeia o que o grafico mede', () => {
     render([make('NOISE', 7)]);
 
-    expect(screen.getByText('Ocorrencias por categoria')).toBeInTheDocument();
+    expect(screen.getByText('Ocorrências por categoria')).toBeInTheDocument();
   });
 });

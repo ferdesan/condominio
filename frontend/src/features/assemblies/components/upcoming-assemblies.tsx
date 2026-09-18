@@ -33,19 +33,19 @@ export function UpcomingAssemblies({ condominiumId }: UpcomingAssembliesProps) {
           Proximas assembleias
         </h2>
         <p className="text-xs text-muted-foreground">
-          Convocacoes que ainda vao acontecer, independentes dos filtros da lista.
+          Convocações que ainda vao acontecer, independentes dos filtros da lista.
         </p>
       </div>
 
       {upcoming.isError ? (
         <p role="alert" className="text-sm text-destructive">
-          Nao foi possivel carregar as proximas assembleias. A lista continua disponivel.
+          Não foi possível carregar as proximas assembleias. A lista continua disponível.
         </p>
       ) : upcoming.isPending ? (
         <Skeleton className="h-16 w-full" />
       ) : rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Nenhuma convocacao futura registrada para este condominio.
+          Nenhuma convocação futura registrada para este condomínio.
         </p>
       ) : (
         <ul className="space-y-2 text-sm">

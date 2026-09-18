@@ -73,10 +73,10 @@ export function AssemblyRowActions({
           <Button
             variant="outline"
             size="sm"
-            aria-label={`Deliberacoes de ${label}`}
+            aria-label={`Deliberações de ${label}`}
             onClick={() => onPolls(assembly)}
           >
-            Deliberacoes
+            Deliberações
           </Button>
         ) : null}
 

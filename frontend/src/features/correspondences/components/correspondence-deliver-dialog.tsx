@@ -103,13 +103,13 @@ export function CorrespondenceDeliverDialog({
         <DialogHeader>
           <DialogTitle>Dar baixa na entrega</DialogTitle>
           <DialogDescription>
-            A correspondencia passa a entregue e sai da fila de retirada.
+            A correspondência passa a entregue e sai da fila de retirada.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {correspondence.description ?? 'Sem descricao'} ·{' '}
+            {correspondence.description ?? 'Sem descrição'} ·{' '}
             {correspondence.unit ? unitLabel(correspondence.unit) : 'Unidade removida'} · recebida
             em {formatDateTime(correspondence.receivedAt)}
           </p>
@@ -140,7 +140,7 @@ export function CorrespondenceDeliverDialog({
             )}
           />
 
-          <FormField id="deliver-notes" label="Observacoes" error={errors.notes?.message}>
+          <FormField id="deliver-notes" label="Observações" error={errors.notes?.message}>
             {(aria) => <Textarea {...aria} {...register('notes')} />}
           </FormField>
 
@@ -156,8 +156,8 @@ export function CorrespondenceDeliverDialog({
           <DialogFooter>
             {/*
               "Voltar" e nao "Fechar": o botao de fechar do proprio dialogo ja
-              usa esse nome, e dois controles com o mesmo nome acessivel no mesmo
-              dialogo sao indistinguiveis para quem navega por leitor.
+              usa esse nome, e dois controles com o mesmo nome acessível no mesmo
+              dialogo sao indistinguíveis para quem navega por leitor.
             */}
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
               Voltar

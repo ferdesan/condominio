@@ -45,7 +45,7 @@ export function AnnouncementBoard({ condominiumId }: AnnouncementBoardProps) {
         <CardTitle id="announcement-board-title">No ar agora</CardTitle>
         <CardDescription>
           Comunicados publicados e ainda vigentes, fixados primeiro — a ordem em que os moradores os
-          veem. Ate vinte.
+          veem. Até vinte.
         </CardDescription>
       </CardHeader>
 
@@ -65,7 +65,7 @@ export function AnnouncementBoard({ condominiumId }: AnnouncementBoardProps) {
           <EmptyState
             icon={Megaphone}
             title="Nada publicado no momento"
-            description="Nenhum comunicado vigente para este condominio. Rascunhos e arquivados aparecem na lista abaixo."
+            description="Nenhum comunicado vigente para este condomínio. Rascunhos e arquivados aparecem na lista abaixo."
           />
         ) : (
           <ul className="divide-y">
@@ -85,8 +85,8 @@ function BoardItem({ announcement }: { announcement: Announcement }) {
       <div className="min-w-0 space-y-1">
         <div className="flex items-center gap-2">
           {/*
-            O icone tem rotulo acessivel e a tarja diz por extenso: o destaque
-            nao pode depender so de posicao ou cor. Mesma decisao da listagem.
+            O icone tem rotulo acessível e a tarja diz por extenso: o destaque
+            não pode depender so de posição ou cor. Mesma decisao da listagem.
           */}
           {announcement.pinned ? (
             <Pin className="size-3.5 shrink-0 text-primary" aria-label="Fixado" />
@@ -102,22 +102,22 @@ function BoardItem({ announcement }: { announcement: Announcement }) {
         <p className="text-xs text-muted-foreground">
           {announcement.publishedAt
             ? `Publicado em ${formatDate(announcement.publishedAt)}`
-            : 'Sem data de publicacao'}
+            : 'Sem data de publicação'}
           {announcement.expiresAt ? ` · vence em ${formatDate(announcement.expiresAt)}` : ''}
         </p>
       </div>
 
       {/*
-        "Visualizacoes", e nao "leituras": o contador soma toda abertura, sem
-        distinguir pessoa nem repeticao.
+        "Visualizações", e nao "leituras": o contador soma toda abertura, sem
+        distinguir pessoa nem repetição.
       */}
       <span
         className="flex shrink-0 items-center gap-1.5 text-sm text-muted-foreground"
-        title="Visualizacoes registradas"
+        title="Visualizações registradas"
       >
         <Eye className="size-4" aria-hidden="true" />
         <span className="tabular-nums">{formatNumber(announcement.readsCount)}</span>
-        <span className="sr-only">visualizacoes</span>
+        <span className="sr-only">visualizações</span>
       </span>
     </li>
   );

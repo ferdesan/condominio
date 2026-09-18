@@ -118,11 +118,11 @@ export function CategoriesSection({ condominiumId }: CategoriesSectionProps) {
       sortable: true,
       render: (_value, row) => CATEGORY_KIND_LABELS[row.kind],
     },
-    { key: 'code', label: 'Codigo', sortable: true },
-    { key: 'description', label: 'Descricao', sortable: true },
+    { key: 'code', label: 'Código', sortable: true },
+    { key: 'description', label: 'Descrição', sortable: true },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => {
         const label = categoryLabel(row);
 
@@ -187,7 +187,7 @@ export function CategoriesSection({ condominiumId }: CategoriesSectionProps) {
               <Input
                 id="category-search"
                 className="pl-10"
-                placeholder="Nome, codigo ou descricao"
+                placeholder="Nome, código ou descrição"
                 value={list.searchInput}
                 onChange={(event) => list.setSearch(event.target.value)}
               />
@@ -255,7 +255,7 @@ export function CategoriesSection({ condominiumId }: CategoriesSectionProps) {
           <EmptyState
             icon={BookOpen}
             title="Plano de contas vazio"
-            description="As contas classificam cobrancas e despesas na prestacao de contas."
+            description="As contas classificam cobranças e despesas na prestação de contas."
           />
         )
       ) : (
@@ -291,7 +291,7 @@ export function CategoriesSection({ condominiumId }: CategoriesSectionProps) {
         title="Excluir conta?"
         description={
           deleting
-            ? `"${deleting.name}" saira dos seletores. Lancamentos ja classificados nela continuam como estao, e a exclusao pode ser desfeita.`
+            ? `"${deleting.name}" saira dos seletores. Lancamentos já classificados nela continuam como estao, e a exclusao pode ser desfeita.`
             : undefined
         }
         actionLabel="Excluir"

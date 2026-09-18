@@ -83,7 +83,7 @@ export function CondominiumsPage() {
     },
     // `syndicName` nao esta na whitelist de ordenacao do servidor: oferecer o
     // controle produziria um cabecalho que nao faz nada.
-    { key: 'syndicName', label: 'Sindico' },
+    { key: 'syndicName', label: 'Síndico' },
     { key: 'city', label: 'Cidade', sortable: true },
     {
       key: 'status',
@@ -97,7 +97,7 @@ export function CondominiumsPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <CondominiumRowActions
           condominium={row}
@@ -120,11 +120,11 @@ export function CondominiumsPage() {
         header={
           <PageHeader
             title="Condomínios"
-            description="Cadastro dos condominios geridos pela sua conta."
+            description="Cadastro dos condomínios geridos pela sua conta."
             actions={
               canCreate ? (
                 <Button onClick={() => setFormTarget({ condominium: null })}>
-                  Novo condominio
+                  Novo condomínio
                 </Button>
               ) : undefined
             }
@@ -138,7 +138,7 @@ export function CondominiumsPage() {
                 <EmptyState
                   icon={SearchX}
                   title="Nenhum resultado para esta busca"
-                  description="Nenhum condominio corresponde aos termos e filtros aplicados."
+                  description="Nenhum condomínio corresponde aos termos e filtros aplicados."
                   action={
                     <Button
                       variant="outline"
@@ -154,12 +154,12 @@ export function CondominiumsPage() {
               ) : (
                 <EmptyState
                   icon={Building2}
-                  title="Nenhum condominio cadastrado"
-                  description="Cadastre o primeiro condominio para comecar a registrar unidades e moradores."
+                  title="Nenhum condomínio cadastrado"
+                  description="Cadastre o primeiro condomínio para comecar a registrar unidades e moradores."
                   action={
                     canCreate ? (
                       <Button onClick={() => setFormTarget({ condominium: null })}>
-                        Cadastrar condominio
+                        Cadastrar condomínio
                       </Button>
                     ) : undefined
                   }
@@ -199,7 +199,7 @@ export function CondominiumsPage() {
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir condominio?"
+        title="Excluir condomínio?"
         description={
           deleting
             ? `${deleting.name} deixara de aparecer nas listagens e no seletor. A exclusao e logica e pode ser desfeita.`

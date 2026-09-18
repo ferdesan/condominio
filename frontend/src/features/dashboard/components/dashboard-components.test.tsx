@@ -47,10 +47,10 @@ vi.mock('recharts', async (importOriginal) => {
     // fixos, para que barras e rotulos existam de verdade.
     ResponsiveContainer: ({ children }: { children?: ReactNode }) => {
       if (!isValidElement(children)) return createElement('div');
-      return cloneElement(
-        children as React.ReactElement<{ width?: number; height?: number }>,
-        { width: 600, height: 300 },
-      );
+      return cloneElement(children as React.ReactElement<{ width?: number; height?: number }>, {
+        width: 600,
+        height: 300,
+      });
     },
   };
 });
@@ -61,7 +61,7 @@ function makeActivity(i: number, overrides: Partial<ActivityEntry> = {}): Activi
     action: 'CREATE',
     resource: 'INCIDENT',
     resourceId: null,
-    description: `Ocorrencia registrada ${i}`,
+    description: `Ocorrência registrada ${i}`,
     userName: 'Marina Alves',
     createdAt: '2026-03-10T12:00:00.000Z',
     ...overrides,
@@ -82,7 +82,7 @@ function barCount(): number {
 }
 
 describe('StatCard (UT-032, UT-032.E1)', () => {
-  it('UT-032: mostra o rotulo, o numero e a pista', () => {
+  it('UT-032: mostra o rotulo, o número e a pista', () => {
     renderWithProviders(
       <StatCard label="Total de unidades" value="48" hint="4 torres" icon={Users} />,
     );
@@ -92,16 +92,14 @@ describe('StatCard (UT-032, UT-032.E1)', () => {
     expect(screen.getByText('4 torres')).toBeInTheDocument();
   });
 
-  it('UT-032.E1: em carga, esconde o numero e mostra o esqueleto', () => {
-    renderWithProviders(
-      <StatCard label="Total de unidades" value="48" icon={Users} loading />,
-    );
+  it('UT-032.E1: em carga, esconde o número e mostra o esqueleto', () => {
+    renderWithProviders(<StatCard label="Total de unidades" value="48" icon={Users} loading />);
 
     expect(screen.getByText('Total de unidades')).toBeInTheDocument();
     expect(screen.queryByText('48')).not.toBeInTheDocument();
   });
 
-  it('UT-032.E1: valor ausente usa o reservado do produto, nao o lixo', () => {
+  it('UT-032.E1: valor ausente usa o reservado do produto, não o lixo', () => {
     // A pagina passa o numero ja formatado; formatNumber(null) e o placeholder
     // deste produto, decidido em `lib/format.ts`.
     renderWithProviders(
@@ -120,10 +118,10 @@ describe('ActivityFeed (UT-032.E2/E3/E4)', () => {
     renderWithProviders(<ActivityFeed data={data} loading={false} />);
 
     expect(screen.getByText('Atividade recente')).toBeInTheDocument();
-    expect(screen.getByText('Ocorrencia registrada 0')).toBeInTheDocument();
-    expect(screen.getByText('Ocorrencia registrada 7')).toBeInTheDocument();
-    expect(screen.queryByText('Ocorrencia registrada 8')).not.toBeInTheDocument();
-    expect(screen.getAllByText(/Ocorrencia registrada \d/)).toHaveLength(8);
+    expect(screen.getByText('Ocorrência registrada 0')).toBeInTheDocument();
+    expect(screen.getByText('Ocorrência registrada 7')).toBeInTheDocument();
+    expect(screen.queryByText('Ocorrência registrada 8')).not.toBeInTheDocument();
+    expect(screen.getAllByText(/Ocorrência registrada \d/)).toHaveLength(8);
   });
 
   it('UT-032.E3: sem atividades, diz isso em vez de listar vazio', () => {
@@ -132,17 +130,19 @@ describe('ActivityFeed (UT-032.E2/E3/E4)', () => {
     expect(screen.getByText('Nenhuma atividade registrada')).toBeInTheDocument();
   });
 
-  it('UT-032.E3: em carga, mostra o esqueleto e nao anuncia vazio', () => {
+  it('UT-032.E3: em carga, mostra o esqueleto e não anuncia vazio', () => {
     renderWithProviders(<ActivityFeed data={[]} loading />);
 
     expect(screen.queryByText('Nenhuma atividade registrada')).not.toBeInTheDocument();
   });
 
   it('UT-032.E4: atividade sem autor cai para "Sistema"', () => {
-    renderWithProviders(<ActivityFeed data={[makeActivity(1, { userName: null })]} loading={false} />);
+    renderWithProviders(
+      <ActivityFeed data={[makeActivity(1, { userName: null })]} loading={false} />,
+    );
 
     expect(screen.getByText(/Sistema/)).toBeInTheDocument();
-    expect(screen.getByText('Ocorrencia registrada 1')).toBeInTheDocument();
+    expect(screen.getByText('Ocorrência registrada 1')).toBeInTheDocument();
   });
 });
 
@@ -160,7 +160,7 @@ describe('FinancialChart (UT-032, UT-032.E5)', () => {
     expect(screen.getAllByText('Faturado').length).toBeGreaterThanOrEqual(2);
     expect(screen.getAllByText('Recebido').length).toBeGreaterThanOrEqual(2);
 
-    fireEvent.click(screen.getByText('Ver os numeros em tabela'));
+    fireEvent.click(screen.getByText('Ver os números em tabela'));
     expect(screen.getByRole('table')).toBeInTheDocument();
     // O mes aparece no eixo do grafico e na linha da tabela.
     expect(screen.getAllByText('mar/2026').length).toBeGreaterThanOrEqual(1);
@@ -169,7 +169,7 @@ describe('FinancialChart (UT-032, UT-032.E5)', () => {
     expect(screen.getByText('R$ 31.500,00')).toBeInTheDocument();
   });
 
-  it('UT-032.E5: serie vazia nao inventa dado — legenda e tabela sem linhas', () => {
+  it('UT-032.E5: serie vazia não inventa dado — legenda e tabela sem linhas', () => {
     renderWithProviders(
       <ThemeProvider>
         <FinancialChart data={[]} loading={false} />
@@ -177,7 +177,7 @@ describe('FinancialChart (UT-032, UT-032.E5)', () => {
     );
 
     expect(screen.getByText('Faturado x recebido')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('Ver os numeros em tabela'));
+    fireEvent.click(screen.getByText('Ver os números em tabela'));
     // A tabela existe, mas nada de mes fake.
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.queryByText('mar/2026')).not.toBeInTheDocument();
@@ -194,7 +194,7 @@ describe('ExpensesChart (UT-032.E5/E6)', () => {
     );
 
     expect(screen.getByText('Sem despesas lancadas')).toBeInTheDocument();
-    expect(screen.getByText('Nada a exibir no periodo.')).toBeInTheDocument();
+    expect(screen.getByText('Nada a exibir no período.')).toBeInTheDocument();
     expect(barCount()).toBe(0);
   });
 
@@ -228,13 +228,9 @@ describe('ExpensesChart (UT-032.E5/E6)', () => {
 });
 
 describe('ChartTooltip (UT-032.E7)', () => {
-  it('UT-032.E7: inativo nao desenha nada', () => {
+  it('UT-032.E7: inativo não desenha nada', () => {
     const { container } = renderWithProviders(
-      <ChartTooltip
-        active={false}
-        payload={[] as never}
-        label=""
-      />,
+      <ChartTooltip active={false} payload={[] as never} label="" />,
     );
 
     expect(container.firstChild).toBeNull();

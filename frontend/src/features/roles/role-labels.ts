@@ -25,38 +25,38 @@ export const ACTION_LABELS: Record<PermissionAction, string> = {
 };
 
 /** Dito sob a coluna "Gerenciar", que resolve as quatro anteriores. */
-export const MANAGE_NOTE = 'Gerenciar ja inclui ver, criar, editar e excluir daquele recurso.';
+export const MANAGE_NOTE = 'Gerenciar já inclui ver, criar, editar e excluir daquele recurso.';
 
 const RESOURCE_LABELS: Record<string, string> = {
   tenant: 'Administradora',
-  user: 'Usuarios',
-  role: 'Papeis de acesso',
-  condominium: 'Condominios',
+  user: 'Usuários',
+  role: 'Papéis de acesso',
+  condominium: 'Condomínios',
   block: 'Blocos e torres',
   unit: 'Unidades',
   resident: 'Moradores',
   dependent: 'Dependentes',
-  employee: 'Funcionarios',
+  employee: 'Funcionários',
   visitor: 'Visitantes',
   'service-provider': 'Prestadores',
-  vehicle: 'Veiculos',
-  correspondence: 'Correspondencias',
-  'common-area': 'Areas comuns',
+  vehicle: 'Veículos',
+  correspondence: 'Correspondências',
+  'common-area': 'Áreas comuns',
   reservation: 'Reservas',
   'financial-category': 'Plano de contas',
-  charge: 'Cobrancas',
+  charge: 'Cobranças',
   payment: 'Pagamentos',
   expense: 'Despesas',
   assembly: 'Assembleias',
-  poll: 'Votacoes',
+  poll: 'Votações',
   vote: 'Votos',
   announcement: 'Comunicados',
-  incident: 'Ocorrencias',
-  maintenance: 'Manutencoes',
+  incident: 'Ocorrências',
+  maintenance: 'Manutenções',
   document: 'Documentos',
   dashboard: 'Painel',
   'audit-log': 'Auditoria',
-  notification: 'Notificacoes',
+  notification: 'Notificações',
 };
 
 export function resourceLabel(resource: string): string {
@@ -80,15 +80,15 @@ export const PERMISSION_GROUPS: Array<{ title: string; resources: string[] }> = 
   { title: 'Pessoas', resources: ['resident', 'dependent', 'employee', 'service-provider'] },
   { title: 'Portaria', resources: ['visitor', 'vehicle', 'correspondence'] },
   {
-    title: 'Convivencia',
+    title: 'Convivência',
     resources: ['common-area', 'reservation', 'assembly', 'poll', 'vote', 'announcement'],
   },
   {
     title: 'Financeiro',
     resources: ['financial-category', 'charge', 'payment', 'expense'],
   },
-  { title: 'Operacao', resources: ['incident', 'maintenance', 'document'] },
-  { title: 'Administracao', resources: ['tenant', 'user', 'role', 'audit-log'] },
+  { title: 'Operação', resources: ['incident', 'maintenance', 'document'] },
+  { title: 'Administração', resources: ['tenant', 'user', 'role', 'audit-log'] },
   { title: 'Sistema', resources: ['dashboard', 'notification'] },
 ];
 
@@ -99,7 +99,7 @@ export const CUSTOM_ROLE = 'Personalizado';
 
 /** Dito quando um papel do sistema e aberto para edicao. */
 export const SYSTEM_ROLE_LOCKED =
-  'Papel do sistema: nome e permissoes sao fixos. So a descricao pode mudar.';
+  'Papel do sistema: nome e permissões sao fixos. So a descrição pode mudar.';
 
 /** Dito ao lado do campo de nome. */
 export const NAME_UPPERCASED = 'Gravado em maiusculas pelo servidor.';

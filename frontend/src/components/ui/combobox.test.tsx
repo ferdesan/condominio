@@ -36,14 +36,14 @@ function buscar(termo: string): void {
 }
 
 describe('Combobox', () => {
-  it('fechado, mostra o placeholder e nao monta a lista', () => {
+  it('fechado, mostra o placeholder e não monta a lista', () => {
     const { trigger } = montar();
 
     expect(trigger).toHaveTextContent('Selecione o morador');
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
-  it('aberto, lista tudo e cada opcao carrega a sua dica', () => {
+  it('aberto, lista tudo e cada opção carrega a sua dica', () => {
     const { trigger } = montar();
     fireEvent.click(trigger);
 
@@ -63,7 +63,7 @@ describe('Combobox', () => {
     expect(opcoes[0]).toHaveAttribute('aria-label', 'Bruno Santos, Torre A - 102');
   });
 
-  it('a busca tambem alcanca a dica, entao o numero da unidade encontra o morador', () => {
+  it('a busca também alcança a dica, entao o número da unidade encontra o morador', () => {
     const { trigger } = montar();
     fireEvent.click(trigger);
     buscar('204');
@@ -86,7 +86,7 @@ describe('Combobox', () => {
     expect(screen.getAllByRole('option')).toHaveLength(1);
   });
 
-  it('sem correspondencia, diz isso em vez de mostrar lista vazia', () => {
+  it('sem correspondência, diz isso em vez de mostrar lista vazia', () => {
     const { trigger } = montar();
     fireEvent.click(trigger);
     buscar('ninguem com esse nome');
@@ -95,7 +95,7 @@ describe('Combobox', () => {
     expect(screen.getByText('Nenhum morador corresponde a busca.')).toBeInTheDocument();
   });
 
-  it('escolher uma opcao avisa o formulario e fecha a lista', () => {
+  it('escolher uma opção avisa o formulário e fecha a lista', () => {
     const { trigger, onValueChange } = montar();
     fireEvent.click(trigger);
     fireEvent.click(screen.getByRole('option', { name: 'Ana Silva, Torre B - 204' }));
@@ -116,7 +116,7 @@ describe('Combobox', () => {
     expect(onValueChange).toHaveBeenCalledWith('r-2');
   });
 
-  it('o valor escolhido aparece no gatilho, com a marca na opcao', () => {
+  it('o valor escolhido aparece no gatilho, com a marca na opção', () => {
     renderWithProviders(
       <Combobox options={MORADORES} value="r-3" onValueChange={vi.fn()} placeholder="Selecione" />,
     );

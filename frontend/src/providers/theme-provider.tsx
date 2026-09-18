@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ThemeContext, type Theme, type ThemeContextValue } from './theme-context';
 
-const STORAGE_KEY = 'condominio.theme';
+const STORAGE_KEY = 'condomínio.theme';
 
 /** `null` quando o dispositivo nunca escolheu — nao e o mesmo que `'system'`. */
 function readStoredTheme(): Theme | null {

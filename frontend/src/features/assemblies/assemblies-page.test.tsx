@@ -95,7 +95,7 @@ beforeEach(() => {
 });
 
 describe('Listagem de assembleias', () => {
-  it('percorre busca e os tres filtros preservando o condominio', async () => {
+  it('percorre busca e os três filtros preservando o condomínio', async () => {
     world = serveAssemblies({ assemblies: [makeAssembly()] });
     const user = createUser();
     renderWithProviders(<AssembliesPage />);
@@ -108,10 +108,10 @@ describe('Listagem de assembleias', () => {
 
     // `selectOption` usa `fireEvent`, que o RTL ja embrulha em `act`: o novo
     // pedido sai antes de a chamada retornar, entao a assercao e direta.
-    selectOption(screen.getByLabelText('Situacao'), 'Agendada');
+    selectOption(screen.getByLabelText('Situação'), 'Agendada');
     expect(lastListParams().status).toBe('SCHEDULED');
 
-    selectOption(screen.getByLabelText('Tipo'), 'Ordinaria');
+    selectOption(screen.getByLabelText('Tipo'), 'Ordinária');
     expect(lastListParams().type).toBe('ORDINARY');
 
     selectOption(screen.getByLabelText('Formato'), 'Hibrida');
@@ -126,15 +126,15 @@ describe('Listagem de assembleias', () => {
     });
   });
 
-  it('sem condominio selecionado explica a exigencia e nao consulta nada', async () => {
+  it('sem condomínio selecionado explica a exigência e não consulta nada', async () => {
     world = serveAssemblies({ assemblies: [makeAssembly()] });
     renderWithProviders(<AssembliesPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(mockGetPaginated).not.toHaveBeenCalled();
   });
 
-  it('o destaque do que esta por vir vem da rota propria, e nao da listagem', async () => {
+  it('o destaque do que esta por vir vem da rota própria, e não da listagem', async () => {
     world = serveAssemblies({
       assemblies: [makeAssembly()],
       upcoming: [makeAssembly({ id: 'assembly-2', title: 'AGE de obras' })],
@@ -155,7 +155,7 @@ describe('Listagem de assembleias', () => {
     expect(upcomingCalls[0].params).toMatchObject({ condominiumId: 'cond-1' });
   });
 
-  it('lista vazia renderiza estado vazio, e nao tabela em branco', async () => {
+  it('lista vazia renderiza estado vazio, e não tabela em branco', async () => {
     world = serveAssemblies({ assemblies: [] });
     renderWithProviders(<AssembliesPage />);
 
@@ -163,13 +163,13 @@ describe('Listagem de assembleias', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('paginacao pede a proxima pagina com os parametros certos', async () => {
+  it('paginação pede a próxima pagina com os parametros certos', async () => {
     const roster = (count: number, offset = 0): Assembly[] =>
       Array.from({ length: count }, (_, index) => {
         const position = offset + index + 1;
         return makeAssembly({
           id: `assembly-${position}`,
-          title: `Convocacao ${String(position).padStart(2, '0')}`,
+          title: `Convocação ${String(position).padStart(2, '0')}`,
         });
       });
 
@@ -177,20 +177,20 @@ describe('Listagem de assembleias', () => {
     const user = createUser();
     renderWithProviders(<AssembliesPage />);
 
-    await screen.findByText('Convocacao 01');
+    await screen.findByText('Convocação 01');
     expect(dataRows()).toHaveLength(20);
 
     world.assemblies = roster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
-    expect(await screen.findByText('Convocacao 21')).toBeInTheDocument();
+    expect(await screen.findByText('Convocação 21')).toBeInTheDocument();
     expect(lastListParams().perPage).toBe(20);
   });
 });
 
 describe('Ciclo da assembleia', () => {
-  it('iniciar chama a rota propria e a lista acompanha', async () => {
+  it('iniciar chama a rota própria e a lista acompanha', async () => {
     world = serveAssemblies({ assemblies: [makeAssembly()] });
     mockPost.mockImplementation(async () => {
       world.assemblies = [makeAssembly({ status: 'IN_PROGRESS' })];
@@ -199,15 +199,15 @@ describe('Ciclo da assembleia', () => {
     renderWithProviders(<AssembliesPage />);
 
     await findRows();
-    expect(cellsOf('Situacao')[0]).toBe('Agendada');
+    expect(cellsOf('Situação')[0]).toBe('Agendada');
 
     clickTrigger(screen.getByRole('button', { name: `Iniciar ${TITLE}` }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/assemblies/assembly-1/start', {}));
-    await waitFor(() => expect(cellsOf('Situacao')[0]).toBe('Em andamento'));
+    await waitFor(() => expect(cellsOf('Situação')[0]).toBe('Em andamento'));
   });
 
-  it('as tres acoes de ciclo sao oferecidas por permissao, e nao por situacao', async () => {
+  it('as três ações de ciclo sao oferecidas por permissao, e não por situação', async () => {
     // Uma assembleia ja encerrada continua mostrando as tres: quem decide se a
     // transicao vale e o servidor, e duplicar a regra aqui criaria uma segunda
     // versao dela que dessincroniza na primeira mudanca do backend.
@@ -233,11 +233,11 @@ describe('Ciclo da assembleia', () => {
     const message = await screen.findByText('Somente assembleias agendadas podem ser iniciadas.');
     expect(message).toHaveAttribute('role', 'alert');
     // O registro continua como estava: a recusa nao pode parecer sucesso.
-    expect(cellsOf('Situacao')[0]).toBe('Encerrada');
+    expect(cellsOf('Situação')[0]).toBe('Encerrada');
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('dois cliques em iniciar disparam uma requisicao so', async () => {
+  it('dois cliques em iniciar disparam uma requisição so', async () => {
     world = serveAssemblies({ assemblies: [makeAssembly()] });
     mockPost.mockImplementation(async () => {
       world.assemblies = [makeAssembly({ status: 'IN_PROGRESS' })];
@@ -285,7 +285,7 @@ describe('Ciclo da assembleia', () => {
 });
 
 describe('Cadastro de assembleia', () => {
-  it('envia datas em ISO e o quorum como numero', async () => {
+  it('envia datas em ISO e o quorum como número', async () => {
     world = serveAssemblies({ assemblies: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -298,7 +298,7 @@ describe('Cadastro de assembleia', () => {
     clickTrigger(screen.getByRole('button', { name: 'Nova assembleia' }));
 
     const dialog = await screen.findByRole('dialog');
-    await user.type(within(dialog).getByLabelText('Titulo'), 'AGE de fachada');
+    await user.type(within(dialog).getByLabelText('Título'), 'AGE de fachada');
     await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
@@ -319,7 +319,7 @@ describe('Cadastro de assembleia', () => {
     expect(String((body as { scheduledAt: string }).scheduledAt)).toMatch(/Z$/);
   });
 
-  it('segunda convocacao anterior a primeira e barrada no campo, sem requisicao', async () => {
+  it('segunda convocação anterior a primeira e barrada no campo, sem requisição', async () => {
     world = serveAssemblies({ assemblies: [] });
     const user = createUser();
     renderWithProviders(<AssembliesPage />);
@@ -328,7 +328,7 @@ describe('Cadastro de assembleia', () => {
     clickTrigger(screen.getByRole('button', { name: 'Nova assembleia' }));
 
     const dialog = await screen.findByRole('dialog');
-    await user.type(within(dialog).getByLabelText('Titulo'), 'Convocacao torta');
+    await user.type(within(dialog).getByLabelText('Título'), 'Convocação torta');
 
     const first = within(dialog).getByLabelText('Primeira chamada');
     await user.clear(first);
@@ -342,14 +342,14 @@ describe('Cadastro de assembleia', () => {
     // A regra existe no servidor como 409 sem caminho de campo; dita no campo,
     // ela tem conserto obvio.
     expect(
-      await screen.findByText('A segunda convocacao deve ser posterior ao horario da primeira.'),
+      await screen.findByText('A segunda convocação deve ser posterior ao horário da primeira.'),
     ).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 });
 
-describe('Deliberacoes', () => {
-  it('o painel lista somente as deliberacoes da assembleia aberta', async () => {
+describe('Deliberações', () => {
+  it('o painel lista somente as deliberações da assembleia aberta', async () => {
     world = serveAssemblies({
       assemblies: [makeAssembly()],
       polls: [makePoll()],
@@ -357,10 +357,10 @@ describe('Deliberacoes', () => {
     renderWithProviders(<AssembliesPage />);
 
     await findRows();
-    clickTrigger(screen.getByRole('button', { name: `Deliberacoes de ${TITLE}` }));
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
 
     const dialog = await screen.findByRole('dialog');
-    expect(await within(dialog).findByText('Aprovacao das contas de 2025')).toBeInTheDocument();
+    expect(await within(dialog).findByText('Aprovação das contas de 2025')).toBeInTheDocument();
     // O recorte vem da whitelist do repositorio, que aceita `assemblyId`.
     expect(lastPollParams()).toMatchObject({
       assemblyId: 'assembly-1',
@@ -368,17 +368,17 @@ describe('Deliberacoes', () => {
     });
   });
 
-  it('criar deliberacao envia as alternativas', async () => {
+  it('criar deliberação envia as alternativas', async () => {
     world = serveAssemblies({ assemblies: [makeAssembly()], polls: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => makePoll() as never);
     renderWithProviders(<AssembliesPage />);
 
     await findRows();
-    clickTrigger(screen.getByRole('button', { name: `Deliberacoes de ${TITLE}` }));
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
 
     await screen.findByRole('dialog');
-    clickTrigger(screen.getByRole('button', { name: 'Nova deliberacao' }));
+    clickTrigger(screen.getByRole('button', { name: 'Nova deliberação' }));
 
     // O formulario abre sobre o painel: as consultas seguem o dialogo do topo.
     const form = await waitFor(() => {
@@ -396,7 +396,7 @@ describe('Deliberacoes', () => {
     const ends = within(form).getByLabelText('Encerra em');
     await user.type(ends, '2030-06-01T20:00');
 
-    await user.click(within(form).getByRole('button', { name: 'Criar deliberacao' }));
+    await user.click(within(form).getByRole('button', { name: 'Criar deliberação' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
     const [url, body] = mockPost.mock.calls[0];
@@ -409,7 +409,7 @@ describe('Deliberacoes', () => {
     });
   });
 
-  it('a apuracao vem da rota de resultados, e nao dos contadores da votacao', async () => {
+  it('a apuração vem da rota de resultados, e não dos contadores da votação', async () => {
     world = serveAssemblies({
       assemblies: [makeAssembly()],
       polls: [makePoll({ status: 'CLOSED' })],
@@ -418,13 +418,13 @@ describe('Deliberacoes', () => {
     renderWithProviders(<AssembliesPage />);
 
     await findRows();
-    clickTrigger(screen.getByRole('button', { name: `Deliberacoes de ${TITLE}` }));
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
 
     const dialog = await screen.findByRole('dialog');
-    await within(dialog).findByText('Aprovacao das contas de 2025');
+    await within(dialog).findByText('Aprovação das contas de 2025');
 
     clickTrigger(
-      within(dialog).getByRole('button', { name: 'Ver apuracao de Aprovacao das contas de 2025' }),
+      within(dialog).getByRole('button', { name: 'Ver apuração de Aprovação das contas de 2025' }),
     );
 
     expect(await within(dialog).findByText('30 de 48 unidades')).toBeInTheDocument();
@@ -433,7 +433,7 @@ describe('Deliberacoes', () => {
     expect(allReadRequests().some((request) => request.url === '/polls/poll-1/results')).toBe(true);
   });
 
-  it('apurar chama a rota de encerramento da votacao', async () => {
+  it('apurar chama a rota de encerramento da votação', async () => {
     world = serveAssemblies({
       assemblies: [makeAssembly()],
       polls: [makePoll({ status: 'OPEN' })],
@@ -442,31 +442,31 @@ describe('Deliberacoes', () => {
     renderWithProviders(<AssembliesPage />);
 
     await findRows();
-    clickTrigger(screen.getByRole('button', { name: `Deliberacoes de ${TITLE}` }));
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
 
     const dialog = await screen.findByRole('dialog');
-    await within(dialog).findByText('Aprovacao das contas de 2025');
+    await within(dialog).findByText('Aprovação das contas de 2025');
 
     clickTrigger(
-      within(dialog).getByRole('button', { name: 'Apurar Aprovacao das contas de 2025' }),
+      within(dialog).getByRole('button', { name: 'Apurar Aprovação das contas de 2025' }),
     );
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/polls/poll-1/close', {}));
   });
 
-  it('editar uma deliberacao nao envia as alternativas', async () => {
+  it('editar uma deliberação não envia as alternativas', async () => {
     world = serveAssemblies({ assemblies: [makeAssembly()], polls: [makePoll()] });
     const user = createUser();
     mockPatch.mockImplementation(async () => makePoll({ title: 'Pergunta corrigida' }) as never);
     renderWithProviders(<AssembliesPage />);
 
     await findRows();
-    clickTrigger(screen.getByRole('button', { name: `Deliberacoes de ${TITLE}` }));
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
 
     const dialog = await screen.findByRole('dialog');
-    await within(dialog).findByText('Aprovacao das contas de 2025');
+    await within(dialog).findByText('Aprovação das contas de 2025');
     clickTrigger(
-      within(dialog).getByRole('button', { name: 'Editar Aprovacao das contas de 2025' }),
+      within(dialog).getByRole('button', { name: 'Editar Aprovação das contas de 2025' }),
     );
 
     const form = await waitFor(() => {
@@ -478,7 +478,7 @@ describe('Deliberacoes', () => {
     // O servidor omite `options` no PATCH de proposito: mudar as alternativas de
     // uma votacao que ja recebeu votos invalidaria a apuracao.
     expect(within(form).queryByLabelText('Alternativa 1')).not.toBeInTheDocument();
-    expect(within(form).getByText(/alternativas nao podem ser alteradas/i)).toBeInTheDocument();
+    expect(within(form).getByText(/alternativas não podem ser alteradas/i)).toBeInTheDocument();
 
     const question = within(form).getByLabelText('Pergunta');
     await user.clear(question);
@@ -493,8 +493,8 @@ describe('Deliberacoes', () => {
   });
 });
 
-describe('Exclusao, restauracao e permissoes', () => {
-  it('excluir pede confirmacao antes de remover', async () => {
+describe('Exclusao, restauração e permissões', () => {
+  it('excluir pede confirmação antes de remover', async () => {
     world = serveAssemblies({ assemblies: [makeAssembly()] });
     mockDelete.mockImplementation(async () => {
       world.assemblies = [];
@@ -524,7 +524,7 @@ describe('Exclusao, restauracao e permissoes', () => {
     expect(screen.queryByRole('button', { name: `Iniciar ${TITLE}` })).not.toBeInTheDocument();
   });
 
-  it('papel sem escrita nao alcanca nenhuma acao de ciclo', async () => {
+  it('papel sem escrita não alcança nenhuma ação de ciclo', async () => {
     world = serveAssemblies({ assemblies: [makeAssembly()], polls: [makePoll()] });
     renderWithProviders(<AssembliesPage />, { permissions: READ_ONLY });
 
@@ -535,7 +535,7 @@ describe('Exclusao, restauracao e permissoes', () => {
     expect(screen.queryByRole('button', { name: `Encerrar ${TITLE}` })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: `Excluir ${TITLE}` })).not.toBeInTheDocument();
     // Ler as deliberacoes continua: `poll:read` esta no papel.
-    expect(screen.getByRole('button', { name: `Deliberacoes de ${TITLE}` })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: `Deliberações de ${TITLE}` })).toBeInTheDocument();
   });
 
   it('sem poll:read, o painel de deliberacoes nao e oferecido', async () => {
@@ -545,7 +545,7 @@ describe('Exclusao, restauracao e permissoes', () => {
     await findRows();
 
     expect(
-      screen.queryByRole('button', { name: `Deliberacoes de ${TITLE}` }),
+      screen.queryByRole('button', { name: `Deliberações de ${TITLE}` }),
     ).not.toBeInTheDocument();
     // As acoes de assembleia seguem disponiveis: `assembly:manage` as cobre.
     expect(screen.getByRole('button', { name: `Iniciar ${TITLE}` })).toBeInTheDocument();

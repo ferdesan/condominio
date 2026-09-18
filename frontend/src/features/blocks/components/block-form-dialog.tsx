@@ -146,7 +146,7 @@ export function BlockFormDialog({
 
             {/*
               Andares e unidades por andar descrevem a mesma geometria que a
-              geracao em lote usa, e e de la que ela tira seus padroes (ADR-007).
+              geração em lote usa, e e de la que ela tira seus padrões (ADR-007).
             */}
             <FormField
               id="block-floors"
@@ -167,7 +167,7 @@ export function BlockFormDialog({
             </FormField>
           </div>
 
-          <FormField id="block-description" label="Descricao" error={errors.description?.message}>
+          <FormField id="block-description" label="Descrição" error={errors.description?.message}>
             {(aria) => <Textarea maxLength={255} rows={2} {...aria} {...register('description')} />}
           </FormField>
 

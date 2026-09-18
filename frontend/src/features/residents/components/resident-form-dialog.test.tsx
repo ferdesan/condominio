@@ -87,7 +87,7 @@ function UnitsProbe() {
     queryKey: ['units', 'probe'],
     queryFn: () => apiGetPaginated<Unit>('/units', { params: { perPage: 200 } }),
   });
-  return <p>Ocupacao: {data?.data[0]?.status ?? 'carregando'}</p>;
+  return <p>Ocupação: {data?.data[0]?.status ?? 'carregando'}</p>;
 }
 
 beforeEach(() => {
@@ -113,7 +113,7 @@ describe('Cadastro de morador', () => {
     );
 
     await screen.findByText('Nenhum morador cadastrado');
-    expect(await screen.findByText('Ocupacao: VACANT')).toBeInTheDocument();
+    expect(await screen.findByText('Ocupação: VACANT')).toBeInTheDocument();
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Lima');
@@ -134,14 +134,14 @@ describe('Cadastro de morador', () => {
     });
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(await screen.findByText('Bruno Lima')).toBeInTheDocument();
-    expect(await screen.findByText('Ocupacao: OCCUPIED')).toBeInTheDocument();
+    expect(await screen.findByText('Ocupação: OCCUPIED')).toBeInTheDocument();
   });
 
-  it('IT-092: digito verificador invalido aparece no formulario e preserva o que foi digitado', async () => {
+  it('IT-092: digito verificador inválido aparece no formulário e preserva o que foi digitado', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('CPF informado e invalido.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('CPF informado e inválido.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<ResidentsPage />);
 
@@ -153,7 +153,7 @@ describe('Cadastro de morador', () => {
     selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
-    expect(await screen.findByText('CPF informado e invalido.')).toBeInTheDocument();
+    expect(await screen.findByText('CPF informado e inválido.')).toBeInTheDocument();
     // O dialogo fica, com os valores no lugar, para a correcao.
     expect(within(dialog()).getByLabelText('Nome')).toHaveValue('Bruno Lima');
     expect(within(dialog()).getByLabelText('CPF')).toHaveValue('12345678900');
@@ -161,11 +161,11 @@ describe('Cadastro de morador', () => {
     expect(screen.queryByText(/restaure o registro/i)).not.toBeInTheDocument();
   });
 
-  it('IT-093: CPF ja cadastrado aparece com a mensagem do servidor e o caminho da restauracao', async () => {
+  it('IT-093: CPF já cadastrado aparece com a mensagem do servidor e o caminho da restauração', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Ja existe um morador cadastrado com este CPF.', 409, 'CONFLICT'),
+      new ApiError('Já existe um morador cadastrado com este CPF.', 409, 'CONFLICT'),
     );
     renderWithProviders(<ResidentsPage />);
 
@@ -177,13 +177,13 @@ describe('Cadastro de morador', () => {
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     expect(
-      await screen.findByText('Ja existe um morador cadastrado com este CPF.'),
+      await screen.findByText('Já existe um morador cadastrado com este CPF.'),
     ).toBeInTheDocument();
     // A recusa por conflito e a unica das duas que tem remedio proprio.
     expect(screen.getByText(/restaure o registro/i)).toBeInTheDocument();
   });
 
-  it('IT-094: o seletor oferece apenas unidades do condominio selecionado', async () => {
+  it('IT-094: o seletor oferece apenas unidades do condomínio selecionado', async () => {
     serve(
       [],
       [makeUnit({ id: 'unit-1', number: '101' }), makeUnit({ id: 'unit-2', number: '102' })],
@@ -206,7 +206,7 @@ describe('Cadastro de morador', () => {
     expect(options).toEqual(['Torre A - 101', 'Torre A - 102']);
   });
 
-  it('IT-095: um nome de dois caracteres e recusado na propria tela', async () => {
+  it('IT-095: um nome de dois caracteres e recusado na própria tela', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<ResidentsPage />);
@@ -246,7 +246,7 @@ describe('Cadastro de morador', () => {
     expect(screen.queryByText(/consentimento|lgpd/i)).not.toBeInTheDocument();
   });
 
-  it('IT-097: saida anterior a entrada e recusada no campo de saida', async () => {
+  it('IT-097: saída anterior a entrada e recusada no campo de saída', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<ResidentsPage />);
@@ -256,11 +256,11 @@ describe('Cadastro de morador', () => {
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Lima');
     await user.type(within(dialog()).getByLabelText('Entrada'), '2026-03-10');
-    await user.type(within(dialog()).getByLabelText('Saida'), '2026-03-09');
+    await user.type(within(dialog()).getByLabelText('Saída'), '2026-03-09');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     const message = await screen.findByText(
-      'A data de saida nao pode ser anterior a data de entrada.',
+      'A data de saída não pode ser anterior a data de entrada.',
     );
     expect(message).toBeInTheDocument();
     // A objecao pertence ao campo de saida, e nao ao formulario inteiro.
@@ -268,7 +268,7 @@ describe('Cadastro de morador', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('IT-098: data de nascimento no futuro e recusada na propria tela', async () => {
+  it('IT-098: data de nascimento no futuro e recusada na própria tela', async () => {
     serve([]);
     const user = createUser();
     const future = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -281,12 +281,12 @@ describe('Cadastro de morador', () => {
     await user.type(within(dialog()).getByLabelText('Data de nascimento'), future);
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
-    const message = await screen.findByText('A data de nascimento nao pode estar no futuro.');
+    const message = await screen.findByText('A data de nascimento não pode estar no futuro.');
     expect(message).toHaveAttribute('id', 'birthDate-error');
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('IT-099: dois envios em sequencia produzem um unico POST', async () => {
+  it('IT-099: dois envios em sequência produzem um único POST', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -308,7 +308,7 @@ describe('Cadastro de morador', () => {
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
   });
 
-  it('IT-100: condominio sem unidades explica que a unidade vem primeiro', async () => {
+  it('IT-100: condomínio sem unidades explica que a unidade vem primeiro', async () => {
     serve([], []);
     renderWithProviders(<ResidentsPage />);
 
@@ -322,8 +322,8 @@ describe('Cadastro de morador', () => {
   });
 });
 
-describe('Edicao de morador', () => {
-  it('IT-101: editar a unidade e o status emite um unico PATCH e a linha reflete', async () => {
+describe('Edição de morador', () => {
+  it('IT-101: editar a unidade e o status emite um único PATCH e a linha reflete', async () => {
     serve(
       [makeResident()],
       [makeUnit({ id: 'unit-1', number: '101' }), makeUnit({ id: 'unit-2', number: '102' })],
@@ -356,7 +356,7 @@ describe('Edicao de morador', () => {
     expect(await screen.findByText('Torre A - 102')).toBeInTheDocument();
   });
 
-  it('IT-102: mudar o ultimo morador ativo para mudou-se deixa a unidade vaga', async () => {
+  it('IT-102: mudar o último morador ativo para mudou-se deixa a unidade vaga', async () => {
     serve([makeResident()], [makeUnit({ status: 'OCCUPIED' })]);
     const user = createUser();
     mockPatch.mockImplementation(async () => {
@@ -373,24 +373,24 @@ describe('Edicao de morador', () => {
     );
 
     await screen.findByText('Carlos Pereira');
-    expect(await screen.findByText('Ocupacao: OCCUPIED')).toBeInTheDocument();
+    expect(await screen.findByText('Ocupação: OCCUPIED')).toBeInTheDocument();
 
     await openEditDialog('Carlos Pereira');
-    await user.type(within(dialog()).getByLabelText('Saida'), '2026-03-20');
+    await user.type(within(dialog()).getByLabelText('Saída'), '2026-03-20');
     selectOption(within(dialog()).getByLabelText('Status'), 'Mudou-se');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(1));
     expect(lastUpdateBody()).toMatchObject({ status: 'MOVED_OUT', moveOutDate: '2026-03-20' });
-    expect(await screen.findByText('Ocupacao: VACANT')).toBeInTheDocument();
+    expect(await screen.findByText('Ocupação: VACANT')).toBeInTheDocument();
   });
 
-  it('IT-103: unidade de outro condominio e recusada com a mensagem do servidor', async () => {
+  it('IT-103: unidade de outro condomínio e recusada com a mensagem do servidor', async () => {
     serve([makeResident()]);
     const user = createUser();
     mockPatch.mockRejectedValue(
       new ApiError(
-        'A unidade informada pertence a outro condominio.',
+        'A unidade informada pertence a outro condomínio.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -405,16 +405,16 @@ describe('Edicao de morador', () => {
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
     expect(
-      await screen.findByText('A unidade informada pertence a outro condominio.'),
+      await screen.findByText('A unidade informada pertence a outro condomínio.'),
     ).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
-  it('IT-104: conflito de CPF na edicao mantem o dialogo aberto', async () => {
+  it('IT-104: conflito de CPF na edição mantem o dialogo aberto', async () => {
     serve([makeResident()]);
     const user = createUser();
     mockPatch.mockRejectedValue(
-      new ApiError('Ja existe um morador cadastrado com este CPF.', 409, 'CONFLICT'),
+      new ApiError('Já existe um morador cadastrado com este CPF.', 409, 'CONFLICT'),
     );
     renderWithProviders(<ResidentsPage />);
 
@@ -426,18 +426,18 @@ describe('Edicao de morador', () => {
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
     expect(
-      await screen.findByText('Ja existe um morador cadastrado com este CPF.'),
+      await screen.findByText('Já existe um morador cadastrado com este CPF.'),
     ).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(within(dialog()).getByLabelText('CPF')).toHaveValue('98765432100');
   });
 
-  it('IT-105: um 404 na edicao fecha o dialogo e recarrega a lista', async () => {
+  it('IT-105: um 404 na edição fecha o dialogo e recarrega a lista', async () => {
     serve([makeResident()]);
     const user = createUser();
     mockPatch.mockImplementation(async () => {
       world.residents = [];
-      throw new ApiError('Morador nao encontrado.', 404, 'NOT_FOUND');
+      throw new ApiError('Morador não encontrado.', 404, 'NOT_FOUND');
     });
     renderWithProviders(<ResidentsPage />);
 
@@ -452,7 +452,7 @@ describe('Edicao de morador', () => {
     expect(await screen.findByText('Nenhum morador cadastrado')).toBeInTheDocument();
   });
 
-  it('IT-106: limpar a saida de quem consta como mudado levanta a inconsistencia', async () => {
+  it('IT-106: limpar a saída de quem consta como mudado levanta a inconsistência', async () => {
     serve([makeResident({ status: 'MOVED_OUT', moveOutDate: '2026-03-20' })]);
     const user = createUser();
     renderWithProviders(<ResidentsPage />);
@@ -460,12 +460,12 @@ describe('Edicao de morador', () => {
     await screen.findByText('Carlos Pereira');
     await openEditDialog('Carlos Pereira');
 
-    expect(within(dialog()).getByLabelText('Saida')).toHaveValue('2026-03-20');
-    await user.clear(within(dialog()).getByLabelText('Saida'));
+    expect(within(dialog()).getByLabelText('Saída')).toHaveValue('2026-03-20');
+    await user.clear(within(dialog()).getByLabelText('Saída'));
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
     const message = await screen.findByText(
-      'Informe a data de saida de um morador que consta como mudado.',
+      'Informe a data de saída de um morador que consta como mudado.',
     );
     expect(message).toHaveAttribute('id', 'moveOutDate-error');
     expect(mockPatch).not.toHaveBeenCalled();

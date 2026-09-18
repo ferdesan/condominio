@@ -128,7 +128,7 @@ export function VisitorFormDialog({
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar visitante' : 'Novo visitante'}</DialogTitle>
             <DialogDescription>
-              Quem chega, para qual unidade e o periodo previsto da visita.
+              Quem chega, para qual unidade e o período previsto da visita.
             </DialogDescription>
           </DialogHeader>
 
@@ -184,7 +184,7 @@ export function VisitorFormDialog({
                     id="status"
                     label="Status"
                     error={fieldState.error?.message}
-                    description="Previsto gera o codigo de acesso da portaria."
+                    description="Previsto gera o código de acesso da portaria."
                   >
                     {(aria) => (
                       <Select value={field.value} onValueChange={field.onChange}>
@@ -218,7 +218,7 @@ export function VisitorFormDialog({
                     id="unitId"
                     label="Unidade"
                     error={fieldState.error?.message}
-                    description="Apenas unidades do condominio selecionado."
+                    description="Apenas unidades do condomínio selecionado."
                   >
                     {(aria) => (
                       <Select value={field.value} onValueChange={field.onChange}>
@@ -260,7 +260,7 @@ export function VisitorFormDialog({
                 render={({ field, fieldState }) => (
                   <FormField
                     id="expectedUntil"
-                    label="Previsto ate"
+                    label="Previsto até"
                     error={fieldState.error?.message}
                   >
                     {(aria) => (
@@ -290,7 +290,7 @@ export function VisitorFormDialog({
               </FormField>
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -317,8 +317,8 @@ export function VisitorFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

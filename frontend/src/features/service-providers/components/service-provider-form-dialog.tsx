@@ -133,14 +133,14 @@ export function ServiceProviderFormDialog({
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar prestador' : 'Novo prestador'}</DialogTitle>
             <DialogDescription>
-              Identificacao, servico prestado, contato e vigencia do contrato.
+              Identificação, serviço prestado, contato e vigência do contrato.
             </DialogDescription>
           </DialogHeader>
 
           <CondominiumScopeNotice condominiumId={condominiumId} />
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
-            <FormSection title="Identificacao">
+            <FormSection title="Identificação">
               <FormField
                 id="companyName"
                 label="Razao social"
@@ -155,9 +155,9 @@ export function ServiceProviderFormDialog({
               </FormField>
 
               {/*
-                O unico campo do cadastro que aceita dois formatos: prestador
-                pessoa fisica entra com CPF, empresa com CNPJ, e a validacao
-                cobre os dois — como a formatacao na listagem.
+                O único campo do cadastro que aceita dois formatos: prestador
+                pessoa fisica entra com CPF, empresa com CNPJ, e a validação
+                cobre os dois — como a formatação na listagem.
               */}
               <FormField
                 id="document"
@@ -169,10 +169,10 @@ export function ServiceProviderFormDialog({
               </FormField>
             </FormSection>
 
-            <FormSection title="Servico">
+            <FormSection title="Serviço">
               <FormField
                 id="serviceType"
-                label="Tipo de servico"
+                label="Tipo de serviço"
                 error={errors.serviceType?.message}
               >
                 {(aria) => <Input {...aria} {...register('serviceType')} />}
@@ -204,7 +204,7 @@ export function ServiceProviderFormDialog({
               {/* A previa ao lado do campo diz de quanto e a nota; o numero sozinho nao. */}
               <FormField
                 id="rating"
-                label="Avaliacao"
+                label="Avaliação"
                 error={errors.rating?.message}
                 description="De 1 (ruim) a 5 (excelente)."
               >
@@ -259,16 +259,16 @@ export function ServiceProviderFormDialog({
               um dia em fusos negativos.
             */}
             <FormSection title="Contrato">
-              <FormField id="contractStart" label="Inicio" error={errors.contractStart?.message}>
+              <FormField id="contractStart" label="Início" error={errors.contractStart?.message}>
                 {(aria) => <Input type="date" {...aria} {...register('contractStart')} />}
               </FormField>
 
-              <FormField id="contractEnd" label="Termino" error={errors.contractEnd?.message}>
+              <FormField id="contractEnd" label="Término" error={errors.contractEnd?.message}>
                 {(aria) => <Input type="date" {...aria} {...register('contractEnd')} />}
               </FormField>
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -295,8 +295,8 @@ export function ServiceProviderFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

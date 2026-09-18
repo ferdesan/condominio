@@ -34,9 +34,9 @@ const commonAreaFields = z.object({
   name: z
     .string()
     .trim()
-    .min(2, 'Informe o nome da area comum.')
-    .max(120, 'Use no maximo 120 caracteres.'),
-  description: z.string().trim().max(2000, 'Use no maximo 2000 caracteres.'),
+    .min(2, 'Informe o nome da área comum.')
+    .max(120, 'Use no máximo 120 caracteres.'),
+  description: z.string().trim().max(2000, 'Use no máximo 2000 caracteres.'),
   status: z.enum(COMMON_AREA_STATUSES),
   capacity: intInRange(0, 10000, 'A capacidade deve estar entre 0 e 10000.'),
   photoUrl: z
@@ -44,7 +44,7 @@ const commonAreaFields = z.object({
     .trim()
     .refine(
       (value) => value === '' || z.string().url().safeParse(value).success,
-      'Informe uma URL valida.',
+      'Informe uma URL válida.',
     ),
 
   opensAt: z.string().regex(TIME_PATTERN, 'Horario invalido. Use o formato HH:mm.'),
@@ -58,18 +58,18 @@ const commonAreaFields = z.object({
   allWeekdays: z.boolean(),
   weekdays: z.array(z.number().int().min(0).max(6)),
 
-  minHours: intInRange(1, 24, 'A duracao minima deve estar entre 1 e 24 horas.'),
-  maxHours: intInRange(1, 24, 'A duracao maxima deve estar entre 1 e 24 horas.'),
-  advanceBookingDays: intInRange(0, 365, 'A antecedencia deve estar entre 0 e 365 dias.'),
-  minIntervalDays: intInRange(0, 365, 'O intervalo minimo deve estar entre 0 e 365 dias.'),
+  minHours: intInRange(1, 24, 'A duração mínima deve estar entre 1 e 24 horas.'),
+  maxHours: intInRange(1, 24, 'A duração máxima deve estar entre 1 e 24 horas.'),
+  advanceBookingDays: intInRange(0, 365, 'A antecedência deve estar entre 0 e 365 dias.'),
+  minIntervalDays: intInRange(0, 365, 'O intervalo mínimo deve estar entre 0 e 365 dias.'),
   requiresApproval: z.boolean(),
 
   reservationFee: z
-    .number({ invalid_type_error: 'Informe um valor valido.' })
-    .min(0, 'A taxa nao pode ser negativa.')
-    .max(999999, 'A taxa deve ser no maximo 999999.'),
+    .number({ invalid_type_error: 'Informe um valor válido.' })
+    .min(0, 'A taxa não pode ser negativa.')
+    .max(999999, 'A taxa deve ser no máximo 999999.'),
 
-  rules: z.string().trim().max(5000, 'Use no maximo 5000 caracteres.'),
+  rules: z.string().trim().max(5000, 'Use no máximo 5000 caracteres.'),
 });
 
 /**
@@ -83,7 +83,7 @@ export const commonAreaSchema = commonAreaFields.superRefine((values, ctx) => {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['closesAt'],
-        message: 'O horario de fechamento deve ser posterior ao de abertura.',
+        message: 'O horário de fechamento deve ser posterior ao de abertura.',
       });
     }
   }
@@ -94,7 +94,7 @@ export const commonAreaSchema = commonAreaFields.superRefine((values, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['maxHours'],
-      message: 'A duracao maxima deve ser maior ou igual a minima.',
+      message: 'A duração máxima deve ser maior ou igual a mínima.',
     });
   }
 });
@@ -130,8 +130,8 @@ export const COMMON_AREA_FORM_DEFAULTS: CommonAreaFormValues = {
 };
 
 export const COMMON_AREA_STATUS_LABELS: Record<CommonArea['status'], string> = {
-  AVAILABLE: 'Disponivel',
-  MAINTENANCE: 'Em manutencao',
+  AVAILABLE: 'Disponível',
+  MAINTENANCE: 'Em manutenção',
   BLOCKED: 'Bloqueada',
 };
 
@@ -139,11 +139,11 @@ export const COMMON_AREA_STATUS_LABELS: Record<CommonArea['status'], string> = {
 export const WEEKDAYS: ReadonlyArray<{ value: number; label: string; short: string }> = [
   { value: 0, label: 'Domingo', short: 'Dom' },
   { value: 1, label: 'Segunda-feira', short: 'Seg' },
-  { value: 2, label: 'Terca-feira', short: 'Ter' },
+  { value: 2, label: 'Terça-feira', short: 'Ter' },
   { value: 3, label: 'Quarta-feira', short: 'Qua' },
   { value: 4, label: 'Quinta-feira', short: 'Qui' },
   { value: 5, label: 'Sexta-feira', short: 'Sex' },
-  { value: 6, label: 'Sabado', short: 'Sab' },
+  { value: 6, label: 'Sábado', short: 'Sab' },
 ];
 
 /** Corpo aceito por `POST /common-areas`; a atualizacao e o parcial dele. */

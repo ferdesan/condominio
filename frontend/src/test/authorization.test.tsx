@@ -55,9 +55,9 @@ beforeEach(() => {
   serveAll({ condominiums: [AURORA] });
 });
 
-describe('Recusa do servidor a uma acao oferecida', () => {
-  it('IT-178: um 403 numa acao oferecida aparece, em vez de falhar em silencio', async () => {
-    const message = 'Voce nao tem permissao para excluir este condominio.';
+describe('Recusa do servidor a uma ação oferecida', () => {
+  it('IT-178: um 403 numa ação oferecida aparece, em vez de falhar em silencio', async () => {
+    const message = 'Você não tem permissao para excluir este condomínio.';
     mockDelete.mockRejectedValue(new ApiError(message, 403, 'FORBIDDEN'));
 
     renderWithProviders(<CondominiumsPage />, { permissions: ['condominium:manage'] });
@@ -71,10 +71,10 @@ describe('Recusa do servidor a uma acao oferecida', () => {
     expect(screen.getByText('Residencial Aurora')).toBeInTheDocument();
   });
 
-  it('IT-178: a recusa leva a mensagem do servidor, e nao uma generica', async () => {
+  it('IT-178: a recusa leva a mensagem do servidor, e não uma generica', async () => {
     // Um 409 chega pelo mesmo caminho e e onde a mensagem do servidor mais
     // importa: so ela diz por que a exclusao foi barrada.
-    const message = 'O condominio possui unidades ativas e nao pode ser excluido.';
+    const message = 'O condomínio possui unidades ativas e não pode ser excluido.';
     mockDelete.mockRejectedValue(new ApiError(message, 409, 'CONFLICT'));
 
     renderWithProviders(<CondominiumsPage />, { permissions: ['condominium:manage'] });
@@ -84,7 +84,7 @@ describe('Recusa do servidor a uma acao oferecida', () => {
   });
 });
 
-describe('Sessao expirada no meio de uma acao', () => {
+describe('Sessão expirada no meio de uma ação', () => {
   /**
    * A app de verdade nesta parte: o `AuthProvider` real escuta o evento que o
    * interceptor dispara, e e o guarda de rota que decide para onde ir. Um duble
@@ -117,7 +117,7 @@ describe('Sessao expirada no meio de uma acao', () => {
     );
   }
 
-  it('IT-179: um 401 no meio da acao leva ao login sem toast de erro', async () => {
+  it('IT-179: um 401 no meio da ação leva ao login sem toast de erro', async () => {
     tokenStorage.set('access', 'refresh');
     mockGet.mockImplementation(async (url) => {
       if (url === '/auth/me') {
@@ -130,7 +130,7 @@ describe('Sessao expirada no meio de uma acao', () => {
     // sessao perdida e devolve o 401 a quem pediu (`lib/api.ts`).
     mockDelete.mockImplementation(async () => {
       window.dispatchEvent(new CustomEvent('auth:session-expired'));
-      throw new ApiError('Nao autenticado.', 401, 'UNAUTHORIZED');
+      throw new ApiError('Não autenticado.', 401, 'UNAUTHORIZED');
     });
 
     render(<SessionApp />);
@@ -169,14 +169,14 @@ describe('Registro fora do escopo por link direto', () => {
     expect(screen.queryByText('Residencial Aurora')).not.toBeInTheDocument();
   });
 
-  it('IT-181: um 404 no link direto rende o nao encontrado, com volta para a lista', async () => {
+  it('IT-181: um 404 no link direto rende o não encontrado, com volta para a lista', async () => {
     // Para quem chegou pelo link, o registro inexistente e o removido sao a
     // mesma coisa — e nenhum dos dois pode renderizar dado pela metade.
-    mockGet.mockRejectedValue(new ApiError('Registro nao encontrado.', 404, 'NOT_FOUND'));
+    mockGet.mockRejectedValue(new ApiError('Registro não encontrado.', 404, 'NOT_FOUND'));
 
     renderDetail('cond-inexistente');
 
-    expect(await screen.findByText('Condominio nao encontrado')).toBeInTheDocument();
+    expect(await screen.findByText('Condomínio não encontrado')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Voltar para a listagem' })).toBeInTheDocument();
     expect(screen.queryByText('Residencial Aurora')).not.toBeInTheDocument();
   });

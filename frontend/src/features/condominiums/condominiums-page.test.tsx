@@ -42,7 +42,7 @@ function makeRecords(count: number, offset = 0): Condominium[] {
     const position = offset + index + 1;
     return makeCondominium({
       id: `cond-${position}`,
-      name: `Condominio ${String(position).padStart(2, '0')}`,
+      name: `Condomínio ${String(position).padStart(2, '0')}`,
       document: String(10000000000000 + position),
     });
   });
@@ -115,41 +115,41 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Listagem de condominios', () => {
-  it('IT-001: percorre busca, ordenacao e paginacao preservando os parametros', async () => {
+describe('Listagem de condomínios', () => {
+  it('IT-001: percorre busca, ordenação e paginação preservando os parametros', async () => {
     serveTwoPages();
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
 
-    await screen.findByText('Condominio 01');
+    await screen.findByText('Condomínio 01');
     expect(dataRows()).toHaveLength(20);
 
-    await user.type(screen.getByLabelText('Buscar'), 'Condominio');
-    await waitFor(() => expect(lastListParams().search).toBe('Condominio'));
+    await user.type(screen.getByLabelText('Buscar'), 'Condomínio');
+    await waitFor(() => expect(lastListParams().search).toBe('Condomínio'));
 
     clickTrigger(screen.getByRole('button', { name: 'Nome' }));
     await waitFor(() => expect(lastListParams().sortBy).toBe('name'));
     expect(lastListParams().sortOrder).toBe('ASC');
 
     clickTrigger(screen.getByRole('button', { name: 'Próxima página' }));
-    await screen.findByText('Condominio 21');
+    await screen.findByText('Condomínio 21');
 
     expect(lastListParams()).toMatchObject({
       page: 2,
       perPage: 20,
-      search: 'Condominio',
+      search: 'Condomínio',
       sortBy: 'name',
       sortOrder: 'ASC',
     });
-    expect(screen.queryByText('Condominio 01')).not.toBeInTheDocument();
+    expect(screen.queryByText('Condomínio 01')).not.toBeInTheDocument();
   });
 
   it('IT-002: lista vazia oferece o cadastro do primeiro registro', async () => {
     serveOnce([]);
     renderWithProviders(<CondominiumsPage />);
 
-    expect(await screen.findByText('Nenhum condominio cadastrado')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cadastrar condominio' })).toBeInTheDocument();
+    expect(await screen.findByText('Nenhum condomínio cadastrado')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cadastrar condomínio' })).toBeInTheDocument();
     expect(screen.queryByText('Nenhum resultado para esta busca')).not.toBeInTheDocument();
   });
 
@@ -164,10 +164,10 @@ describe('Listagem de condominios', () => {
 
     expect(await screen.findByText('Nenhum resultado para esta busca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeInTheDocument();
-    expect(screen.queryByText('Nenhum condominio cadastrado')).not.toBeInTheDocument();
+    expect(screen.queryByText('Nenhum condomínio cadastrado')).not.toBeInTheDocument();
   });
 
-  it('IT-004: cinco teclas produzem uma requisicao, nao cinco', async () => {
+  it('IT-004: cinco teclas produzem uma requisição, não cinco', async () => {
     serveOnce([makeCondominium()]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
@@ -181,14 +181,14 @@ describe('Listagem de condominios', () => {
     expect(mockGetPaginated).toHaveBeenCalledTimes(2);
   });
 
-  it('IT-005: coluna fora do conjunto ordenavel do servidor nao vira controle', async () => {
+  it('IT-005: coluna fora do conjunto ordenável do servidor não vira controle', async () => {
     serveOnce([makeCondominium()]);
     renderWithProviders(<CondominiumsPage />);
     await screen.findByText('Residencial Aurora');
 
     // `syndicName` nao esta na whitelist: o cabecalho existe, o botao nao.
-    expect(screen.getByRole('columnheader', { name: 'Sindico' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Sindico' })).not.toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Síndico' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Síndico' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Nome' })).toBeInTheDocument();
   });
 
@@ -196,12 +196,12 @@ describe('Listagem de condominios', () => {
     serveTwoPages();
     renderWithProviders(<CondominiumsPage />);
 
-    await screen.findByText('Condominio 01');
+    await screen.findByText('Condomínio 01');
     expect(dataRows()).toHaveLength(20);
-    expect(screen.getByText('Condominio 20')).toBeInTheDocument();
+    expect(screen.getByText('Condomínio 20')).toBeInTheDocument();
   });
 
-  it('IT-007: pagina alem da ultima volta para a ultima valida', async () => {
+  it('IT-007: pagina alem da última volta para a última válida', async () => {
     // A primeira pagina ainda anuncia duas; ao pedir a segunda, o servidor revela
     // que so resta uma. A tela precisa recuar em vez de renderizar vazio.
     mockGetPaginated.mockImplementation(async (_url, config) => {
@@ -215,18 +215,18 @@ describe('Listagem de condominios', () => {
       return { data: [], meta: makeMeta({ page: 2, perPage: 20, total: 20, totalPages: 1 }) };
     });
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Condominio 01');
+    await screen.findByText('Condomínio 01');
 
     clickTrigger(screen.getByRole('button', { name: 'Próxima página' }));
     await waitFor(() => expect(lastListParams().page).toBe(2));
 
     await waitFor(() => expect(screen.getByText(/Página 1 de/)).toBeInTheDocument());
-    expect(screen.getByText('Condominio 01')).toBeInTheDocument();
+    expect(screen.getByText('Condomínio 01')).toBeInTheDocument();
     expect(screen.queryByText('Nenhum resultado para esta busca')).not.toBeInTheDocument();
   });
 
-  it('IT-008: 401 na listagem nao levanta toast', async () => {
-    mockGetPaginated.mockRejectedValue(new ApiError('Sessao expirada.', 401, 'UNAUTHORIZED'));
+  it('IT-008: 401 na listagem não levanta toast', async () => {
+    mockGetPaginated.mockRejectedValue(new ApiError('Sessão expirada.', 401, 'UNAUTHORIZED'));
     renderWithProviders(<CondominiumsPage />);
 
     await waitFor(() => expect(mockGetPaginated).toHaveBeenCalled());
@@ -245,7 +245,7 @@ describe('Listagem de condominios', () => {
 });
 
 describe('Fronteira com a camada de dados', () => {
-  it('IT-207: um cadastro atualiza a lista ja renderizada sem refetch manual', async () => {
+  it('IT-207: um cadastro atualiza a lista já renderizada sem refetch manual', async () => {
     serveOnce([makeCondominium()]);
     const user = createUser();
     renderWithProviders(<CondominiumsPage />);
@@ -257,7 +257,7 @@ describe('Fronteira com a camada de dados', () => {
     // a tela refaz a consulta sozinha apos a mutacao.
     serveOnce([makeCondominium(), created]);
 
-    clickTrigger(screen.getByRole('button', { name: 'Novo condominio' }));
+    clickTrigger(screen.getByRole('button', { name: 'Novo condomínio' }));
     await user.type(await screen.findByLabelText('Nome'), 'Residencial Bosque');
     clickTrigger(screen.getByRole('button', { name: 'Cadastrar' }));
 
@@ -287,7 +287,7 @@ describe('Fronteira com a camada de dados', () => {
     mockPost.mockResolvedValue(created);
     serveSelectorAndList([existing, created], [existing, created]);
 
-    clickTrigger(screen.getByRole('button', { name: 'Novo condominio' }));
+    clickTrigger(screen.getByRole('button', { name: 'Novo condomínio' }));
     await user.type(await screen.findByLabelText('Nome'), 'Residencial Bosque');
     clickTrigger(screen.getByRole('button', { name: 'Cadastrar' }));
 
@@ -300,16 +300,16 @@ describe('Fronteira com a camada de dados', () => {
     expect(within(table).getByText('Residencial Bosque')).toBeInTheDocument();
   });
 
-  it('IT-209: a tabela pede a proxima pagina com o mesmo tamanho e ordena em caixa alta', async () => {
+  it('IT-209: a tabela pede a próxima pagina com o mesmo tamanho e ordena em caixa alta', async () => {
     serveTwoPages();
     renderWithProviders(<CondominiumsPage />);
-    await screen.findByText('Condominio 01');
+    await screen.findByText('Condomínio 01');
 
     expect(dataRows()).toHaveLength(20);
     expect(lastListParams()).toMatchObject({ page: 1, perPage: 20 });
 
     clickTrigger(screen.getByRole('button', { name: 'Próxima página' }));
-    await screen.findByText('Condominio 21');
+    await screen.findByText('Condomínio 21');
     expect(lastListParams()).toMatchObject({ page: 2, perPage: 20 });
 
     clickTrigger(screen.getByRole('button', { name: 'Nome' }));

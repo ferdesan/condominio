@@ -130,7 +130,7 @@ export function UnitsPage() {
     { key: 'block', label: 'Bloco', render: (_value, row) => row.block?.name ?? '—' },
     {
       key: 'number',
-      label: 'Numero',
+      label: 'Número',
       sortable: true,
       render: (_value, row) => (
         <div className="flex items-center gap-2">
@@ -149,13 +149,13 @@ export function UnitsPage() {
     },
     {
       key: 'area',
-      label: 'Area',
+      label: 'Área',
       // Ausente e diferente de zero: uma area desconhecida nao e uma area nula.
       render: (_value, row) => (row.area === null ? '—' : `${formatNumber(row.area, 2)} m2`),
     },
     {
       key: 'idealFraction',
-      label: 'Fracao ideal',
+      label: 'Fração ideal',
       render: (_value, row) =>
         row.idealFraction === null ? '—' : formatNumber(row.idealFraction, 4),
     },
@@ -179,7 +179,7 @@ export function UnitsPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <UnitRowActions
           unit={row}
@@ -225,15 +225,15 @@ export function UnitsPage() {
         header={
           <PageHeader
             title="Unidades"
-            description="Cadastro das unidades do condominio selecionado."
+            description="Cadastro das unidades do condomínio selecionado."
           />
         }
         content={
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="As unidades pertencem a um condominio. Escolha um no seletor do topo para ver, cadastrar ou gerar unidades."
+              title="Selecione um condomínio"
+              description="As unidades pertencem a um condomínio. Escolha um no seletor do topo para ver, cadastrar ou gerar unidades."
             />
           </div>
         }
@@ -323,9 +323,9 @@ export function UnitsPage() {
       />
 
       {/*
-        Os formularios recebem o condominio de abertura. Enquanto ele for o do
+        Os formulários recebem o condomínio de abertura. Enquanto ele for o do
         shell — o caso comum — nada muda; quando o seletor mudar no meio, o
-        dialogo continua gravando onde comecou e o aviso explica a divergencia.
+        dialogo continua gravando onde comecou e o aviso explica a divergência.
       */}
       {formTarget ? (
         <UnitFormDialog
