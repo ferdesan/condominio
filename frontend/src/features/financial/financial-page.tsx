@@ -17,6 +17,7 @@ import {
 } from './financial-hooks';
 import { SECTIONS, type SectionId } from './financial-labels';
 import { CategoriesSection } from './components/categories-section';
+import { ClosingSection } from './components/closing-section';
 import { ChargesSection } from './components/charges-section';
 import { ExpensesSection } from './components/expenses-section';
 import { FinancialSummary } from './components/financial-summary';
@@ -52,6 +53,17 @@ export function FinancialPage() {
   // Aplicar encargos exige `charge:manage`, e nao `update`: e uma operacao em
   // massa sobre o que ja venceu, e nao a correcao de uma cobranca.
   const canManageCharges = can('charge:manage');
+
+  /*
+    O balancete some do alternador de quem nao pode le-lo, como as demais secoes
+    ja conferem a propria permissao por dentro. A guarda da rota e `charge:read`,
+    e um papel pode ler cobrancas sem ler a prestacao de contas.
+  */
+  const canReadClosing = can('financial-closing:read');
+  const visibleSections = useMemo(
+    () => SECTIONS.filter((item) => item.id !== 'closing' || canReadClosing),
+    [canReadClosing],
+  );
 
   const unitsQuery = useUnitOptions(selectedId);
   const units = useMemo(() => unitsQuery.data?.data ?? [], [unitsQuery.data]);
@@ -116,7 +128,7 @@ export function FinancialPage() {
               botões comuns numa barra nomeada.
             */}
             <nav aria-label="Seções do financeiro" className="flex flex-wrap gap-2">
-              {SECTIONS.map((item) => {
+              {visibleSections.map((item) => {
                 const isActive = section === item.id;
                 return (
                   <Button
@@ -145,8 +157,10 @@ export function FinancialPage() {
                 categories={categories}
                 providers={providers}
               />
-            ) : (
+            ) : section === 'categories' ? (
               <CategoriesSection condominiumId={selectedId} />
+            ) : (
+              <ClosingSection condominiumId={selectedId} />
             )}
           </div>
         }

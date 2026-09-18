@@ -163,3 +163,67 @@ export type RegisterPaymentResult = {
   charge: Charge;
   payment: Payment;
 };
+
+// ---------------------------------------------------------------------------
+// Balancete mensal
+// ---------------------------------------------------------------------------
+
+export const CLOSING_STATUSES = ['CLOSED', 'OPEN'] as const;
+export type ClosingStatus = (typeof CLOSING_STATUSES)[number];
+
+export type OpeningBalanceSource = 'INHERITED' | 'COMPUTED';
+
+/** Uma linha do balancete: uma categoria, ou a linha explicita sem categoria. */
+export type StatementLine = {
+  categoryId: string | null;
+  name: string;
+  total: number;
+};
+
+/**
+ * Corpo de `GET /financial/closings/:referenceMonth`.
+ *
+ * A forma e a mesma com o mes aberto ou fechado — o servidor recalcula num caso
+ * e serve o documento gravado no outro. Quem le descobre em qual estado esta por
+ * `status` e `closedAt`, e nao por um payload diferente.
+ */
+export type MonthlyStatement = {
+  condominiumId: string;
+  referenceMonth: string;
+  status: ClosingStatus;
+  openingBalance: {
+    amount: number;
+    source: OpeningBalanceSource;
+    /** Competencia herdada (`AAAA-MM`) ou data de corte (`AAAA-MM-DD`). */
+    from: string | null;
+  };
+  income: StatementLine[];
+  expense: StatementLine[];
+  totalIncome: number;
+  totalExpense: number;
+  result: number;
+  closingBalance: number;
+  /** Despesas pagas sem data: fora de todo total, de proposito. */
+  unresolvedPaidExpenses: { count: number; total: number };
+  /** Quadro auxiliar: inadimplencia da competencia, fora do resultado. */
+  delinquency: { amount: number; count: number };
+  closedAt: string | null;
+  closedBy: { id: string; name: string | null } | null;
+  reopenedAt: string | null;
+  reopenCount: number;
+};
+
+/** Linha da listagem de meses fechados. */
+export type FinancialClosing = {
+  id: string;
+  condominiumId: string;
+  referenceMonth: string;
+  status: ClosingStatus;
+  openingBalance: number;
+  totalIncome: number;
+  totalExpense: number;
+  closingBalance: number;
+  closedAt: string | null;
+  closedByName: string | null;
+  reopenCount: number;
+};

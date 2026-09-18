@@ -1,5 +1,6 @@
 import { BaseRepository } from '@/shared/repositories/base.repository';
 import type { TenantScope } from '@/shared/repositories/types';
+import { Charge } from '../entities/charge.entity';
 import { Payment } from '../entities/payment.entity';
 
 export class PaymentRepository extends BaseRepository<Payment> {
@@ -18,6 +19,53 @@ export class PaymentRepository extends BaseRepository<Payment> {
       .andWhere('payment.chargeId = :chargeId', { chargeId })
       .select('SUM(payment.amount)', 'total')
       .getRawOne<{ total: string | null }>();
+    return Number(row?.total ?? 0);
+  }
+
+  /**
+   * Receita do balancete de caixa: o que entrou entre `from` (inclusive) e
+   * `toExclusive`, agrupado pela categoria **da cobranca** — o pagamento nao tem
+   * categoria propria.
+   *
+   * O join e manual contra `Charge`, e nao pela relacao: um join de relacao
+   * herda o filtro de exclusao logica, e uma cobranca removida levaria consigo a
+   * categoria de um pagamento que existiu de verdade. O dinheiro entrou; a linha
+   * nao pode sumir do documento por causa do estado atual de outra tabela.
+   */
+  async incomeByCategory(
+    scope: TenantScope,
+    condominiumId: string,
+    from: Date,
+    toExclusive: Date,
+  ): Promise<{ categoryId: string | null; total: string | null }[]> {
+    return this.query(scope)
+      .leftJoin(Charge, 'charge', 'charge.id = payment.chargeId')
+      .andWhere('payment.condominiumId = :condominiumId', { condominiumId })
+      .andWhere('payment.paidAt >= :from', { from })
+      .andWhere('payment.paidAt < :toExclusive', { toExclusive })
+      .select('charge.categoryId', 'categoryId')
+      .addSelect('SUM(payment.amount)', 'total')
+      .groupBy('charge.categoryId')
+      .getRawMany<{ categoryId: string | null; total: string | null }>();
+  }
+
+  /**
+   * Soma dos pagamentos numa janela semiaberta. `from` nulo significa sem limite
+   * inferior — e o saldo de abertura sem data de corte (ADR-002).
+   */
+  async sumInWindow(
+    scope: TenantScope,
+    condominiumId: string,
+    from: Date | null,
+    toExclusive: Date,
+  ): Promise<number> {
+    const qb = this.query(scope)
+      .andWhere('payment.condominiumId = :condominiumId', { condominiumId })
+      .andWhere('payment.paidAt < :toExclusive', { toExclusive });
+
+    if (from) qb.andWhere('payment.paidAt >= :from', { from });
+
+    const row = await qb.select('SUM(payment.amount)', 'total').getRawOne<{ total: string | null }>();
     return Number(row?.total ?? 0);
   }
 

@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { formatDate, formatDocument, formatNumber, formatPhone } from '@/lib/format';
+import {
+  formatCurrency,
+  formatDate,
+  formatDocument,
+  formatNumber,
+  formatPhone,
+} from '@/lib/format';
 import type { Condominium } from '@/types/api';
 
 const TYPE_LABELS: Record<Condominium['type'], string> = {
@@ -53,6 +59,8 @@ export function CondominiumRecordCard({ condominium }: { condominium: Condominiu
         <Field label="Telefone do síndico">{formatPhone(condominium.syndicPhone)}</Field>
         <Field label="Fim do mandato">{formatDate(condominium.syndicTermEndsAt)}</Field>
         <Field label="Dia de vencimento">{formatNumber(condominium.chargeDueDay)}</Field>
+        <Field label="Saldo de abertura">{formatCurrency(condominium.openingBalance)}</Field>
+        <Field label="Data de corte">{formatDate(condominium.openingBalanceDate)}</Field>
         <Field label="Total de unidades">{formatNumber(condominium.totalUnits)}</Field>
         <Field label="Observações" className="sm:col-span-2">
           {text(condominium.notes)}

@@ -37,6 +37,47 @@ export function overlaps(startA: Date, endA: Date, startB: Date, endB: Date): bo
   return startA < endB && startB < endA;
 }
 
+/**
+ * Fronteira de uma competencia `YYYY-MM`, como intervalo semiaberto
+ * `[start, endExclusive)`.
+ *
+ * Existe para ser a **unica** fonte de fronteira de mes do projeto: o balancete
+ * soma `payment.paid_at` e `expense.paid_at` dentro deste intervalo, e a guarda
+ * de mes fechado decide a partir do mesmo calculo. Se os dois derivassem o mes
+ * por conta propria, um pagamento poderia ser recusado por cair num mes fechado
+ * e depois ser somado em outro mes — a pior forma de o numero divergir, porque
+ * cada metade estaria certa sozinha.
+ *
+ * Semiaberto, e nao `endOf('month')`: o fim do mes tem precisao de milissegundo
+ * e `paid_at` e `datetime`, entao `< endExclusive` nao tem borda a errar.
+ *
+ * Recusa mes impossivel em vez de normalizar: `dayjs('2026-13-01')` vira janeiro
+ * de 2027 sem avisar, e um balancete emitido para o mes errado e pior do que um
+ * balancete que nao sai.
+ */
+/**
+ * A competencia a que um instante pertence — o inverso de `monthRange`, e mora
+ * ao lado dele de proposito.
+ *
+ * `monthRange(referenceMonthOf(t))` contem `t` por construcao. As duas juntas
+ * sao a unica aritmetica de mes do projeto: a guarda de mes fechado decide por
+ * esta, as agregacoes filtram por aquela, e por isso um pagamento nao pode ser
+ * recusado por cair num mes e depois somado em outro.
+ */
+export function referenceMonthOf(when: string | Date): string {
+  return dayjs(when).format(REFERENCE_MONTH);
+}
+
+export function monthRange(referenceMonth: string): { start: Date; endExclusive: Date } {
+  if (!/^[0-9]{4}-(0[1-9]|1[0-2])$/.test(referenceMonth)) {
+    throw new RangeError(`Competencia invalida: "${referenceMonth}". Use o formato AAAA-MM.`);
+  }
+
+  const start = dayjs(`${referenceMonth}-01`, ISO_DATE, true).startOf('day');
+
+  return { start: start.toDate(), endExclusive: start.add(1, 'month').toDate() };
+}
+
 export function addByRecurrence(
   date: string | Date,
   recurrence: 'NONE' | 'MONTHLY' | 'QUARTERLY' | 'SEMIANNUAL' | 'ANNUAL',

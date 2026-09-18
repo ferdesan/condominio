@@ -11,6 +11,7 @@ import { buildRequestContext } from '@/shared/services/request-context';
 import type { Charge } from './entities/charge.entity';
 import type { Expense } from './entities/expense.entity';
 import type { FinancialCategory } from './entities/financial-category.entity';
+import { closingRouter } from './closing.routes';
 import { paymentRepository } from './repositories/payment.repository';
 import {
   createChargeSchema,
@@ -247,3 +248,9 @@ financialRouter.use(
     },
   }),
 );
+
+// ---------------------------------------------------------------------------
+// Balancete mensal
+// ---------------------------------------------------------------------------
+
+financialRouter.use('/closings', closingRouter);
