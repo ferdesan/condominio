@@ -10,8 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/use-auth';
+import { useCondominium } from '@/hooks/use-condominium';
 import { formatCurrency, formatDate, formatNumber, formatReferenceMonth } from '@/lib/format';
 import type { MonthlyStatement, StatementLine } from '@/types/financial';
+import { downloadClosingCsv } from '../closing-csv';
 import { useCloseMonth, useClosing, useReopenMonth } from '../financial-hooks';
 import { openingBalanceProvenance } from '../financial-labels';
 
@@ -36,6 +38,7 @@ export interface ClosingSectionProps {
  */
 export function ClosingSection({ condominiumId }: ClosingSectionProps) {
   const { can } = useAuth();
+  const { selected } = useCondominium();
   const [referenceMonth, setReferenceMonth] = useState(currentMonth);
   const [confirming, setConfirming] = useState(false);
   const [refusal, setRefusal] = useState<string | null>(null);
@@ -91,18 +94,18 @@ export function ClosingSection({ condominiumId }: ClosingSectionProps) {
   const hasMovement = Boolean(data && (data.income.length > 0 || data.expense.length > 0));
 
   return (
-    <section aria-labelledby="closing-title" className="space-y-4">
+    <section aria-labelledby="closing-title" className="print-document space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 id="closing-title" className="text-sm font-semibold">
-            Balancete mensal
+            Balancete mensal{selected ? ` · ${selected.name}` : ''}
           </h2>
           <p className="text-xs text-muted-foreground">
             Regime de caixa: entra o que foi pago no mês e sai o que foi pago no mês.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-end gap-3">
+        <div className="print-hide flex flex-wrap items-end gap-3">
           <div className="grid gap-1.5">
             <Label htmlFor="closing-month">Competência</Label>
             <Input
@@ -131,6 +134,17 @@ export function ClosingSection({ condominiumId }: ClosingSectionProps) {
           {!isClosed && canClose ? (
             <Button type="button" onClick={() => setConfirming(true)}>
               Fechar mês
+            </Button>
+          ) : null}
+
+          {/*
+            Sem requisicao: o arquivo e montado do payload que a secao ja tem
+            (ADR-006). Quem le o balancete pode exporta-lo — nao ha permissao
+            propria, porque nao ha nada aqui que a leitura ja nao mostre.
+          */}
+          {data ? (
+            <Button type="button" variant="outline" onClick={() => downloadClosingCsv(data)}>
+              Exportar CSV
             </Button>
           ) : null}
         </div>

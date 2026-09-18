@@ -36,13 +36,13 @@ nova — o payload da tela já é o documento inteiro.
 
 ## Subtasks
 
-- [ ] 5.1 Escrever `buildClosingCsv` como função pura, com escape, separador, BOM e vírgula decimal
-- [ ] 5.2 Ligar o botão de exportar, entregando o arquivo pela mecânica de blob e âncora
-- [ ] 5.3 Escrever o bloco `@media print` no fim de `index.css`
-- [ ] 5.4 Marcar na seção o que sobrevive à impressão e o que desaparece
+- [x] 5.1 Escrever `buildClosingCsv` como função pura, com escape, separador, BOM e vírgula decimal
+- [x] 5.2 Ligar o botão de exportar, entregando o arquivo pela mecânica de blob e âncora
+- [x] 5.3 Escrever o bloco `@media print` no fim de `index.css`
+- [x] 5.4 Marcar na seção o que sobrevive à impressão e o que desaparece
 - [ ] 5.5 Conferir a impressão a olho, em um mês aberto e um fechado, e registrar o que foi visto
-- [ ] 5.6 Escrever os casos atribuídos
-- [ ] 5.7 Rodar o pipeline do frontend e comparar a contagem
+- [x] 5.6 Escrever os casos atribuídos
+- [x] 5.7 Rodar o pipeline do frontend e comparar a contagem
 
 ## Implementation Details
 
@@ -95,8 +95,8 @@ Ver [ADR-006](adrs/adr-006.md) para o formato e o que ele recusou.
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's
 full definition there before writing tests.
 
-- [ ] UT-118, UT-119, UT-120, UT-121, UT-122 — o CSV: estrutura, vírgula decimal, escape do separador, as linhas especiais, o BOM e o CRLF
-- [ ] IT-314 — o botão entregando um `Blob` pela âncora, sem requisição
+- [x] UT-118, UT-119, UT-120, UT-121, UT-122 — o CSV: estrutura, vírgula decimal, escape do separador, as linhas especiais, o BOM e o CRLF
+- [x] IT-314 — o botão entregando um `Blob` pela âncora, sem requisição
 
 ## Notas de execução
 
@@ -110,6 +110,45 @@ full definition there before writing tests.
 - `toContain` sobre `textContent` não normaliza espaço rígido: `Intl.NumberFormat`
   separa "R$" do número com U+00A0. Se o caso comparar texto de moeda, compare só
   os dígitos.
+
+## Execução — feito, provado, e o que falta
+
+**O status continua `pending` de propósito.** Tudo o que se pode implementar e
+verificar está feito e os seis casos passam; o que falta é o item 5.5, a
+conferência a olho da impressão, que exige um navegador e uma pessoa. Marcar a
+task como concluída diria que um critério de aceite declarado foi verificado, e
+ele não foi.
+
+**O que ficou provado:**
+
+- `buildClosingCsv` é pura, e os cinco casos afirmam string exata — cabeçalho,
+  ordem das linhas, vírgula decimal com duas casas, escape do `;`, BOM e CRLF.
+- **IT-314 morde:** removendo o `anchor.click()`, o caso fica vermelho.
+- Um caso a mais, não atribuído, prende a **estrutura de que a folha depende**:
+  a seção carrega `print-document` e o bloco de controles carrega `print-hide`.
+  O `jsdom` não calcula layout, mas a marcação some em silêncio se alguém a
+  remover, e isso é testável.
+
+**O título da seção passou a carregar o nome do condomínio.** Na impressão a
+casca inteira desaparece, e um balancete que não diz de qual condomínio ele é não
+serve para prestar contas. O auxiliar do teste passou a casar o título por
+trecho.
+
+**Duas armadilhas de escrita, ambas pegas pelo pipeline:** o caractere BOM entrou
+literal no arquivo de teste em vez da sequência de escape (`no-irregular-whitespace`
+pegou), e o dublê de `createObjectURL` sem tipo de argumento quebrou o typecheck
+ao ler `mock.calls[0][0]`.
+
+**Pipeline:** 90 arquivos / 1086 casos (de 89 / 1078), lint nos mesmos **5
+avisos**, typecheck e build limpos.
+
+### O que a conferência humana precisa olhar
+
+Abrir `/financeiro` → Balancete, e mandar imprimir (Ctrl+P) num mês aberto e num
+fechado. Devem **aparecer**: o título com o nome do condomínio, a competência, o
+selo de aberto/fechado, a procedência do saldo, as duas tabelas e o bloco de
+resultado. Devem **sumir**: menu lateral, cabeçalho, o alternador de seções, o
+seletor de mês e todos os botões.
 
 ## Success Criteria
 
