@@ -343,8 +343,10 @@ GitHub Actions executa automaticamente:
 ### Triggerar Pipeline
 
 O workflow executa automaticamente em:
-- Push para `main` ou `develop`
-- Pull requests para `main` ou `develop`
+- Push para `master`
+- Pull requests para `master`
+
+Também pode ser disparado à mão pela aba Actions (`workflow_dispatch`).
 
 ## 📚 Documentação Completa
 
