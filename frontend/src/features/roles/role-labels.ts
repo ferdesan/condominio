@@ -97,9 +97,20 @@ export const SYSTEM_ROLE = 'Sistema';
 /** Dito na tarja de um papel criado pela administradora. */
 export const CUSTOM_ROLE = 'Personalizado';
 
-/** Dito quando um papel do sistema e aberto para edicao. */
+/**
+ * Dito quando um papel do sistema e aberto para edicao.
+ *
+ * A segunda frase e o que faltava: `beforeUpdate` recusa a mudanca com 409 e a
+ * mensagem do servidor ensina a saida — "crie um papel personalizado" —, mas ela
+ * nunca chega a ninguem, porque o formulario desabilita a matriz e o envio nem
+ * acontece. Sem isto a tela dizia o que nao da, e nao o que fazer.
+ */
 export const SYSTEM_ROLE_LOCKED =
-  'Papel do sistema: nome e permissões sao fixos. So a descrição pode mudar.';
+  'Papel do sistema: nome e permissões sao fixos. So a descrição pode mudar. Para um papel com outras permissões, use Duplicar na listagem.';
+
+/** Dito ao duplicar: o que veio junto, e o que nao veio. */
+export const DUPLICATE_INTRO =
+  'As permissões do papel de origem já vêm marcadas. Dê um nome ao novo papel e ajuste o que precisar.';
 
 /** Dito ao lado do campo de nome. */
 export const NAME_UPPERCASED = 'Gravado em maiusculas pelo servidor.';
