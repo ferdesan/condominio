@@ -8,7 +8,7 @@ import { CondominiumScopedService } from '@/shared/services/condominium-scoped.s
 import { assertReferenceExists } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
 import { addByRecurrence, dayjs, isOverdue } from '@/shared/utils/date.util';
-import { Expense } from '../entities/expense.entity';
+import { Expense, type ExpenseStatus } from '../entities/expense.entity';
 import { expenseRepository, type ExpenseRepository } from '../repositories/expense.repository';
 import type {
   CreateExpenseDTO,
@@ -34,10 +34,10 @@ export class ExpenseService extends CondominiumScopedService<
   ): Promise<DeepPartial<Expense>> {
     await this.assertReferences(ctx, dto.categoryId ?? null, dto.serviceProviderId ?? null);
 
-    return {
-      ...dto,
-      status: dto.status === 'PENDING' && isOverdue(dto.dueDate) ? 'OVERDUE' : dto.status,
-    } as DeepPartial<Expense>;
+    const status = dto.status === 'PENDING' && isOverdue(dto.dueDate) ? 'OVERDUE' : dto.status;
+    this.assertPaidHasDate(status, dto.paidAt ?? null);
+
+    return { ...dto, status } as DeepPartial<Expense>;
   }
 
   protected override async prepareUpdate(
@@ -48,8 +48,30 @@ export class ExpenseService extends CondominiumScopedService<
     if (current.status === 'PAID' && dto.amount !== undefined && dto.amount !== current.amount) {
       throw new BusinessRuleError('Despesas pagas nao podem ter o valor alterado.');
     }
+
+    this.assertPaidHasDate(
+      dto.status ?? current.status,
+      dto.paidAt !== undefined ? dto.paidAt : (current.paidAt ?? null),
+    );
+
     await this.assertReferences(ctx, dto.categoryId ?? null, dto.serviceProviderId ?? null);
     return dto as DeepPartial<Expense>;
+  }
+
+  /**
+   * Uma despesa `PAID` sem `paidAt` nao pertence a mes nenhum: o balancete e de
+   * caixa e soma pela data do pagamento, entao esse dinheiro sai do condominio e
+   * nao aparece em competencia alguma — sem erro, sem aviso, sem lugar onde
+   * procurar.
+   *
+   * A verificacao olha o estado **resultante**, e nao o corpo enviado. Marcar
+   * `PAID` numa linha que ja tem data passa; limpar a data de uma linha ja paga
+   * nao passa. Olhar so o payload deixaria a segunda entrar.
+   */
+  private assertPaidHasDate(status: ExpenseStatus, paidAt: Date | null): void {
+    if (status === 'PAID' && !paidAt) {
+      throw new BusinessRuleError('Uma despesa paga precisa da data de pagamento.');
+    }
   }
 
   /**

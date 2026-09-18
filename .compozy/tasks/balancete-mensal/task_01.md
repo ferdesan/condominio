@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "Fundação de dados e o invariante da despesa paga"
 type: backend
 complexity: high
@@ -41,15 +41,15 @@ valor em silêncio.
 
 ## Subtasks
 
-- [ ] 1.1 Criar a entidade `FinancialClosing` com as colunas, o índice único e a FK do TechSpec
-- [ ] 1.2 Criar `FinancialClosingRepository` com a configuração de `BaseRepository` (alias, campos filtráveis, ordenação padrão por `referenceMonth` descendente) e um `findByMonth`
-- [ ] 1.3 Acrescentar `opening_balance` e `opening_balance_date` à entidade e ao schema Zod de condomínio, seguindo o precedente de `chargeDueDay` e `syndicTermEndsAt`
-- [ ] 1.4 Acrescentar `financial-closing` a `RESOURCES` e conferir que ADMIN e SINDICO passam a recebê-lo por derivação, sem edição manual da matriz
-- [ ] 1.5 Escrever `monthRange(referenceMonth)` em `date.util.ts`, com a recusa de mês impossível
-- [ ] 1.6 Escrever a migration: `CREATE TABLE`, os dois `ALTER TABLE` e o patch de permissão dos papéis de sistema, com `down()` simétrico
-- [ ] 1.7 Fechar a brecha do ADR-004 em `prepareCreate` e `prepareUpdate` de `ExpenseService`
-- [ ] 1.8 Rodar `npm --prefix backend run migration:run` contra MySQL e conferir tabela, colunas e o array de permissões dos dois papéis; registrar o resultado
-- [ ] 1.9 Rodar o pipeline de verificação do backend (typecheck e testes) e comparar a contagem com a referência
+- [x] 1.1 Criar a entidade `FinancialClosing` com as colunas, o índice único e a FK do TechSpec
+- [x] 1.2 Criar `FinancialClosingRepository` com a configuração de `BaseRepository` (alias, campos filtráveis, ordenação padrão por `referenceMonth` descendente) e um `findByMonth`
+- [x] 1.3 Acrescentar `opening_balance` e `opening_balance_date` à entidade e ao schema Zod de condomínio, seguindo o precedente de `chargeDueDay` e `syndicTermEndsAt`
+- [x] 1.4 Acrescentar `financial-closing` a `RESOURCES` e conferir que ADMIN e SINDICO passam a recebê-lo por derivação, sem edição manual da matriz
+- [x] 1.5 Escrever `monthRange(referenceMonth)` em `date.util.ts`, com a recusa de mês impossível
+- [x] 1.6 Escrever a migration: `CREATE TABLE`, os dois `ALTER TABLE` e o patch de permissão dos papéis de sistema, com `down()` simétrico
+- [x] 1.7 Fechar a brecha do ADR-004 em `prepareCreate` e `prepareUpdate` de `ExpenseService`
+- [x] 1.8 Rodar `npm --prefix backend run migration:run` contra MySQL e conferir tabela, colunas e o array de permissões dos dois papéis; registrar o resultado
+- [x] 1.9 Rodar o pipeline de verificação do backend (typecheck e testes) e comparar a contagem com a referência
 
 ## Implementation Details
 
@@ -118,9 +118,9 @@ persiste como texto.
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's
 full definition there before writing tests.
 
-- [ ] UT-101, UT-102, UT-103, UT-104 — `monthRange`: o mês comum, a virada de ano, o fevereiro bissexto e a recusa do mês impossível
-- [ ] IT-298, IT-299, IT-300, IT-301 — o invariante do ADR-004 nos quatro estados: criar pago sem data, marcar pago sem data, marcar pago com data já presente, e limpar a data de uma linha paga
-- [ ] IT-302 — regressão: `POST /financial/expenses/:id/pay` continua gravando status e data juntos
+- [x] UT-101, UT-102, UT-103, UT-104 — `monthRange`: o mês comum, a virada de ano, o fevereiro bissexto e a recusa do mês impossível
+- [x] IT-298, IT-299, IT-300, IT-301 — o invariante do ADR-004 nos quatro estados: criar pago sem data, marcar pago sem data, marcar pago com data já presente, e limpar a data de uma linha paga
+- [x] IT-302 — regressão: `POST /financial/expenses/:id/pay` continua gravando status e data juntos
 
 ## Notas de execução
 
@@ -133,6 +133,43 @@ full definition there before writing tests.
   ponto inteiro do ADR-007.
 - Se `backend/tests/unit/permissions.spec.ts` quebrar pela contagem de recursos,
   a correção é atualizar a expectativa, não isentar o recurso novo.
+
+## Execução — o que foi decidido e o que ficou provado
+
+**Uma decisão de contrato foi tomada durante a execução.** `createExpenseSchema`
+não aceitava `paidAt` — só `updateExpenseSchema` o acrescentava por `.extend`.
+Com isso, o invariante viraria proibição total de criar despesa já paga, e não a
+recusa do estado incoerente que o ADR-004 descreve. `paidAt` passou a ser aceito
+na criação, e `updateExpenseSchema` voltou a ser `createExpenseSchema.partial()`
+— mesma forma de antes, uma fonte só. O invariante recusa a combinação, não a
+despesa nascer paga.
+
+**O sinal pré-mudança, medido:** com a guarda desligada, IT-298, IT-299 e IT-301
+ficam vermelhos e IT-300 e IT-302 seguem verdes — ou seja, as três recusas
+provam a correção e as duas passagens não são falso positivo. Antes desta task,
+`POST /financial/expenses` com `status: 'PAID'` e sem data respondia **201**.
+
+**O aceite da migration, contra o MySQL local:**
+
+| | ADMIN | SINDICO | `condominiums` | `financial_closings` |
+|---|---|---|---|---|
+| antes | 142 permissões, sem `financial-closing` | 133, sem | sem colunas `opening_*` | ausente |
+| após `up()` | **143**, com `financial-closing:manage` | **134**, idem | `opening_balance`, `opening_balance_date` | existe |
+| após `down()` | 142, sem | 133, sem | sem colunas | ausente |
+
+O `down()` é simétrico nos três eixos. O banco ficou no estado aplicado, com as
+três migrations em `[X]`.
+
+**Paridade entre entidade e migration**, que é o risco que nenhuma suíte cobre
+(o SQLite dos testes monta o schema da entidade, não da migration):
+`schema:log` não produz **nenhum** `ADD COLUMN`, `DROP COLUMN` ou `MODIFY COLUMN`
+para `financial_closings` nem para `condominiums`. A única diferença é nome de
+índice — o TypeORM geraria hash onde a migration escreve nome legível —, e
+`condominiums` mostra exatamente o mesmo padrão nos índices que já existiam
+antes desta task.
+
+**`permissions.spec.ts` não precisou mudar**: ele afirma unicidade do catálogo e
+a quantidade de definições de papel, e não o número de recursos.
 
 ## Success Criteria
 

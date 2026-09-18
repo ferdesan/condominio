@@ -1,8 +1,10 @@
 import {
   addByRecurrence,
   currentReferenceMonth,
+  dayjs,
   daysBetween,
   isOverdue,
+  monthRange,
   overlaps,
   toIsoDate,
 } from '@/shared/utils/date.util';
@@ -41,5 +43,43 @@ describe('Utilitarios de data', () => {
 
   it('formata a competencia corrente como AAAA-MM', () => {
     expect(currentReferenceMonth()).toMatch(/^\d{4}-\d{2}$/);
+  });
+});
+
+describe('monthRange', () => {
+  /**
+   * As bordas sao comparadas pelo horario local formatado, e nao por ISO: o
+   * intervalo e local de proposito (o resto do projeto tambem e), e fixar um
+   * fuso na assercao quebraria o caso em outra maquina sem nada ter regredido.
+   */
+  const local = (date: Date) => dayjs(date).format('YYYY-MM-DDTHH:mm:ss.SSS');
+
+  it('UT-101: devolve o intervalo semiaberto de um mes comum', () => {
+    const { start, endExclusive } = monthRange('2026-09');
+
+    expect(local(start)).toBe('2026-09-01T00:00:00.000');
+    expect(local(endExclusive)).toBe('2026-10-01T00:00:00.000');
+  });
+
+  it('UT-102: vira o ano no fim exclusivo de dezembro', () => {
+    const { start, endExclusive } = monthRange('2026-12');
+
+    expect(local(start)).toBe('2026-12-01T00:00:00.000');
+    expect(local(endExclusive)).toBe('2027-01-01T00:00:00.000');
+  });
+
+  it('UT-103: fevereiro bissexto termina em 1 de marco, com o dia 29 dentro', () => {
+    const { start, endExclusive } = monthRange('2024-02');
+
+    expect(local(endExclusive)).toBe('2024-03-01T00:00:00.000');
+
+    const twentyNinth = dayjs('2024-02-29T23:59:59').toDate();
+    expect(twentyNinth >= start && twentyNinth < endExclusive).toBe(true);
+  });
+
+  it('UT-104: recusa mes impossivel em vez de normalizar para o ano seguinte', () => {
+    expect(() => monthRange('2026-13')).toThrow(RangeError);
+    expect(() => monthRange('2026-00')).toThrow(RangeError);
+    expect(() => monthRange('2026-9')).toThrow(RangeError);
   });
 });

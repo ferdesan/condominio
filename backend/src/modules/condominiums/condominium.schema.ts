@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   cnpjSchema,
   emailSchema,
+  moneySchema,
   phoneSchema,
   stateSchema,
   zipCodeSchema,
@@ -27,6 +28,8 @@ export const createCondominiumSchema = z.object({
   syndicPhone: phoneSchema.optional().nullable(),
   syndicTermEndsAt: z.string().date().optional().nullable(),
   chargeDueDay: z.coerce.number().int().min(1).max(28).default(10),
+  openingBalance: moneySchema.default(0),
+  openingBalanceDate: z.string().date().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
 });
 
