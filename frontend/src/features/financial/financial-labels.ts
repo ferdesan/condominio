@@ -7,6 +7,7 @@
  * `react-refresh/only-export-components`.
  */
 
+import { formatDate, formatReferenceMonth } from '@/lib/format';
 import type {
   CategoryKind,
   Charge,
@@ -14,6 +15,7 @@ import type {
   Expense,
   ExpenseStatus,
   FinancialCategory,
+  OpeningBalanceSource,
   PaymentMethod,
 } from '@/types/financial';
 
@@ -63,11 +65,12 @@ export const CATEGORY_KIND_LABELS: Record<CategoryKind, string> = {
   EXPENSE: 'Despesa',
 };
 
-/** As tres secoes da tela. */
+/** As quatro secoes da tela. */
 export const SECTIONS = [
   { id: 'charges', label: 'Cobranças' },
   { id: 'expenses', label: 'Despesas' },
   { id: 'categories', label: 'Plano de contas' },
+  { id: 'closing', label: 'Balancete' },
 ] as const;
 
 export type SectionId = (typeof SECTIONS)[number]['id'];
@@ -116,4 +119,24 @@ export function outstandingAmount(charge: Charge): number {
 /** Competencia AAAA-MM como o servidor a grava; vazio quando ausente. */
 export function isReferenceMonth(value: string): boolean {
   return /^\d{4}-(0[1-9]|1[0-2])$/.test(value);
+}
+
+/**
+ * De onde veio o saldo que abre o mes.
+ *
+ * O numero sozinho nao e conferivel: quem le uma prestacao de contas precisa
+ * saber se ele foi herdado do mes anterior ou calculado desde a data de corte, e
+ * essa e a primeira pergunta de quem confere.
+ */
+export function openingBalanceProvenance(openingBalance: {
+  source: OpeningBalanceSource;
+  from: string | null;
+}): string {
+  if (openingBalance.source === 'INHERITED' && openingBalance.from) {
+    return `Herdado do fechamento de ${formatReferenceMonth(openingBalance.from)}`;
+  }
+  if (openingBalance.from) {
+    return `Calculado a partir do saldo de abertura de ${formatDate(openingBalance.from)}`;
+  }
+  return 'Calculado a partir do saldo de abertura do condomínio';
 }

@@ -96,6 +96,9 @@ export type Condominium = {
   /** Data (`YYYY-MM-DD`): o backend expoe a coluna `date` como string. */
   syndicTermEndsAt: string | null;
   chargeDueDay: number;
+  /** Saldo em caixa na data de corte: o ponto de partida do balancete. */
+  openingBalance: number;
+  openingBalanceDate: string | null;
   logoUrl: string | null;
   notes: string | null;
   createdAt: string;

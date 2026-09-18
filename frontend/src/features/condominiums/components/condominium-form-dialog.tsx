@@ -217,6 +217,33 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
               >
                 {(aria) => <Input inputMode="numeric" {...aria} {...register('chargeDueDay')} />}
               </FormField>
+
+              {/*
+                Dinheiro em `inputMode="decimal"`, e nunca `type="number"`: o
+                controle numerico descarta a virgula sem avisar, e `1500,50`
+                vira `150050`. Num saldo de abertura o erro se propaga por todos
+                os meses seguintes do balancete. O schema converte virgula em
+                ponto, como `unit-schema.ts` ja faz para a taxa mensal.
+              */}
+              <FormField
+                id="openingBalance"
+                label="Saldo de abertura"
+                error={errors.openingBalance?.message}
+                description="Saldo em caixa na data de corte. Use vírgula para os centavos."
+              >
+                {(aria) => (
+                  <Input inputMode="decimal" {...aria} {...register('openingBalance')} />
+                )}
+              </FormField>
+
+              <FormField
+                id="openingBalanceDate"
+                label="Data de corte do saldo"
+                error={errors.openingBalanceDate?.message}
+                description="A que data o saldo acima se refere."
+              >
+                {(aria) => <Input type="date" {...aria} {...register('openingBalanceDate')} />}
+              </FormField>
             </FormSection>
 
             <FormSection title="Endereço">

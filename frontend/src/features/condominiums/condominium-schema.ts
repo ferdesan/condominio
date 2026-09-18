@@ -28,6 +28,26 @@ function optionalDigits(length: number, message: string) {
     .refine((value) => value === '' || value.length === length, message);
 }
 
+/**
+ * Valor monetario opcional, aceitando virgula como separador decimal.
+ *
+ * **Nao e `Input type="number"`.** Aquele controle descarta a virgula sem aviso:
+ * `1500,50` vira `150050`, um erro de cem vezes num campo que abre o balancete de
+ * todos os meses seguintes. O molde e `unit-schema.ts`, que ja resolveu isto para
+ * a taxa mensal.
+ */
+function optionalMoney(max: number, message: string) {
+  return z
+    .string()
+    .trim()
+    .transform((value) => value.replace(',', '.'))
+    .refine((value) => {
+      if (value === '') return true;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) && parsed >= 0 && parsed <= max;
+    }, message);
+}
+
 export const condominiumSchema = z.object({
   name: z.string().trim().min(3, 'Informe o nome do condomínio.').max(150),
   document: optionalDigits(14, 'CNPJ deve conter 14 digitos.'),
@@ -69,6 +89,13 @@ export const condominiumSchema = z.object({
       'Telefone inválido.',
     ),
   syndicTermEndsAt: z
+    .string()
+    .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data inválida.'),
+  openingBalance: optionalMoney(
+    99_999_999.99,
+    'Informe um saldo de abertura valido, entre 0 e 99.999.999,99.',
+  ),
+  openingBalanceDate: z
     .string()
     .refine((value) => value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value), 'Data inválida.'),
   chargeDueDay: z
@@ -113,6 +140,8 @@ export const CONDOMINIUM_FORM_DEFAULTS: CondominiumFormValues = {
   syndicPhone: '',
   syndicTermEndsAt: '',
   chargeDueDay: '10',
+  openingBalance: '0',
+  openingBalanceDate: '',
   logoUrl: '',
   notes: '',
 };
@@ -136,6 +165,8 @@ export type CondominiumPayload = {
   syndicPhone: string | null;
   syndicTermEndsAt: string | null;
   chargeDueDay: number;
+  openingBalance: number;
+  openingBalanceDate: string | null;
   logoUrl: string | null;
   notes: string | null;
 };
@@ -164,6 +195,8 @@ export function toCondominiumPayload(values: CondominiumFormValues): Condominium
     syndicPhone: orNull(values.syndicPhone),
     syndicTermEndsAt: orNull(values.syndicTermEndsAt),
     chargeDueDay: Number(values.chargeDueDay),
+    openingBalance: values.openingBalance === '' ? 0 : Number(values.openingBalance),
+    openingBalanceDate: orNull(values.openingBalanceDate),
     logoUrl: orNull(values.logoUrl),
     notes: orNull(values.notes),
   };
@@ -190,6 +223,8 @@ export function toCondominiumFormValues(condominium: Condominium): CondominiumFo
     // A coluna e `date`, entao ja chega como `YYYY-MM-DD`.
     syndicTermEndsAt: condominium.syndicTermEndsAt ?? '',
     chargeDueDay: String(condominium.chargeDueDay),
+    openingBalance: String(condominium.openingBalance ?? 0),
+    openingBalanceDate: condominium.openingBalanceDate ?? '',
     logoUrl: condominium.logoUrl ?? '',
     notes: condominium.notes ?? '',
   };
