@@ -161,7 +161,7 @@ describe('Cadastro de veículo', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     // A invalidacao da fabrica traz a linha nova: ninguem pediu refetch aqui.
     expect(await screen.findByText('XYZ-9876')).toBeInTheDocument();
-    expect(screen.getByText('Sem vinculo')).toBeInTheDocument();
+    expect(screen.getByText('Sem vínculo')).toBeInTheDocument();
   });
 
   it('cadastra com unidade e morador quando os dois sao escolhidos', async () => {
@@ -343,13 +343,13 @@ describe('Edição de veículo', () => {
     await screen.findByText('ABC1D23');
     await openEditDialog('ABC1D23');
 
-    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Sem vinculo');
-    chooseOption(within(dialog()).getByLabelText('Morador'), 'Sem vinculo');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Sem vínculo');
+    chooseOption(within(dialog()).getByLabelText('Morador'), 'Sem vínculo');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(1));
     // Omitir a chave deixaria o vinculo antigo de pe: apagar precisa de `null`.
     expect(lastUpdateBody()).toMatchObject({ unitId: null, residentId: null });
-    await waitFor(() => expect(screen.getByText('Sem vinculo')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Sem vínculo')).toBeInTheDocument());
   });
 });

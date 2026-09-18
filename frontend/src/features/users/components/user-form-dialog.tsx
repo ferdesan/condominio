@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
@@ -73,6 +74,18 @@ export interface UserFormDialogProps {
 export function UserFormDialog({ user, roles, units, condominiums, onClose }: UserFormDialogProps) {
   const isEdit = Boolean(user);
   const queryClient = useQueryClient();
+
+  // "Sem unidade" segue sendo a primeira opção, e não um estado à parte: o
+  // vínculo é opcional no servidor e voltar atrás precisa ser tão alcançável
+  // quanto escolher. A lista inteira do condomínio cabe no seletor, mas não cabe
+  // no olho: sem busca, escolher uma unidade vira rolagem.
+  const unitOptions = useMemo(
+    () => [
+      { value: NONE, label: NO_UNIT },
+      ...units.map((unit) => ({ value: unit.id, label: unitLabel(unit) })),
+    ],
+    [units],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
@@ -239,22 +252,14 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
                     description="Apenas para contas de morador."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value === '' ? NONE : field.value}
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>{NO_UNIT}</SelectItem>
-                          {units.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unitLabel(unit)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={unitOptions}
+                        searchPlaceholder="Buscar unidade"
+                        emptyMessage="Nenhuma unidade corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}

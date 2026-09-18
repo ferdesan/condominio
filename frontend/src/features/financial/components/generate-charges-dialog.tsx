@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -11,16 +11,10 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
@@ -35,7 +29,7 @@ import {
   type GenerateFormValues,
 } from '../financial-schema';
 
-/** Valor sentinela: o Radix nao aceita `SelectItem` com valor vazio. */
+/** Valor sentinela do "sem conta": vazio nao distingue escolher de nao ter escolhido. */
 const NONE = '__none__';
 
 export interface GenerateChargesDialogProps {
@@ -61,6 +55,15 @@ export function GenerateChargesDialog({
   categories,
   onClose,
 }: GenerateChargesDialogProps) {
+  // "Sem conta" é a primeira opção, e não um estado à parte: a classificação é
+  // opcional e voltar atrás precisa ser tão alcançável quanto escolher.
+  const categoryOptions = useMemo(
+    () => [
+      { value: NONE, label: 'Sem conta' },
+      ...categories.map((category) => ({ value: category.id, label: category.name })),
+    ],
+    [categories],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [result, setResult] = useState<GenerateChargesResult | null>(null);
 
@@ -168,22 +171,14 @@ export function GenerateChargesDialog({
                   description="Opcional."
                 >
                   {(aria) => (
-                    <Select
+                    <Combobox
+                      {...aria}
                       value={field.value || NONE}
                       onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                    >
-                      <SelectTrigger {...aria}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={NONE}>Sem conta</SelectItem>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={categoryOptions}
+                      searchPlaceholder="Buscar conta"
+                      emptyMessage="Nenhuma conta corresponde à busca."
+                    />
                   )}
                 </FormField>
               )}

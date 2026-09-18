@@ -26,6 +26,8 @@ export interface ComboboxProps {
   'aria-describedby'?: string;
   'aria-invalid'?: boolean;
   'aria-labelledby'?: string;
+  /** Para os seletores que nao vivem dentro de um `FormField` e nao tem `label`. */
+  'aria-label'?: string;
 }
 
 /**

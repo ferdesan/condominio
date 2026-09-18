@@ -5,6 +5,7 @@ import { ApiError, apiPatch, apiPost } from '@/lib/api';
 import { CondominiumContext, type CondominiumContextValue } from '@/providers/condominium-context';
 import { makeCondominium } from '@/test/fixtures';
 import {
+  chooseOption,
   clickTrigger,
   createUser,
   fireEvent,
@@ -245,8 +246,11 @@ describe('Cadastro de manutenção', () => {
 
     // O prestador e escopado pelo servidor (`condominiumId` esta na whitelist);
     // o responsavel e recortado no cliente, porque `/users` e por tenant.
-    selectOption(within(dialog()).getByLabelText('Prestador'), 'Limpeza Total');
-    selectOption(within(dialog()).getByLabelText('Responsável'), 'Joana Ribeiro');
+    chooseOption(within(dialog()).getByLabelText('Prestador'), 'Limpeza Total, Limpeza Total Ltda');
+    chooseOption(
+      within(dialog()).getByLabelText('Responsável'),
+      'Joana Ribeiro, joana@exemplo.com',
+    );
     expect(screen.queryByRole('option', { name: 'Paulo Nunes' })).not.toBeInTheDocument();
 
     await createUser().type(within(dialog()).getByLabelText('Título'), 'Limpeza da fachada');

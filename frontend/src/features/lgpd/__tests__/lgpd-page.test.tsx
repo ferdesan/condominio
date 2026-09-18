@@ -5,7 +5,7 @@ import { makeMeta } from '@/test/fixtures';
 import {
   clickTrigger,
   fireEvent,
-  openSelect,
+  openCombobox,
   renderWithProviders,
   screen,
   waitFor,
@@ -307,7 +307,7 @@ describe('Pagina LGPD (IT-056)', () => {
     renderWithProviders(<LgpdPage />, { route: '/lgpd?tab=export' });
 
     const trigger = screen.getByRole('combobox', { name: 'Selecionar morador' });
-    openSelect(trigger);
+    openCombobox(trigger);
     fireEvent.click(await screen.findByRole('option', { name: 'Carlos Pereira' }));
     clickTrigger(screen.getByRole('button', { name: 'Exportar dados do morador' }));
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,17 +11,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
@@ -39,7 +33,7 @@ import {
   type ExpenseFormValues,
 } from '../financial-schema';
 
-/** Valor sentinela: o Radix nao aceita `SelectItem` com valor vazio. */
+/** Valor sentinela do "sem vinculo": vazio nao distingue escolher de nao ter escolhido. */
 const NONE = '__none__';
 
 export interface ExpenseFormDialogProps {
@@ -71,6 +65,31 @@ export function ExpenseFormDialog({
 }: ExpenseFormDialogProps) {
   const isEdit = Boolean(expense);
   const queryClient = useQueryClient();
+
+  // "Sem conta" e "Sem prestador" são a primeira opção de cada seletor, e não um
+  // estado à parte: os dois vínculos são opcionais no servidor e voltar atrás
+  // precisa ser tão alcançável quanto escolher.
+  const categoryOptions = useMemo(
+    () => [
+      { value: NONE, label: 'Sem conta' },
+      ...categories.map((category) => ({ value: category.id, label: category.name })),
+    ],
+    [categories],
+  );
+
+  // A razão social vai como dica: o nome fantasia é o que se reconhece, e o
+  // contrato está no outro. Ela também entra na busca.
+  const providerOptions = useMemo(
+    () => [
+      { value: NONE, label: 'Sem prestador' },
+      ...providers.map((provider) => ({
+        value: provider.id,
+        label: provider.tradeName ?? provider.companyName,
+        hint: provider.tradeName ? provider.companyName : undefined,
+      })),
+    ],
+    [providers],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
@@ -154,22 +173,14 @@ export function ExpenseFormDialog({
                     description="Opcional. Classifica a despesa na prestação de contas."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value || NONE}
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>Sem conta</SelectItem>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={categoryOptions}
+                        searchPlaceholder="Buscar conta"
+                        emptyMessage="Nenhuma conta corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}
@@ -186,22 +197,14 @@ export function ExpenseFormDialog({
                     description="Opcional. Quem prestou o serviço ou forneceu."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value || NONE}
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>Sem prestador</SelectItem>
-                          {providers.map((provider) => (
-                            <SelectItem key={provider.id} value={provider.id}>
-                              {provider.tradeName ?? provider.companyName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={providerOptions}
+                        searchPlaceholder="Buscar prestador"
+                        emptyMessage="Nenhum prestador corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}

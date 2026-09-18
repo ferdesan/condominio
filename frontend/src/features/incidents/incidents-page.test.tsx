@@ -2,8 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { toast } from 'sonner';
 import { ApiError, apiDelete, apiGet, apiGetPaginated, apiPost } from '@/lib/api';
 import {
+  chooseOption,
   clickTrigger,
   createUser,
+  openCombobox,
   openSelect,
   renderWithProviders,
   screen,
@@ -440,7 +442,10 @@ describe('Atribuição de responsável', () => {
     clickTrigger(screen.getByRole('button', { name: 'Atribuir OC-2026-000001' }));
 
     await screen.findByText('Atribuir responsável');
-    selectOption(within(dialog()).getByLabelText('Responsável'), 'Joana Ribeiro');
+    chooseOption(
+      within(dialog()).getByLabelText('Responsável'),
+      'Joana Ribeiro, joana@exemplo.com',
+    );
     clickTrigger(within(dialog()).getByRole('button', { name: 'Atribuir' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
@@ -476,10 +481,17 @@ describe('Atribuição de responsável', () => {
     clickTrigger(screen.getByRole('button', { name: 'Atribuir OC-2026-000001' }));
 
     await screen.findByText('Atribuir responsável');
-    openSelect(within(dialog()).getByLabelText('Responsável'));
+    openCombobox(within(dialog()).getByLabelText('Responsável'));
 
-    const options = screen.getAllByRole('option').map((option) => option.textContent?.trim());
-    expect(options).toEqual(['Joana Ribeiro', 'Marina Alves']);
+    // O nome acessivel, e nao o `textContent`: a opcao tem duas linhas, e
+    // concatena-las devolveria "Joana Ribeirojoana@exemplo.com".
+    const options = screen
+      .getAllByRole('option')
+      .map((option) => option.getAttribute('aria-label'));
+    expect(options).toEqual([
+      'Joana Ribeiro, joana@exemplo.com',
+      'Marina Alves, joana@exemplo.com',
+    ]);
     // Quem so alcanca outro predio nao pode ser escolhido aqui.
     expect(options).not.toContain('Bruno Tavares');
   });

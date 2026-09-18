@@ -192,7 +192,7 @@ export function DependentFormDialog({
                         options={residentOptions}
                         placeholder="Selecione o morador"
                         searchPlaceholder="Buscar por nome ou unidade"
-                        emptyMessage="Nenhum morador corresponde a busca."
+                        emptyMessage="Nenhum morador corresponde à busca."
                         onValueChange={(value) => {
                           field.onChange(value);
                           const chosen = residents.find((resident) => resident.id === value);

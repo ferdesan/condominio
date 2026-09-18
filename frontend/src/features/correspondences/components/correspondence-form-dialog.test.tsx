@@ -10,7 +10,6 @@ import {
   renderWithProviders,
   screen,
   chooseOption,
-  selectOption,
   waitFor,
   within,
 } from '@/test/render';
@@ -303,7 +302,7 @@ describe('Edição de correspondência', () => {
     clickTrigger(screen.getByRole('button', { name: 'Editar Caixa média' }));
     await screen.findByLabelText('Descrição');
 
-    selectOption(within(dialog()).getByLabelText('Destinatário'), 'Sem destinatário');
+    chooseOption(within(dialog()).getByLabelText('Destinatário'), 'Sem destinatário');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(1));
