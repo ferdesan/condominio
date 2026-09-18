@@ -132,7 +132,7 @@ export function VisitorFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar visitante' : 'Novo visitante'}</DialogTitle>
             <DialogDescription>

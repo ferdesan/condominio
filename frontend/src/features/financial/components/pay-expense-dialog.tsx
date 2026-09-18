@@ -82,7 +82,7 @@ export function PayExpenseDialog({ expense, onClose }: PayExpenseDialogProps) {
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent side="right" dismissible={false} className="max-w-lg overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Liquidar despesa</DialogTitle>
           <DialogDescription>

@@ -86,8 +86,18 @@ export function AuditDetailDialog({ entry, onClose }: AuditDetailDialogProps) {
         </dl>
 
         <section aria-labelledby="audit-detail-changes" className="space-y-2">
+          {/*
+            A contagem vem no titulo porque a lista nao tem teto: uma entrada de
+            cadastro completo muda trinta campos, e sem o numero so rolando ate o
+            fim se descobre o tamanho do que se esta lendo.
+          */}
           <h3 id="audit-detail-changes" className="text-sm font-semibold">
             O que mudou
+            {fields.length > 0 ? (
+              <span className="ml-2 font-normal text-muted-foreground">
+                {fields.length === 1 ? '1 campo' : `${fields.length} campos`}
+              </span>
+            ) : null}
           </h3>
 
           {fields.length === 0 ? (
@@ -97,7 +107,12 @@ export function AuditDetailDialog({ entry, onClose }: AuditDetailDialogProps) {
               {fields.map((field) => (
                 <li key={field} className="rounded-md border border-border px-3 py-2">
                   <p className="font-mono text-xs text-muted-foreground">{field}</p>
-                  <p className="text-sm">
+                  {/*
+                    `break-words` porque `formatAuditValue` serializa objeto em
+                    JSON: uma linha dessas nao tem espaco onde quebrar, e sem isto
+                    ela alarga o dialogo inteiro em vez de quebrar.
+                  */}
+                  <p className="break-words text-sm">
                     <span className="text-muted-foreground">De </span>
                     <span className="font-medium line-through decoration-muted-foreground/60">
                       {formatAuditValue(entry.changes?.before?.[field])}
@@ -116,6 +131,11 @@ export function AuditDetailDialog({ entry, onClose }: AuditDetailDialogProps) {
         <section aria-labelledby="audit-detail-history" className="space-y-2">
           <h3 id="audit-detail-history" className="text-sm font-semibold">
             Histórico deste registro
+            {others.length > 0 ? (
+              <span className="ml-2 font-normal text-muted-foreground">
+                {others.length === 1 ? '1 entrada' : `${others.length} entradas`}
+              </span>
+            ) : null}
           </h3>
 
           {!entry.resourceId ? (
@@ -133,7 +153,13 @@ export function AuditDetailDialog({ entry, onClose }: AuditDetailDialogProps) {
               Esta e a única entrada registrada para este registro.
             </p>
           ) : (
-            <ul className="max-h-56 space-y-1 overflow-y-auto pr-1 text-sm">
+            /*
+              Sem teto de altura de proposito. Um bloco rolavel dentro de um
+              dialogo que tambem rola sao duas barras disputando a mesma roda do
+              mouse, e o servidor ja limita este historico a cem entradas
+              (`findAllBy`) — o comprimento e conhecido, e uma barra so basta.
+            */
+            <ul className="space-y-1 text-sm">
               {others.map((item) => (
                 <li key={item.id} className="flex flex-wrap items-center gap-2">
                   <AuditActionBadge action={item.action} />

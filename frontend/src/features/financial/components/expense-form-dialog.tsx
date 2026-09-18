@@ -142,7 +142,7 @@ export function ExpenseFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent side="right" dismissible={false} className="max-w-2xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar despesa' : 'Nova despesa'}</DialogTitle>
             <DialogDescription>

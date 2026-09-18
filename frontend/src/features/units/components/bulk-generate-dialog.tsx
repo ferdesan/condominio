@@ -166,7 +166,7 @@ export function BulkGenerateDialog({
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent side="right" dismissible={false} className="max-w-2xl overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Gerar unidades</DialogTitle>
           <DialogDescription>

@@ -136,7 +136,7 @@ export function ChargeFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent side="right" dismissible={false} className="max-w-2xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar cobrança' : 'Nova cobrança'}</DialogTitle>
             <DialogDescription>

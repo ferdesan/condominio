@@ -125,7 +125,7 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
           if (!next) requestClose();
         }}
       >
-        <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar área comum' : 'Nova área comum'}</DialogTitle>
             <DialogDescription>
