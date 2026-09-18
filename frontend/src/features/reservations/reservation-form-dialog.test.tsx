@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { ApiError, apiPost } from '@/lib/api';
 import { makeCommonArea, makeReservation, makeUnit } from '@/test/fixtures';
 import {
+  chooseOption,
   clickTrigger,
   renderWithProviders,
   screen,
@@ -84,7 +85,7 @@ function chooseArea(name: string): void {
 }
 
 function chooseUnit(name = 'Unidade 101'): void {
-  selectOption(dialog().getByLabelText('Unidade'), name);
+  chooseOption(dialog().getByLabelText('Unidade'), name);
 }
 
 function fillRange(start: string, end: string): void {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,15 +11,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
@@ -37,7 +31,7 @@ import {
   type ChargeFormValues,
 } from '../financial-schema';
 
-/** Valor sentinela: o Radix nao aceita `SelectItem` com valor vazio. */
+/** Valor sentinela do "sem conta": vazio nao distingue escolher de nao ter escolhido. */
 const NONE = '__none__';
 
 export interface ChargeFormDialogProps {
@@ -71,6 +65,27 @@ export function ChargeFormDialog({
 }: ChargeFormDialogProps) {
   const isEdit = Boolean(charge);
   const queryClient = useQueryClient();
+
+  // A lista inteira do condomínio cabe no seletor, mas não cabe no olho: sem
+  // busca, escolher uma unidade vira rolagem.
+  const unitOptions = useMemo(
+    () =>
+      units.map((unit) => ({
+        value: unit.id,
+        label: `${unit.number}${unit.block?.name ? ` · ${unit.block.name}` : ''}`,
+      })),
+    [units],
+  );
+
+  // "Sem conta" é a primeira opção, e não um estado à parte: a classificação é
+  // opcional e voltar atrás precisa ser tão alcançável quanto escolher.
+  const categoryOptions = useMemo(
+    () => [
+      { value: NONE, label: 'Sem conta' },
+      ...categories.map((category) => ({ value: category.id, label: category.name })),
+    ],
+    [categories],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
@@ -139,19 +154,15 @@ export function ChargeFormDialog({
                 render={({ field, fieldState }) => (
                   <FormField id="charge-unitId" label="Unidade" error={fieldState.error?.message}>
                     {(aria) => (
-                      <Select value={field.value || NONE} onValueChange={field.onChange}>
-                        <SelectTrigger {...aria}>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {units.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unit.number}
-                              {unit.block?.name ? ` · ${unit.block.name}` : ''}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        {...aria}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        options={unitOptions}
+                        placeholder="Selecione"
+                        searchPlaceholder="Buscar unidade"
+                        emptyMessage="Nenhuma unidade corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}
@@ -168,22 +179,14 @@ export function ChargeFormDialog({
                     description="Opcional. Classifica a cobrança na prestação de contas."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value || NONE}
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>Sem conta</SelectItem>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={categoryOptions}
+                        searchPlaceholder="Buscar conta"
+                        emptyMessage="Nenhuma conta corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}

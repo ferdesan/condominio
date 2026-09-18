@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,14 +11,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
 import type { Incident, IncidentAssignee } from '@/types/incident';
@@ -51,6 +45,13 @@ export interface IncidentAssignDialogProps {
  */
 export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentAssignDialogProps) {
   const queryClient = useQueryClient();
+
+  // O e-mail vai como dica porque nome não identifica usuário: dois cadastros
+  // podem trazer o mesmo, e ele também entra na busca.
+  const assigneeOptions = useMemo(
+    () => assignees.map((user) => ({ value: user.id, label: user.name, hint: user.email })),
+    [assignees],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const submittingRef = useRef(false);
 
@@ -126,18 +127,15 @@ export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentA
                       Nenhum usuário ativo com acesso a este condomínio.
                     </p>
                   ) : (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger {...aria}>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {assignees.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Combobox
+                      {...aria}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={assigneeOptions}
+                      placeholder="Selecione"
+                      searchPlaceholder="Buscar por nome ou e-mail"
+                      emptyMessage="Nenhum usuário corresponde à busca."
+                    />
                   )
                 }
               </FormField>

@@ -79,6 +79,22 @@ export function CorrespondenceFormDialog({
     () => units.map((unit) => ({ value: unit.id, label: unitLabel(unit) })),
     [units],
   );
+
+  // "Sem destinatário" é a primeira opção, e não um estado à parte: o vínculo é
+  // opcional no servidor e voltar atrás precisa ser tão alcançável quanto
+  // escolher. A unidade vai como dica porque nome não identifica morador — dois
+  // cadastros podem trazer o mesmo — e ela também entra na busca.
+  const residentOptions = useMemo(
+    () => [
+      { value: NONE, label: NO_RESIDENT },
+      ...residents.map((resident) => ({
+        value: resident.id,
+        label: resident.name,
+        hint: resident.unit ? unitLabel(resident.unit) : undefined,
+      })),
+    ],
+    [residents],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
@@ -265,22 +281,14 @@ export function CorrespondenceFormDialog({
                     description="Opcional. Apenas moradores do condomínio selecionado."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value === '' ? NONE : field.value}
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>{NO_RESIDENT}</SelectItem>
-                          {residents.map((resident) => (
-                            <SelectItem key={resident.id} value={resident.id}>
-                              {resident.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={residentOptions}
+                        searchPlaceholder="Buscar por nome ou unidade"
+                        emptyMessage="Nenhum morador corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}

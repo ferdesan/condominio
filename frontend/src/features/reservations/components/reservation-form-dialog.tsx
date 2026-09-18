@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Controller, useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { DateTimeInput } from '@/components/ui/date-time-input';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
@@ -62,6 +63,13 @@ export function ReservationFormDialog({
   onClose,
 }: ReservationFormDialogProps) {
   const queryClient = useQueryClient();
+
+  // A lista inteira do condomínio cabe no seletor, mas não cabe no olho: sem
+  // busca, escolher uma unidade vira rolagem.
+  const unitOptions = useMemo(
+    () => units.map((unit) => ({ value: unit.id, label: `Unidade ${unit.number}` })),
+    [units],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const submittingRef = useRef(false);
 
@@ -217,18 +225,15 @@ export function ReservationFormDialog({
             render={({ field, fieldState }) => (
               <FormField id="unitId" label="Unidade" error={fieldState.error?.message}>
                 {(aria) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger {...aria}>
-                      <SelectValue placeholder="Selecione a unidade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {units.map((unit) => (
-                        <SelectItem key={unit.id} value={unit.id}>
-                          Unidade {unit.number}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Combobox
+                    {...aria}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    options={unitOptions}
+                    placeholder="Selecione a unidade"
+                    searchPlaceholder="Buscar unidade"
+                    emptyMessage="Nenhuma unidade corresponde à busca."
+                  />
                 )}
               </FormField>
             )}

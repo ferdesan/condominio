@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { DateTimeInput } from '@/components/ui/date-time-input';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
@@ -77,6 +78,33 @@ export function MaintenanceFormDialog({
 }: MaintenanceFormDialogProps) {
   const isEdit = Boolean(maintenance);
   const queryClient = useQueryClient();
+
+  // "Sem prestador" e "Sem responsável" seguem sendo a primeira opção, e não um
+  // estado à parte: os dois vínculos são opcionais no servidor e voltar atrás
+  // precisa ser tão alcançável quanto escolher.
+  //
+  // A razão social vai como dica do prestador, e o e-mail como dica do
+  // responsável: nome fantasia e nome de pessoa não identificam sozinhos, e as
+  // duas dicas também entram na busca.
+  const providerOptions = useMemo(
+    () => [
+      { value: NONE, label: NO_PROVIDER },
+      ...providers.map((provider) => ({
+        value: provider.id,
+        label: provider.tradeName ?? provider.companyName,
+        hint: provider.tradeName ? provider.companyName : undefined,
+      })),
+    ],
+    [providers],
+  );
+
+  const responsibleOptions = useMemo(
+    () => [
+      { value: NONE, label: NO_RESPONSIBLE },
+      ...responsibles.map((user) => ({ value: user.id, label: user.name, hint: user.email })),
+    ],
+    [responsibles],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
@@ -269,22 +297,14 @@ export function MaintenanceFormDialog({
                     error={fieldState.error?.message}
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value === '' ? NONE : field.value}
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>{NO_PROVIDER}</SelectItem>
-                          {providers.map((provider) => (
-                            <SelectItem key={provider.id} value={provider.id}>
-                              {provider.tradeName ?? provider.companyName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={providerOptions}
+                        searchPlaceholder="Buscar prestador"
+                        emptyMessage="Nenhum prestador corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}
@@ -300,22 +320,14 @@ export function MaintenanceFormDialog({
                     error={fieldState.error?.message}
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value === '' ? NONE : field.value}
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>{NO_RESPONSIBLE}</SelectItem>
-                          {responsibles.map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={responsibleOptions}
+                        searchPlaceholder="Buscar por nome ou e-mail"
+                        emptyMessage="Nenhum usuário corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}

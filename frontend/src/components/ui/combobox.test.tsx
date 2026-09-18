@@ -23,7 +23,7 @@ function montar(onValueChange = vi.fn()) {
       onValueChange={onValueChange}
       placeholder="Selecione o morador"
       searchPlaceholder="Buscar por nome ou unidade"
-      emptyMessage="Nenhum morador corresponde a busca."
+      emptyMessage="Nenhum morador corresponde à busca."
     />,
   );
   return { trigger: screen.getByRole('combobox'), onValueChange };
@@ -92,7 +92,7 @@ describe('Combobox', () => {
     buscar('ninguem com esse nome');
 
     expect(screen.queryByRole('option')).not.toBeInTheDocument();
-    expect(screen.getByText('Nenhum morador corresponde a busca.')).toBeInTheDocument();
+    expect(screen.getByText('Nenhum morador corresponde à busca.')).toBeInTheDocument();
   });
 
   it('escolher uma opção avisa o formulário e fecha a lista', () => {

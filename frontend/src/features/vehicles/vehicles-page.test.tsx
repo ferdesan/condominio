@@ -259,7 +259,7 @@ describe('Listagem de veículos', () => {
     await screen.findByText('ABC1D23');
 
     // Nao ter dono cadastrado e um estado valido, e nao um dado faltando.
-    expect(cellsOf('Unidade')).toEqual(['Sem vinculo']);
+    expect(cellsOf('Unidade')).toEqual(['Sem vínculo']);
     expect(dataRows()).toHaveLength(1);
   });
 

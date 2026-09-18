@@ -36,7 +36,7 @@ import {
   vehicleSchema,
   type VehicleFormValues,
 } from '../vehicle-schema';
-import { STATUS_LABELS, TYPE_LABELS, unitLabel } from '../vehicle-labels';
+import { NO_LINK, STATUS_LABELS, TYPE_LABELS, unitLabel } from '../vehicle-labels';
 
 /**
  * A placa e unica por tenant e a verificacao do servidor alcanca tambem os
@@ -84,7 +84,7 @@ export function VehicleFormDialog({
   // ser tao alcancavel quanto escolher.
   const unitOptions = useMemo(
     () => [
-      { value: NONE, label: 'Sem vinculo' },
+      { value: NONE, label: NO_LINK },
       ...units.map((unit) => ({ value: unit.id, label: unitLabel(unit) })),
     ],
     [units],
@@ -94,7 +94,7 @@ export function VehicleFormDialog({
   // podem trazer o mesmo, e ela tambem entra na busca.
   const residentOptions = useMemo(
     () => [
-      { value: NONE, label: 'Sem vinculo' },
+      { value: NONE, label: NO_LINK },
       ...residents.map((resident) => ({
         value: resident.id,
         label: resident.name,
@@ -276,7 +276,7 @@ export function VehicleFormDialog({
               Os dois vinculos sao opcionais no servidor e independentes entre
               si: o veiculo de um prestador recorrente, ou o de um morador ainda
               não cadastrado, existe sem nenhum dos dois. Por isso cada seletor
-              abre em "Sem vinculo" e pode voltar para la.
+              abre em "Sem vínculo" e pode voltar para lá.
             */}
             <FormSection title="Vinculo">
               <Controller
@@ -295,7 +295,7 @@ export function VehicleFormDialog({
                         value={field.value === '' ? NONE : field.value}
                         options={unitOptions}
                         searchPlaceholder="Buscar unidade"
-                        emptyMessage="Nenhuma unidade corresponde a busca."
+                        emptyMessage="Nenhuma unidade corresponde à busca."
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
                       />
                     )}
@@ -319,7 +319,7 @@ export function VehicleFormDialog({
                         value={field.value === '' ? NONE : field.value}
                         options={residentOptions}
                         searchPlaceholder="Buscar por nome ou unidade"
-                        emptyMessage="Nenhum morador corresponde a busca."
+                        emptyMessage="Nenhum morador corresponde à busca."
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
                       />
                     )}
