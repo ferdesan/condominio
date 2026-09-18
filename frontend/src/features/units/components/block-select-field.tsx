@@ -95,7 +95,7 @@ export function BlockSelectField({
       <div className="space-y-1.5">
         <p className="text-sm font-medium">{label}</p>
         <p className="text-sm text-muted-foreground">
-          Este condominio ainda nao tem blocos. Toda unidade pertence a um.
+          Este condomínio ainda não tem blocos. Toda unidade pertence a um.
         </p>
         <Button type="button" variant="outline" onClick={() => setCreating(true)}>
           Cadastrar o primeiro bloco

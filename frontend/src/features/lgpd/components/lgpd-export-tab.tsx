@@ -3,13 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiGetPaginated, type ApiError, type Paginated } from '@/lib/api';
 import { MAX_PER_PAGE } from '@/lib/crud';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -54,14 +48,14 @@ export function LgpdExportTab() {
 
   function handleOwnExport(): void {
     exportOwn.mutate(undefined, {
-      onSuccess: () => toast.success('Exportacao dos seus dados gerada.'),
+      onSuccess: () => toast.success('Exportação dos seus dados gerada.'),
     });
   }
 
   function handleResidentExport(): void {
     if (!residentId) return;
     exportResident.mutate(residentId, {
-      onSuccess: () => toast.success('Exportacao dos dados do morador gerada.'),
+      onSuccess: () => toast.success('Exportação dos dados do morador gerada.'),
     });
   }
 
@@ -69,7 +63,7 @@ export function LgpdExportTab() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Exportacao de dados</CardTitle>
+          <CardTitle>Exportação de dados</CardTitle>
           <CardDescription>
             Gere o arquivo JSON com os dados pessoais de um morador, no formato definido para a
             portabilidade (LGPD Art. 18, V).
@@ -108,7 +102,7 @@ export function LgpdExportTab() {
       <CardHeader>
         <CardTitle>Seus dados pessoais</CardTitle>
         <CardDescription>
-          Baixe um arquivo JSON com os dados que o condominio guarda sobre voce, para a
+          Baixe um arquivo JSON com os dados que o condomínio guarda sobre você, para a
           portabilidade (LGPD Art. 18, V).
         </CardDescription>
       </CardHeader>

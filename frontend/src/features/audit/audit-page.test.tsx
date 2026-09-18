@@ -123,7 +123,7 @@ beforeEach(() => {
 });
 
 describe('Listagem da trilha', () => {
-  it('lista paginada pede a proxima pagina com os parametros certos', async () => {
+  it('lista paginada pede a próxima pagina com os parametros certos', async () => {
     world = serveAudit({ logs: makeTrail(20), total: 300 });
     const user = createUser();
     renderWithProviders(<AuditPage />);
@@ -134,7 +134,7 @@ describe('Listagem da trilha', () => {
     expect(lastListParams().page).toBe(1);
 
     world.logs = makeTrail(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Entrada 21')).toBeInTheDocument();
@@ -153,7 +153,7 @@ describe('Listagem da trilha', () => {
 
     // `selectOption` usa `fireEvent`, que o RTL ja embrulha em `act`: o novo
     // pedido sai antes de a chamada retornar, entao a assercao e direta.
-    selectOption(screen.getByLabelText('Acao'), 'Alteracao');
+    selectOption(screen.getByLabelText('Ação'), 'Alteração');
     expect(lastListParams().action).toBe('UPDATE');
 
     selectOption(screen.getByLabelText('Recurso'), 'Unidade');
@@ -184,7 +184,7 @@ describe('Listagem da trilha', () => {
     expect(lastListParams().sortBy).toBe('createdAt');
   });
 
-  it('funciona sem condominio selecionado e nao pede a selecao', async () => {
+  it('funciona sem condomínio selecionado e não pede a seleção', async () => {
     world = serveAudit({ logs: [makeAuditLog()] });
     renderWithProviders(<AuditPage />, { condominium: null });
 
@@ -192,7 +192,7 @@ describe('Listagem da trilha', () => {
     // nenhuma escolha no shell.
     await findRows();
 
-    expect(screen.queryByText(/selecione um condominio/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/selecione um condomínio/i)).not.toBeInTheDocument();
     // Nenhuma requisicao carrega a chave: `AuditRepository` a descartaria em
     // silencio, e envia-la prometeria um recorte inexistente.
     for (const request of allReadRequests()) {
@@ -200,7 +200,7 @@ describe('Listagem da trilha', () => {
     }
   });
 
-  it('lista vazia renderiza estado vazio, e nao tabela em branco', async () => {
+  it('lista vazia renderiza estado vazio, e não tabela em branco', async () => {
     world = serveAudit({ logs: [] });
     renderWithProviders(<AuditPage />);
 
@@ -222,7 +222,7 @@ describe('Listagem da trilha', () => {
 });
 
 describe('Conteudo de uma entrada', () => {
-  it('mostra quem agiu, o que mudou e quando, de forma legivel', async () => {
+  it('mostra quem agiu, o que mudou e quando, de forma legível', async () => {
     world = serveAudit({ logs: [makeAuditLog()] });
     renderWithProviders(<AuditPage />);
 
@@ -231,9 +231,9 @@ describe('Conteudo de uma entrada', () => {
     // Quem agiu.
     expect(cellsOf('Autor')[0]).toBe('Marina Alves');
     // O que aconteceu, por extenso e nao pelo identificador do servidor.
-    expect(cellsOf('Acao')[0]).toBe('Alteracao');
+    expect(cellsOf('Ação')[0]).toBe('Alteração');
     expect(cellsOf('Recurso')[0]).toBe('Unidade');
-    expect(cellsOf('Descricao')[0]).toBe(DESCRIPTION);
+    expect(cellsOf('Descrição')[0]).toBe(DESCRIPTION);
     // Quais campos mudaram, ja na listagem.
     expect(cellsOf('Campos alterados')[0]).toBe('status, monthlyFee');
     // Quando: data e hora completas, sem depender do fuso da maquina que roda o
@@ -241,7 +241,7 @@ describe('Conteudo de uma entrada', () => {
     expect(cellsOf('Quando')[0]).toMatch(/^\d{2}\/\d{2}\/\d{4} as \d{2}:\d{2}/);
   });
 
-  it('entrada sem autor e atribuida ao sistema, e nao a um traco', async () => {
+  it('entrada sem autor e atribuida ao sistema, e não a um traco', async () => {
     world = serveAudit({
       logs: [makeAuditLog({ userId: null, userName: null, description: 'Carga inicial' })],
     });
@@ -251,7 +251,7 @@ describe('Conteudo de uma entrada', () => {
     expect(cellsOf('Autor')[0]).toBe('Sistema');
   });
 
-  it('acao sem campos alterados diz isso, em vez de deixar a celula vazia', async () => {
+  it('ação sem campos alterados diz isso, em vez de deixar a celula vazia', async () => {
     world = serveAudit({
       logs: [
         makeAuditLog({
@@ -267,11 +267,11 @@ describe('Conteudo de uma entrada', () => {
 
     await findRows('Entrada realizada');
     expect(cellsOf('Campos alterados')[0]).toBe('Nenhum campo alterado');
-    expect(cellsOf('Acao')[0]).toBe('Entrada no sistema');
+    expect(cellsOf('Ação')[0]).toBe('Entrada no sistema');
   });
 });
 
-describe('Historico de um registro', () => {
+describe('Histórico de um registro', () => {
   it('abrir os detalhes consulta a rota por recurso e identificador', async () => {
     world = serveAudit({
       logs: [makeAuditLog()],
@@ -288,7 +288,7 @@ describe('Historico de um registro', () => {
     renderWithProviders(<AuditPage />);
 
     await findRows();
-    clickTrigger(screen.getByRole('button', { name: /^Ver detalhes de Alteracao em Unidade/ }));
+    clickTrigger(screen.getByRole('button', { name: /^Ver detalhes de Alteração em Unidade/ }));
 
     const dialog = await screen.findByRole('dialog');
     // A rota do historico e por recurso e identificador, e nao a listagem
@@ -300,12 +300,12 @@ describe('Historico de um registro', () => {
     expect(within(dialog).getAllByText('Marina Alves')).toHaveLength(1);
   });
 
-  it('os detalhes mostram a diferenca entre antes e depois', async () => {
+  it('os detalhes mostram a diferença entre antes e depois', async () => {
     world = serveAudit({ logs: [makeAuditLog()], history: [makeAuditLog()] });
     renderWithProviders(<AuditPage />);
 
     await findRows();
-    clickTrigger(screen.getByRole('button', { name: /^Ver detalhes de Alteracao em Unidade/ }));
+    clickTrigger(screen.getByRole('button', { name: /^Ver detalhes de Alteração em Unidade/ }));
 
     const dialog = await screen.findByRole('dialog');
     const changes = within(dialog).getByText('status').closest('li');
@@ -320,7 +320,7 @@ describe('Historico de um registro', () => {
     expect(fee?.textContent).toContain('850');
   });
 
-  it('acao sem registro alvo nao consulta historico nenhum', async () => {
+  it('ação sem registro alvo não consulta histórico nenhum', async () => {
     world = serveAudit({
       logs: [
         makeAuditLog({
@@ -328,24 +328,24 @@ describe('Historico de um registro', () => {
           resource: 'auth',
           resourceId: null,
           changes: null,
-          description: 'Senha invalida',
+          description: 'Senha inválida',
         }),
       ],
     });
     renderWithProviders(<AuditPage />);
 
-    await findRows('Senha invalida');
+    await findRows('Senha inválida');
     clickTrigger(screen.getByRole('button', { name: /^Ver detalhes de Falha de entrada/ }));
 
     const dialog = await screen.findByRole('dialog');
-    expect(within(dialog).getByText(/nao aponta para um registro especifico/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/não aponta para um registro especifico/i)).toBeInTheDocument();
     // Pedir o historico de um identificador vazio seria um 400 no servidor.
     expect(mockGet).not.toHaveBeenCalled();
   });
 });
 
 describe('Trilha somente leitura', () => {
-  it('nao oferece criar, editar, excluir nem restaurar em lugar nenhum', async () => {
+  it('não oferece criar, editar, excluir nem restaurar em lugar nenhum', async () => {
     world = serveAudit({
       logs: [
         makeAuditLog(),
@@ -368,12 +368,12 @@ describe('Trilha somente leitura', () => {
     expect(mockDelete).not.toHaveBeenCalled();
   });
 
-  it('o dialogo de detalhes tambem nao oferece escrita', async () => {
+  it('o dialogo de detalhes também não oferece escrita', async () => {
     world = serveAudit({ logs: [makeAuditLog()], history: [makeAuditLog()] });
     renderWithProviders(<AuditPage />);
 
     await findRows();
-    clickTrigger(screen.getByRole('button', { name: /^Ver detalhes de Alteracao em Unidade/ }));
+    clickTrigger(screen.getByRole('button', { name: /^Ver detalhes de Alteração em Unidade/ }));
 
     await screen.findByRole('dialog');
     expect(writeActionsOnScreen()).toEqual([]);

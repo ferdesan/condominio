@@ -14,17 +14,14 @@
  */
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import {
-  AuthContext,
-  type AuthContextValue,
-} from '@/providers/auth-context';
+import { AuthContext, type AuthContextValue } from '@/providers/auth-context';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { makeAuthUser } from '@/test/fixtures';
 import type { AuthUser } from '@/types/api';
 import { useTheme } from '@/hooks/use-theme';
 import { useAccountTheme } from '../use-account-theme';
 
-const STORAGE_KEY = 'condominio.theme';
+const STORAGE_KEY = 'condomínio.theme';
 
 function authValue(user: AuthUser | null): AuthContextValue {
   return {
@@ -73,7 +70,7 @@ describe('useAccountTheme (UT-028)', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('dark');
   });
 
-  it('UT-028.E1: a escolha ja guardada no dispositivo vence a da conta', async () => {
+  it('UT-028.E1: a escolha já guardada no dispositivo vence a da conta', async () => {
     localStorage.setItem(STORAGE_KEY, 'light');
     const getUser = () => makeAuthUser({ role: 'ADMIN', preferences: { theme: 'dark' } });
 
@@ -92,7 +89,7 @@ describe('useAccountTheme (UT-028)', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('light');
   });
 
-  it('UT-028.E2: apos adotar, o efeito nao reaplica ao mudar as dependencias', async () => {
+  it('UT-028.E2: após adotar, o efeito não reaplica ao mudar as dependências', async () => {
     let user: AuthUser = makeAuthUser({ role: 'ADMIN', preferences: { theme: 'dark' } });
 
     const { result, rerender } = renderHook(

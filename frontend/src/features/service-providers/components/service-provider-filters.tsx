@@ -33,7 +33,7 @@ export interface ServiceProviderFiltersProps {
 export function ServiceProviderFilters({ list, serviceTypes }: ServiceProviderFiltersProps) {
   const chips: Filter[] = [];
   if (list.filters.serviceType) {
-    chips.push({ id: 'serviceType', label: 'Tipo de servico', value: list.filters.serviceType });
+    chips.push({ id: 'serviceType', label: 'Tipo de serviço', value: list.filters.serviceType });
   }
   if (list.filters.status) {
     chips.push({
@@ -66,7 +66,7 @@ export function ServiceProviderFilters({ list, serviceTypes }: ServiceProviderFi
             <Input
               id="provider-search"
               className="pl-10"
-              placeholder="Razao social, nome fantasia, documento, servico ou contato"
+              placeholder="Razao social, nome fantasia, documento, serviço ou contato"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />
@@ -74,7 +74,7 @@ export function ServiceProviderFilters({ list, serviceTypes }: ServiceProviderFi
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="provider-service-type">Tipo de servico</Label>
+          <Label htmlFor="provider-service-type">Tipo de serviço</Label>
           <Select
             value={(list.filters.serviceType as string) ?? ANY}
             onValueChange={(value) =>
@@ -119,7 +119,7 @@ export function ServiceProviderFilters({ list, serviceTypes }: ServiceProviderFi
       {/*
         Sem gate de permissao: ver registros removidos e leitura, e o servidor
         aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a linha
-        marcada e nenhuma acao de restaurar (ADR-006).
+        marcada e nenhuma ação de restaurar (ADR-006).
       */}
       <div className="flex items-center gap-2">
         <Checkbox

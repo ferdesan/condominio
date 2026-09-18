@@ -24,13 +24,13 @@ const announcementFields = z.object({
   title: z
     .string()
     .trim()
-    .min(3, 'Informe o titulo do comunicado.')
-    .max(180, 'Use no maximo 180 caracteres.'),
+    .min(3, 'Informe o título do comunicado.')
+    .max(180, 'Use no máximo 180 caracteres.'),
   content: z
     .string()
     .trim()
     .min(3, 'Informe o conteudo do comunicado.')
-    .max(CONTENT_MAX_LENGTH, `Use no maximo ${CONTENT_MAX_LENGTH} caracteres.`),
+    .max(CONTENT_MAX_LENGTH, `Use no máximo ${CONTENT_MAX_LENGTH} caracteres.`),
   category: z.enum(ANNOUNCEMENT_CATEGORIES),
   audience: z.enum(ANNOUNCEMENT_AUDIENCES),
   /** So tem sentido — e so e enviado — quando o publico-alvo e `BLOCKS`. */
@@ -51,7 +51,7 @@ export const announcementSchema = announcementFields.refine(
   (values) => values.audience !== 'BLOCKS' || values.targetBlockIds.length > 0,
   {
     path: ['targetBlockIds'],
-    message: 'Selecione ao menos um bloco para o publico-alvo escolhido.',
+    message: 'Selecione ao menos um bloco para o público-alvo escolhido.',
   },
 );
 

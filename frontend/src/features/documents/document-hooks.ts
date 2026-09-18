@@ -172,11 +172,11 @@ function describeDownloadFailure(error: unknown): unknown {
 
   const message =
     error.status === 403
-      ? 'Este documento nao esta disponivel para o seu perfil.'
+      ? 'Este documento não esta disponível para o seu perfil.'
       : error.status === 404
-        ? 'Documento nao encontrado. A lista pode estar desatualizada.'
+        ? 'Documento não encontrado. A lista pode estar desatualizada.'
         : error.status === 400
-          ? 'O arquivo nao esta mais disponivel no armazenamento.'
+          ? 'O arquivo não esta mais disponível no armazenamento.'
           : null;
 
   if (!message) return error;

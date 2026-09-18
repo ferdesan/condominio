@@ -17,7 +17,7 @@ import type { Incident } from '@/types/incident';
 
 /** Campo opcional de texto livre: vazio e ausencia, nao erro. */
 function optionalText(max: number) {
-  return z.string().trim().max(max, `Use no maximo ${max} caracteres.`);
+  return z.string().trim().max(max, `Use no máximo ${max} caracteres.`);
 }
 
 /** Teto da descricao e da tratativa no servidor. */
@@ -27,13 +27,13 @@ const incidentFields = z.object({
   title: z
     .string()
     .trim()
-    .min(3, 'Informe o titulo da ocorrencia.')
-    .max(180, 'Use no maximo 180 caracteres.'),
+    .min(3, 'Informe o título da ocorrência.')
+    .max(180, 'Use no máximo 180 caracteres.'),
   description: z
     .string()
     .trim()
-    .min(5, 'Descreva a ocorrencia.')
-    .max(DESCRIPTION_MAX_LENGTH, `Use no maximo ${DESCRIPTION_MAX_LENGTH} caracteres.`),
+    .min(5, 'Descreva a ocorrência.')
+    .max(DESCRIPTION_MAX_LENGTH, `Use no máximo ${DESCRIPTION_MAX_LENGTH} caracteres.`),
   location: optionalText(180),
   category: z.enum(INCIDENT_CATEGORIES),
   priority: z.enum(INCIDENT_PRIORITIES),
@@ -146,7 +146,7 @@ export function toChangeStatusPayload(values: ChangeStatusFormValues): ChangeSta
 
 /** Espelho de `assignIncidentSchema`: o responsavel e obrigatorio. */
 export const assignSchema = z.object({
-  assignedToId: z.string().min(1, 'Selecione o responsavel pela ocorrencia.'),
+  assignedToId: z.string().min(1, 'Selecione o responsável pela ocorrência.'),
 });
 
 export type AssignFormValues = z.infer<typeof assignSchema>;

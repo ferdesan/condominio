@@ -30,8 +30,8 @@ const mockToastError = vi.mocked(toast.error);
 const TOWER_A = makeBlock({ id: 'block-1', name: 'Torre A' });
 const UNIT_101 = makeUnit({ id: 'unit-1', number: '101', block: TOWER_A });
 
-const RESIDENTS_BLOCKER = 'Unidade possui moradores ativos e nao pode ser removida.';
-const CHARGES_BLOCKER = 'Unidade possui cobrancas em aberto e nao pode ser removida.';
+const RESIDENTS_BLOCKER = 'Unidade possui moradores ativos e não pode ser removida.';
+const CHARGES_BLOCKER = 'Unidade possui cobranças em aberto e não pode ser removida.';
 
 function serve(units: Unit[]): void {
   mockGetPaginated.mockImplementation(async (url, config) => {
@@ -66,8 +66,8 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('Exclusao e restauracao de unidade', () => {
-  it('IT-074: exclui a unidade e o total do condominio acompanha', async () => {
+describe('Exclusao e restauração de unidade', () => {
+  it('IT-074: exclui a unidade e o total do condomínio acompanha', async () => {
     serve([UNIT_101, makeUnit({ id: 'unit-2', number: '102', block: TOWER_A })]);
     mockDelete.mockResolvedValue(undefined);
     renderWithProviders(<UnitsPage />);
@@ -97,7 +97,7 @@ describe('Exclusao e restauracao de unidade', () => {
     expect(screen.getByText('101')).toBeInTheDocument();
   });
 
-  it('IT-076: recusa por cobrancas em aberto aparece como o servidor escreveu', async () => {
+  it('IT-076: recusa por cobranças em aberto aparece como o servidor escreveu', async () => {
     serve([UNIT_101]);
     mockDelete.mockRejectedValue(new ApiError(CHARGES_BLOCKER, 409, 'BUSINESS_RULE_VIOLATION'));
     renderWithProviders(<UnitsPage />);
@@ -138,7 +138,7 @@ describe('Exclusao e restauracao de unidade', () => {
       deletedAt: '2026-02-01T12:00:00.000Z',
     });
     serve([deleted]);
-    const message = 'Ja existe uma unidade com este numero neste bloco.';
+    const message = 'Já existe uma unidade com este número neste bloco.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'CONFLICT'));
     renderWithProviders(<UnitsPage />);
     await screen.findByText('Nenhuma unidade cadastrada');
@@ -156,7 +156,7 @@ describe('Exclusao e restauracao de unidade', () => {
     expect(screen.getByRole('button', { name: 'Restaurar unidade 101' })).toBeInTheDocument();
   });
 
-  it('IT-079: excluir a ultima unidade zera o total, que e o que destrava o condominio', async () => {
+  it('IT-079: excluir a última unidade zera o total, que e o que destrava o condomínio', async () => {
     serve([UNIT_101]);
     mockDelete.mockResolvedValue(undefined);
     renderWithProviders(<UnitsPage />);
@@ -173,8 +173,8 @@ describe('Exclusao e restauracao de unidade', () => {
   });
 });
 
-describe('Permissoes nas acoes de linha', () => {
-  it('sem permissao de exclusao a acao nao e oferecida, e restaurar segue a de edicao', async () => {
+describe('Permissões nas ações de linha', () => {
+  it('sem permissao de exclusao a ação não e oferecida, e restaurar segue a de edição', async () => {
     const deleted = makeUnit({
       id: 'unit-2',
       number: '102',

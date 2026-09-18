@@ -36,7 +36,7 @@ export function ReservationFilters({ list, areas, units }: ReservationFiltersPro
     const area = areas.find((item) => item.id === list.filters.commonAreaId);
     chips.push({
       id: 'commonAreaId',
-      label: 'Area comum',
+      label: 'Área comum',
       value: area?.name ?? String(list.filters.commonAreaId),
     });
   }
@@ -85,7 +85,7 @@ export function ReservationFilters({ list, areas, units }: ReservationFiltersPro
             <Input
               id="reservation-search"
               className="pl-10"
-              placeholder="Solicitante ou observacoes"
+              placeholder="Solicitante ou observações"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />
@@ -93,7 +93,7 @@ export function ReservationFilters({ list, areas, units }: ReservationFiltersPro
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="reservation-area">Area comum</Label>
+          <Label htmlFor="reservation-area">Área comum</Label>
           <Select
             value={(list.filters.commonAreaId as string) ?? ANY}
             onValueChange={(value) =>

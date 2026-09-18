@@ -81,8 +81,8 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('Geracao de unidades em lote', () => {
-  it('IT-060: mostra a projecao, gera e relata quantas o servidor criou', async () => {
+describe('Geração de unidades em lote', () => {
+  it('IT-060: mostra a projeção, gera e relata quantas o servidor criou', async () => {
     serve([], 0);
     renderWithProviders(<UnitsPage />);
     await screen.findByText('Nenhuma unidade cadastrada');
@@ -92,8 +92,8 @@ describe('Geracao de unidades em lote', () => {
     await fillGrid('3', '4');
 
     // A contagem projetada aparece antes de confirmar, no texto e no botao.
-    expect(await screen.findByText(/Serao geradas/)).toHaveTextContent(
-      'Serao geradas 12 unidades, de 101 a 304.',
+    expect(await screen.findByText(/Serão geradas/)).toHaveTextContent(
+      'Serão geradas 12 unidades, de 101 a 304.',
     );
     expect(confirmButton()).toHaveAccessibleName('Gerar 12 unidades');
 
@@ -125,9 +125,9 @@ describe('Geracao de unidades em lote', () => {
     expect(await screen.findByRole('table')).toBeInTheDocument();
   });
 
-  it('IT-061: recusa por numeros ja existentes e um desfecho, nao uma falha', async () => {
+  it('IT-061: recusa por números já existentes e um desfecho, não uma falha', async () => {
     serve([], 4);
-    const message = 'Nenhuma unidade nova foi gerada: todos os numeros ja existem.';
+    const message = 'Nenhuma unidade nova foi gerada: todos os números já existem.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'BUSINESS_RULE_VIOLATION'));
     renderDialog();
     await fillGrid('2', '2');
@@ -143,7 +143,7 @@ describe('Geracao de unidades em lote', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('IT-062: zero andares e recusado sem requisicao', async () => {
+  it('IT-062: zero andares e recusado sem requisição', async () => {
     serve([], 0);
     renderDialog();
     await fillGrid('0', '4');
@@ -151,17 +151,17 @@ describe('Geracao de unidades em lote', () => {
     clickTrigger(confirmButton());
 
     expect(
-      await screen.findByText('O numero de andares deve estar entre 1 e 100.'),
+      await screen.findByText('O número de andares deve estar entre 1 e 100.'),
     ).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('IT-063: gerar sobre um bloco povoado avisa da sobreposicao antes de confirmar', async () => {
+  it('IT-063: gerar sobre um bloco povoado avisa da sobreposição antes de confirmar', async () => {
     serve([], 6);
     renderDialog();
 
-    expect(await screen.findByText(/Este bloco ja possui 6 unidades/)).toBeInTheDocument();
-    expect(screen.getByText(/Numeros que ja existem serao pulados/)).toBeInTheDocument();
+    expect(await screen.findByText(/Este bloco já possui 6 unidades/)).toBeInTheDocument();
+    expect(screen.getByText(/Números que já existem serão pulados/)).toBeInTheDocument();
     // O aviso vem antes de qualquer envio.
     expect(mockPost).not.toHaveBeenCalled();
   });
@@ -192,7 +192,7 @@ describe('Geracao de unidades em lote', () => {
     expect(await screen.findByText('5.000 unidades criadas.')).toBeInTheDocument();
   });
 
-  it('IT-065: duas confirmacoes seguidas produzem uma unica requisicao', async () => {
+  it('IT-065: duas confirmações seguidas produzem uma única requisição', async () => {
     serve([], 0);
     mockPost.mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve({ created: 4 }), 50)),
@@ -221,18 +221,18 @@ describe('Geracao de unidades em lote', () => {
     await waitFor(() => expect(mockGetPaginated.mock.calls.length).toBeGreaterThan(callsBefore));
   });
 
-  it('IT-067: padrao que produz numero de 21 caracteres e recusado sem requisicao', async () => {
+  it('IT-067: padrão que produz número de 21 caracteres e recusado sem requisição', async () => {
     serve([], 0);
     const user = createUser();
     renderDialog();
     await fillGrid('100', '50');
-    await user.clear(screen.getByLabelText('Padrao de numeracao'));
+    await user.clear(screen.getByLabelText('Padrão de numeração'));
     // `userEvent` le `{` como descritor de tecla; `{{` digita a chave literal.
     await user.type(
-      screen.getByLabelText('Padrao de numeracao'),
+      screen.getByLabelText('Padrão de numeração'),
       'UNIDADE-CENTRAL-{{floor}{{index}',
     );
-    expect(screen.getByLabelText('Padrao de numeracao')).toHaveValue(
+    expect(screen.getByLabelText('Padrão de numeração')).toHaveValue(
       'UNIDADE-CENTRAL-{floor}{index}',
     );
     await user.clear(screen.getByLabelText('Andar inicial'));

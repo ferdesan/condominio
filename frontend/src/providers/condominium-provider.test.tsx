@@ -39,7 +39,7 @@ vi.mock('sonner', () => ({
   toast: { error: vi.fn(), success: vi.fn(), message: vi.fn() },
 }));
 
-const STORAGE_KEY = 'condominio.selectedCondominium';
+const STORAGE_KEY = 'condomínio.selectedCondominium';
 
 const AURORA = makeCondominium({ id: 'cond-1', name: 'Residencial Aurora' });
 const BOSQUE = makeCondominium({ id: 'cond-2', name: 'Residencial Bosque' });
@@ -97,7 +97,7 @@ function MutationProbe() {
         type="button"
         onClick={() => create.mutate({ name: 'Residencial Novo' } as CondominiumPayload)}
       >
-        Criar condominio
+        Criar condomínio
       </button>
       <button type="button" onClick={() => remove.mutate('cond-1')}>
         Remover o selecionado
@@ -132,8 +132,8 @@ beforeEach(() => {
   });
 });
 
-describe('Selecao de condominio', () => {
-  it('IT-183: com exatamente um condominio, ele ja vem selecionado', async () => {
+describe('Seleção de condomínio', () => {
+  it('IT-183: com exatamente um condomínio, ele já vem selecionado', async () => {
     world.condominiums = [AURORA];
     mount(<SelectionProbe />);
 
@@ -142,7 +142,7 @@ describe('Selecao de condominio', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('cond-1');
   });
 
-  it('IT-183: e a tela escopada ja funciona, sem passo manual', async () => {
+  it('IT-183: e a tela escopada já funciona, sem passo manual', async () => {
     world.condominiums = [AURORA];
     world.units = [makeUnit({ id: 'unit-1', number: '101', condominiumId: 'cond-1' })];
     mount(<UnitsPage />);
@@ -151,7 +151,7 @@ describe('Selecao de condominio', () => {
     expect(listRequests('/units').at(-1)?.condominiumId).toBe('cond-1');
   });
 
-  it('IT-184: uma selecao guardada fora da lista acessivel cai para a primeira', async () => {
+  it('IT-184: uma seleção guardada fora da lista acessível cai para a primeira', async () => {
     // O condominio guardado saiu do alcance do usuario entre duas sessoes.
     localStorage.setItem(STORAGE_KEY, 'cond-de-outro-tenant');
     mount(<SelectionProbe />);
@@ -161,7 +161,7 @@ describe('Selecao de condominio', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('cond-1');
   });
 
-  it('IT-184: uma selecao guardada ainda valida e respeitada', async () => {
+  it('IT-184: uma seleção guardada ainda válida e respeitada', async () => {
     // A outra metade da regra: reconciliar nao pode significar reescolher sempre.
     localStorage.setItem(STORAGE_KEY, 'cond-2');
     mount(<SelectionProbe />);
@@ -170,7 +170,7 @@ describe('Selecao de condominio', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('cond-2');
   });
 
-  it('IT-186: um condominio criado fica selecionavel sem recarregar a pagina', async () => {
+  it('IT-186: um condomínio criado fica selecionável sem recarregar a pagina', async () => {
     mount(
       <>
         <SelectionProbe />
@@ -184,7 +184,7 @@ describe('Selecao de condominio', () => {
     vi.mocked(apiPost).mockResolvedValue(created);
     world.condominiums = [AURORA, BOSQUE, created];
 
-    clickTrigger(screen.getByRole('button', { name: 'Criar condominio' }));
+    clickTrigger(screen.getByRole('button', { name: 'Criar condomínio' }));
 
     // A fabrica invalida tambem a chave do seletor do shell, entao ele recarrega
     // sozinho — sem isso, o recem-criado so apareceria depois de um F5.
@@ -195,7 +195,7 @@ describe('Selecao de condominio', () => {
     expect(selection()).toBe('Residencial Aurora');
   });
 
-  it('IT-187: remover o condominio selecionado move a selecao e as telas se recuperam', async () => {
+  it('IT-187: remover o condomínio selecionado move a seleção e as telas se recuperam', async () => {
     world.units = [makeUnit({ id: 'unit-1', number: '101', condominiumId: 'cond-1' })];
 
     mount(

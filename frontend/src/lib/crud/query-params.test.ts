@@ -30,7 +30,7 @@ describe('toQueryParams', () => {
     expect(query.status).toBe('VACANT,OCCUPIED');
   });
 
-  it('UT-007: limita perPage ao maximo aceito pelo servidor', () => {
+  it('UT-007: limita perPage ao máximo aceito pelo servidor', () => {
     expect(toQueryParams({ page: 1, perPage: 500 }).perPage).toBe(MAX_PER_PAGE);
     expect(MAX_PER_PAGE).toBe(200);
   });
@@ -63,7 +63,7 @@ describe('unitFilters', () => {
 });
 
 describe('toSortOrder', () => {
-  it('traduz o vocabulario da tabela para o da API', () => {
+  it('traduz o vocabulário da tabela para o da API', () => {
     expect(toSortOrder('asc')).toBe('ASC');
     expect(toSortOrder('desc')).toBe('DESC');
     expect(toSortOrder(undefined)).toBeUndefined();

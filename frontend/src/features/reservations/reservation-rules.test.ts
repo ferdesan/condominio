@@ -51,7 +51,7 @@ function messages(
 }
 
 describe('Regras locais de reserva', () => {
-  it('UT-059: uma reserva dentro de todas as restricoes da area passa sem apontamentos', () => {
+  it('UT-059: uma reserva dentro de todas as restrições da área passa sem apontamentos', () => {
     // Sabado, 18h as 22h: 4h de duracao, dentro de 08:00-22:00, 30 de 50
     // convidados, quatro dias a frente de um limite de 60.
     const area = makeCommonArea();
@@ -64,12 +64,12 @@ describe('Regras locais de reserva', () => {
     expect(issues).toEqual([]);
   });
 
-  it('UT-060: termino igual ao inicio falha no campo endsAt; um minuto depois passa', () => {
+  it('UT-060: término igual ao início falha no campo endsAt; um minuto depois passa', () => {
     const area = permissiveArea();
 
     const equal = checkReservationRules(values('2026-03-14T18:00', '2026-03-14T18:00'), area, NOW);
     expect(equal).toEqual([
-      { field: 'endsAt', message: 'O termino deve ser posterior ao inicio.' },
+      { field: 'endsAt', message: 'O término deve ser posterior ao início.' },
     ]);
 
     expect(
@@ -77,11 +77,11 @@ describe('Regras locais de reserva', () => {
     ).toEqual([]);
   });
 
-  it('UT-061: inicio um minuto no passado falha; um minuto a frente passa', () => {
+  it('UT-061: início um minuto no passado falha; um minuto a frente passa', () => {
     const area = permissiveArea();
 
     expect(messages(values('2026-03-10T11:59', '2026-03-10T13:00'), area)).toEqual([
-      'Nao e possivel reservar uma data no passado.',
+      'Não e possível reservar uma data no passado.',
     ]);
 
     expect(messages(values('2026-03-10T12:01', '2026-03-10T13:00'), area)).toEqual([]);
@@ -93,7 +93,7 @@ describe('Regras locais de reserva', () => {
     expect(messages(values('2026-04-09T12:00', '2026-04-09T13:00'), area)).toEqual([]);
 
     expect(messages(values('2026-04-10T12:00', '2026-04-10T13:00'), area)).toEqual([
-      'Reservas podem ser feitas com no maximo 30 dias de antecedencia.',
+      'Reservas podem ser feitas com no máximo 30 dias de antecedência.',
     ]);
   });
 
@@ -103,7 +103,7 @@ describe('Regras locais de reserva', () => {
     expect(messages(values('2026-03-14T18:00', '2026-03-14T20:00'), area)).toEqual([]);
 
     expect(messages(values('2026-03-14T18:00', '2026-03-14T19:59'), area)).toEqual([
-      'A reserva minima para esta area e de 2h.',
+      'A reserva mínima para esta área e de 2h.',
     ]);
   });
 
@@ -113,18 +113,18 @@ describe('Regras locais de reserva', () => {
     expect(messages(values('2026-03-14T12:00', '2026-03-14T18:00'), area)).toEqual([]);
 
     expect(messages(values('2026-03-14T12:00', '2026-03-14T18:01'), area)).toEqual([
-      'A reserva maxima para esta area e de 6h.',
+      'A reserva máxima para esta área e de 6h.',
     ]);
   });
 
-  it('UT-065: com availableWeekdays [0,6], sabado passa e quarta falha', () => {
+  it('UT-065: com availableWeekdays [0,6], sábado passa e quarta falha', () => {
     const area = permissiveArea({ availableWeekdays: [0, 6] });
 
     // 14/03/2026 e sabado; 11/03/2026 e quarta.
     expect(messages(values('2026-03-14T18:00', '2026-03-14T20:00'), area)).toEqual([]);
 
     expect(messages(values('2026-03-11T18:00', '2026-03-11T20:00'), area)).toEqual([
-      'A area comum nao esta disponivel neste dia da semana.',
+      'A área comum não esta disponível neste dia da semana.',
     ]);
   });
 
@@ -139,13 +139,13 @@ describe('Regras locais de reserva', () => {
     expect(messages(values('2026-03-14T08:00', '2026-03-14T22:01'), area)).toEqual([window]);
   });
 
-  it('UT-067: com capacity 50, 50 convidados passam e 51 falham; capacity 0 nao limita', () => {
+  it('UT-067: com capacity 50, 50 convidados passam e 51 falham; capacity 0 não limita', () => {
     const area = permissiveArea({ capacity: 50 });
 
     expect(messages(values('2026-03-14T18:00', '2026-03-14T20:00', '50'), area)).toEqual([]);
 
     expect(messages(values('2026-03-14T18:00', '2026-03-14T20:00', '51'), area)).toEqual([
-      'A area comporta no maximo 50 pessoas.',
+      'A área comporta no máximo 50 pessoas.',
     ]);
 
     const unlimited = permissiveArea({ capacity: 0 });
@@ -159,7 +159,7 @@ describe('Regras locais de reserva', () => {
 
     const tooLong = decisionSchema.safeParse({ reason: 'a'.repeat(DECISION_REASON_MAX + 1) });
     expect(tooLong.success).toBe(false);
-    expect(tooLong.error?.issues[0]?.message).toBe('Use no maximo 255 caracteres.');
+    expect(tooLong.error?.issues[0]?.message).toBe('Use no máximo 255 caracteres.');
   });
 
   it('UT-069: closesAt 00:00 vale como fim do dia, entao terminar as 23:59 passa', () => {
@@ -168,17 +168,17 @@ describe('Regras locais de reserva', () => {
     expect(messages(values('2026-03-14T18:00', '2026-03-14T23:59'), area)).toEqual([]);
   });
 
-  it('UT-070: sem area escolhida, so o termino-depois-do-inicio e conferido', () => {
+  it('UT-070: sem área escolhida, so o término-depois-do-início e conferido', () => {
     // Mesmo no passado, fora de qualquer janela e com convidados demais: sem
     // area nao ha parametro para decidir nenhuma dessas regras.
     expect(messages(values('2020-01-01T03:00', '2020-01-01T05:00', '9999'), null)).toEqual([]);
 
     expect(messages(values('2026-03-14T18:00', '2026-03-14T17:00'), null)).toEqual([
-      'O termino deve ser posterior ao inicio.',
+      'O término deve ser posterior ao início.',
     ]);
   });
 
-  it('UT-071: trocar a area re-deriva as regras e reavalia a mesma reserva', () => {
+  it('UT-071: trocar a área re-deriva as regras e reavalia a mesma reserva', () => {
     // Quarta-feira, valida para uma area sem restricao de dia.
     const booking = values('2026-03-11T18:00', '2026-03-11T20:00');
 
@@ -187,7 +187,7 @@ describe('Regras locais de reserva', () => {
 
     const weekendOnly = permissiveArea({ availableWeekdays: [0, 6] });
     expect(messages(booking, weekendOnly)).toEqual([
-      'A area comum nao esta disponivel neste dia da semana.',
+      'A área comum não esta disponível neste dia da semana.',
     ]);
 
     // O mesmo pela via do schema, que e como o formulario consome as regras.
@@ -223,7 +223,7 @@ describe('Regras locais de reserva', () => {
     }
   });
 
-  it('UT-073: minHours 0 e maxHours 0 nao impoem limite de duracao', () => {
+  it('UT-073: minHours 0 e maxHours 0 não impoem limite de duração', () => {
     const area = permissiveArea({ minHours: 0, maxHours: 0 });
 
     // Um minuto e doze horas passam igualmente.
@@ -231,7 +231,7 @@ describe('Regras locais de reserva', () => {
     expect(messages(values('2026-03-14T08:00', '2026-03-14T20:00'), area)).toEqual([]);
   });
 
-  it('UT-074: sobreposicao e intervalo minimo nao sao avaliados localmente', () => {
+  it('UT-074: sobreposição e intervalo mínimo não sao avaliados localmente', () => {
     // A area cobra um intervalo de 30 dias entre reservas da mesma unidade, e
     // ja existe uma reserva conhecida exatamente neste horario. Nenhuma das
     // duas coisas e decidivel aqui (ADR-011): o envio passa e quem recusa e o
@@ -242,7 +242,7 @@ describe('Regras locais de reserva', () => {
     expect(checkReservationRules(conflicting, area, NOW)).toEqual([]);
   });
 
-  it('UT-075: reserva que cruza a meia-noite e avaliada pelo dia e pela janela do inicio', () => {
+  it('UT-075: reserva que cruza a meia-noite e avaliada pelo dia e pela janela do início', () => {
     // Sabado 22:00 ate domingo 00:00, numa area que so abre aos sabados e
     // fecha a meia-noite. O domingo do termino nao reprova a reserva.
     const area = permissiveArea({

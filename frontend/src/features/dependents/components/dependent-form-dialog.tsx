@@ -181,8 +181,8 @@ export function DependentFormDialog({
                     error={fieldState.error?.message}
                     description={
                       missingResident
-                        ? 'O morador vinculado nao esta mais na lista deste condominio. Escolha outro.'
-                        : 'Apenas moradores do condominio selecionado.'
+                        ? 'O morador vinculado não esta mais na lista deste condomínio. Escolha outro.'
+                        : 'Apenas moradores do condomínio selecionado.'
                     }
                   >
                     {(aria) => (
@@ -214,8 +214,8 @@ export function DependentFormDialog({
                 description="Definida pelo morador escolhido."
               >
                 {/*
-                  Somente leitura, e nao desabilitado: o valor continua legivel
-                  e alcancavel pelo teclado, que e como quem navega assim
+                  Somente leitura, e não desabilitado: o valor continua legível
+                  e alcancável pelo teclado, que e como quem navega assim
                   confere para onde o dependente esta indo.
                 */}
                 {(aria) => (
@@ -361,8 +361,8 @@ export function DependentFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

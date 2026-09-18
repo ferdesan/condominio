@@ -166,7 +166,7 @@ const REGISTERED = [
   { path: '/notificacoes', title: 'Notificações', permission: null },
 ] as const;
 
-const PLACEHOLDER_MARKER = 'Modulo em construcao';
+const PLACEHOLDER_MARKER = 'Modulo em construção';
 
 /**
  * Monta o roteador inteiro no caminho pedido.
@@ -195,7 +195,7 @@ beforeEach(() => {
 });
 
 describe('Cobertura do menu', () => {
-  it('todo item de navegacao tem uma rota real declarada neste teste', () => {
+  it('todo item de navegação tem uma rota real declarada neste teste', () => {
     // Se alguem acrescentar um item ao menu sem tela, a contagem diverge e o
     // caso abaixo — que percorre a lista — nao chegaria a exercita-lo.
     expect(REGISTERED).toHaveLength(NAV_ITEMS.length);
@@ -205,7 +205,7 @@ describe('Cobertura do menu', () => {
     expect(missing).toEqual([]);
   });
 
-  it('cada caminho renderiza a tela real, e nao o placeholder', async () => {
+  it('cada caminho renderiza a tela real, e não o placeholder', async () => {
     for (const { path, title } of REGISTERED) {
       const view = renderRoute(path);
 
@@ -221,7 +221,7 @@ describe('Cobertura do menu', () => {
     }
   });
 
-  it('as rotas com permissao negam acesso a um papel que nao a tem', async () => {
+  it('as rotas com permissao negam acesso a um papel que não a tem', async () => {
     for (const { path, title, permission } of REGISTERED) {
       if (!permission) continue;
       // O painel e a unica que o papel de teste alcanca; para ela, o caso e o
@@ -240,7 +240,7 @@ describe('Cobertura do menu', () => {
     }
   });
 
-  it('notificacoes e alcancavel por qualquer papel autenticado', async () => {
+  it('notificações e alcancável por qualquer papel autenticado', async () => {
     // Sem nenhuma permissao: o predicado do frontend trata permissao ausente
     // como liberada, e o servidor tambem nao exige uma que distinga papeis.
     renderRoute('/notificacoes', { permissions: [] });
@@ -250,20 +250,20 @@ describe('Cobertura do menu', () => {
     ).toBeInTheDocument();
   });
 
-  it('notificacoes e negada a quem nao esta autenticado', async () => {
+  it('notificações e negada a quem não esta autenticado', async () => {
     renderRoute('/notificacoes', { user: null });
 
     // Sem sessao a rota leva ao login: a ausencia de permissao declarada nao
     // dispensa a guarda de autenticacao que envolve toda a area logada.
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Condominio SaaS' }),
+      await screen.findByRole('heading', { level: 1, name: 'Condomínio SaaS' }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { level: 1, name: 'Notificações' }),
     ).not.toBeInTheDocument();
   });
 
-  it('a navegacao lateral mostra todos os itens para o administrador', async () => {
+  it('a navegação lateral mostra todos os itens para o administrador', async () => {
     renderRoute('/');
 
     const menu = await screen.findByRole('navigation');
@@ -274,20 +274,20 @@ describe('Cobertura do menu', () => {
   });
 });
 
-describe('As rotas publicas de recuperacao de senha', () => {
-  it('sao alcancaveis sem sessao', async () => {
+describe('As rotas publicas de recuperação de senha', () => {
+  it('sao alcancáveis sem sessão', async () => {
     renderRoute('/esqueci-senha', { user: null });
 
     expect(await screen.findByRole('heading', { name: 'Esqueci minha senha' })).toBeInTheDocument();
   });
 
-  it('a de redefinicao explica o link incompleto quando nao ha token', async () => {
+  it('a de redefinição explica o link incompleto quando não ha token', async () => {
     renderRoute('/redefinir-senha', { user: null });
 
     expect(await screen.findByRole('heading', { name: 'Link incompleto' })).toBeInTheDocument();
   });
 
-  it('continuam alcancaveis com sessao', async () => {
+  it('continuam alcancáveis com sessão', async () => {
     // Nao redirecionam de proposito: o link de redefinicao chega por e-mail e
     // precisa funcionar independentemente do que este navegador guardou.
     renderRoute('/esqueci-senha');
@@ -295,7 +295,7 @@ describe('As rotas publicas de recuperacao de senha', () => {
     expect(await screen.findByRole('heading', { name: 'Esqueci minha senha' })).toBeInTheDocument();
   });
 
-  it('nao aparecem na navegacao lateral', async () => {
+  it('não aparecem na navegação lateral', async () => {
     renderRoute('/');
 
     const menu = await screen.findByRole('navigation');
@@ -329,7 +329,7 @@ describe('O mecanismo de placeholder', () => {
     }
   });
 
-  it('nao resta nenhuma rota servida pelo placeholder', async () => {
+  it('não resta nenhuma rota servida pelo placeholder', async () => {
     // `/perfil` era a ultima, e ganhou tela propria. O componente continua no
     // roteador de proposito: um item de menu novo ganha uma rota que explica a
     // ausencia em vez de um 404.
@@ -341,7 +341,7 @@ describe('O mecanismo de placeholder', () => {
     expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
   });
 
-  it('perfil fica fora da navegacao e nao exige permissao alguma', async () => {
+  it('perfil fica fora da navegação e não exige permissao alguma', async () => {
     // Nem no menu — a lateral organiza o produto por modulo de negocio, e a
     // conta de quem esta olhando nao e um deles — nem sob `authorize`: as quatro
     // rotas de `/auth` que a tela usa derivam o alvo do token.
@@ -355,11 +355,11 @@ describe('O mecanismo de placeholder', () => {
     expect(within(menu).queryByRole('link', { name: 'Meu perfil' })).not.toBeInTheDocument();
   });
 
-  it('perfil e negado a quem nao esta autenticado', async () => {
+  it('perfil e negado a quem não esta autenticado', async () => {
     renderRoute('/perfil', { user: null });
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Condominio SaaS' }),
+      await screen.findByRole('heading', { level: 1, name: 'Condomínio SaaS' }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 1, name: 'Meu perfil' })).not.toBeInTheDocument();
   });

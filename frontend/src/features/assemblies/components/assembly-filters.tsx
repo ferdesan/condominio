@@ -53,7 +53,7 @@ export function AssemblyFilters({ list }: AssemblyFiltersProps) {
   if (list.filters.status) {
     chips.push({
       id: 'status',
-      label: 'Situacao',
+      label: 'Situação',
       value: labelOf(STATUS_OPTIONS, list.filters.status),
     });
   }
@@ -85,7 +85,7 @@ export function AssemblyFilters({ list }: AssemblyFiltersProps) {
             <Input
               id="assembly-search"
               className="pl-10"
-              placeholder="Titulo, pauta ou local"
+              placeholder="Título, pauta ou local"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />
@@ -93,7 +93,7 @@ export function AssemblyFilters({ list }: AssemblyFiltersProps) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="assembly-status">Situacao</Label>
+          <Label htmlFor="assembly-status">Situação</Label>
           <Select
             value={(list.filters.status as string) ?? ANY}
             onValueChange={(value) => list.setFilter('status', value === ANY ? undefined : value)}
@@ -156,7 +156,7 @@ export function AssemblyFilters({ list }: AssemblyFiltersProps) {
       {/*
         Sem gate de permissao: ver registros removidos e leitura, e o servidor
         aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a linha
-        marcada e nenhuma acao de restaurar (ADR-006).
+        marcada e nenhuma ação de restaurar (ADR-006).
       */}
       <div className="flex items-center gap-2">
         <Checkbox

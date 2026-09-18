@@ -78,7 +78,7 @@ const WORLD = {
 
 /** As quatro telas, com o texto que prova que a leitura chegou ate o fim. */
 const SCREENS = [
-  { name: 'Condominios', element: <CondominiumsPage />, readMarker: 'Residencial Aurora' },
+  { name: 'Condomínios', element: <CondominiumsPage />, readMarker: 'Residencial Aurora' },
   { name: 'Unidades', element: <UnitsPage />, readMarker: '101' },
   { name: 'Moradores', element: <ResidentsPage />, readMarker: 'Carlos Pereira' },
   { name: 'Reservas', element: <ReservationsPage />, readMarker: 'Marina Solicitante' },
@@ -99,7 +99,7 @@ const WRITE_ACTIONS = [
   /^Restaurar/,
   /^Aprovar/,
   /^Recusar/,
-  /^Tornar .* responsavel/,
+  /^Tornar .* responsável/,
 ];
 
 function writeActionsOnScreen(): string[] {
@@ -116,7 +116,7 @@ beforeEach(() => {
 });
 
 describe('Visibilidade por papel', () => {
-  it('IT-177: as quatro telas como porteiro nao oferecem criar, editar, excluir nem restaurar', async () => {
+  it('IT-177: as quatro telas como porteiro não oferecem criar, editar, excluir nem restaurar', async () => {
     for (const { name, element, readMarker } of SCREENS) {
       const view = renderWithProviders(element, {
         role: 'STAFF',
@@ -129,7 +129,7 @@ describe('Visibilidade por papel', () => {
 
       const offered = writeActionsOnScreen();
       const forbidden = offered.filter((label) => !/^Cancelar reserva/.test(label));
-      expect(forbidden, `${name} ofereceu acoes de escrita a um porteiro`).toEqual([]);
+      expect(forbidden, `${name} ofereceu ações de escrita a um porteiro`).toEqual([]);
 
       // Nenhuma escrita saiu do cliente em nenhum momento.
       expect(vi.mocked(apiPost)).not.toHaveBeenCalled();
@@ -140,7 +140,7 @@ describe('Visibilidade por papel', () => {
     }
   });
 
-  it('IT-177: o porteiro cancela uma reserva mas nao a decide', async () => {
+  it('IT-177: o porteiro cancela uma reserva mas não a decide', async () => {
     // A celula mais estreita da matriz: `reservation:update` sem
     // `reservation:manage` da cancelar e nao da aprovar nem recusar (ADR-002).
     renderWithProviders(<ReservationsPage />, { role: 'STAFF', condominium: CONDOMINIUM });
@@ -151,7 +151,7 @@ describe('Visibilidade por papel', () => {
     expect(screen.queryByRole('button', { name: /^Recusar/ })).not.toBeInTheDocument();
   });
 
-  it('IT-177: o sindico decide, e um papel sem leitura nem chega a tela', async () => {
+  it('IT-177: o síndico decide, e um papel sem leitura nem chega a tela', async () => {
     // A outra ponta da matriz, para que a ausencia acima signifique alguma coisa.
     const view = renderWithProviders(<ReservationsPage />, {
       role: 'SINDICO',
@@ -172,20 +172,20 @@ describe('Visibilidade por papel', () => {
     expect(screen.getByText('Acesso negado')).toBeInTheDocument();
   });
 
-  it('IT-180: remontar com menos permissoes rende a interface reduzida', async () => {
+  it('IT-180: remontar com menos permissões rende a interface reduzida', async () => {
     // As permissoes mudaram entre dois carregamentos — a interface precisa
     // seguir as atuais, e nao as que ja estavam na tela (US-026.EC-3).
     const full = renderWithProviders(<CondominiumsPage />, {
       permissions: ['condominium:manage'],
     });
     expect(await screen.findByText('Residencial Aurora')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Novo condominio' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Novo condomínio' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Editar Residencial Aurora' })).toBeInTheDocument();
     full.unmount();
 
     renderWithProviders(<CondominiumsPage />, { permissions: ['condominium:read'] });
     expect(await screen.findByText('Residencial Aurora')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Novo condominio' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Novo condomínio' })).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Editar Residencial Aurora' }),
     ).not.toBeInTheDocument();
@@ -198,7 +198,7 @@ describe('Visibilidade por papel', () => {
     expect(vi.mocked(apiGet)).not.toHaveBeenCalledWith('/condominiums', expect.anything());
   });
 
-  it('IT-180: restaurar acompanha `update`, nao `delete`', async () => {
+  it('IT-180: restaurar acompanha `update`, não `delete`', async () => {
     // O lugar classico de errar a guarda (ADR-006), conferido nos dois sentidos.
     const canUpdate = renderWithProviders(<CondominiumsPage />, {
       permissions: ['condominium:read', 'condominium:update'],

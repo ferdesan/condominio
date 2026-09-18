@@ -57,20 +57,20 @@ const assemblyFields = z.object({
   title: z
     .string()
     .trim()
-    .min(3, 'Informe o titulo da assembleia.')
-    .max(180, 'Use no maximo 180 caracteres.'),
-  description: z.string().trim().max(5000, 'Use no maximo 5000 caracteres.'),
+    .min(3, 'Informe o título da assembleia.')
+    .max(180, 'Use no máximo 180 caracteres.'),
+  description: z.string().trim().max(5000, 'Use no máximo 5000 caracteres.'),
   type: z.enum(ASSEMBLY_TYPES),
   mode: z.enum(ASSEMBLY_MODES),
-  scheduledAt: z.string().min(1, 'Informe a data e a hora da convocacao.'),
+  scheduledAt: z.string().min(1, 'Informe a data e a hora da convocação.'),
   /** Vazio significa sem segunda convocacao; o servidor aceita nulo. */
   secondCallAt: z.string(),
-  location: z.string().trim().max(180, 'Use no maximo 180 caracteres.'),
-  onlineUrl: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
-  agendaUrl: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
+  location: z.string().trim().max(180, 'Use no máximo 180 caracteres.'),
+  onlineUrl: z.string().trim().max(255, 'Use no máximo 255 caracteres.'),
+  agendaUrl: z.string().trim().max(255, 'Use no máximo 255 caracteres.'),
   quorumPercent: z
     .string()
-    .refine((value) => value === '' || Number.isFinite(Number(value)), 'Informe um numero.')
+    .refine((value) => value === '' || Number.isFinite(Number(value)), 'Informe um número.')
     .refine(
       (value) => value === '' || (Number(value) >= 0 && Number(value) <= 100),
       'O quorum vai de 0 a 100.',
@@ -101,7 +101,7 @@ export const assemblySchema = assemblyFields
       new Date(values.secondCallAt) >= new Date(values.scheduledAt),
     {
       path: ['secondCallAt'],
-      message: 'A segunda convocacao deve ser posterior ao horario da primeira.',
+      message: 'A segunda convocação deve ser posterior ao horário da primeira.',
     },
   );
 
@@ -182,8 +182,8 @@ const finishFields = z.object({
   attendeesCount: z
     .string()
     .refine((value) => value !== '', 'Informe quantas unidades estiveram presentes.')
-    .refine((value) => Number.isInteger(Number(value)) && Number(value) >= 0, 'Informe um numero.'),
-  minutesUrl: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
+    .refine((value) => Number.isInteger(Number(value)) && Number(value) >= 0, 'Informe um número.'),
+  minutesUrl: z.string().trim().max(255, 'Use no máximo 255 caracteres.'),
 });
 
 export const finishAssemblySchema = finishFields.refine(
@@ -222,17 +222,17 @@ const pollFields = z.object({
   title: z
     .string()
     .trim()
-    .min(3, 'Informe a pergunta da votacao.')
-    .max(180, 'Use no maximo 180 caracteres.'),
-  description: z.string().trim().max(5000, 'Use no maximo 5000 caracteres.'),
+    .min(3, 'Informe a pergunta da votação.')
+    .max(180, 'Use no máximo 180 caracteres.'),
+  description: z.string().trim().max(5000, 'Use no máximo 5000 caracteres.'),
   voterType: z.enum(POLL_VOTER_TYPES),
   weightedByFraction: z.boolean(),
   isSecret: z.boolean(),
-  startsAt: z.string().min(1, 'Informe quando a votacao abre.'),
-  endsAt: z.string().min(1, 'Informe quando a votacao encerra.'),
+  startsAt: z.string().min(1, 'Informe quando a votação abre.'),
+  endsAt: z.string().min(1, 'Informe quando a votação encerra.'),
   quorumPercent: z
     .string()
-    .refine((value) => value === '' || Number.isFinite(Number(value)), 'Informe um numero.')
+    .refine((value) => value === '' || Number.isFinite(Number(value)), 'Informe um número.')
     .refine(
       (value) => value === '' || (Number(value) >= 0 && Number(value) <= 100),
       'O quorum vai de 0 a 100.',
@@ -248,12 +248,12 @@ const pollFields = z.object({
         label: z
           .string()
           .trim()
-          .min(1, 'Informe o texto da opcao.')
-          .max(180, 'Use no maximo 180 caracteres.'),
+          .min(1, 'Informe o texto da opção.')
+          .max(180, 'Use no máximo 180 caracteres.'),
       }),
     )
-    .min(2, 'Informe ao menos duas opcoes de voto.')
-    .max(20, 'Use no maximo 20 opcoes.'),
+    .min(2, 'Informe ao menos duas opções de voto.')
+    .max(20, 'Use no máximo 20 opções.'),
 });
 
 export const pollSchema = pollFields.refine(

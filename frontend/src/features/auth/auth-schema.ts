@@ -17,8 +17,8 @@ export const forgotPasswordSchema = z.object({
     .string()
     .trim()
     .min(1, 'Informe o e-mail.')
-    .email('E-mail invalido.')
-    .max(180, 'Use no maximo 180 caracteres.'),
+    .email('E-mail inválido.')
+    .max(180, 'Use no máximo 180 caracteres.'),
 });
 
 export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
@@ -35,16 +35,16 @@ const resetFields = z.object({
   password: z
     .string()
     .min(8, 'A senha deve ter ao menos 8 caracteres.')
-    .max(72, 'A senha deve ter no maximo 72 caracteres.')
+    .max(72, 'A senha deve ter no máximo 72 caracteres.')
     .regex(/[A-Z]/, 'A senha deve conter ao menos uma letra maiuscula.')
     .regex(/[a-z]/, 'A senha deve conter ao menos uma letra minuscula.')
-    .regex(/[0-9]/, 'A senha deve conter ao menos um numero.'),
+    .regex(/[0-9]/, 'A senha deve conter ao menos um número.'),
   confirmPassword: z.string().min(1, 'Repita a nova senha.'),
 });
 
 export const resetPasswordSchema = resetFields.refine(
   (data) => data.password === data.confirmPassword,
-  { message: 'As senhas nao conferem.', path: ['confirmPassword'] },
+  { message: 'As senhas não conferem.', path: ['confirmPassword'] },
 );
 
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;

@@ -33,7 +33,7 @@ function ContextProbe() {
 function SelectProbe({ onChange }: { onChange: (value: string) => void }) {
   return (
     <Select onValueChange={onChange}>
-      <SelectTrigger aria-label="Situacao">
+      <SelectTrigger aria-label="Situação">
         <SelectValue placeholder="Selecione" />
       </SelectTrigger>
       <SelectContent>
@@ -45,7 +45,7 @@ function SelectProbe({ onChange }: { onChange: (value: string) => void }) {
 }
 
 describe('renderWithProviders', () => {
-  it('injeta o papel e resolve as permissoes por ele', () => {
+  it('injeta o papel e resolve as permissões por ele', () => {
     const { unmount } = renderWithProviders(<ContextProbe />, { role: 'ADMIN' });
     expect(screen.getByTestId('can-create')).toHaveTextContent('true');
     unmount();
@@ -54,7 +54,7 @@ describe('renderWithProviders', () => {
     expect(screen.getByTestId('can-create')).toHaveTextContent('false');
   });
 
-  it('injeta o condominio selecionado e aceita a ausencia de escolha', () => {
+  it('injeta o condomínio selecionado e aceita a ausência de escolha', () => {
     const { unmount } = renderWithProviders(<ContextProbe />, {
       condominium: makeCondominium({ name: 'Edificio Central' }),
     });
@@ -67,20 +67,20 @@ describe('renderWithProviders', () => {
 });
 
 describe('polyfills do ambiente de teste', () => {
-  it('abre um select do Radix e lista as opcoes', () => {
+  it('abre um select do Radix e lista as opções', () => {
     renderWithProviders(<SelectProbe onChange={vi.fn()} />);
 
-    openSelect(screen.getByRole('combobox', { name: 'Situacao' }));
+    openSelect(screen.getByRole('combobox', { name: 'Situação' }));
 
     expect(screen.getByRole('option', { name: 'Ativo' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Inativo' })).toBeInTheDocument();
   });
 
-  it('escolhe uma opcao do select e propaga o valor', () => {
+  it('escolhe uma opção do select e propaga o valor', () => {
     const onChange = vi.fn();
     renderWithProviders(<SelectProbe onChange={onChange} />);
 
-    selectOption(screen.getByRole('combobox', { name: 'Situacao' }), 'Inativo');
+    selectOption(screen.getByRole('combobox', { name: 'Situação' }), 'Inativo');
 
     expect(onChange).toHaveBeenCalledWith('INACTIVE');
   });
@@ -90,7 +90,7 @@ describe('polyfills do ambiente de teste', () => {
       <Dialog>
         <DialogTrigger>Abrir</DialogTrigger>
         <DialogContent>
-          <DialogTitle>Novo condominio</DialogTitle>
+          <DialogTitle>Novo condomínio</DialogTitle>
         </DialogContent>
       </Dialog>,
     );
@@ -98,6 +98,6 @@ describe('polyfills do ambiente de teste', () => {
     clickTrigger(screen.getByRole('button', { name: 'Abrir' }));
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText('Novo condominio')).toBeInTheDocument();
+    expect(screen.getByText('Novo condomínio')).toBeInTheDocument();
   });
 });

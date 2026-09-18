@@ -34,13 +34,13 @@ export const blockSchema = z.object({
     .string()
     .trim()
     .min(1, 'Informe o nome do bloco.')
-    .max(80, 'Use no maximo 80 caracteres.'),
+    .max(80, 'Use no máximo 80 caracteres.'),
   type: z.enum(BLOCK_TYPES),
-  description: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
+  description: z.string().trim().max(255, 'Use no máximo 255 caracteres.'),
   floors: intInRange(
     BLOCK_MIN_FLOORS,
     BLOCK_MAX_FLOORS,
-    `O numero de andares deve estar entre ${BLOCK_MIN_FLOORS} e ${BLOCK_MAX_FLOORS}.`,
+    `O número de andares deve estar entre ${BLOCK_MIN_FLOORS} e ${BLOCK_MAX_FLOORS}.`,
   ),
   unitsPerFloor: intInRange(
     0,

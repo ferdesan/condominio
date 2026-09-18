@@ -34,15 +34,15 @@ export type ThemePreference = (typeof THEMES)[number];
  * mesma decisao ja valia no cadastro de usuarios.
  */
 const profileFields = z.object({
-  name: z.string().trim().min(3, 'Informe seu nome.').max(150, 'Use no maximo 150 caracteres.'),
+  name: z.string().trim().min(3, 'Informe seu nome.').max(150, 'Use no máximo 150 caracteres.'),
   /** Opcional, mas o servidor exige forma quando presente (`phoneSchema`). */
   phone: z
     .string()
     .trim()
     .refine((value) => value === '' || value.replace(/\D/g, '').length >= 8, {
-      message: 'Telefone invalido.',
+      message: 'Telefone inválido.',
     })
-    .refine((value) => value.length <= 20, { message: 'Use no maximo 20 caracteres.' }),
+    .refine((value) => value.length <= 20, { message: 'Use no máximo 20 caracteres.' }),
   theme: z.enum(THEMES),
 });
 
@@ -102,10 +102,10 @@ const passwordFields = z.object({
   newPassword: z
     .string()
     .min(8, 'A senha deve ter ao menos 8 caracteres.')
-    .max(72, 'A senha deve ter no maximo 72 caracteres.')
+    .max(72, 'A senha deve ter no máximo 72 caracteres.')
     .regex(/[A-Z]/, 'A senha deve conter ao menos uma letra maiuscula.')
     .regex(/[a-z]/, 'A senha deve conter ao menos uma letra minuscula.')
-    .regex(/[0-9]/, 'A senha deve conter ao menos um numero.'),
+    .regex(/[0-9]/, 'A senha deve conter ao menos um número.'),
   confirmPassword: z.string().min(1, 'Repita a nova senha.'),
 });
 
@@ -115,7 +115,7 @@ export const passwordSchema = passwordFields
     path: ['newPassword'],
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'As senhas nao conferem.',
+    message: 'As senhas não conferem.',
     path: ['confirmPassword'],
   });
 

@@ -36,7 +36,7 @@ import { AssemblyStatusBadge } from './components/assembly-status-badge';
 import { UpcomingAssemblies } from './components/upcoming-assemblies';
 
 const DESCRIPTION =
-  'Convocacoes ordinarias e extraordinarias, o quorum de cada uma e as deliberacoes levadas a voto.';
+  'Convocações ordinarias e extraordinarias, o quorum de cada uma e as deliberações levadas a voto.';
 
 /** Recusa do servidor apresentada na linha que a provocou. */
 type RowError = { id: string; message: string } | null;
@@ -180,7 +180,7 @@ export function AssembliesPage() {
     },
     {
       key: 'status',
-      label: 'Situacao',
+      label: 'Situação',
       sortable: true,
       render: (_value, row) => <AssemblyStatusBadge status={row.status} />,
     },
@@ -196,7 +196,7 @@ export function AssembliesPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <AssemblyRowActions
           assembly={row}
@@ -227,8 +227,8 @@ export function AssembliesPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="As assembleias sao listadas por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="As assembleias sao listadas por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -284,7 +284,7 @@ export function AssembliesPage() {
                 <EmptyState
                   icon={Vote}
                   title="Nenhuma assembleia registrada"
-                  description="Convocacoes ordinarias e extraordinarias ficam aqui, com pauta, quorum e deliberacoes."
+                  description="Convocações ordinarias e extraordinarias ficam aqui, com pauta, quorum e deliberações."
                   action={
                     canCreate ? (
                       <Button
@@ -339,7 +339,7 @@ export function AssembliesPage() {
         title="Excluir assembleia?"
         description={
           deleting
-            ? `"${deleting.title}" deixara de aparecer na listagem, junto das deliberacoes vinculadas. A exclusao e logica e pode ser desfeita.`
+            ? `"${deleting.title}" deixara de aparecer na listagem, junto das deliberações vinculadas. A exclusao e logica e pode ser desfeita.`
             : undefined
         }
         actionLabel="Excluir"

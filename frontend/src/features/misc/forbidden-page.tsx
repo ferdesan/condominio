@@ -8,7 +8,7 @@ export function ForbiddenPage() {
     <EmptyState
       icon={ShieldAlert}
       title="Acesso negado"
-      description="Seu perfil nao tem permissao para ver esta area. Fale com o administrador do condominio."
+      description="Seu perfil não tem permissao para ver esta área. Fale com o administrador do condomínio."
       action={
         <Button asChild variant="outline">
           <Link to="/">Voltar ao dashboard</Link>

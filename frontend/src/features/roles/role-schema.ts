@@ -24,19 +24,19 @@ const roleFields = z.object({
     .string()
     .trim()
     .min(3, 'Informe o nome do papel.')
-    .max(60, 'Use no maximo 60 caracteres.')
+    .max(60, 'Use no máximo 60 caracteres.')
     // Mesma expressao do servidor. Note que ela **nao** aceita acento: um nome
     // com cedilha seria recusado la, entao e recusado aqui, com a mensagem que
     // explica o que vale.
     .regex(
       /^[A-Za-z0-9_ -]+$/,
-      'Use apenas letras sem acento, numeros, espaco, hifen ou underscore.',
+      'Use apenas letras sem acento, números, espaco, hifen ou underscore.',
     ),
-  description: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
+  description: z.string().trim().max(255, 'Use no máximo 255 caracteres.'),
   permissions: z
     .array(z.string())
     .min(1, 'Selecione ao menos uma permissao.')
-    .max(400, 'Selecao grande demais.'),
+    .max(400, 'Seleção grande demais.'),
 });
 
 export const roleSchema = roleFields;

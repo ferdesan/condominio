@@ -134,7 +134,7 @@ export function CorrespondenceFormDialog({
       >
         <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar correspondencia' : 'Nova correspondencia'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar correspondência' : 'Nova correspondência'}</DialogTitle>
             <DialogDescription>
               O que chegou, para qual unidade e quando a portaria recebeu.
             </DialogDescription>
@@ -143,8 +143,8 @@ export function CorrespondenceFormDialog({
           <CondominiumScopeNotice condominiumId={condominiumId} />
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
-            <FormSection title="Correspondencia">
-              <FormField id="description" label="Descricao" error={errors.description?.message}>
+            <FormSection title="Correspondência">
+              <FormField id="description" label="Descrição" error={errors.description?.message}>
                 {(aria) => <Input autoFocus {...aria} {...register('description')} />}
               </FormField>
 
@@ -200,7 +200,7 @@ export function CorrespondenceFormDialog({
 
               <FormField
                 id="trackingCode"
-                label="Codigo de rastreio"
+                label="Código de rastreio"
                 error={errors.trackingCode?.message}
               >
                 {(aria) => <Input {...aria} {...register('trackingCode')} />}
@@ -225,7 +225,7 @@ export function CorrespondenceFormDialog({
                     id="unitId"
                     label="Unidade"
                     error={fieldState.error?.message}
-                    description="Apenas unidades do condominio selecionado."
+                    description="Apenas unidades do condomínio selecionado."
                   >
                     {(aria) => (
                       <Select value={field.value} onValueChange={field.onChange}>
@@ -246,7 +246,7 @@ export function CorrespondenceFormDialog({
               />
 
               {/*
-                O destinatario nominal e opcional no servidor: a portaria nem
+                O destinatário nominal e opcional no servidor: a portaria nem
                 sempre identifica para quem da unidade a encomenda veio.
               */}
               <Controller
@@ -255,9 +255,9 @@ export function CorrespondenceFormDialog({
                 render={({ field, fieldState }) => (
                   <FormField
                     id="residentId"
-                    label="Destinatario"
+                    label="Destinatário"
                     error={fieldState.error?.message}
-                    description="Opcional. Apenas moradores do condominio selecionado."
+                    description="Opcional. Apenas moradores do condomínio selecionado."
                   >
                     {(aria) => (
                       <Select
@@ -305,7 +305,7 @@ export function CorrespondenceFormDialog({
               </FormField>
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -332,8 +332,8 @@ export function CorrespondenceFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

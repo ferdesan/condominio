@@ -38,7 +38,7 @@ import { UserRowActions } from './components/user-row-actions';
 import { UserStatusBadge } from './components/user-status-badge';
 
 const DESCRIPTION =
-  'Quem tem acesso a administracao: o papel de cada um, os predios que enxerga e o estado da conta.';
+  'Quem tem acesso a administração: o papel de cada um, os predios que enxerga e o estado da conta.';
 
 /** Recusa do servidor apresentada na linha que a provocou. */
 type RowError = { id: string; message: string } | null;
@@ -200,7 +200,7 @@ export function UsersPage() {
       // Tambem aninhado. Nao e ordenavel: `condominiums` e uma relacao, e nao um
       // campo — o servidor descartaria a chave e voltaria a ordem padrao.
       key: 'condominiums',
-      label: 'Condominios',
+      label: 'Condomínios',
       render: (_value, row) => condominiumsCell(row),
     },
     {
@@ -217,7 +217,7 @@ export function UsersPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <UserRowActions
           user={row}
@@ -246,7 +246,7 @@ export function UsersPage() {
             description={DESCRIPTION}
             actions={
               canCreate ? (
-                <Button onClick={() => setFormTarget(null)}>Novo usuario</Button>
+                <Button onClick={() => setFormTarget(null)}>Novo usuário</Button>
               ) : undefined
             }
           />
@@ -259,7 +259,7 @@ export function UsersPage() {
                 <EmptyState
                   icon={SearchX}
                   title="Nenhum resultado para esta busca"
-                  description="Nenhum usuario corresponde aos termos e filtros aplicados."
+                  description="Nenhum usuário corresponde aos termos e filtros aplicados."
                   action={
                     <Button
                       variant="outline"
@@ -275,11 +275,11 @@ export function UsersPage() {
               ) : (
                 <EmptyState
                   icon={ShieldCheck}
-                  title="Nenhum usuario cadastrado"
-                  description="Nenhuma conta foi criada nesta administradora ate agora."
+                  title="Nenhum usuário cadastrado"
+                  description="Nenhuma conta foi criada nesta administradora até agora."
                   action={
                     canCreate ? (
-                      <Button onClick={() => setFormTarget(null)}>Convidar usuario</Button>
+                      <Button onClick={() => setFormTarget(null)}>Convidar usuário</Button>
                     ) : undefined
                   }
                 />
@@ -319,9 +319,9 @@ export function UsersPage() {
       ) : null}
 
       {/*
-        Resetar senha e irreversivel e derruba as sessoes ativas de outra pessoa:
-        pedir confirmacao e parte da acao, e nao um enfeite. Dispensar o dialogo
-        nao dispara requisicao nenhuma.
+        Resetar senha e irreversível e derruba as sessões ativas de outra pessoa:
+        pedir confirmação e parte da ação, e não um enfeite. Dispensar o dialogo
+        não dispara requisição nenhuma.
       */}
       <ConfirmDialog
         open={resetting !== null}
@@ -371,10 +371,10 @@ export function UsersPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Senha temporaria gerada</DialogTitle>
+            <DialogTitle>Senha temporária gerada</DialogTitle>
             <DialogDescription>
               Ela aparece uma unica vez. Entregue-a a {resetResult?.name} por um canal seguro; no
-              proximo acesso o sistema exige a troca.
+              próximo acesso o sistema exige a troca.
             </DialogDescription>
           </DialogHeader>
 
@@ -384,7 +384,7 @@ export function UsersPage() {
             </p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              A senha foi redefinida e as sessoes ativas foram encerradas.
+              A senha foi redefinida e as sessões ativas foram encerradas.
             </p>
           )}
 
@@ -398,12 +398,12 @@ export function UsersPage() {
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir usuario?"
+        title="Excluir usuário?"
         description={
           deleting
             ? `${deleting.name} deixara de aparecer na listagem e perdera o acesso. A exclusao e logica e pode ser desfeita.${
                 deleting.id === currentUser?.id
-                  ? ' Esta e a sua propria conta: o servidor recusa a exclusao.'
+                  ? ' Esta e a sua própria conta: o servidor recusa a exclusao.'
                   : ''
               }`
             : undefined

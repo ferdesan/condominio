@@ -6,14 +6,14 @@ import type { VisitorStatus, VisitorType } from '@/types/visitor';
 export const TYPE_LABELS: Record<VisitorType, string> = {
   VISITOR: 'Visitante',
   DELIVERY: 'Entrega',
-  SERVICE: 'Servico',
+  SERVICE: 'Serviço',
   BROKER: 'Corretor',
   OTHER: 'Outro',
 };
 
 export const STATUS_LABELS: Record<VisitorStatus, string> = {
   EXPECTED: 'Previsto',
-  CHECKED_IN: 'No condominio',
+  CHECKED_IN: 'No condomínio',
   CHECKED_OUT: 'Saiu',
   DENIED: 'Negado',
   CANCELED: 'Cancelado',

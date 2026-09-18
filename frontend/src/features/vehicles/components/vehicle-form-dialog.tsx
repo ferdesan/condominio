@@ -44,7 +44,7 @@ import { STATUS_LABELS, TYPE_LABELS, unitLabel } from '../vehicle-labels';
  * que foi excluido — e ai o caminho e restaurar, nao cadastrar outro (ADR-006).
  */
 const CONFLICT_HINT =
-  'Se o veiculo ja existiu e foi removido, restaure o registro em vez de cadastrar outro: ative "Incluir removidos" na listagem.';
+  'Se o veículo já existiu e foi removido, restaure o registro em vez de cadastrar outro: ative "Incluir removidos" na listagem.';
 
 /** Valor sentinela: o Radix nao aceita `SelectItem` com valor vazio. */
 const NONE = '__none__';
@@ -167,21 +167,21 @@ export function VehicleFormDialog({
       >
         <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar veiculo' : 'Novo veiculo'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar veículo' : 'Novo veículo'}</DialogTitle>
             <DialogDescription>
-              Placa, dados do veiculo, estacionamento e os vinculos — que sao opcionais.
+              Placa, dados do veículo, estacionamento e os vinculos — que sao opcionais.
             </DialogDescription>
           </DialogHeader>
 
           <CondominiumScopeNotice condominiumId={condominiumId} />
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
-            <FormSection title="Veiculo">
+            <FormSection title="Veículo">
               <FormField
                 id="plate"
                 label="Placa"
                 error={errors.plate?.message}
-                description="Padrao antigo (ABC1234) ou Mercosul (ABC1D23)."
+                description="Padrão antigo (ABC1234) ou Mercosul (ABC1D23)."
               >
                 {(aria) => <Input autoFocus {...aria} {...register('plate')} />}
               </FormField>
@@ -265,7 +265,7 @@ export function VehicleFormDialog({
 
               <FormField
                 id="stickerNumber"
-                label="Numero do adesivo"
+                label="Número do adesivo"
                 error={errors.stickerNumber?.message}
               >
                 {(aria) => <Input {...aria} {...register('stickerNumber')} />}
@@ -275,7 +275,7 @@ export function VehicleFormDialog({
             {/*
               Os dois vinculos sao opcionais no servidor e independentes entre
               si: o veiculo de um prestador recorrente, ou o de um morador ainda
-              nao cadastrado, existe sem nenhum dos dois. Por isso cada seletor
+              não cadastrado, existe sem nenhum dos dois. Por isso cada seletor
               abre em "Sem vinculo" e pode voltar para la.
             */}
             <FormSection title="Vinculo">
@@ -287,7 +287,7 @@ export function VehicleFormDialog({
                     id="unitId"
                     label="Unidade"
                     error={fieldState.error?.message}
-                    description="Opcional. Apenas unidades do condominio selecionado."
+                    description="Opcional. Apenas unidades do condomínio selecionado."
                   >
                     {(aria) => (
                       <Combobox
@@ -311,7 +311,7 @@ export function VehicleFormDialog({
                     id="residentId"
                     label="Morador"
                     error={fieldState.error?.message}
-                    description="Opcional. Apenas moradores do condominio selecionado."
+                    description="Opcional. Apenas moradores do condomínio selecionado."
                   >
                     {(aria) => (
                       <Combobox
@@ -328,7 +328,7 @@ export function VehicleFormDialog({
               />
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -356,8 +356,8 @@ export function VehicleFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

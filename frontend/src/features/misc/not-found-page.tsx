@@ -9,11 +9,11 @@ export function NotFoundPage() {
       <div className="w-full max-w-md">
         <EmptyState
           icon={Compass}
-          title="Pagina nao encontrada"
-          description="O endereco acessado nao existe ou foi movido."
+          title="Pagina não encontrada"
+          description="O endereço acessado não existe ou foi movido."
           action={
             <Button asChild>
-              <Link to="/">Voltar ao inicio</Link>
+              <Link to="/">Voltar ao início</Link>
             </Button>
           }
         />

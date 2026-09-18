@@ -4,7 +4,7 @@ import { App } from './App';
 import './index.css';
 
 const container = document.getElementById('root');
-if (!container) throw new Error('Elemento #root nao encontrado em index.html.');
+if (!container) throw new Error('Elemento #root não encontrado em index.html.');
 
 ReactDOM.createRoot(container).render(
   <React.StrictMode>

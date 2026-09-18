@@ -55,7 +55,7 @@ beforeEach(() => {
 });
 
 describe('Listagem de reservas', () => {
-  it('IT-124: percorre filtros de area e status e abre a fila de pendentes em uma interacao', async () => {
+  it('IT-124: percorre filtros de área e status e abre a fila de pendentes em uma interação', async () => {
     serveApi({
       areas: AREAS,
       units: UNITS,
@@ -79,7 +79,7 @@ describe('Listagem de reservas', () => {
     // pede outra enquanto o usuario nao escolher uma coluna.
     expect(lastListParams().sortBy).toBeUndefined();
 
-    selectOption(screen.getByLabelText('Area comum'), 'Churrasqueira');
+    selectOption(screen.getByLabelText('Área comum'), 'Churrasqueira');
     await waitFor(() => expect(lastListParams().commonAreaId).toBe('area-2'));
 
     selectOption(screen.getByLabelText('Status'), 'Confirmada');
@@ -88,7 +88,7 @@ describe('Listagem de reservas', () => {
     // O filtro aplicado aparece como chip removivel. O nome da area tambem
     // aparece no gatilho do select e nos indicadores, entao a asercao precisa
     // olhar para dentro do chip.
-    const chip = screen.getByText('Area comum:').closest('div');
+    const chip = screen.getByText('Área comum:').closest('div');
     expect(within(chip as HTMLElement).getByText('Churrasqueira')).toBeInTheDocument();
 
     // A contagem de pendentes esta na tela e e o proprio atalho para a fila.
@@ -113,7 +113,7 @@ describe('Listagem de reservas', () => {
     expect(screen.getAllByRole('button', { name: 'Nova reserva' }).length).toBeGreaterThan(0);
   });
 
-  it('IT-126: uma contagem de pendentes zerada aparece como zero, e nao escondida', async () => {
+  it('IT-126: uma contagem de pendentes zerada aparece como zero, e não escondida', async () => {
     serveApi({ areas: AREAS, units: UNITS, reservations: [makeReservation()], count: () => 0 });
 
     renderWithProviders(<ReservationsPage />);
@@ -122,7 +122,7 @@ describe('Listagem de reservas', () => {
     await waitFor(() => expect(within(pendingButton()).getByText('0')).toBeInTheDocument());
   });
 
-  it('IT-127: uma reserva cuja area foi removida mostra o rotulo de area indisponivel', async () => {
+  it('IT-127: uma reserva cuja área foi removida mostra o rotulo de área indisponível', async () => {
     serveApi({
       areas: AREAS,
       units: UNITS,
@@ -134,7 +134,7 @@ describe('Listagem de reservas', () => {
     const row = within(
       await screen.findByText('Carlos Pereira').then((cell) => cell.closest('tr')!),
     );
-    expect(row.getByText('Area indisponivel')).toBeInTheDocument();
+    expect(row.getByText('Área indisponível')).toBeInTheDocument();
   });
 
   it('IT-128: uma reserva cuja unidade foi removida continua mostrando o solicitante', async () => {
@@ -149,17 +149,17 @@ describe('Listagem de reservas', () => {
     // O nome fica gravado na propria reserva, entao sobrevive a remocao.
     const cell = await screen.findByText('Carlos Pereira');
     const row = within(cell.closest('tr')!);
-    expect(row.getByText('Unidade indisponivel')).toBeInTheDocument();
+    expect(row.getByText('Unidade indisponível')).toBeInTheDocument();
   });
 
-  it('IT-129: trocar de condominio limpa os filtros de area e de unidade', async () => {
+  it('IT-129: trocar de condomínio limpa os filtros de área e de unidade', async () => {
     serveApi({ areas: AREAS, units: UNITS, reservations: [makeReservation()] });
 
     // O contexto do condominio precisa ser mutavel para este caso: o provedor
     // do helper e fixo, entao a tela e montada sob um provedor proprio.
     function SwitchableHarness() {
       const [id, setId] = useState('cond-1');
-      const selected = makeCondominium({ id, name: `Condominio ${id}` });
+      const selected = makeCondominium({ id, name: `Condomínio ${id}` });
       const value: CondominiumContextValue = {
         condominiums: [selected],
         selected,
@@ -170,7 +170,7 @@ describe('Listagem de reservas', () => {
       return (
         <CondominiumContext.Provider value={value}>
           <button type="button" onClick={() => setId('cond-2')}>
-            Trocar condominio
+            Trocar condomínio
           </button>
           <ReservationsPage />
         </CondominiumContext.Provider>
@@ -181,13 +181,13 @@ describe('Listagem de reservas', () => {
 
     await screen.findByText('Carlos Pereira');
 
-    selectOption(screen.getByLabelText('Area comum'), 'Churrasqueira');
+    selectOption(screen.getByLabelText('Área comum'), 'Churrasqueira');
     await waitFor(() => expect(lastListParams().commonAreaId).toBe('area-2'));
 
     selectOption(screen.getByLabelText('Unidade'), 'Unidade 202');
     await waitFor(() => expect(lastListParams().unitId).toBe('unit-2'));
 
-    clickTrigger(screen.getByRole('button', { name: 'Trocar condominio' }));
+    clickTrigger(screen.getByRole('button', { name: 'Trocar condomínio' }));
 
     await waitFor(() => {
       const params = lastListParams();

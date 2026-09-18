@@ -9,7 +9,7 @@
 import type { TenantPlan, TenantStatus } from '@/types/tenant';
 
 export const PLAN_LABELS: Record<TenantPlan, string> = {
-  TRIAL: 'Avaliacao',
+  TRIAL: 'Avaliação',
   STARTER: 'Inicial',
   PROFESSIONAL: 'Profissional',
   ENTERPRISE: 'Corporativo',
@@ -29,7 +29,7 @@ export const TENANT_STATUS_LABELS: Record<TenantStatus, string> = {
 };
 
 /** Dito no lugar de um campo que a administradora nunca preencheu. */
-export const NOT_INFORMED = 'Nao informado';
+export const NOT_INFORMED = 'Não informado';
 
 /**
  * Quem altera os campos comerciais.

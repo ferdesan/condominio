@@ -135,14 +135,14 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
   if (list.filters.status) {
     chips.push({
       id: 'status',
-      label: 'Situacao',
+      label: 'Situação',
       value: CHARGE_STATUS_LABELS[list.filters.status as keyof typeof CHARGE_STATUS_LABELS],
     });
   }
   if (list.filters.referenceMonth) {
     chips.push({
       id: 'referenceMonth',
-      label: 'Competencia',
+      label: 'Competência',
       value: String(list.filters.referenceMonth),
     });
   }
@@ -164,7 +164,7 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
   const columns: Column<Charge>[] = [
     {
       key: 'description',
-      label: 'Cobranca',
+      label: 'Cobrança',
       sortable: true,
       render: (_value, row) => (
         <div className="min-w-0">
@@ -194,7 +194,7 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
           <span className="text-muted-foreground">{UNIT_UNAVAILABLE}</span>
         ),
     },
-    { key: 'referenceMonth', label: 'Competencia', sortable: true },
+    { key: 'referenceMonth', label: 'Competência', sortable: true },
     {
       // Nao ordenavel: `dueDate` e o `defaultSort` e nao entra no conjunto
       // ordenavel do servidor — a chave seria descartada em silencio.
@@ -218,13 +218,13 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
     },
     {
       key: 'status',
-      label: 'Situacao',
+      label: 'Situação',
       sortable: true,
       render: (_value, row) => <ChargeStatusBadge status={row.status} />,
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => {
         const label = chargeLabel(row);
 
@@ -257,8 +257,8 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
               ) : null}
 
               {/*
-                O historico e o unico lugar onde uma baixa parcial se explica: a
-                coluna de valor mostra o total da cobranca, e nao os lancamentos
+                O histórico e o único lugar onde uma baixa parcial se explica: a
+                coluna de valor mostra o total da cobrança, e não os lancamentos
                 que a compuseram.
               */}
               {canReadPayments ? (
@@ -334,7 +334,7 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
               <Input
                 id="charge-search"
                 className="pl-10"
-                placeholder="Descricao ou codigo de barras"
+                placeholder="Descrição ou código de barras"
                 value={list.searchInput}
                 onChange={(event) => list.setSearch(event.target.value)}
               />
@@ -342,7 +342,7 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="charge-status-filter">Situacao</Label>
+            <Label htmlFor="charge-status-filter">Situação</Label>
             <Select
               value={(list.filters.status as string) ?? ANY}
               onValueChange={(value) => list.setFilter('status', value === ANY ? undefined : value)}
@@ -362,7 +362,7 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="charge-month-filter">Competencia</Label>
+            <Label htmlFor="charge-month-filter">Competência</Label>
             <Input
               id="charge-month-filter"
               type="month"
@@ -408,7 +408,7 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
 
       {canCreate ? (
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setFormTarget(null)}>Nova cobranca</Button>
+          <Button onClick={() => setFormTarget(null)}>Nova cobrança</Button>
         </div>
       ) : null}
 
@@ -417,7 +417,7 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
           <EmptyState
             icon={SearchX}
             title="Nenhum resultado para esta busca"
-            description="Nenhuma cobranca corresponde aos termos e filtros aplicados."
+            description="Nenhuma cobrança corresponde aos termos e filtros aplicados."
             action={
               <Button
                 variant="outline"
@@ -433,8 +433,8 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
         ) : (
           <EmptyState
             icon={Receipt}
-            title="Nenhuma cobranca lancada"
-            description="Gere as taxas do mes de uma vez ou lance uma cobranca avulsa."
+            title="Nenhuma cobrança lancada"
+            description="Gere as taxas do mês de uma vez ou lance uma cobrança avulsa."
           />
         )
       ) : (
@@ -475,13 +475,13 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
 
       <ConfirmDialog
         open={canceling !== null}
-        title="Cancelar cobranca?"
+        title="Cancelar cobrança?"
         description={
           canceling
-            ? `"${canceling.description}" deixara de ser cobrada. O registro permanece no historico como cancelada.`
+            ? `"${canceling.description}" deixara de ser cobrada. O registro permanece no histórico como cancelada.`
             : undefined
         }
-        actionLabel="Cancelar cobranca"
+        actionLabel="Cancelar cobrança"
         cancelLabel="Voltar"
         variant="warning"
         onCancel={() => setCanceling(null)}
@@ -504,7 +504,7 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir cobranca?"
+        title="Excluir cobrança?"
         description={
           deleting
             ? `"${deleting.description}" deixara de aparecer na listagem. A exclusao e logica e pode ser desfeita.`

@@ -123,9 +123,9 @@ export function ChargeFormDialog({
       >
         <DialogContent side="right" dismissible={false} className="max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar cobranca' : 'Nova cobranca'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar cobrança' : 'Nova cobrança'}</DialogTitle>
             <DialogDescription>
-              O lancamento de uma unidade: o que se cobra, de que competencia e quando vence.
+              O lancamento de uma unidade: o que se cobra, de que competência e quando vence.
             </DialogDescription>
           </DialogHeader>
 
@@ -165,7 +165,7 @@ export function ChargeFormDialog({
                     id="charge-categoryId"
                     label="Conta"
                     error={fieldState.error?.message}
-                    description="Opcional. Classifica a cobranca na prestacao de contas."
+                    description="Opcional. Classifica a cobrança na prestação de contas."
                   >
                     {(aria) => (
                       <Select
@@ -192,7 +192,7 @@ export function ChargeFormDialog({
 
             <FormField
               id="charge-description"
-              label="Descricao"
+              label="Descrição"
               error={errors.description?.message}
             >
               {(aria) => <Input maxLength={180} {...aria} {...register('description')} />}
@@ -201,11 +201,11 @@ export function ChargeFormDialog({
             <div className="grid gap-4 sm:grid-cols-3">
               {/*
                 Competencia e mes, e nao data: o servidor guarda `AAAA-MM` e o
-                input nativo de mes fala exatamente esse formato.
+                input nativo de mês fala exatamente esse formato.
               */}
               <FormField
                 id="charge-referenceMonth"
-                label="Competencia"
+                label="Competência"
                 error={errors.referenceMonth?.message}
               >
                 {(aria) => <Input type="month" {...aria} {...register('referenceMonth')} />}
@@ -216,9 +216,9 @@ export function ChargeFormDialog({
               </FormField>
 
               {/*
-                Dinheiro entra como numero decimal, e nao pelo controle de moeda:
+                Dinheiro entra como número decimal, e não pelo controle de moeda:
                 ele guarda `number` e formata no proprio estado, o que quebraria a
-                convencao de valores em texto deste projeto.
+                convenção de valores em texto deste projeto.
               */}
               <FormField id="charge-amount" label="Valor (R$)" error={errors.amount?.message}>
                 {(aria) => (
@@ -255,7 +255,7 @@ export function ChargeFormDialog({
 
             <FormField
               id="charge-notes"
-              label="Observacoes"
+              label="Observações"
               error={errors.notes?.message}
               description="Opcional."
             >
@@ -285,8 +285,8 @@ export function ChargeFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

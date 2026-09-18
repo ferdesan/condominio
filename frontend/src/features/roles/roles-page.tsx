@@ -21,7 +21,7 @@ import { RolePermissionsDialog } from './components/role-permissions-dialog';
 import { RoleRowActions } from './components/role-row-actions';
 
 const DESCRIPTION =
-  'O que cada papel permite. Os cinco papeis do sistema sao fixos; a administradora pode criar outros combinando as permissoes do catalogo.';
+  'O que cada papel permite. Os cinco papéis do sistema sao fixos; a administradora pode criar outros combinando as permissões do catálogo.';
 
 /** Recusa do servidor apresentada na linha que a provocou. */
 type RowError = { id: string; message: string } | null;
@@ -135,7 +135,7 @@ export function RolesPage() {
     },
     {
       key: 'description',
-      label: 'Descricao',
+      label: 'Descrição',
       sortable: true,
       render: (_value, row) => row.description ?? <span className="text-muted-foreground">—</span>,
     },
@@ -156,7 +156,7 @@ export function RolesPage() {
       // Nao ordenavel: `permissions` e um JSON, e nao um campo do conjunto
       // ordenavel do servidor — a chave seria descartada em silencio.
       key: 'permissions',
-      label: 'Permissoes',
+      label: 'Permissões',
       render: (_value, row) =>
         row.permissions.includes(WILDCARD) ? (
           <Badge variant="warning">Acesso total</Badge>
@@ -166,7 +166,7 @@ export function RolesPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <RoleRowActions
           role={row}
@@ -226,7 +226,7 @@ export function RolesPage() {
                 <EmptyState
                   icon={KeyRound}
                   title="Nenhum papel cadastrado"
-                  description="Os papeis do sistema sao semeados para cada administradora; nenhum foi encontrado."
+                  description="Os papéis do sistema sao semeados para cada administradora; nenhum foi encontrado."
                 />
               )
             ) : (
@@ -254,7 +254,7 @@ export function RolesPage() {
 
       {/*
         `key` no id: os valores iniciais entram uma vez, e um refetch da lista nao
-        sobrescreve o que ja foi marcado na matriz.
+        sobrescreve o que já foi marcado na matriz.
       */}
       {formTarget !== undefined ? (
         <RoleFormDialog
@@ -272,7 +272,7 @@ export function RolesPage() {
         title="Excluir este papel?"
         description={
           deleting
-            ? `${deleting.name} sera removido. Se houver usuarios com este papel, o servidor recusa ate que eles sejam reatribuidos.`
+            ? `${deleting.name} será removido. Se houver usuários com este papel, o servidor recusa até que eles sejam reatribuidos.`
             : undefined
         }
         actionLabel="Excluir"

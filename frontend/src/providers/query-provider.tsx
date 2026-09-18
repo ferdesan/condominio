@@ -33,7 +33,7 @@ function createQueryClient(): QueryClient {
           // um toast aqui culparia a acao por algo que nao foi ela (US-026.EC-2).
           if (error instanceof ApiError && error.status === 401) return;
           toast.error(
-            error instanceof ApiError ? error.message : 'Nao foi possivel concluir a operacao.',
+            error instanceof ApiError ? error.message : 'Não foi possível concluir a operação.',
           );
         },
       },

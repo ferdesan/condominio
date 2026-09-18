@@ -3,8 +3,8 @@
 import type { ResidentStatus, ResidentType } from '@/types/api';
 
 export const TYPE_LABELS: Record<ResidentType, string> = {
-  OWNER: 'Proprietario',
-  TENANT: 'Locatario',
+  OWNER: 'Proprietário',
+  TENANT: 'Locatário',
   OCCUPANT: 'Ocupante',
 };
 

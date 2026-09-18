@@ -98,9 +98,9 @@ export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentA
     >
       <DialogContent side="right" dismissible={false}>
         <DialogHeader>
-          <DialogTitle>Atribuir responsavel</DialogTitle>
+          <DialogTitle>Atribuir responsável</DialogTitle>
           <DialogDescription>
-            Quem for escolhido e avisado. Uma ocorrencia aberta passa a estar em analise.
+            Quem for escolhido e avisado. Uma ocorrência aberta passa a estar em analise.
           </DialogDescription>
         </DialogHeader>
 
@@ -116,14 +116,14 @@ export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentA
             render={({ field, fieldState }) => (
               <FormField
                 id="assignedToId"
-                label="Responsavel"
+                label="Responsável"
                 error={fieldState.error?.message}
-                description="Apenas usuarios ativos com acesso ao condominio selecionado."
+                description="Apenas usuários ativos com acesso ao condomínio selecionado."
               >
                 {(aria) =>
                   assignees.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                      Nenhum usuario ativo com acesso a este condominio.
+                      Nenhum usuário ativo com acesso a este condomínio.
                     </p>
                   ) : (
                     <Select value={field.value} onValueChange={field.onChange}>
@@ -156,8 +156,8 @@ export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentA
           <DialogFooter>
             {/*
               "Voltar" e nao "Fechar": o botao de fechar do proprio dialogo ja
-              usa esse nome, e dois controles com o mesmo nome acessivel no mesmo
-              dialogo sao indistinguiveis para quem navega por leitor.
+              usa esse nome, e dois controles com o mesmo nome acessível no mesmo
+              dialogo sao indistinguíveis para quem navega por leitor.
             */}
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
               Voltar

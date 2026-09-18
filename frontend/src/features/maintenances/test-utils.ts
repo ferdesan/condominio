@@ -27,7 +27,7 @@ export function makeMaintenance(overrides: Partial<Maintenance> = {}): Maintenan
     id: 'maintenance-1',
     condominiumId: 'cond-1',
     title: 'Revisao do elevador social',
-    description: 'Revisao semestral obrigatoria de cabos, freios e nivelamento.',
+    description: 'Revisao semestral obrigatória de cabos, freios e nivelamento.',
     type: 'PREVENTIVE',
     status: 'SCHEDULED',
     recurrence: 'SEMIANNUAL',

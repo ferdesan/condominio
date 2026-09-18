@@ -82,7 +82,7 @@ export function DocumentFilters({ list }: DocumentFiltersProps) {
             <Input
               id="document-search"
               className="pl-10"
-              placeholder="Titulo, descricao ou nome do arquivo"
+              placeholder="Título, descrição ou nome do arquivo"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />

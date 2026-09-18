@@ -88,7 +88,7 @@ export function PasswordForm() {
         <CardHeader>
           <CardTitle>Senha</CardTitle>
           <CardDescription>
-            Trocar a senha encerra sua sessao em todos os dispositivos, inclusive neste.
+            Trocar a senha encerra sua sessão em todos os dispositivos, inclusive neste.
           </CardDescription>
         </CardHeader>
 
@@ -131,7 +131,7 @@ export function PasswordForm() {
                 id="new-password"
                 label="Nova senha"
                 error={errors.newPassword?.message}
-                description="Ao menos 8 caracteres, com maiuscula, minuscula e numero."
+                description="Ao menos 8 caracteres, com maiuscula, minuscula e número."
               >
                 {(aria) => (
                   <Input
@@ -182,7 +182,7 @@ export function PasswordForm() {
       <ConfirmDialog
         open={confirmOpen}
         title="Alterar a senha e sair?"
-        description="Voce sera desconectado aqui e em qualquer outro dispositivo, e precisara entrar de novo com a nova senha."
+        description="Você será desconectado aqui e em qualquer outro dispositivo, e precisara entrar de novo com a nova senha."
         actionLabel="Alterar e sair"
         cancelLabel="Cancelar"
         variant="warning"

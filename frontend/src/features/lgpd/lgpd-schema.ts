@@ -10,7 +10,7 @@ const LGPD_CONSENT_TYPES = ['DATA_PROCESSING'] as const;
  * O id do condominio vem do shell e sempre esta la quando o formulario abre;
  * manter a exigencia de formato e proteger o contrato, e nao o formulario.
  */
-export const condominiumSchema = z.string().uuid('Condominio obrigatorio.');
+export const condominiumSchema = z.string().uuid('Condomínio obrigatório.');
 
 export const createDeleteRequestSchema = z.object({
   condominiumId: condominiumSchema,

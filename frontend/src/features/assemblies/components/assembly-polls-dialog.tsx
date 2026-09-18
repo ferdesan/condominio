@@ -101,7 +101,7 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
       >
         <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Deliberacoes</DialogTitle>
+            <DialogTitle>Deliberações</DialogTitle>
             <DialogDescription>
               {assembly.title} · {formatDateTime(assembly.scheduledAt)}
             </DialogDescription>
@@ -110,7 +110,7 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
           {canCreate ? (
             <div>
               <Button type="button" onClick={() => setFormTarget(null)}>
-                Nova deliberacao
+                Nova deliberação
               </Button>
             </div>
           ) : null}
@@ -119,7 +119,7 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
             <Skeleton className="h-24 w-full" />
           ) : query.isError ? (
             <p role="alert" className="text-sm text-destructive">
-              Nao foi possivel carregar as deliberacoes desta assembleia.
+              Não foi possível carregar as deliberações desta assembleia.
             </p>
           ) : polls.length === 0 ? (
             <p className="text-sm text-muted-foreground">{NO_POLLS}</p>
@@ -148,11 +148,11 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
                         variant="outline"
                         size="sm"
                         aria-label={
-                          isExpanded ? `Ocultar apuracao de ${label}` : `Ver apuracao de ${label}`
+                          isExpanded ? `Ocultar apuração de ${label}` : `Ver apuração de ${label}`
                         }
                         onClick={() => setExpanded(isExpanded ? null : poll.id)}
                       >
-                        {isExpanded ? 'Ocultar apuracao' : 'Ver apuracao'}
+                        {isExpanded ? 'Ocultar apuração' : 'Ver apuração'}
                       </Button>
 
                       {canUpdate ? (
@@ -230,10 +230,10 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir deliberacao?"
+        title="Excluir deliberação?"
         description={
           deleting
-            ? `"${deleting.title}" deixara de aparecer, junto dos votos ja registrados nela. A exclusao e logica e pode ser desfeita.`
+            ? `"${deleting.title}" deixara de aparecer, junto dos votos já registrados nela. A exclusao e logica e pode ser desfeita.`
             : undefined
         }
         actionLabel="Excluir"

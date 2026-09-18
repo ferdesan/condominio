@@ -85,7 +85,7 @@ function cellsOf(label: string): string[] {
 
 /** O bloco de indicadores, que e uma regiao nomeada e navegavel a parte. */
 function indicators(): HTMLElement {
-  return screen.getByRole('region', { name: /Indicadores de ocorrencias/ });
+  return screen.getByRole('region', { name: /Indicadores de ocorrências/ });
 }
 
 function dialog(): HTMLElement {
@@ -97,7 +97,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Listagem de ocorrencias', () => {
+describe('Listagem de ocorrências', () => {
   it('percorre busca e os quatro filtros preservando os parametros', async () => {
     world = serveIncidents({ incidents: [makeIncident()] });
     const user = createUser();
@@ -115,13 +115,13 @@ describe('Listagem de ocorrencias', () => {
     selectOption(screen.getByLabelText('Status'), 'Em atendimento');
     expect(lastListParams().status).toBe('IN_PROGRESS');
 
-    selectOption(screen.getByLabelText('Categoria'), 'Manutencao');
+    selectOption(screen.getByLabelText('Categoria'), 'Manutenção');
     expect(lastListParams().category).toBe('MAINTENANCE');
 
-    selectOption(screen.getByLabelText('Prioridade'), 'Critica');
+    selectOption(screen.getByLabelText('Prioridade'), 'Crítica');
     expect(lastListParams().priority).toBe('CRITICAL');
 
-    selectOption(screen.getByLabelText('Responsavel'), 'Joana Ribeiro');
+    selectOption(screen.getByLabelText('Responsável'), 'Joana Ribeiro');
     expect(lastListParams().assignedToId).toBe('user-2');
 
     // Os controles se somam em vez de se substituirem.
@@ -152,7 +152,7 @@ describe('Listagem de ocorrencias', () => {
     expect(lastListParams().sortBy).toBe('protocol');
   });
 
-  it('trezentas ocorrencias paginam no tamanho pedido', async () => {
+  it('trezentas ocorrências paginam no tamanho pedido', async () => {
     world = serveIncidents({ incidents: makeRoster(20), total: 300 });
     const user = createUser();
     renderWithProviders(<IncidentsPage />);
@@ -162,7 +162,7 @@ describe('Listagem de ocorrencias', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.incidents = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('OC-2026-000021')).toBeInTheDocument();
@@ -186,7 +186,7 @@ describe('Listagem de ocorrencias', () => {
 
     expect(cellsOf('Local')).toEqual(['—']);
     // Sem responsavel e sem autor sao estados nomeados, e nao dados faltando.
-    expect(cellsOf('Responsavel')).toEqual(['Sem responsavel']);
+    expect(cellsOf('Responsável')).toEqual(['Sem responsável']);
     expect(cellsOf('Relatado por')).toEqual(['Anonimo']);
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
@@ -203,7 +203,7 @@ describe('Listagem de ocorrencias', () => {
     expect(screen.getByLabelText('Status')).toBeInTheDocument();
     expect(screen.getByLabelText('Categoria')).toBeInTheDocument();
     expect(screen.getByLabelText('Prioridade')).toBeInTheDocument();
-    expect(screen.getByLabelText('Responsavel')).toBeInTheDocument();
+    expect(screen.getByLabelText('Responsável')).toBeInTheDocument();
 
     for (const absent of ['Protocolo', 'Local', 'Relatado por', 'Aberta em']) {
       expect(screen.queryByLabelText(absent)).not.toBeInTheDocument();
@@ -211,8 +211,8 @@ describe('Listagem de ocorrencias', () => {
   });
 });
 
-describe('Prioridade das ocorrencias', () => {
-  it('a prioridade e distinguivel sem depender de cor, e CRITICAL mais que as outras', async () => {
+describe('Prioridade das ocorrências', () => {
+  it('a prioridade e distinguível sem depender de cor, e CRITICAL mais que as outras', async () => {
     world = serveIncidents({
       incidents: [
         makeIncident({ id: 'incident-1', protocol: 'OC-2026-000001', priority: 'LOW' }),
@@ -227,7 +227,7 @@ describe('Prioridade das ocorrencias', () => {
 
     // Primeiro canal: o rotulo por extenso. So o texto ja separa as quatro, o
     // que continua valendo numa lista impressa em preto e branco.
-    expect(cellsOf('Prioridade')).toEqual(['Baixa', 'Media', 'Alta', 'Critica']);
+    expect(cellsOf('Prioridade')).toEqual(['Baixa', 'Média', 'Alta', 'Crítica']);
 
     // Segundo canal: um icone de forma propria por prioridade. O da critica nao
     // pertence a serie de setas — nao e uma gradacao a mais.
@@ -238,18 +238,18 @@ describe('Prioridade das ocorrencias', () => {
     expect(icons[3]).toContain('lucide-octagon-alert');
 
     // Terceiro canal, so na critica: peso e caixa do texto.
-    const critical = screen.getByLabelText('Prioridade critica');
+    const critical = screen.getByLabelText('Prioridade crítica');
     expect(critical).toHaveClass('uppercase', 'font-bold');
     expect(screen.getByLabelText('Prioridade baixa')).not.toHaveClass('uppercase');
 
     // E o rotulo acessivel diz o mesmo por extenso, para quem nao ve a lista.
-    for (const name of ['baixa', 'media', 'alta', 'critica']) {
+    for (const name of ['baixa', 'média', 'alta', 'crítica']) {
       expect(screen.getByLabelText(`Prioridade ${name}`)).toBeInTheDocument();
     }
   });
 });
 
-describe('Indicadores de ocorrencias', () => {
+describe('Indicadores de ocorrências', () => {
   it('os numeros vem de /incidents/summary, e nao das linhas carregadas', async () => {
     world = serveIncidents({
       incidents: [makeIncident()],
@@ -271,7 +271,7 @@ describe('Indicadores de ocorrencias', () => {
     const region = within(indicators());
     // Doze no condominio, contra a unica linha carregada.
     await waitFor(() => expect(region.getByText('12')).toBeInTheDocument());
-    expect(region.getByText('Total de ocorrencias')).toBeInTheDocument();
+    expect(region.getByText('Total de ocorrências')).toBeInTheDocument();
 
     // Um status ausente do resumo e zero, e nao um buraco: a fila vazia num
     // status e informacao.
@@ -286,7 +286,7 @@ describe('Indicadores de ocorrencias', () => {
     ]);
   });
 
-  it('uma falha nos indicadores nao derruba a lista', async () => {
+  it('uma falha nos indicadores não derruba a lista', async () => {
     world = serveIncidents({
       incidents: [makeIncident()],
       // O `/summary` valida a query e exige o condominio como uuid; um recorte
@@ -298,20 +298,20 @@ describe('Indicadores de ocorrencias', () => {
     // A consulta dos indicadores e separada da listagem de proposito: a lista
     // continua utilizavel com eles em erro.
     expect(
-      await within(indicators()).findByText(/Nao foi possivel carregar os indicadores/),
+      await within(indicators()).findByText(/Não foi possível carregar os indicadores/),
     ).toBeInTheDocument();
     expect(screen.getByText('Vazamento na garagem')).toBeInTheDocument();
     expect(dataRows()).toHaveLength(1);
   });
 });
 
-describe('Estados vazios de ocorrencias', () => {
+describe('Estados vazios de ocorrências', () => {
   it('lista vazia oferece o cadastro', async () => {
     world = serveIncidents({ incidents: [] });
     renderWithProviders(<IncidentsPage />);
 
-    expect(await screen.findByText('Nenhuma ocorrencia registrada')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Registrar ocorrencia' })).toBeInTheDocument();
+    expect(await screen.findByText('Nenhuma ocorrência registrada')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Registrar ocorrência' })).toBeInTheDocument();
     expect(screen.queryByText('Nenhum resultado para esta busca')).not.toBeInTheDocument();
   });
 
@@ -327,12 +327,12 @@ describe('Estados vazios de ocorrencias', () => {
     expect(await screen.findByText('Nenhum resultado para esta busca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeInTheDocument();
     // Os dois vazios sao estados diferentes e dizem coisas diferentes.
-    expect(screen.queryByText('Nenhuma ocorrencia registrada')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Registrar ocorrencia' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Nenhuma ocorrência registrada')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Registrar ocorrência' })).not.toBeInTheDocument();
   });
 });
 
-describe('Mudanca de status', () => {
+describe('Mudança de status', () => {
   it('mudar status reflete na lista e no resumo', async () => {
     world = serveIncidents({
       incidents: [makeIncident({ status: 'OPEN' })],
@@ -365,7 +365,7 @@ describe('Mudanca de status', () => {
     await waitFor(() => expect(cellsOf('Status')).toEqual(['Em atendimento']));
   });
 
-  it('o status atual nao e oferecido como destino', async () => {
+  it('o status atual não e oferecido como destino', async () => {
     world = serveIncidents({ incidents: [makeIncident({ status: 'OPEN' })] });
     renderWithProviders(<IncidentsPage />);
 
@@ -382,10 +382,10 @@ describe('Mudanca de status', () => {
     expect(options).toEqual(['Em analise', 'Em atendimento', 'Resolvida', 'Encerrada', 'Recusada']);
   });
 
-  it('uma transicao recusada mostra a mensagem do servidor e o status nao muda', async () => {
+  it('uma transição recusada mostra a mensagem do servidor e o status não muda', async () => {
     world = serveIncidents({ incidents: [makeIncident({ status: 'OPEN' })] });
     mockPost.mockRejectedValue(
-      new ApiError('Transicao de status invalida: OPEN -> CLOSED.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('Transição de status inválida: OPEN -> CLOSED.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<IncidentsPage />);
 
@@ -396,7 +396,7 @@ describe('Mudanca de status', () => {
     selectOption(within(dialog()).getByLabelText('Novo status'), 'Encerrada');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Mudar status' }));
 
-    const message = await screen.findByText('Transicao de status invalida: OPEN -> CLOSED.');
+    const message = await screen.findByText('Transição de status inválida: OPEN -> CLOSED.');
     // A recusa aparece onde a acao foi tomada, e o registro continua como estava.
     expect(within(dialog()).getByRole('alert')).toBe(message);
     // O `onError` proprio substitui o toast global: a mesma recusa nao pode
@@ -404,7 +404,7 @@ describe('Mudanca de status', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('duas confirmacoes seguidas da mudanca produzem um unico POST', async () => {
+  it('duas confirmações seguidas da mudança produzem um único POST', async () => {
     world = serveIncidents({ incidents: [makeIncident({ status: 'OPEN' })] });
     mockPost.mockImplementation(async () => {
       world.incidents = [makeIncident({ status: 'IN_ANALYSIS' })];
@@ -424,8 +424,8 @@ describe('Mudanca de status', () => {
   });
 });
 
-describe('Atribuicao de responsavel', () => {
-  it('atribuir envia o responsavel escolhido e a lista reflete', async () => {
+describe('Atribuição de responsável', () => {
+  it('atribuir envia o responsável escolhido e a lista reflete', async () => {
     world = serveIncidents({ incidents: [makeIncident({ assignedToId: null })] });
     mockPost.mockImplementation(async (url) => {
       if (url !== '/incidents/incident-1/assign') throw new Error(`URL inesperada: ${url}`);
@@ -435,22 +435,22 @@ describe('Atribuicao de responsavel', () => {
     renderWithProviders(<IncidentsPage />);
 
     await screen.findByText('Vazamento na garagem');
-    expect(cellsOf('Responsavel')).toEqual(['Sem responsavel']);
+    expect(cellsOf('Responsável')).toEqual(['Sem responsável']);
 
     clickTrigger(screen.getByRole('button', { name: 'Atribuir OC-2026-000001' }));
 
-    await screen.findByText('Atribuir responsavel');
-    selectOption(within(dialog()).getByLabelText('Responsavel'), 'Joana Ribeiro');
+    await screen.findByText('Atribuir responsável');
+    selectOption(within(dialog()).getByLabelText('Responsável'), 'Joana Ribeiro');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Atribuir' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
     expect(mockPost.mock.calls[0][0]).toBe('/incidents/incident-1/assign');
     expect(mockPost.mock.calls[0][1]).toEqual({ assignedToId: 'user-2' });
 
-    await waitFor(() => expect(cellsOf('Responsavel')).toEqual(['Joana Ribeiro']));
+    await waitFor(() => expect(cellsOf('Responsável')).toEqual(['Joana Ribeiro']));
   });
 
-  it('o seletor de responsavel lista so gente do condominio selecionado', async () => {
+  it('o seletor de responsável lista so gente do condomínio selecionado', async () => {
     world = serveIncidents({
       incidents: [makeIncident()],
       users: [
@@ -475,8 +475,8 @@ describe('Atribuicao de responsavel', () => {
     await screen.findByText('Vazamento na garagem');
     clickTrigger(screen.getByRole('button', { name: 'Atribuir OC-2026-000001' }));
 
-    await screen.findByText('Atribuir responsavel');
-    openSelect(within(dialog()).getByLabelText('Responsavel'));
+    await screen.findByText('Atribuir responsável');
+    openSelect(within(dialog()).getByLabelText('Responsável'));
 
     const options = screen.getAllByRole('option').map((option) => option.textContent?.trim());
     expect(options).toEqual(['Joana Ribeiro', 'Marina Alves']);
@@ -484,24 +484,24 @@ describe('Atribuicao de responsavel', () => {
     expect(options).not.toContain('Bruno Tavares');
   });
 
-  it('atribuir sem escolher responsavel para no proprio campo', async () => {
+  it('atribuir sem escolher responsável para no próprio campo', async () => {
     world = serveIncidents({ incidents: [makeIncident({ assignedToId: null })] });
     renderWithProviders(<IncidentsPage />);
 
     await screen.findByText('Vazamento na garagem');
     clickTrigger(screen.getByRole('button', { name: 'Atribuir OC-2026-000001' }));
 
-    await screen.findByText('Atribuir responsavel');
+    await screen.findByText('Atribuir responsável');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Atribuir' }));
 
-    const message = await screen.findByText('Selecione o responsavel pela ocorrencia.');
+    const message = await screen.findByText('Selecione o responsável pela ocorrência.');
     expect(message).toHaveAttribute('id', 'assignedToId-error');
     expect(mockPost).not.toHaveBeenCalled();
   });
 });
 
-describe('Exclusao e restauracao de ocorrencias', () => {
-  it('excluir pede confirmacao antes de remover', async () => {
+describe('Exclusao e restauração de ocorrências', () => {
+  it('excluir pede confirmação antes de remover', async () => {
     world = serveIncidents({ incidents: [makeIncident()] });
     mockDelete.mockImplementation(async () => {
       world.incidents = [];
@@ -512,7 +512,7 @@ describe('Exclusao e restauracao de ocorrencias', () => {
     clickTrigger(screen.getByRole('button', { name: 'Excluir OC-2026-000001' }));
 
     // O pedido so sai depois da confirmacao.
-    expect(await screen.findByText('Excluir ocorrencia?')).toBeInTheDocument();
+    expect(await screen.findByText('Excluir ocorrência?')).toBeInTheDocument();
     expect(mockDelete).not.toHaveBeenCalled();
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir' }));
@@ -525,7 +525,7 @@ describe('Exclusao e restauracao de ocorrencias', () => {
     world = serveIncidents({ incidents: [makeIncident()] });
     mockDelete.mockRejectedValue(
       new ApiError(
-        'Ocorrencias encerradas nao podem ser alteradas.',
+        'Ocorrências encerradas não podem ser alteradas.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -540,7 +540,7 @@ describe('Exclusao e restauracao de ocorrencias', () => {
     // apresentacao certa para um 409 que traz so a mensagem do servidor.
     await waitFor(() =>
       expect(mockToastError).toHaveBeenCalledWith(
-        'Ocorrencias encerradas nao podem ser alteradas.',
+        'Ocorrências encerradas não podem ser alteradas.',
       ),
     );
     expect(screen.getByText('Vazamento na garagem')).toBeInTheDocument();
@@ -570,12 +570,12 @@ describe('Exclusao e restauracao de ocorrencias', () => {
   });
 });
 
-describe('Escopo e permissoes de ocorrencias', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões de ocorrências', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     world = serveIncidents({ incidents: [makeIncident()] });
     renderWithProviders(<IncidentsPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     // Nem a listagem, nem o seletor de responsaveis, nem o resumo saem sem
     // condominio.
     expect(mockGetPaginated).not.toHaveBeenCalled();
@@ -616,7 +616,7 @@ describe('Escopo e permissoes de ocorrencias', () => {
     expect(screen.getByRole('button', { name: 'Atribuir OC-2026-000001' })).toBeInTheDocument();
   });
 
-  it('um operador sem update nao recebe nenhuma acao de fluxo', async () => {
+  it('um operador sem update não recebe nenhuma ação de fluxo', async () => {
     world = serveIncidents({ incidents: [makeIncident()] });
     renderWithProviders(<IncidentsPage />, {
       role: 'STAFF',
@@ -627,12 +627,12 @@ describe('Escopo e permissoes de ocorrencias', () => {
 
     expect(screen.queryByRole('button', { name: /^Mudar status/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Atribuir/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Nova ocorrencia' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nova ocorrência' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     world = serveIncidents({
       incidents: [makeIncident({ deletedAt: '2026-03-11T10:00:00.000Z' })],
     });

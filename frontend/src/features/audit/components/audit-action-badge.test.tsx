@@ -19,7 +19,7 @@ import { ACTION_LABELS } from '../audit-labels';
 import { AuditActionBadge } from './audit-action-badge';
 
 describe('AuditActionBadge', () => {
-  it.each(AUDIT_ACTIONS)('%s tem rotulo e icone proprios', (action) => {
+  it.each(AUDIT_ACTIONS)('%s tem rotulo e icone próprios', (action) => {
     const { container } = renderWithProviders(<AuditActionBadge action={action} />);
 
     expect(screen.getByText(ACTION_LABELS[action])).toBeInTheDocument();
@@ -27,14 +27,14 @@ describe('AuditActionBadge', () => {
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
-  it('nenhum rotulo se repete entre as acoes', () => {
+  it('nenhum rotulo se repete entre as ações', () => {
     const rotulos = AUDIT_ACTIONS.map((action) => ACTION_LABELS[action]);
 
     // Dois rotulos iguais tornam duas acoes indistinguiveis na tabela.
     expect(new Set(rotulos).size).toBe(rotulos.length);
   });
 
-  it('uma acao fora do catalogo aparece crua, em vez de derrubar a tela', () => {
+  it('uma ação fora do catálogo aparece crua, em vez de derrubar a tela', () => {
     const desconhecida = 'ACAO_QUE_O_SERVIDOR_INVENTOU' as AuditAction;
 
     const { container } = renderWithProviders(<AuditActionBadge action={desconhecida} />);

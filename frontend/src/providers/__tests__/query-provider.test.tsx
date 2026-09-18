@@ -54,7 +54,7 @@ describe('QueryProvider (UT-030)', () => {
 
   it('UT-030: 401 em consulta e ignorado — sem toast e sem retry', async () => {
     const fn = vi.fn(async () => {
-      throw new ApiError('Sessao expirada.', 401, 'UNAUTHORIZED');
+      throw new ApiError('Sessão expirada.', 401, 'UNAUTHORIZED');
     });
 
     render(
@@ -68,7 +68,7 @@ describe('QueryProvider (UT-030)', () => {
     expect(toastError).not.toHaveBeenCalled();
   });
 
-  it('UT-030.E1: erro de mutacao mostra o toast com a mensagem', async () => {
+  it('UT-030.E1: erro de mutação mostra o toast com a mensagem', async () => {
     const fn = vi.fn(async () => {
       throw new ApiError('Falha no pagamento.', 400, 'VALIDATION_ERROR');
     });

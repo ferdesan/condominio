@@ -47,7 +47,7 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   BOLETO: 'Boleto',
   CREDIT_CARD: 'Cartao de credito',
   DEBIT_CARD: 'Cartao de debito',
-  TRANSFER: 'Transferencia',
+  TRANSFER: 'Transferência',
   CASH: 'Dinheiro',
   OTHER: 'Outro',
 };
@@ -65,7 +65,7 @@ export const CATEGORY_KIND_LABELS: Record<CategoryKind, string> = {
 
 /** As tres secoes da tela. */
 export const SECTIONS = [
-  { id: 'charges', label: 'Cobrancas' },
+  { id: 'charges', label: 'Cobranças' },
   { id: 'expenses', label: 'Despesas' },
   { id: 'categories', label: 'Plano de contas' },
 ] as const;
@@ -79,10 +79,10 @@ export const NO_CATEGORY = 'Sem categoria';
 export const NO_PROVIDER = 'Sem prestador';
 
 /** Dito quando a categoria referida nao esta na colecao carregada. */
-export const CATEGORY_UNAVAILABLE = 'Categoria indisponivel';
+export const CATEGORY_UNAVAILABLE = 'Categoria indisponível';
 
 /** Dito quando a unidade referida nao veio aninhada na resposta. */
-export const UNIT_UNAVAILABLE = 'Unidade indisponivel';
+export const UNIT_UNAVAILABLE = 'Unidade indisponível';
 
 /** Identifica a cobranca nos rotulos acessiveis das acoes de linha. */
 export function chargeLabel(charge: Charge): string {

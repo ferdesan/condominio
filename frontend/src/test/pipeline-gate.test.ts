@@ -86,7 +86,7 @@ const PASSING = `
 import { describe, expect, it } from 'vitest';
 describe('um modulo', () => {
   it('passa', () => { expect(1).toBe(1); });
-  it('tambem passa', () => { expect('a').toBe('a'); });
+  it('também passa', () => { expect('a').toBe('a'); });
 });
 `;
 
@@ -111,7 +111,7 @@ afterEach(() => {
 });
 
 describe('Portao do pipeline', () => {
-  it('IT-188: o job de teste nao tolera falha, e o build depende dele', () => {
+  it('IT-188: o job de teste não tolera falha, e o build depende dele', () => {
     // A execucao da suite inteira e a evidencia da tarefa; o que se afirma aqui
     // e a condicao sem a qual aquela execucao nao significaria nada: que o
     // resultado do teste chega ao grafo de jobs.
@@ -131,7 +131,7 @@ describe('Portao do pipeline', () => {
     expect(build.slice(0, build.indexOf('steps:'))).toContain('needs: [lint-typecheck, test]');
   });
 
-  it('IT-189: a suite roda ate o fim, sai zero e relata arquivos e casos', () => {
+  it('IT-189: a suite roda até o fim, sai zero e relata arquivos e casos', () => {
     const { status, output } = runToySuite({ 'a.test.ts': PASSING, 'b.test.ts': ANOTHER_PASSING });
 
     expect(status, output).toBe(0);
@@ -141,7 +141,7 @@ describe('Portao do pipeline', () => {
     expect(output).toMatch(/Tests\s+3 passed \(3\)/);
   });
 
-  it('IT-189: a suite deste repositorio nao e vazia', async () => {
+  it('IT-189: a suite deste repositório não e vazia', async () => {
     // A contagem acima prova que o runner relata; esta prova que ha o que
     // relatar aqui. `import.meta.glob` le o disco em tempo de build, entao a
     // afirmacao acompanha os arquivos que existirem de fato.
@@ -156,7 +156,7 @@ describe('Portao do pipeline', () => {
     expect(output).toMatch(/1 failed/);
   });
 
-  it('IT-191: o comando de cobertura existe e escreve o relatorio que o pipeline aponta', async () => {
+  it('IT-191: o comando de cobertura existe e escreve o relatório que o pipeline aponta', async () => {
     expect(packageJson.scripts['test:cov']).toBe('vitest run --coverage');
 
     const loaded = await loadConfigFromFile(
@@ -165,7 +165,7 @@ describe('Portao do pipeline', () => {
     );
     const coverage = (loaded?.config as { test?: { coverage?: Record<string, unknown> } })?.test
       ?.coverage;
-    expect(coverage, 'vite.config.ts nao configura cobertura').toBeTruthy();
+    expect(coverage, 'vite.config.ts não configura cobertura').toBeTruthy();
 
     // O passo de upload aponta um arquivo com nome exato. Quem o escreve e o
     // reporter `json` — os outros produzem lcov e html, e nenhum deles gera

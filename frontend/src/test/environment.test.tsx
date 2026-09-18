@@ -29,8 +29,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { clickTrigger, openSelect, render, screen, within } from '@/test/render';
 
-const LEAK_KEY = 'condominio.accessToken';
-const SESSION_KEY = 'condominio.rascunho';
+const LEAK_KEY = 'condomínio.accessToken';
+const SESSION_KEY = 'condomínio.rascunho';
 
 function SelectHarness() {
   const [value, setValue] = useState<string>();
@@ -65,7 +65,7 @@ function DialogHarness() {
 }
 
 describe('Capacidades de navegador ausentes do jsdom', () => {
-  it('IT-192: abrir um select nao falha por API ausente no ambiente', () => {
+  it('IT-192: abrir um select não falha por API ausente no ambiente', () => {
     // Sem os preenchimentos do setup — `scrollIntoView`, captura de ponteiro,
     // `PointerEvent`, `ResizeObserver` — o gatilho simplesmente nao abre, e o
     // teste expira esperando uma opcao que nunca aparece.
@@ -77,7 +77,7 @@ describe('Capacidades de navegador ausentes do jsdom', () => {
     expect(screen.getByRole('option', { name: 'Torre B' })).toBeInTheDocument();
   });
 
-  it('IT-192: abrir um dialogo nao falha por API ausente no ambiente', () => {
+  it('IT-192: abrir um dialogo não falha por API ausente no ambiente', () => {
     render(<DialogHarness />);
 
     clickTrigger(screen.getByRole('button', { name: 'Abrir' }));
@@ -97,7 +97,7 @@ describe('Capacidades de navegador ausentes do jsdom', () => {
  * setup sair, e o segundo que acusa.
  */
 describe('Estado guardado entre casos', () => {
-  it('IT-193: um caso escreve estado de sessao no armazenamento', () => {
+  it('IT-193: um caso escreve estado de sessão no armazenamento', () => {
     localStorage.setItem(LEAK_KEY, 'token-do-caso-anterior');
     sessionStorage.setItem(SESSION_KEY, 'rascunho-do-caso-anterior');
 

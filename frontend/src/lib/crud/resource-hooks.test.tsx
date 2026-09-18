@@ -58,7 +58,7 @@ beforeEach(() => {
 describe('useList', () => {
   const params = { page: 2, perPage: 20, filters: { status: 'VACANT' } };
 
-  it('UT-029: monta a query key do recurso e chama o transporte uma unica vez', async () => {
+  it('UT-029: monta a query key do recurso e chama o transporte uma única vez', async () => {
     const { queryClient, wrapper } = makeHarness();
     mockGetPaginated.mockResolvedValue(makePage([makeUnit()]));
 
@@ -88,7 +88,7 @@ describe('useList', () => {
     expect(result.current.data?.meta.total).toBe(42);
   });
 
-  it('UT-031: com enabled false nao dispara requisicao', () => {
+  it('UT-031: com enabled false não dispara requisição', () => {
     const { wrapper } = makeHarness();
 
     const { result } = renderHook(() => unitHooks.useList(params, { enabled: false }), { wrapper });
@@ -112,7 +112,7 @@ describe('useList', () => {
 });
 
 describe('useOne', () => {
-  it('UT-032: monta a key de detalhe e nao busca quando o id e nulo', async () => {
+  it('UT-032: monta a key de detalhe e não busca quando o id e nulo', async () => {
     const { queryClient, wrapper } = makeHarness();
     mockGet.mockResolvedValue(makeUnit());
 
@@ -131,7 +131,7 @@ describe('useOne', () => {
 });
 
 describe('mutacoes', () => {
-  it('UT-033: create invalida a chave do recurso exatamente uma vez', async () => {
+  it('UT-033: create inválida a chave do recurso exatamente uma vez', async () => {
     const { invalidate, wrapper } = makeHarness();
     mockPost.mockResolvedValue(makeUnit());
 
@@ -180,11 +180,11 @@ describe('mutacoes', () => {
     expect(invalidate).toHaveBeenCalledTimes(2);
   });
 
-  it('UT-040: restore recusado com 409 nao invalida nem mexe no cache', async () => {
+  it('UT-040: restore recusado com 409 não inválida nem mexe no cache', async () => {
     const { queryClient, invalidate, wrapper } = makeHarness();
     const cached = makePage([makeUnit()]);
     queryClient.setQueryData(['units', 'list', { page: 1, perPage: 20 }], cached);
-    mockPost.mockRejectedValue(new ApiError('Ja existe um registro ativo.', 409, 'CONFLICT'));
+    mockPost.mockRejectedValue(new ApiError('Já existe um registro ativo.', 409, 'CONFLICT'));
 
     const { result } = renderHook(() => unitHooks.useRestore(), { wrapper });
     await expect(result.current.mutateAsync('unit-9')).rejects.toBeInstanceOf(ApiError);
@@ -208,7 +208,7 @@ describe('useCount', () => {
     expect(result.current.data).toBe(17);
   });
 
-  it('UT-039: total zero devolve 0, distinguivel do undefined de carregamento', async () => {
+  it('UT-039: total zero devolve 0, distinguível do undefined de carregamento', async () => {
     const { wrapper } = makeHarness();
     mockGetPaginated.mockResolvedValue(makePage([], { perPage: 1, total: 0 }));
 

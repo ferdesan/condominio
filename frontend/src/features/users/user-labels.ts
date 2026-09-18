@@ -30,13 +30,13 @@ export const STATUS_LABELS: Record<UserStatus, string> = {
  * `recipientsService.usersOfCondominium`. Exibir um traco aqui diria o oposto do
  * que o registro significa.
  */
-export const ALL_CONDOMINIUMS = 'Todos os condominios';
+export const ALL_CONDOMINIUMS = 'Todos os condomínios';
 
 /** Dito quando o papel nao veio na resposta — a relacao e eager, entao e raro. */
-export const NO_ROLE = 'Papel nao definido';
+export const NO_ROLE = 'Papel não definido';
 
 /** Dito quando a conta nao esta ligada a nenhuma unidade (nao e morador). */
 export const NO_UNIT = 'Sem unidade';
 
 /** Dito quando ha unidade, mas o registro referido nao esta na lista carregada. */
-export const UNIT_UNAVAILABLE = 'Unidade indisponivel';
+export const UNIT_UNAVAILABLE = 'Unidade indisponível';

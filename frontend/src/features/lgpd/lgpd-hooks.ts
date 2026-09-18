@@ -95,10 +95,9 @@ export function useCancelDeleteRequest(callbacks: MutationCallbacks<LgpdRequestV
   });
 }
 
-export function useMyConsent(options: { enabled?: boolean } = {}): UseQueryResult<
-  LgpdConsent,
-  ApiError
-> {
+export function useMyConsent(
+  options: { enabled?: boolean } = {},
+): UseQueryResult<LgpdConsent, ApiError> {
   return useQuery<LgpdConsent, ApiError>({
     queryKey: ['lgpd-consents', 'my', CONSENT_TYPE],
     queryFn: () => apiGet<LgpdConsent>('/lgpd/consent', { params: { consentType: CONSENT_TYPE } }),

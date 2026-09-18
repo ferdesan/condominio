@@ -23,7 +23,7 @@ import { FinancialSummary } from './components/financial-summary';
 import { GenerateChargesDialog } from './components/generate-charges-dialog';
 
 const DESCRIPTION =
-  'Cobrancas das unidades, despesas do condominio e o plano de contas que classifica as duas.';
+  'Cobranças das unidades, despesas do condomínio e o plano de contas que classifica as duas.';
 
 /**
  * Modulo financeiro.
@@ -74,8 +74,8 @@ export function FinancialPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="O financeiro e por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="O financeiro e por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -98,7 +98,7 @@ export function FinancialPage() {
                   </Button>
                 ) : null}
                 {canGenerate ? (
-                  <Button onClick={() => setGenerating(true)}>Gerar cobrancas do mes</Button>
+                  <Button onClick={() => setGenerating(true)}>Gerar cobranças do mês</Button>
                 ) : null}
               </div>
             }
@@ -109,13 +109,13 @@ export function FinancialPage() {
             <FinancialSummary condominiumId={selectedId} />
 
             {/*
-              Navegacao entre secoes, e nao abas de conteudo independente: o
-              estado e local e nao vai para a URL, pelo mesmo motivo que nao ha
+              Navegação entre seções, e não abas de conteudo independente: o
+              estado e local e não vai para a URL, pelo mesmo motivo que não ha
               rota de detalhe (ADR-004). `role="tablist"` daria a promessa de
-              navegacao por setas que estes botoes nao cumprem, entao eles sao
-              botoes comuns numa barra nomeada.
+              navegação por setas que estes botões não cumprem, entao eles sao
+              botões comuns numa barra nomeada.
             */}
-            <nav aria-label="Secoes do financeiro" className="flex flex-wrap gap-2">
+            <nav aria-label="Seções do financeiro" className="flex flex-wrap gap-2">
               {SECTIONS.map((item) => {
                 const isActive = section === item.id;
                 return (
@@ -161,14 +161,14 @@ export function FinancialPage() {
       ) : null}
 
       {/*
-        Aplicar encargos mexe em todas as cobrancas vencidas do condominio de uma
-        vez e usa os percentuais do tenant, que nao sao escolhidos aqui. Pedir
-        confirmacao e parte da acao, e nao um enfeite.
+        Aplicar encargos mexe em todas as cobranças vencidas do condomínio de uma
+        vez e usa os percentuais do tenant, que não sao escolhidos aqui. Pedir
+        confirmação e parte da ação, e não um enfeite.
       */}
       <ConfirmDialog
         open={applyingFees}
         title="Aplicar multa e juros?"
-        description="Todas as cobrancas vencidas deste condominio recebem os percentuais configurados na administradora. O job diario ja faz isso; use quando precisar do numero atualizado agora."
+        description="Todas as cobranças vencidas deste condomínio recebem os percentuais configurados na administradora. O job diário já faz isso; use quando precisar do número atualizado agora."
         actionLabel="Aplicar"
         variant="warning"
         loading={applyLateFees.isPending}
@@ -191,7 +191,7 @@ export function FinancialPage() {
       />
 
       {/*
-        O numero de cobrancas atingidas so volta uma vez, na resposta: sem
+        O número de cobranças atingidas so volta uma vez, na resposta: sem
         mostra-lo, "aplicado" nao diria se alguma coisa mudou.
       */}
       <ConfirmDialog
@@ -199,7 +199,7 @@ export function FinancialPage() {
         title="Encargos aplicados"
         description={
           feesResult !== null
-            ? `${formatNumber(feesResult)} cobrancas vencidas foram atualizadas.`
+            ? `${formatNumber(feesResult)} cobranças vencidas foram atualizadas.`
             : undefined
         }
         actionLabel="Fechar"

@@ -71,9 +71,9 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('normalizacao de erros', () => {
+describe('normalização de erros', () => {
   it('UT-041: 422 vira ApiError com status, code e details preservados', async () => {
-    const details = [{ field: 'document', message: 'Documento invalido.' }];
+    const details = [{ field: 'document', message: 'Documento inválido.' }];
     onRequest(() => ({
       status: 422,
       data: { error: { code: 'VALIDATION_ERROR', message: 'Dados invalidos.', details } },
@@ -85,13 +85,13 @@ describe('normalizacao de erros', () => {
     expect((error as ApiError).status).toBe(422);
     expect((error as ApiError).code).toBe('VALIDATION_ERROR');
     expect((error as ApiError).details).toEqual(details);
-    expect((error as ApiError).fieldErrors).toEqual({ document: 'Documento invalido.' });
+    expect((error as ApiError).fieldErrors).toEqual({ document: 'Documento inválido.' });
   });
 
   it('UT-045: 409 vira ApiError com status 409 e details indefinido', async () => {
     onRequest(() => ({
       status: 409,
-      data: { error: { code: 'CONFLICT', message: 'Ja existe uma unidade com este numero.' } },
+      data: { error: { code: 'CONFLICT', message: 'Já existe uma unidade com este número.' } },
     }));
 
     const error = await apiPost('/units', {}).catch((caught: unknown) => caught);
@@ -102,7 +102,7 @@ describe('normalizacao de erros', () => {
     expect((error as ApiError).fieldErrors).toEqual({});
   });
 
-  it('UT-049: falha de rede sem resposta vira ApiError com status nao-HTTP', async () => {
+  it('UT-049: falha de rede sem resposta vira ApiError com status não-HTTP', async () => {
     api.defaults.adapter = async (config: InternalAxiosRequestConfig) => {
       throw new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, {});
     };
@@ -143,7 +143,7 @@ describe('desembrulho do envelope', () => {
     await expect(apiGet('/units/unit-1')).resolves.toEqual(unit);
   });
 
-  it('UT-044: apiGetPaginated devolve data e meta, com meta padrao quando omitido', async () => {
+  it('UT-044: apiGetPaginated devolve data e meta, com meta padrão quando omitido', async () => {
     const rows = [{ id: 'unit-1' }, { id: 'unit-2' }];
     const meta = {
       page: 2,
@@ -171,7 +171,7 @@ describe('desembrulho do envelope', () => {
     });
   });
 
-  it('UT-052: apiPost devolve a entidade criada e nao trata 201 como erro', async () => {
+  it('UT-052: apiPost devolve a entidade criada e não trata 201 como erro', async () => {
     const created = { id: 'unit-9', number: '901' };
     onRequest(() => ({ status: 201, data: { success: true, data: created } }));
 
@@ -180,7 +180,7 @@ describe('desembrulho do envelope', () => {
 });
 
 describe('autenticacao', () => {
-  it('UT-048: a requisicao leva o bearer guardado no storage', async () => {
+  it('UT-048: a requisição leva o bearer guardado no storage', async () => {
     tokenStorage.set('access-1', 'refresh-1');
     let seen: string | undefined;
     onRequest((config) => {
@@ -193,7 +193,7 @@ describe('autenticacao', () => {
     expect(seen).toBe('Bearer access-1');
   });
 
-  it('UT-046: uma rajada de tres 401 dispara exatamente um refresh', async () => {
+  it('UT-046: uma rajada de três 401 dispara exatamente um refresh', async () => {
     tokenStorage.set('stale', 'refresh-1');
     let refreshCalls = 0;
     let dataCalls = 0;
@@ -224,7 +224,7 @@ describe('autenticacao', () => {
     expect(dataCalls).toBe(6);
   });
 
-  it('UT-051: apos o refresh a requisicao e reexecutada uma vez, nao duas', async () => {
+  it('UT-051: após o refresh a requisição e reexecutada uma vez, não duas', async () => {
     tokenStorage.set('stale', 'refresh-1');
     const attempts: Array<string | undefined> = [];
 
@@ -258,7 +258,7 @@ describe('autenticacao', () => {
     }));
     onRefresh(() => ({
       status: 401,
-      data: { error: { code: 'INVALID_REFRESH_TOKEN', message: 'Refresh invalido.' } },
+      data: { error: { code: 'INVALID_REFRESH_TOKEN', message: 'Refresh inválido.' } },
     }));
 
     await expect(apiGet('/units')).rejects.toBeInstanceOf(ApiError);

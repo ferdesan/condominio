@@ -63,37 +63,37 @@ describe('Carregamento', () => {
 
     expect(await screen.findByLabelText('Nome')).toHaveValue('Administradora Aurora');
     expect(screen.getByLabelText('CNPJ')).toHaveValue('12345678000190');
-    expect(screen.getByLabelText('Carencia')).toHaveValue(5);
+    expect(screen.getByLabelText('Carência')).toHaveValue(5);
     // Percentuais sao campos de texto: a virgula decimal nao sobrevive a um
     // `input type="number"`. Ver o comentario em `tenant-settings-form.tsx`.
     expect(screen.getByLabelText('Multa (%)')).toHaveValue('2');
-    expect(screen.getByLabelText('Juros (% ao mes)')).toHaveValue('1');
+    expect(screen.getByLabelText('Juros (% ao mês)')).toHaveValue('1');
   });
 
-  it('administradora sem politica gravada mostra os padroes do servidor, e nao campos vazios', async () => {
+  it('administradora sem politica gravada mostra os padrões do servidor, e não campos vazios', async () => {
     // `applyLateFees` cai em 0 dia, 2% e 1% quando `settings` nao traz os
     // campos. Em branco, a tela esconderia a regra que esta valendo.
     world.tenant = makeTenant({ settings: { timezone: 'America/Sao_Paulo' } });
     render();
 
-    expect(await screen.findByLabelText('Carencia')).toHaveValue(0);
+    expect(await screen.findByLabelText('Carência')).toHaveValue(0);
     expect(screen.getByLabelText('Multa (%)')).toHaveValue('2');
-    expect(screen.getByLabelText('Juros (% ao mes)')).toHaveValue('1');
+    expect(screen.getByLabelText('Juros (% ao mês)')).toHaveValue('1');
   });
 
   it('falha na leitura aparece na tela, com nova tentativa', async () => {
     // Um 4xx de proposito: o `retry` do QueryProvider nao repete erro de
     // cliente, entao o estado de erro aparece no primeiro ciclo.
-    mockGet.mockRejectedValue(new ApiError('Servico indisponivel.', 422, 'UNPROCESSABLE_ENTITY'));
+    mockGet.mockRejectedValue(new ApiError('Serviço indisponível.', 422, 'UNPROCESSABLE_ENTITY'));
     render();
 
     expect(
-      await screen.findByText(/Nao foi possivel carregar as configuracoes/),
+      await screen.findByText(/Não foi possível carregar as configurações/),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument();
   });
 
-  it('nao dispara requisicao escopada a condominio', async () => {
+  it('não dispara requisição escopada a condomínio', async () => {
     render();
 
     await screen.findByLabelText('Nome');
@@ -130,7 +130,7 @@ describe('Salvamento', () => {
     await waitFor(() => expect(vi.mocked(toast.success)).toHaveBeenCalled());
   });
 
-  it('o corpo nao contem nenhum dos cinco campos comerciais', async () => {
+  it('o corpo não contem nenhum dos cinco campos comerciais', async () => {
     const user = createUser();
     render();
 
@@ -146,11 +146,11 @@ describe('Salvamento', () => {
     }
   });
 
-  it('settings vai como objeto e preserva as chaves que a tela nao oferece', async () => {
+  it('settings vai como objeto e preserva as chaves que a tela não oferece', async () => {
     const user = createUser();
     render();
 
-    const grace = await screen.findByLabelText('Carencia');
+    const grace = await screen.findByLabelText('Carência');
     await user.clear(grace);
     await user.type(grace, '10');
     await user.click(await saveButton());
@@ -185,7 +185,7 @@ describe('Salvamento', () => {
     expect(lastTenantPatch()).toMatchObject({ document: '98765432000110' });
   });
 
-  it('campo de texto apagado vai como nulo, e nao como chave ausente', async () => {
+  it('campo de texto apagado vai como nulo, e não como chave ausente', async () => {
     const user = createUser();
     render();
 
@@ -197,7 +197,7 @@ describe('Salvamento', () => {
     expect(lastTenantPatch()).toMatchObject({ email: null });
   });
 
-  it('o botao so habilita depois de alguma mudanca', async () => {
+  it('o botao so habilita depois de alguma mudança', async () => {
     const user = createUser();
     render();
 
@@ -207,7 +207,7 @@ describe('Salvamento', () => {
     expect(await saveButton()).toBeEnabled();
   });
 
-  it('duplo clique em salvar dispara uma requisicao so', async () => {
+  it('duplo clique em salvar dispara uma requisição so', async () => {
     const user = createUser();
     render();
 
@@ -221,17 +221,17 @@ describe('Salvamento', () => {
   });
 });
 
-describe('Validacao', () => {
-  it('carencia fora de 0 a 30 e barrada antes de chegar ao servidor', async () => {
+describe('Validação', () => {
+  it('carência fora de 0 a 30 e barrada antes de chegar ao servidor', async () => {
     const user = createUser();
     render();
 
-    const grace = await screen.findByLabelText('Carencia');
+    const grace = await screen.findByLabelText('Carência');
     await user.clear(grace);
     await user.type(grace, '45');
     await user.click(await saveButton());
 
-    expect(await screen.findByText('Use um numero inteiro de 0 a 30.')).toBeInTheDocument();
+    expect(await screen.findByText('Use um número inteiro de 0 a 30.')).toBeInTheDocument();
     expect(mockPatch).not.toHaveBeenCalled();
   });
 
@@ -248,24 +248,24 @@ describe('Validacao', () => {
     expect(mockPatch).not.toHaveBeenCalled();
   });
 
-  it('carencia fracionada e barrada, porque o servidor a quer inteira', async () => {
+  it('carência fracionada e barrada, porque o servidor a quer inteira', async () => {
     const user = createUser();
     render();
 
-    const grace = await screen.findByLabelText('Carencia');
+    const grace = await screen.findByLabelText('Carência');
     await user.clear(grace);
     await user.type(grace, '2.5');
     await user.click(await saveButton());
 
-    expect(await screen.findByText('Use um numero inteiro de 0 a 30.')).toBeInTheDocument();
+    expect(await screen.findByText('Use um número inteiro de 0 a 30.')).toBeInTheDocument();
     expect(mockPatch).not.toHaveBeenCalled();
   });
 
-  it('percentual com virgula decimal chega como 1.5, e nao como 15', async () => {
+  it('percentual com virgula decimal chega como 1.5, e não como 15', async () => {
     const user = createUser();
     render();
 
-    const interest = await screen.findByLabelText('Juros (% ao mes)');
+    const interest = await screen.findByLabelText('Juros (% ao mês)');
     await user.clear(interest);
     await user.type(interest, '1,5');
     await user.click(await saveButton());
@@ -276,7 +276,7 @@ describe('Validacao', () => {
     expect(lastTenantPatch().settings).toMatchObject({ lateInterestPercent: 1.5 });
   });
 
-  it('percentual com ponto decimal tambem e aceito', async () => {
+  it('percentual com ponto decimal também e aceito', async () => {
     const user = createUser();
     render();
 
@@ -289,7 +289,7 @@ describe('Validacao', () => {
     expect(lastTenantPatch().settings).toMatchObject({ latePenaltyPercent: 2.5 });
   });
 
-  it('percentual sem numero nenhum e barrado', async () => {
+  it('percentual sem número nenhum e barrado', async () => {
     const user = createUser();
     render();
 
@@ -300,7 +300,7 @@ describe('Validacao', () => {
     expect(mockPatch).not.toHaveBeenCalled();
   });
 
-  it('texto no lugar de percentual e barrado, e nao vira NaN', async () => {
+  it('texto no lugar de percentual e barrado, e não vira NaN', async () => {
     const user = createUser();
     render();
 
@@ -341,7 +341,7 @@ describe('Validacao', () => {
 });
 
 describe('Recusas do servidor', () => {
-  it('403 vira mensagem de formulario e preserva o preenchido', async () => {
+  it('403 vira mensagem de formulário e preserva o preenchido', async () => {
     const user = createUser();
     mockPatch.mockRejectedValue(
       new ApiError(
@@ -366,7 +366,7 @@ describe('Recusas do servidor', () => {
     const user = createUser();
     mockPatch.mockRejectedValue(
       new ApiError('Dados invalidos.', 422, 'UNPROCESSABLE_ENTITY', [
-        { field: 'document', message: 'CNPJ ja cadastrado.' },
+        { field: 'document', message: 'CNPJ já cadastrado.' },
       ]),
     );
     render();
@@ -374,12 +374,12 @@ describe('Recusas do servidor', () => {
     await user.type(await screen.findByLabelText('Nome'), ' Ltda');
     await user.click(await saveButton());
 
-    expect(await screen.findByText('CNPJ ja cadastrado.')).toBeInTheDocument();
+    expect(await screen.findByText('CNPJ já cadastrado.')).toBeInTheDocument();
   });
 });
 
 describe('Plano e limites', () => {
-  it('aparecem como leitura, sem campo editavel', async () => {
+  it('aparecem como leitura, sem campo editável', async () => {
     render();
 
     expect(await screen.findByText('Profissional')).toBeInTheDocument();
@@ -390,24 +390,24 @@ describe('Plano e limites', () => {
 
     // Nenhum dos cinco e um controle: a permissao de edicao nunca os destrava.
     expect(screen.queryByLabelText('Plano')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Situacao')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Situação')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Identificador')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Limite de condominios')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Limite de usuarios')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Limite de condomínios')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Limite de usuários')).not.toBeInTheDocument();
   });
 
-  it('sem periodo de avaliacao, a linha nao aparece', async () => {
+  it('sem período de avaliação, a linha não aparece', async () => {
     render();
 
     await screen.findByText('Profissional');
-    expect(screen.queryByText('Avaliacao ate')).not.toBeInTheDocument();
+    expect(screen.queryByText('Avaliação até')).not.toBeInTheDocument();
   });
 
-  it('com periodo de avaliacao, a data aparece', async () => {
+  it('com período de avaliação, a data aparece', async () => {
     world.tenant = makeTenant({ plan: 'TRIAL', trialEndsAt: '2026-12-31T12:00:00.000Z' });
     render();
 
-    expect(await screen.findByText('Avaliacao ate')).toBeInTheDocument();
+    expect(await screen.findByText('Avaliação até')).toBeInTheDocument();
   });
 });
 
@@ -416,7 +416,7 @@ describe('Permissao', () => {
     render(SINDICO);
 
     // O sindico precisa conhecer a politica aplicada as cobrancas do predio.
-    expect(await screen.findByLabelText('Carencia')).toHaveValue(5);
+    expect(await screen.findByLabelText('Carência')).toHaveValue(5);
     expect(screen.queryByRole('button', { name: 'Salvar' })).not.toBeInTheDocument();
   });
 

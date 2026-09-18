@@ -62,7 +62,7 @@ export function AuditDetailDialog({ entry, onClose }: AuditDetailDialogProps) {
         <DialogHeader>
           <DialogTitle>{`${ACTION_LABELS[entry.action]} em ${resourceLabel(entry.resource)}`}</DialogTitle>
           <DialogDescription>
-            {entry.description ?? 'A entrada nao traz descricao propria.'}
+            {entry.description ?? 'A entrada não traz descrição própria.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -80,7 +80,7 @@ export function AuditDetailDialog({ entry, onClose }: AuditDetailDialogProps) {
             <dd className="break-all font-mono text-xs">{entry.resourceId ?? '—'}</dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">Endereco de origem</dt>
+            <dt className="text-xs text-muted-foreground">Endereço de origem</dt>
             <dd className="font-mono text-xs">{entry.ipAddress ?? '—'}</dd>
           </div>
         </dl>
@@ -115,7 +115,7 @@ export function AuditDetailDialog({ entry, onClose }: AuditDetailDialogProps) {
 
         <section aria-labelledby="audit-detail-history" className="space-y-2">
           <h3 id="audit-detail-history" className="text-sm font-semibold">
-            Historico deste registro
+            Histórico deste registro
           </h3>
 
           {!entry.resourceId ? (
@@ -126,11 +126,11 @@ export function AuditDetailDialog({ entry, onClose }: AuditDetailDialogProps) {
             // A falha fica contida: o conteudo da entrada aberta ja esta na tela
             // e continua legivel sem o historico.
             <p role="alert" className="text-sm text-destructive">
-              Nao foi possivel carregar o historico deste registro.
+              Não foi possível carregar o histórico deste registro.
             </p>
           ) : others.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Esta e a unica entrada registrada para este registro.
+              Esta e a única entrada registrada para este registro.
             </p>
           ) : (
             <ul className="max-h-56 space-y-1 overflow-y-auto pr-1 text-sm">

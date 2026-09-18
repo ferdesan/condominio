@@ -119,9 +119,9 @@ export function EmployeeFormDialog({ employee, condominiumId, onClose }: Employe
       >
         <DialogContent side="right" dismissible={false} className="max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar funcionario' : 'Novo funcionario'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar funcionário' : 'Novo funcionário'}</DialogTitle>
             <DialogDescription>
-              Dados pessoais, contato, vinculo contratual e observacoes.
+              Dados pessoais, contato, vinculo contratual e observações.
             </DialogDescription>
           </DialogHeader>
 
@@ -189,7 +189,7 @@ export function EmployeeFormDialog({ employee, condominiumId, onClose }: Employe
                 id="department"
                 label="Departamento"
                 error={errors.department?.message}
-                description="Portaria, limpeza, manutencao, administracao."
+                description="Portaria, limpeza, manutenção, administração."
               >
                 {(aria) => <Input {...aria} {...register('department')} />}
               </FormField>
@@ -255,7 +255,7 @@ export function EmployeeFormDialog({ employee, condominiumId, onClose }: Employe
 
               {/*
                 Dinheiro tem campo proprio: o `CurrencyInput` guarda numero e
-                apresenta a moeda formatada, entao o corpo da requisicao sai
+                apresenta a moeda formatada, entao o corpo da requisição sai
                 numerico sem ninguem converter texto no caminho.
               */}
               <Controller
@@ -264,9 +264,9 @@ export function EmployeeFormDialog({ employee, condominiumId, onClose }: Employe
                 render={({ field, fieldState }) => (
                   <FormField
                     id="salary"
-                    label="Salario"
+                    label="Salário"
                     error={fieldState.error?.message}
-                    description="Opcional. Dado sensivel: informe apenas se for necessario."
+                    description="Opcional. Dado sensível: informe apenas se for necessário."
                   >
                     {(aria) => (
                       <CurrencyInput value={field.value} onChange={field.onChange} {...aria} />
@@ -294,7 +294,7 @@ export function EmployeeFormDialog({ employee, condominiumId, onClose }: Employe
               </FormField>
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -321,8 +321,8 @@ export function EmployeeFormDialog({ employee, condominiumId, onClose }: Employe
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

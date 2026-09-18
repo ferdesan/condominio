@@ -33,9 +33,9 @@ export function OccupancyIndicators({ condominiumId, filtersActive }: OccupancyI
 
   if (failed) {
     return (
-      <section aria-label="Indicadores de ocupacao" className="app-surface p-5">
+      <section aria-label="Indicadores de ocupação" className="app-surface p-5">
         <p role="alert" className="text-sm text-destructive">
-          Nao foi possivel carregar os indicadores de ocupacao.
+          Não foi possível carregar os indicadores de ocupação.
         </p>
         <Button
           variant="outline"
@@ -58,11 +58,11 @@ export function OccupancyIndicators({ condominiumId, filtersActive }: OccupancyI
     [
       { key: 'total', label: 'Total de unidades', icon: DoorOpen, value: total.data },
       { key: 'occupied', label: 'Unidades ocupadas', icon: Home, value: occupied.data },
-      { key: 'available', label: 'Unidades disponiveis', icon: KeyRound, value: available.data },
+      { key: 'available', label: 'Unidades disponíveis', icon: KeyRound, value: available.data },
     ];
 
   return (
-    <section aria-label="Indicadores de ocupacao" className="space-y-2">
+    <section aria-label="Indicadores de ocupação" className="space-y-2">
       <div className="grid gap-3 sm:grid-cols-3">
         {indicators.map(({ key, label, icon: Icon, value }) => (
           <div key={key} className="app-surface p-4">
@@ -85,12 +85,12 @@ export function OccupancyIndicators({ condominiumId, filtersActive }: OccupancyI
 
       <p className="text-xs text-muted-foreground">
         {/*
-          Com filtros ativos, a lista mostra um subconjunto e os indicadores nao:
-          sem dizer isso, os numeros seriam lidos como o total filtrado.
+          Com filtros ativos, a lista mostra um subconjunto e os indicadores não:
+          sem dizer isso, os números seriam lidos como o total filtrado.
         */}
         {filtersActive
-          ? 'Indicadores de todo o condominio selecionado; os filtros da lista nao se aplicam a eles.'
-          : 'Indicadores de todo o condominio selecionado.'}
+          ? 'Indicadores de todo o condomínio selecionado; os filtros da lista não se aplicam a eles.'
+          : 'Indicadores de todo o condomínio selecionado.'}
         {others !== undefined && others > 0
           ? ` Outras ${formatNumber(others)} em reforma ou bloqueadas completam o total.`
           : ''}

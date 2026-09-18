@@ -35,8 +35,8 @@ export function CondominiumDetailPage() {
     return (
       <EmptyState
         icon={Building2}
-        title="Condominio nao encontrado"
-        description="O registro nao existe, foi removido ou o endereco esta incorreto."
+        title="Condomínio não encontrado"
+        description="O registro não existe, foi removido ou o endereço esta incorreto."
         action={
           <Button asChild variant="outline">
             <Link to="/condominios">Voltar para a listagem</Link>
@@ -86,7 +86,7 @@ export function CondominiumDetailPage() {
 function DetailSkeleton() {
   return (
     <>
-      <PageHeader title="Condominio" description="Carregando cadastro..." />
+      <PageHeader title="Condomínio" description="Carregando cadastro..." />
       <div className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 7 }, (_, index) => (

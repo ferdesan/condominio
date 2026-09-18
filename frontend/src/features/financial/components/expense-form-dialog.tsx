@@ -127,7 +127,7 @@ export function ExpenseFormDialog({
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar despesa' : 'Nova despesa'}</DialogTitle>
             <DialogDescription>
-              O que o condominio deve pagar, de que competencia e a quem.
+              O que o condomínio deve pagar, de que competência e a quem.
             </DialogDescription>
           </DialogHeader>
 
@@ -136,7 +136,7 @@ export function ExpenseFormDialog({
           <form onSubmit={onSubmit} noValidate className="space-y-4">
             <FormField
               id="expense-description"
-              label="Descricao"
+              label="Descrição"
               error={errors.description?.message}
             >
               {(aria) => <Input autoFocus maxLength={180} {...aria} {...register('description')} />}
@@ -151,7 +151,7 @@ export function ExpenseFormDialog({
                     id="expense-categoryId"
                     label="Conta"
                     error={fieldState.error?.message}
-                    description="Opcional. Classifica a despesa na prestacao de contas."
+                    description="Opcional. Classifica a despesa na prestação de contas."
                   >
                     {(aria) => (
                       <Select
@@ -183,7 +183,7 @@ export function ExpenseFormDialog({
                     id="expense-serviceProviderId"
                     label="Prestador"
                     error={fieldState.error?.message}
-                    description="Opcional. Quem prestou o servico ou forneceu."
+                    description="Opcional. Quem prestou o serviço ou forneceu."
                   >
                     {(aria) => (
                       <Select
@@ -211,7 +211,7 @@ export function ExpenseFormDialog({
             <div className="grid gap-4 sm:grid-cols-3">
               <FormField
                 id="expense-competence"
-                label="Competencia"
+                label="Competência"
                 error={errors.competence?.message}
               >
                 {(aria) => <Input type="month" {...aria} {...register('competence')} />}
@@ -233,7 +233,7 @@ export function ExpenseFormDialog({
                 id="expense-documentNumber"
                 label="Nota fiscal"
                 error={errors.documentNumber?.message}
-                description="Opcional. O numero do documento."
+                description="Opcional. O número do documento."
               >
                 {(aria) => <Input maxLength={60} {...aria} {...register('documentNumber')} />}
               </FormField>
@@ -249,7 +249,7 @@ export function ExpenseFormDialog({
                       onCheckedChange={(checked) => field.onChange(checked === true)}
                     />
                     <Label htmlFor="expense-isRecurring" className="font-normal">
-                      Recorrente — ao liquidar, o servidor agenda a proxima
+                      Recorrente — ao liquidar, o servidor agenda a próxima
                     </Label>
                   </div>
                 )}
@@ -258,7 +258,7 @@ export function ExpenseFormDialog({
 
             <FormField
               id="expense-notes"
-              label="Observacoes"
+              label="Observações"
               error={errors.notes?.message}
               description="Opcional."
             >
@@ -288,8 +288,8 @@ export function ExpenseFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

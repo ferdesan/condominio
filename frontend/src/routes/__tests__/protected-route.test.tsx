@@ -14,11 +14,7 @@ function LoginProbe() {
 
 type Value = Pick<AuthContextValue, 'initializing' | 'isAuthenticated' | 'can'>;
 
-function renderProtected(
-  value: Value,
-  permission: string | undefined,
-  path = '/lgpd',
-): void {
+function renderProtected(value: Value, permission: string | undefined, path = '/lgpd'): void {
   const authValue: AuthContextValue = {
     user: null,
     initializing: value.initializing,
@@ -50,52 +46,37 @@ function renderProtected(
 }
 
 describe('ProtectedRoute (IT-055, UT-026)', () => {
-  it('segura a tela enquanto a sessao e restaurada, mesmo com token', () => {
-    renderProtected(
-      { initializing: true, isAuthenticated: false, can: () => false },
-      undefined,
-    );
+  it('segura a tela enquanto a sessão e restaurada, mesmo com token', () => {
+    renderProtected({ initializing: true, isAuthenticated: false, can: () => false }, undefined);
 
     // A tela inteira fica por tras: navegacao seria um pisca para o login.
     expect(screen.getByRole('status')).toBeInTheDocument();
-    expect(screen.getByText('Restaurando sessao')).toBeInTheDocument();
+    expect(screen.getByText('Restaurando sessão')).toBeInTheDocument();
   });
 
   it('redireciona desautenticados para o login guardando a origem', () => {
-    renderProtected(
-      { initializing: false, isAuthenticated: false, can: () => false },
-      'lgpd:read',
-    );
+    renderProtected({ initializing: false, isAuthenticated: false, can: () => false }, 'lgpd:read');
 
     expect(screen.getByText(/pagina de login/)).toBeInTheDocument();
     expect(screen.getByText(/origem: \/lgpd/i)).toBeInTheDocument();
   });
 
-  it('renderiza 403 quando a sessao nao tem a permissao da rota', () => {
-    renderProtected(
-      { initializing: false, isAuthenticated: true, can: () => false },
-      'lgpd:read',
-    );
+  it('renderiza 403 quando a sessão não tem a permissao da rota', () => {
+    renderProtected({ initializing: false, isAuthenticated: true, can: () => false }, 'lgpd:read');
 
     expect(screen.getByText('Acesso negado')).toBeInTheDocument();
     expect(screen.queryByText('conteudo protegido')).not.toBeInTheDocument();
   });
 
   it('libera o conteudo quando a permissao existe', async () => {
-    renderProtected(
-      { initializing: false, isAuthenticated: true, can: () => true },
-      'lgpd:read',
-    );
+    renderProtected({ initializing: false, isAuthenticated: true, can: () => true }, 'lgpd:read');
 
     expect(await screen.findByText('conteudo protegido')).toBeInTheDocument();
     expect(screen.queryByText(/pagina de login/)).not.toBeInTheDocument();
   });
 
-  it('rotas sem permissao exigem sessao apenas', async () => {
-    renderProtected(
-      { initializing: false, isAuthenticated: true, can: () => true },
-      undefined,
-    );
+  it('rotas sem permissao exigem sessão apenas', async () => {
+    renderProtected({ initializing: false, isAuthenticated: true, can: () => true }, undefined);
 
     expect(await screen.findByText('conteudo protegido')).toBeInTheDocument();
   });

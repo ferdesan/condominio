@@ -215,7 +215,7 @@ export function VisitorsPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <VisitorRowActions
           visitor={row}
@@ -243,8 +243,8 @@ export function VisitorsPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="Os visitantes sao listados por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="Os visitantes sao listados por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -272,10 +272,10 @@ export function VisitorsPage() {
             />
 
             {/*
-              Uma interacao so: o contador e o proprio atalho para quem esta
-              dentro. Zero continua visivel — o condominio vazio e informacao.
+              Uma interação so: o contador e o próprio atalho para quem esta
+              dentro. Zero continua visível — o condomínio vazio e informação.
               O numero vem de `/visitors/inside-count`, que conta pelo status no
-              servidor, e nao do total de uma listagem filtrada.
+              servidor, e não do total de uma listagem filtrada.
             */}
             <div className="flex flex-wrap items-center gap-3">
               <Button
@@ -294,9 +294,9 @@ export function VisitorsPage() {
         filters={
           <div className="space-y-4">
             {/*
-              Acima dos filtros de proposito: o balcao vem antes da consulta a
+              Acima dos filtros de proposito: o balção vem antes da consulta a
               lista. Quem esta com alguem parado na frente pergunta por um
-              codigo, e nao refina uma listagem.
+              código, e não refina uma listagem.
             */}
             <AccessCodeLookup
               canCheckIn={canUpdate}

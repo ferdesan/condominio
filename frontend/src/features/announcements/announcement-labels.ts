@@ -16,7 +16,7 @@ import type {
 export const CATEGORY_LABELS: Record<AnnouncementCategory, string> = {
   GENERAL: 'Geral',
   URGENT: 'Urgente',
-  MAINTENANCE: 'Manutencao',
+  MAINTENANCE: 'Manutenção',
   FINANCIAL: 'Financeiro',
   EVENT: 'Evento',
   ASSEMBLY: 'Assembleia',
@@ -37,17 +37,17 @@ export const STATUS_LABELS: Record<AnnouncementStatus, string> = {
 
 export const AUDIENCE_LABELS: Record<AnnouncementAudience, string> = {
   ALL: 'Todos',
-  OWNERS: 'Proprietarios',
+  OWNERS: 'Proprietários',
   TENANTS: 'Inquilinos',
-  STAFF: 'Funcionarios',
+  STAFF: 'Funcionários',
   BLOCKS: 'Blocos especificos',
 };
 
 /** Rotulo do controle de fixados, que o servidor filtra por booleano. */
 export const PINNED_LABELS: Record<'true' | 'false', string> = {
   true: 'Somente fixados',
-  false: 'Somente nao fixados',
+  false: 'Somente não fixados',
 };
 
 /** Dito quando o servidor nao guardou o nome de quem publicou. */
-export const NO_AUTHOR = 'Autor nao registrado';
+export const NO_AUTHOR = 'Autor não registrado';

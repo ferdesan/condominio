@@ -64,7 +64,7 @@ export function ForgotPasswordPage() {
 
   if (sentTo) {
     return (
-      <AuthShell subtitle="Recuperacao de acesso">
+      <AuthShell subtitle="Recuperação de acesso">
         <div className="app-surface space-y-4 p-6 text-center">
           <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
             <MailCheck className="size-6" aria-hidden="true" />
@@ -74,13 +74,13 @@ export function ForgotPasswordPage() {
             <h2 className="text-lg font-semibold">Verifique seu e-mail</h2>
             {/*
               Condicional de proposito: afirmar que o e-mail foi enviado
-              confirmaria que a conta existe. O endereco aparece porque foi o
-              que a pessoa digitou — e util para perceber um erro de digitacao —
-              e nao porque o servidor o reconheceu.
+              confirmaria que a conta existe. O endereço aparece porque foi o
+              que a pessoa digitou — e util para perceber um erro de digitação —
+              e não porque o servidor o reconheceu.
             */}
             <p className="text-sm text-muted-foreground">
               Se <span className="font-medium text-foreground">{sentTo}</span> estiver cadastrado,
-              enviamos as instrucoes para redefinir a senha. O link vale por tempo limitado.
+              enviamos as instruções para redefinir a senha. O link vale por tempo limitado.
             </p>
           </div>
 
@@ -103,7 +103,7 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <AuthShell subtitle="Recuperacao de acesso">
+    <AuthShell subtitle="Recuperação de acesso">
       <form onSubmit={onSubmit} noValidate className="app-surface space-y-4 p-6">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold">Esqueci minha senha</h2>

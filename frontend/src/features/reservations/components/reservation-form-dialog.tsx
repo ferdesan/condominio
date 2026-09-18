@@ -131,7 +131,7 @@ export function ReservationFormDialog({
           <DialogHeader>
             <DialogTitle>Nova reserva</DialogTitle>
             <DialogDescription>
-              Este condominio ainda nao tem areas comuns disponiveis para reserva. Cadastre uma area
+              Este condomínio ainda não tem áreas comuns disponíveis para reserva. Cadastre uma área
               comum antes de registrar reservas.
             </DialogDescription>
           </DialogHeader>
@@ -151,7 +151,7 @@ export function ReservationFormDialog({
         <DialogHeader>
           <DialogTitle>Nova reserva</DialogTitle>
           <DialogDescription>
-            Area comum, unidade e periodo. As regras da area escolhida aparecem abaixo dela.
+            Área comum, unidade e período. As regras da área escolhida aparecem abaixo dela.
           </DialogDescription>
         </DialogHeader>
 
@@ -162,7 +162,7 @@ export function ReservationFormDialog({
             control={control}
             name="commonAreaId"
             render={({ field, fieldState }) => (
-              <FormField id="commonAreaId" label="Area comum" error={fieldState.error?.message}>
+              <FormField id="commonAreaId" label="Área comum" error={fieldState.error?.message}>
                 {(aria) => (
                   <Select
                     value={field.value}
@@ -174,7 +174,7 @@ export function ReservationFormDialog({
                     }}
                   >
                     <SelectTrigger {...aria}>
-                      <SelectValue placeholder="Selecione a area" />
+                      <SelectValue placeholder="Selecione a área" />
                     </SelectTrigger>
                     <SelectContent>
                       {areas.map((area) => (
@@ -191,7 +191,7 @@ export function ReservationFormDialog({
 
           {selectedArea ? (
             <section
-              aria-label="Regras da area"
+              aria-label="Regras da área"
               className="rounded-md border border-border bg-muted/40 p-3 text-sm"
             >
               <p className="mb-2 flex items-center gap-2 font-medium">
@@ -239,7 +239,7 @@ export function ReservationFormDialog({
               control={control}
               name="startsAt"
               render={({ field, fieldState }) => (
-                <FormField id="startsAt" label="Inicio" error={fieldState.error?.message}>
+                <FormField id="startsAt" label="Início" error={fieldState.error?.message}>
                   {(aria) => (
                     <DateTimeInput value={field.value} onChange={field.onChange} {...aria} />
                   )}
@@ -251,7 +251,7 @@ export function ReservationFormDialog({
               control={control}
               name="endsAt"
               render={({ field, fieldState }) => (
-                <FormField id="endsAt" label="Termino" error={fieldState.error?.message}>
+                <FormField id="endsAt" label="Término" error={fieldState.error?.message}>
                   {(aria) => (
                     <DateTimeInput value={field.value} onChange={field.onChange} {...aria} />
                   )}
@@ -273,7 +273,7 @@ export function ReservationFormDialog({
             {(aria) => <Input inputMode="numeric" {...aria} {...register('guestsCount')} />}
           </FormField>
 
-          <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+          <FormField id="notes" label="Observações" error={errors.notes?.message}>
             {(aria) => <Textarea {...aria} {...register('notes')} />}
           </FormField>
 
