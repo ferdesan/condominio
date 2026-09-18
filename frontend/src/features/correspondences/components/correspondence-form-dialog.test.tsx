@@ -9,6 +9,7 @@ import {
   createUser,
   renderWithProviders,
   screen,
+  chooseOption,
   selectOption,
   waitFor,
   within,
@@ -113,7 +114,7 @@ describe('Cadastro de correspondência', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     submitCreate();
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
@@ -167,7 +168,7 @@ describe('Cadastro de correspondência', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     await user.type(within(dialog()).getByLabelText('Código de rastreio'), 'BR123456789BR');
     submitCreate();
 
@@ -194,7 +195,7 @@ describe('Cadastro de correspondência', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     await user.type(within(dialog()).getByLabelText('Transportadora'), 'Correios');
     submitCreate();
 
@@ -219,7 +220,7 @@ describe('Cadastro de correspondência', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
 
     const submit = within(dialog()).getByRole('button', { name: 'Cadastrar' });
     clickTrigger(submit);
@@ -245,7 +246,7 @@ describe('Cadastro de correspondência', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Descrição'), 'Envelope registrado');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
 
     // Por papel nao da: o dialogo modal marca o resto da pagina como
     // `aria-hidden`, e `getByRole` nao enxerga fora da arvore acessivel.

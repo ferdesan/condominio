@@ -7,6 +7,7 @@ import {
   createUser,
   renderWithProviders,
   screen,
+  chooseOption,
   selectOption,
   waitFor,
   within,
@@ -117,7 +118,7 @@ describe('Cadastro de morador', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Lima');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
@@ -150,7 +151,7 @@ describe('Cadastro de morador', () => {
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Lima');
     await user.type(within(dialog()).getByLabelText('CPF'), '12345678900');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     expect(await screen.findByText('CPF informado e inválido.')).toBeInTheDocument();
@@ -173,7 +174,7 @@ describe('Cadastro de morador', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Lima');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     expect(
@@ -237,7 +238,7 @@ describe('Cadastro de morador', () => {
     expect(screen.queryByText(/consentimento|lgpd/i)).not.toBeInTheDocument();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Lima');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
@@ -299,7 +300,7 @@ describe('Cadastro de morador', () => {
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Bruno Lima');
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
 
     const submit = within(dialog()).getByRole('button', { name: 'Cadastrar' });
     clickTrigger(submit);
@@ -346,7 +347,7 @@ describe('Edição de morador', () => {
     // Os valores atuais chegam preenchidos.
     expect(within(dialog()).getByLabelText('Nome')).toHaveValue('Carlos Pereira');
 
-    selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 102');
+    chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 102');
     selectOption(within(dialog()).getByLabelText('Status'), 'Inativo');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Salvar' }));
 
