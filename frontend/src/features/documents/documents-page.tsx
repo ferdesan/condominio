@@ -26,7 +26,7 @@ import { DocumentFormDialog } from './components/document-form-dialog';
 import { DocumentRowActions } from './components/document-row-actions';
 
 const DESCRIPTION =
-  'Convencao, regimento, atas, contratos e laudos do condominio, com o controle de quem pode baixar cada um.';
+  'Convenção, regimento, atas, contratos e laudos do condomínio, com o controle de quem pode baixar cada um.';
 
 /** Recusa do servidor apresentada na linha que a provocou. */
 type RowError = { id: string; message: string } | null;
@@ -185,7 +185,7 @@ export function DocumentsPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <DocumentRowActions
           document={row}
@@ -211,8 +211,8 @@ export function DocumentsPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="Os documentos sao listados por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="Os documentos sao listados por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -263,7 +263,7 @@ export function DocumentsPage() {
                 <EmptyState
                   icon={FileText}
                   title="Nenhum documento no acervo"
-                  description="Convencao, regimento e atas ficam aqui, disponiveis para quem voce definir."
+                  description="Convenção, regimento e atas ficam aqui, disponíveis para quem você definir."
                   action={
                     canCreate ? (
                       <Button
@@ -307,8 +307,8 @@ export function DocumentsPage() {
       ) : null}
 
       {/*
-        Excluir um documento apaga o arquivo do disco e nao tem volta — e a
-        eliminacao do dado que a LGPD exige. A confirmacao precisa dizer isso:
+        Excluir um documento apaga o arquivo do disco e não tem volta — e a
+        eliminação do dado que a LGPD exige. A confirmação precisa dizer isso:
         nas demais telas "excluir" e reversivel, e quem ja usou as outras espera
         o mesmo aqui.
       */}
@@ -317,7 +317,7 @@ export function DocumentsPage() {
         title="Excluir documento?"
         description={
           deleting
-            ? `O arquivo "${deleting.fileName}" sera apagado do armazenamento. Esta exclusao e definitiva e nao pode ser desfeita.`
+            ? `O arquivo "${deleting.fileName}" será apagado do armazenamento. Esta exclusao e definitiva e não pode ser desfeita.`
             : undefined
         }
         actionLabel="Excluir definitivamente"

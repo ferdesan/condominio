@@ -86,7 +86,7 @@ export function RegisterPaymentDialog({ charge, onClose }: RegisterPaymentDialog
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Registrar pagamento</DialogTitle>
           <DialogDescription>
@@ -159,9 +159,9 @@ export function RegisterPaymentDialog({ charge, onClose }: RegisterPaymentDialog
 
             <FormField
               id="payment-transactionId"
-              label="Identificador da transacao"
+              label="Identificador da transação"
               error={errors.transactionId?.message}
-              description="Opcional. O codigo do comprovante."
+              description="Opcional. O código do comprovante."
             >
               {(aria) => <Input maxLength={80} {...aria} {...register('transactionId')} />}
             </FormField>
@@ -169,7 +169,7 @@ export function RegisterPaymentDialog({ charge, onClose }: RegisterPaymentDialog
 
           <FormField
             id="payment-notes"
-            label="Observacoes"
+            label="Observações"
             error={errors.notes?.message}
             description="Opcional."
           >

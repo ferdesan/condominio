@@ -34,12 +34,12 @@ const COPY: Record<ReservationAction, { title: string; description: string; subm
   },
   reject: {
     title: 'Recusar reserva',
-    description: 'A reserva passa a recusada e o horario volta a ficar livre. O motivo e opcional.',
+    description: 'A reserva passa a recusada e o horário volta a ficar livre. O motivo e opcional.',
     submit: 'Recusar',
   },
   cancel: {
     title: 'Cancelar reserva',
-    description: 'A reserva passa a cancelada e sai do calendario. O motivo e opcional.',
+    description: 'A reserva passa a cancelada e sai do calendário. O motivo e opcional.',
     submit: 'Cancelar reserva',
   },
 };
@@ -125,7 +125,7 @@ export function ReservationDecisionDialog({
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent side="right" dismissible={false}>
         <DialogHeader>
           <DialogTitle>{copy.title}</DialogTitle>
           <DialogDescription>{copy.description}</DialogDescription>
@@ -133,7 +133,7 @@ export function ReservationDecisionDialog({
 
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {reservation.commonArea?.name ?? 'Area indisponivel'} ·{' '}
+            {reservation.commonArea?.name ?? 'Área indisponível'} ·{' '}
             {formatDateTime(reservation.startsAt)} · {reservation.requestedByName}
           </p>
 
@@ -141,7 +141,7 @@ export function ReservationDecisionDialog({
             id="reason"
             label="Motivo (opcional)"
             error={errors.reason?.message}
-            description="Ate 255 caracteres. Fica visivel na reserva."
+            description="Até 255 caracteres. Fica visível na reserva."
           >
             {(aria) => <Textarea autoFocus {...aria} {...register('reason')} />}
           </FormField>
@@ -158,8 +158,8 @@ export function ReservationDecisionDialog({
           <DialogFooter>
             {/*
               "Voltar" e nao "Fechar": o botao de fechar do proprio dialogo ja
-              usa esse nome, e dois controles com o mesmo nome acessivel no
-              mesmo dialogo sao indistinguiveis para quem navega por leitor.
+              usa esse nome, e dois controles com o mesmo nome acessível no
+              mesmo dialogo sao indistinguíveis para quem navega por leitor.
             */}
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
               Voltar

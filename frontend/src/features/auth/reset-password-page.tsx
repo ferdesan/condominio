@@ -87,7 +87,7 @@ export function ResetPasswordPage() {
 
   if (!hasToken) {
     return (
-      <AuthShell subtitle="Recuperacao de acesso">
+      <AuthShell subtitle="Recuperação de acesso">
         <div className="app-surface space-y-4 p-6 text-center">
           <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-warning/15 text-foreground">
             <LinkIcon className="size-6" aria-hidden="true" />
@@ -96,7 +96,7 @@ export function ResetPasswordPage() {
           <div className="space-y-1">
             <h2 className="text-lg font-semibold">Link incompleto</h2>
             <p className="text-sm text-muted-foreground">
-              Este endereco nao traz o codigo de recuperacao. Abra o link do e-mail por inteiro, ou
+              Este endereço não traz o código de recuperação. Abra o link do e-mail por inteiro, ou
               peca um novo.
             </p>
           </div>
@@ -115,7 +115,7 @@ export function ResetPasswordPage() {
   }
 
   return (
-    <AuthShell subtitle="Recuperacao de acesso">
+    <AuthShell subtitle="Recuperação de acesso">
       <form onSubmit={onSubmit} noValidate className="app-surface space-y-4 p-6">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold">Definir nova senha</h2>
@@ -129,14 +129,14 @@ export function ResetPasswordPage() {
         */}
         <p className="flex items-start gap-2 rounded-md bg-warning/10 px-3 py-2 text-sm">
           <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          <span>Ao redefinir, sua conta sera desconectada em todos os dispositivos.</span>
+          <span>Ao redefinir, sua conta será desconectada em todos os dispositivos.</span>
         </p>
 
         <FormField
           id="reset-password"
           label="Nova senha"
           error={errors.password?.message}
-          description="Ao menos 8 caracteres, com maiuscula, minuscula e numero."
+          description="Ao menos 8 caracteres, com maiuscula, minuscula e número."
         >
           {(aria) => (
             <div className="relative">

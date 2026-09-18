@@ -13,7 +13,7 @@ describe('hasPermission (UT-025)', () => {
     expect(hasPermission(['resident:read'], 'resident:read')).toBe(true);
   });
 
-  it('UT-025.E1: nega a acao que nao esta na lista', () => {
+  it('UT-025.E1: nega a ação que não esta na lista', () => {
     expect(hasPermission(['resident:read'], 'resident:delete')).toBe(false);
   });
 

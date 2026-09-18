@@ -18,9 +18,9 @@ const INDICATORS: { key: keyof CondominiumStats; label: string; icon: LucideIcon
   { key: 'units', label: 'Unidades', icon: DoorOpen },
   { key: 'occupiedUnits', label: 'Unidades ocupadas', icon: Home },
   { key: 'residents', label: 'Moradores', icon: Users },
-  { key: 'vehicles', label: 'Veiculos', icon: Car },
-  { key: 'openIncidents', label: 'Ocorrencias abertas', icon: TriangleAlert },
-  { key: 'pendingCharges', label: 'Cobrancas pendentes', icon: CircleDollarSign },
+  { key: 'vehicles', label: 'Veículos', icon: Car },
+  { key: 'openIncidents', label: 'Ocorrências abertas', icon: TriangleAlert },
+  { key: 'pendingCharges', label: 'Cobranças pendentes', icon: CircleDollarSign },
   { key: 'pendingReservations', label: 'Reservas pendentes', icon: CalendarClock },
 ];
 
@@ -46,7 +46,7 @@ export function CondominiumStatsPanel({
     return (
       <section aria-label="Indicadores" className="app-surface p-5">
         <p role="alert" className="text-sm text-destructive">
-          Nao foi possivel carregar os indicadores.
+          Não foi possível carregar os indicadores.
         </p>
         <Button variant="outline" size="sm" className="mt-3" onClick={onRetry}>
           Tentar novamente

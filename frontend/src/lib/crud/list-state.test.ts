@@ -6,7 +6,7 @@ describe('useListState', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  it('UT-016: comeca na pagina 1, sem busca, sem ordenacao, sem filtros e sem removidos', () => {
+  it('UT-016: comeca na pagina 1, sem busca, sem ordenação, sem filtros e sem removidos', () => {
     const { result } = renderHook(() => useListState());
 
     expect(result.current.page).toBe(1);
@@ -45,7 +45,7 @@ describe('useListState', () => {
     expect(result.current.page).toBe(1);
   });
 
-  it('UT-019: guarda o que a tabela reporta e nao alterna a direcao sozinho', () => {
+  it('UT-019: guarda o que a tabela reporta e não alterna a direção sozinho', () => {
     const { result } = renderHook(() => useListState());
 
     act(() => result.current.setSort('name', 'asc'));
@@ -65,7 +65,7 @@ describe('useListState', () => {
     expect(result.current.page).toBe(1);
   });
 
-  it('UT-021: paginar nao limpa o alternador de removidos', () => {
+  it('UT-021: paginar não limpa o alternador de removidos', () => {
     const { result } = renderHook(() => useListState());
 
     act(() => result.current.setIncludeDeleted(true));

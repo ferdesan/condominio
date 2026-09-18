@@ -167,7 +167,7 @@ export function VehiclesPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <VehicleRowActions
           vehicle={row}
@@ -187,13 +187,13 @@ export function VehiclesPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Veiculos" description={DESCRIPTION} />}
+        header={<PageHeader title="Veículos" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="Os veiculos sao listados por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="Os veículos sao listados por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -206,12 +206,12 @@ export function VehiclesPage() {
       <CrudLayout
         header={
           <PageHeader
-            title="Veiculos"
+            title="Veículos"
             description={DESCRIPTION}
             actions={
               canCreate ? (
                 <Button onClick={() => setFormTarget({ vehicle: null, condominiumId: selectedId })}>
-                  Novo veiculo
+                  Novo veículo
                 </Button>
               ) : undefined
             }
@@ -225,7 +225,7 @@ export function VehiclesPage() {
                 <EmptyState
                   icon={SearchX}
                   title="Nenhum resultado para esta busca"
-                  description="Nenhum veiculo corresponde aos termos e filtros aplicados."
+                  description="Nenhum veículo corresponde aos termos e filtros aplicados."
                   action={
                     <Button
                       variant="outline"
@@ -241,14 +241,14 @@ export function VehiclesPage() {
               ) : (
                 <EmptyState
                   icon={Car}
-                  title="Nenhum veiculo cadastrado"
-                  description="Cadastre o primeiro veiculo para saber o que circula pela garagem."
+                  title="Nenhum veículo cadastrado"
+                  description="Cadastre o primeiro veículo para saber o que circula pela garagem."
                   action={
                     canCreate ? (
                       <Button
                         onClick={() => setFormTarget({ vehicle: null, condominiumId: selectedId })}
                       >
-                        Cadastrar veiculo
+                        Cadastrar veículo
                       </Button>
                     ) : undefined
                   }
@@ -291,7 +291,7 @@ export function VehiclesPage() {
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir veiculo?"
+        title="Excluir veículo?"
         description={
           deleting
             ? `${formatPlate(deleting.plate)} deixara de aparecer na listagem. A exclusao e logica e pode ser desfeita.`
@@ -320,7 +320,7 @@ export function VehiclesPage() {
   );
 }
 
-const DESCRIPTION = 'Veiculos que circulam pelo condominio selecionado.';
+const DESCRIPTION = 'Veículos que circulam pelo condomínio selecionado.';
 
 /**
  * As tres situacoes da coluna de unidade, ditas por extenso.

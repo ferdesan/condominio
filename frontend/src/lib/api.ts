@@ -7,8 +7,8 @@ import axios, {
 
 export const API_URL = import.meta.env.VITE_API_URL ?? '/api/v1';
 
-const ACCESS_TOKEN_KEY = 'condominio.accessToken';
-const REFRESH_TOKEN_KEY = 'condominio.refreshToken';
+const ACCESS_TOKEN_KEY = 'condomínio.accessToken';
+const REFRESH_TOKEN_KEY = 'condomínio.refreshToken';
 
 export type ApiEnvelope<T> = {
   success: true;
@@ -143,7 +143,7 @@ api.interceptors.response.use(
 
     const payload = error.response?.data?.error;
     throw new ApiError(
-      payload?.message ?? error.message ?? 'Nao foi possivel concluir a operacao.',
+      payload?.message ?? error.message ?? 'Não foi possível concluir a operação.',
       status,
       payload?.code ?? 'NETWORK_ERROR',
       payload?.details,

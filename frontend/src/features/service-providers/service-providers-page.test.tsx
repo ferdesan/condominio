@@ -139,7 +139,7 @@ describe('Listagem de prestadores', () => {
     await user.type(screen.getByLabelText('Buscar'), 'Total');
     await waitFor(() => expect(lastListParams().search).toBe('Total'));
 
-    selectOption(screen.getByLabelText('Tipo de servico'), 'Limpeza');
+    selectOption(screen.getByLabelText('Tipo de serviço'), 'Limpeza');
     expect(lastListParams().serviceType).toBe('Limpeza');
 
     selectOption(screen.getByLabelText('Status'), 'Ativo');
@@ -193,7 +193,7 @@ describe('Listagem de prestadores', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.providers = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Prestador 021')).toBeInTheDocument();
@@ -202,31 +202,31 @@ describe('Listagem de prestadores', () => {
 
   it('o documento sai formatado como CPF ou como CNPJ, conforme o comprimento', async () => {
     serve([
-      makeServiceProvider({ id: 'p1', companyName: 'Alfa Servicos', document: '12345678000199' }),
+      makeServiceProvider({ id: 'p1', companyName: 'Alfa Serviços', document: '12345678000199' }),
       makeServiceProvider({ id: 'p2', companyName: 'Bruno Eletricista', document: '12345678909' }),
     ]);
     renderWithProviders(<ServiceProvidersPage />);
 
-    await screen.findByText('Alfa Servicos');
+    await screen.findByText('Alfa Serviços');
 
     // O mesmo helper distingue os dois comprimentos, entao a coluna nao precisa
     // saber qual prestador e pessoa fisica.
     expect(cellsOf('CPF/CNPJ')).toEqual(['12.345.678/0001-99', '123.456.789-09']);
   });
 
-  it('a avaliacao aparece como nota, e nao como o inteiro guardado', async () => {
+  it('a avaliação aparece como nota, e não como o inteiro guardado', async () => {
     serve([makeServiceProvider({ rating: 4 })]);
     renderWithProviders(<ServiceProvidersPage />);
 
     await screen.findByText('Limpeza Total Ltda');
 
-    expect(cellsOf('Avaliacao')).toEqual(['★★★★☆']);
+    expect(cellsOf('Avaliação')).toEqual(['★★★★☆']);
     // A escala vai junto para quem le por leitor de tela: "4" sozinho nao diz
     // de quanto e a nota nem para que lado ela cresce.
     expect(screen.getByLabelText('4 de 5 — Muito bom')).toBeInTheDocument();
   });
 
-  it('uma nota fora da faixa nao derruba a listagem', async () => {
+  it('uma nota fora da faixa não derruba a listagem', async () => {
     // A coluna e um `int` sem restricao: quem segura o 1 a 5 e o schema da API,
     // entao um registro antigo pode chegar com outra coisa.
     serve([makeServiceProvider({ rating: 7 })]);
@@ -234,7 +234,7 @@ describe('Listagem de prestadores', () => {
 
     await screen.findByText('Limpeza Total Ltda');
 
-    expect(cellsOf('Avaliacao')).toEqual(['★★★★★']);
+    expect(cellsOf('Avaliação')).toEqual(['★★★★★']);
     // As estrelas saturam, mas o rotulo continua dizendo o valor de fato.
     expect(screen.getByLabelText('7 de 5')).toBeInTheDocument();
   });
@@ -259,8 +259,8 @@ describe('Listagem de prestadores', () => {
     expect(cellsOf('CPF/CNPJ')).toEqual(['—']);
     expect(cellsOf('Contato')).toEqual(['—']);
     expect(cellsOf('Telefone')).toEqual(['—']);
-    expect(cellsOf('Vigencia')).toEqual(['—']);
-    expect(cellsOf('Avaliacao')).toEqual(['—']);
+    expect(cellsOf('Vigência')).toEqual(['—']);
+    expect(cellsOf('Avaliação')).toEqual(['—']);
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
@@ -273,10 +273,10 @@ describe('Listagem de prestadores', () => {
     // Whitelist do servidor: condominiumId (vem do shell), status e serviceType.
     // Qualquer outro controle pareceria funcionar enquanto o backend o descarta
     // em silencio.
-    expect(screen.getByLabelText('Tipo de servico')).toBeInTheDocument();
+    expect(screen.getByLabelText('Tipo de serviço')).toBeInTheDocument();
     expect(screen.getByLabelText('Status')).toBeInTheDocument();
 
-    for (const absent of ['Avaliacao', 'Contato', 'Telefone', 'E-mail', 'Vigencia']) {
+    for (const absent of ['Avaliação', 'Contato', 'Telefone', 'E-mail', 'Vigência']) {
       expect(screen.queryByLabelText(absent)).not.toBeInTheDocument();
     }
   });
@@ -309,8 +309,8 @@ describe('Estados vazios de prestadores', () => {
   });
 });
 
-describe('Exclusao e restauracao de prestadores', () => {
-  it('excluir pede confirmacao antes de remover', async () => {
+describe('Exclusao e restauração de prestadores', () => {
+  it('excluir pede confirmação antes de remover', async () => {
     serve([makeServiceProvider()]);
     mockDelete.mockImplementation(async () => {
       world.providers = [];
@@ -334,7 +334,7 @@ describe('Exclusao e restauracao de prestadores', () => {
     serve([makeServiceProvider()]);
     mockDelete.mockRejectedValue(
       new ApiError(
-        'Ha ordens de servico abertas para este prestador.',
+        'Ha ordens de serviço abertas para este prestador.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -349,7 +349,7 @@ describe('Exclusao e restauracao de prestadores', () => {
     // apresentacao certa para um 409 que traz so a mensagem do servidor.
     await waitFor(() =>
       expect(mockToastError).toHaveBeenCalledWith(
-        'Ha ordens de servico abertas para este prestador.',
+        'Ha ordens de serviço abertas para este prestador.',
       ),
     );
     expect(screen.getByText('Limpeza Total Ltda')).toBeInTheDocument();
@@ -379,12 +379,12 @@ describe('Exclusao e restauracao de prestadores', () => {
   });
 });
 
-describe('Escopo e permissoes de prestadores', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões de prestadores', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     serve([makeServiceProvider()]);
     renderWithProviders(<ServiceProvidersPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(mockGetPaginated).not.toHaveBeenCalled();
   });
 
@@ -403,7 +403,7 @@ describe('Escopo e permissoes de prestadores', () => {
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     serve([makeServiceProvider({ deletedAt: '2026-02-01T10:00:00.000Z' })]);
     const user = createUser();
     renderWithProviders(<ServiceProvidersPage />, {

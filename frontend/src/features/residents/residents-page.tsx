@@ -163,7 +163,7 @@ export function ResidentsPage() {
     },
     {
       key: 'condominiumId',
-      label: 'Condominio',
+      label: 'Condomínio',
       render: () => selected?.name ?? '—',
     },
     {
@@ -191,13 +191,13 @@ export function ResidentsPage() {
       // linha da unidade mostrando o placeholder diz que nao ha nenhum, o que
       // uma marca so na linha certa deixaria implicito (US-016.EC-2, EC-4).
       key: 'isPrimary',
-      label: 'Responsavel',
+      label: 'Responsável',
       render: (_value, row) =>
-        row.isPrimary ? <Badge variant="default">Responsavel</Badge> : <span>—</span>,
+        row.isPrimary ? <Badge variant="default">Responsável</Badge> : <span>—</span>,
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <ResidentRowActions
           resident={row}
@@ -226,8 +226,8 @@ export function ResidentsPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="Os moradores sao listados por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="Os moradores sao listados por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -340,7 +340,7 @@ export function ResidentsPage() {
         title="Excluir morador?"
         description={
           deleting
-            ? `${deleting.name} deixara de aparecer na listagem e a ocupacao da unidade sera recalculada. A exclusao e logica e pode ser desfeita.`
+            ? `${deleting.name} deixara de aparecer na listagem e a ocupação da unidade será recalculada. A exclusao e logica e pode ser desfeita.`
             : undefined
         }
         actionLabel="Excluir"
@@ -366,7 +366,7 @@ export function ResidentsPage() {
   );
 }
 
-const DESCRIPTION = 'Quem ocupa cada unidade do condominio selecionado.';
+const DESCRIPTION = 'Quem ocupa cada unidade do condomínio selecionado.';
 
 const NO_UNITS_HINT =
   'Cadastre ao menos uma unidade antes de registrar moradores: todo morador ocupa uma unidade.';

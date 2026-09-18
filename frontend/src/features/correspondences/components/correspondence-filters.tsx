@@ -55,7 +55,7 @@ export function CorrespondenceFilters({ list, units, residents }: Correspondence
   if (list.filters.residentId) {
     chips.push({
       id: 'residentId',
-      label: 'Destinatario',
+      label: 'Destinatário',
       value: labelOf(residentOptions, list.filters.residentId),
     });
   }
@@ -91,7 +91,7 @@ export function CorrespondenceFilters({ list, units, residents }: Correspondence
             <Input
               id="correspondence-search"
               className="pl-10"
-              placeholder="Descricao, transportadora, rastreio ou quem recebeu"
+              placeholder="Descrição, transportadora, rastreio ou quem recebeu"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />
@@ -119,7 +119,7 @@ export function CorrespondenceFilters({ list, units, residents }: Correspondence
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="correspondence-resident">Destinatario</Label>
+          <Label htmlFor="correspondence-resident">Destinatário</Label>
           <Select
             value={(list.filters.residentId as string) ?? ANY}
             onValueChange={(value) =>
@@ -184,7 +184,7 @@ export function CorrespondenceFilters({ list, units, residents }: Correspondence
       {/*
         Sem gate de permissao: ver registros removidos e leitura, e o servidor
         aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a linha
-        marcada e nenhuma acao de restaurar (ADR-006).
+        marcada e nenhuma ação de restaurar (ADR-006).
       */}
       <div className="flex items-center gap-2">
         <Checkbox

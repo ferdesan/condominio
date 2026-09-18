@@ -22,6 +22,12 @@ export const AUDIT_ACTIONS = [
   'PERMISSION_DENIED',
   'EXPORT',
   'IMPORT',
+  'LGPD_DELETE_REQUEST',
+  'LGPD_DELETE',
+  'LGPD_DELETE_CANCEL',
+  'LGPD_EXPORT',
+  'LGPD_CONSENT_GRANTED',
+  'LGPD_CONSENT_REVOKED',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

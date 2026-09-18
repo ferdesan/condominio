@@ -135,32 +135,32 @@ export function AnnouncementFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar comunicado' : 'Novo comunicado'}</DialogTitle>
             <DialogDescription>
-              O que sera comunicado, para quem, e se fica em destaque no mural.
+              O que será comunicado, para quem, e se fica em destaque no mural.
             </DialogDescription>
           </DialogHeader>
 
           <CondominiumScopeNotice condominiumId={condominiumId} />
 
           <form onSubmit={onSubmit} noValidate className="space-y-4">
-            <FormField id="title" label="Titulo" error={errors.title?.message}>
+            <FormField id="title" label="Título" error={errors.title?.message}>
               {(aria) => <Input autoFocus maxLength={180} {...aria} {...register('title')} />}
             </FormField>
 
             {/*
-              Texto longo, e nao uma linha: o servidor guarda o conteudo numa
+              Texto longo, e não uma linha: o servidor guarda o conteudo numa
               coluna `text` com teto de 20000 caracteres. O `Textarea` chega com
               2000 por padrao, entao o limite precisa ser dito aqui — senao o
-              proprio controle cortaria o comunicado antes do envio.
+              próprio controle cortaria o comunicado antes do envio.
             */}
             <FormField
               id="content"
               label="Conteudo"
               error={errors.content?.message}
-              description={`Texto completo do comunicado. Ate ${CONTENT_MAX_LENGTH.toLocaleString('pt-BR')} caracteres.`}
+              description={`Texto completo do comunicado. Até ${CONTENT_MAX_LENGTH.toLocaleString('pt-BR')} caracteres.`}
             >
               {(aria) => (
                 <Textarea
@@ -200,7 +200,7 @@ export function AnnouncementFormDialog({
                 control={control}
                 name="audience"
                 render={({ field, fieldState }) => (
-                  <FormField id="audience" label="Publico" error={fieldState.error?.message}>
+                  <FormField id="audience" label="Público" error={fieldState.error?.message}>
                     {(aria) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger {...aria}>
@@ -221,9 +221,9 @@ export function AnnouncementFormDialog({
             </div>
 
             {/*
-              So aparece quando o publico-alvo os exige — e e exatamente quando o
+              So aparece quando o público-alvo os exige — e e exatamente quando o
               servidor os exige (`assertAudience`). Fora disso a lista e enviada
-              como nula, para que trocar de publico apague a selecao antiga.
+              como nula, para que trocar de público apague a seleção antiga.
             */}
             {audience === 'BLOCKS' ? (
               <Controller
@@ -234,11 +234,11 @@ export function AnnouncementFormDialog({
                     id="targetBlockIds"
                     label="Blocos alvo"
                     error={fieldState.error?.message}
-                    description="Apenas blocos do condominio selecionado."
+                    description="Apenas blocos do condomínio selecionado."
                   >
                     {blocks.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
-                        Nenhum bloco cadastrado neste condominio.
+                        Nenhum bloco cadastrado neste condomínio.
                       </p>
                     ) : (
                       <div className="grid gap-2 sm:grid-cols-2">
@@ -313,8 +313,8 @@ export function AnnouncementFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

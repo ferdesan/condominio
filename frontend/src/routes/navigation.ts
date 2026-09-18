@@ -45,13 +45,13 @@ export type NavSection = {
  */
 export const NAV_SECTIONS: NavSection[] = [
   {
-    title: 'Visao geral',
+    title: 'Visão geral',
     items: [{ to: '/', label: 'Dashboard', icon: Gauge, permission: 'dashboard:read' }],
   },
   {
     title: 'Estrutura',
     items: [
-      { to: '/condominios', label: 'Condominios', icon: Building2, permission: 'condominium:read' },
+      { to: '/condominios', label: 'Condomínios', icon: Building2, permission: 'condominium:read' },
       { to: '/blocos', label: 'Blocos e torres', icon: Home, permission: 'block:read' },
       { to: '/unidades', label: 'Unidades', icon: DoorOpen, permission: 'unit:read' },
     ],
@@ -61,7 +61,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: '/moradores', label: 'Moradores', icon: Users, permission: 'resident:read' },
       { to: '/dependentes', label: 'Dependentes', icon: Contact, permission: 'dependent:read' },
-      { to: '/funcionarios', label: 'Funcionarios', icon: UserCog, permission: 'employee:read' },
+      { to: '/funcionarios', label: 'Funcionários', icon: UserCog, permission: 'employee:read' },
       {
         to: '/prestadores',
         label: 'Prestadores',
@@ -74,21 +74,21 @@ export const NAV_SECTIONS: NavSection[] = [
     title: 'Portaria',
     items: [
       { to: '/visitantes', label: 'Visitantes', icon: ClipboardList, permission: 'visitor:read' },
-      { to: '/veiculos', label: 'Veiculos', icon: Car, permission: 'vehicle:read' },
+      { to: '/veiculos', label: 'Veículos', icon: Car, permission: 'vehicle:read' },
       {
         to: '/correspondencias',
-        label: 'Correspondencias',
+        label: 'Correspondências',
         icon: Mail,
         permission: 'correspondence:read',
       },
     ],
   },
   {
-    title: 'Convivencia',
+    title: 'Convivência',
     items: [
       {
         to: '/areas-comuns',
-        label: 'Areas comuns',
+        label: 'Áreas comuns',
         icon: CalendarCheck,
         permission: 'common-area:read',
       },
@@ -103,25 +103,25 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: 'Operacao',
+    title: 'Operação',
     items: [
       { to: '/financeiro', label: 'Financeiro', icon: Wallet, permission: 'charge:read' },
       {
         to: '/ocorrencias',
-        label: 'Ocorrencias',
+        label: 'Ocorrências',
         icon: TriangleAlert,
         permission: 'incident:read',
       },
-      { to: '/manutencoes', label: 'Manutencoes', icon: Wrench, permission: 'maintenance:read' },
+      { to: '/manutencoes', label: 'Manutenções', icon: Wrench, permission: 'maintenance:read' },
       { to: '/documentos', label: 'Documentos', icon: FileText, permission: 'document:read' },
     ],
   },
   {
-    title: 'Administracao',
+    title: 'Administração',
     items: [
-      { to: '/notificacoes', label: 'Notificacoes', icon: Bell },
-      { to: '/usuarios', label: 'Usuarios', icon: ShieldCheck, permission: 'user:read' },
-      { to: '/papeis', label: 'Papeis', icon: KeyRound, permission: 'role:read' },
+      { to: '/notificacoes', label: 'Notificações', icon: Bell },
+      { to: '/usuarios', label: 'Usuários', icon: ShieldCheck, permission: 'user:read' },
+      { to: '/papeis', label: 'Papéis', icon: KeyRound, permission: 'role:read' },
       { to: '/auditoria', label: 'Auditoria', icon: ScrollText, permission: 'audit-log:read' },
       {
         // Por tenant, como Usuarios e Auditoria: nao herda o seletor do shell.
@@ -129,7 +129,7 @@ export const NAV_SECTIONS: NavSection[] = [
         // SINDICO tem so a primeira, e precisa conhecer a politica de encargos
         // aplicada as cobrancas sem poder muda-la.
         to: '/configuracoes',
-        label: 'Configuracoes',
+        label: 'Configurações',
         icon: Settings,
         permission: 'tenant:read',
       },

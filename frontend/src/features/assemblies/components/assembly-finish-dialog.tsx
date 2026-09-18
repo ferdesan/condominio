@@ -77,11 +77,11 @@ export function AssemblyFinishDialog({ assembly, onClose }: AssemblyFinishDialog
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent side="right" dismissible={false}>
         <DialogHeader>
           <DialogTitle>Encerrar assembleia</DialogTitle>
           <DialogDescription>
-            {assembly.title}. O encerramento registra o comparecimento e, quando houver, o endereco
+            {assembly.title}. O encerramento registra o comparecimento e, quando houver, o endereço
             da ata.
           </DialogDescription>
         </DialogHeader>
@@ -91,7 +91,7 @@ export function AssemblyFinishDialog({ assembly, onClose }: AssemblyFinishDialog
             id="attendeesCount"
             label="Unidades presentes"
             error={errors.attendeesCount?.message}
-            description={`O quorum exigido nesta convocacao e de ${assembly.quorumPercent}%.`}
+            description={`O quorum exigido nesta convocação e de ${assembly.quorumPercent}%.`}
           >
             {(aria) => (
               <Input autoFocus type="number" min={0} {...aria} {...register('attendeesCount')} />
@@ -102,7 +102,7 @@ export function AssemblyFinishDialog({ assembly, onClose }: AssemblyFinishDialog
             id="minutesUrl"
             label="Ata"
             error={errors.minutesUrl?.message}
-            description="Opcional agora: a ata pode ser anexada depois, pela edicao."
+            description="Opcional agora: a ata pode ser anexada depois, pela edição."
           >
             {(aria) => (
               <Input

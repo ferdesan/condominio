@@ -57,7 +57,7 @@ export function WeekdayPicker({
 
       {allWeekdays ? (
         <p className="text-sm text-muted-foreground">
-          A area fica disponivel em qualquer dia da semana.
+          A área fica disponível em qualquer dia da semana.
         </p>
       ) : (
         <>
@@ -78,15 +78,15 @@ export function WeekdayPicker({
 
           {/*
             Nenhum dia marcado e um estado que o servidor aceita e que impede
-            toda reserva. Dize-lo evita que passe por engano — mas nao e um erro
-            de validacao, porque bloquear a area de proposito e legitimo.
+            toda reserva. Dize-lo evita que passe por engano — mas não e um erro
+            de validação, porque bloquear a área de proposito e legitimo.
           */}
           {weekdays.length === 0 ? (
             <p
               role="status"
               className="rounded-md border border-warning/40 bg-warning/15 px-3 py-2 text-sm text-foreground"
             >
-              Nenhum dia liberado: a area nao aceitara reservas ate que ao menos um seja marcado.
+              Nenhum dia liberado: a área não aceitara reservas até que ao menos um seja marcado.
             </p>
           ) : null}
         </>

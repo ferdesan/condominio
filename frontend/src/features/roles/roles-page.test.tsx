@@ -69,7 +69,7 @@ async function openCreateDialog(): Promise<HTMLElement> {
 }
 
 describe('Listagem', () => {
-  it('lista os papeis com origem e contagem de permissoes', async () => {
+  it('lista os papéis com origem e contagem de permissões', async () => {
     render();
 
     expect(await screen.findByText('SINDICO')).toBeInTheDocument();
@@ -88,7 +88,7 @@ describe('Listagem', () => {
     await waitFor(() => expect(lastListParams()).toMatchObject({ search: 'portaria' }));
   });
 
-  it('nao dispara requisicao escopada a condominio', async () => {
+  it('não dispara requisição escopada a condomínio', async () => {
     render();
 
     await screen.findByText('SINDICO');
@@ -117,7 +117,7 @@ describe('Listagem', () => {
   });
 });
 
-describe('Catalogo de permissoes', () => {
+describe('Catálogo de permissões', () => {
   it('a matriz e montada a partir de GET /roles/permissions', async () => {
     render();
 
@@ -129,7 +129,7 @@ describe('Catalogo de permissoes', () => {
     expect(mockGet).toHaveBeenCalledWith('/roles/permissions');
   });
 
-  it('as celulas saem do catalogo recebido, e nao de uma lista local', async () => {
+  it('as celulas saem do catálogo recebido, e não de uma lista local', async () => {
     // Um catalogo com um recurso so: se a tela tivesse lista propria, a matriz
     // mostraria os vinte e nove recursos do sistema.
     world.catalog = ['*', 'charge:read', 'charge:create'];
@@ -138,12 +138,12 @@ describe('Catalogo de permissoes', () => {
     await screen.findByText('SINDICO');
     const dialog = await openCreateDialog();
 
-    expect(within(dialog).getByLabelText('Ver Cobrancas')).toBeInTheDocument();
-    expect(within(dialog).getByLabelText('Criar Cobrancas')).toBeInTheDocument();
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeInTheDocument();
+    expect(within(dialog).getByLabelText('Criar Cobranças')).toBeInTheDocument();
     expect(within(dialog).queryByLabelText('Ver Reservas')).not.toBeInTheDocument();
   });
 
-  it('acao ausente no catalogo rende traco, e nao caixa desmarcada', async () => {
+  it('ação ausente no catálogo rende traco, e não caixa desmarcada', async () => {
     // "Nao se aplica" e diferente de "existe e nao foi concedida".
     world.catalog = ['charge:read'];
     render();
@@ -151,14 +151,14 @@ describe('Catalogo de permissoes', () => {
     await screen.findByText('SINDICO');
     const dialog = await openCreateDialog();
 
-    expect(within(dialog).getByLabelText('Ver Cobrancas')).toBeInTheDocument();
-    expect(within(dialog).queryByLabelText('Excluir Cobrancas')).not.toBeInTheDocument();
-    expect(within(dialog).getAllByLabelText('Nao se aplica').length).toBeGreaterThan(0);
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeInTheDocument();
+    expect(within(dialog).queryByLabelText('Excluir Cobranças')).not.toBeInTheDocument();
+    expect(within(dialog).getAllByLabelText('Não se aplica').length).toBeGreaterThan(0);
   });
 
-  it('falha no catalogo aparece no dialogo, sem matriz inventada', async () => {
+  it('falha no catálogo aparece no dialogo, sem matriz inventada', async () => {
     // Um 4xx de proposito: o `retry` do QueryProvider nao repete erro de cliente.
-    mockGet.mockRejectedValue(new ApiError('Servico indisponivel.', 422, 'UNPROCESSABLE_ENTITY'));
+    mockGet.mockRejectedValue(new ApiError('Serviço indisponível.', 422, 'UNPROCESSABLE_ENTITY'));
     render();
 
     await screen.findByText('SINDICO');
@@ -166,13 +166,13 @@ describe('Catalogo de permissoes', () => {
     const dialog = await screen.findByRole('dialog');
 
     expect(
-      await within(dialog).findByText(/Nao foi possivel carregar o catalogo/),
+      await within(dialog).findByText(/Não foi possível carregar o catálogo/),
     ).toBeInTheDocument();
   });
 });
 
 describe('Cadastro', () => {
-  it('envia nome, descricao e as permissoes marcadas', async () => {
+  it('envia nome, descrição e as permissões marcadas', async () => {
     const user = createUser();
     render();
 
@@ -180,7 +180,7 @@ describe('Cadastro', () => {
     const dialog = await openCreateDialog();
 
     await user.type(within(dialog).getByLabelText('Nome'), 'PORTARIA DIURNA');
-    await user.click(within(dialog).getByLabelText('Ver Cobrancas'));
+    await user.click(within(dialog).getByLabelText('Ver Cobranças'));
     await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/roles', expect.anything()));
@@ -191,7 +191,7 @@ describe('Cadastro', () => {
     });
   });
 
-  it('sem nenhuma permissao marcada, nao chega ao servidor', async () => {
+  it('sem nenhuma permissao marcada, não chega ao servidor', async () => {
     const user = createUser();
     render();
 
@@ -217,12 +217,12 @@ describe('Cadastro', () => {
     // A expressao de `createRoleSchema` e `/^[A-Za-z0-9_ -]+$/` — sem acento.
     // Barrar aqui evita um 422 cuja mensagem nao explicaria o porquê.
     await user.type(within(dialog).getByLabelText('Nome'), 'ZELADORIA SÃO JOÃO');
-    await user.click(within(dialog).getByLabelText('Ver Cobrancas'));
+    await user.click(within(dialog).getByLabelText('Ver Cobranças'));
     await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
 
     expect(
       await within(dialog).findByText(
-        'Use apenas letras sem acento, numeros, espaco, hifen ou underscore.',
+        'Use apenas letras sem acento, números, espaco, hifen ou underscore.',
       ),
     ).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
@@ -236,32 +236,32 @@ describe('Cadastro', () => {
     const dialog = await openCreateDialog();
 
     await user.type(within(dialog).getByLabelText('Nome'), 'ZELADORIA SAO JOAO');
-    await user.click(within(dialog).getByLabelText('Ver Cobrancas'));
+    await user.click(within(dialog).getByLabelText('Ver Cobranças'));
     await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalled());
     expect(lastCreateBody()).toMatchObject({ name: 'ZELADORIA SAO JOAO' });
   });
 
-  it('nome duplicado (409) vira mensagem de formulario e preserva o marcado', async () => {
+  it('nome duplicado (409) vira mensagem de formulário e preserva o marcado', async () => {
     const user = createUser();
-    mockPost.mockRejectedValue(new ApiError('Ja existe um papel com este nome.', 409, 'CONFLICT'));
+    mockPost.mockRejectedValue(new ApiError('Já existe um papel com este nome.', 409, 'CONFLICT'));
     render();
 
     await screen.findByText('SINDICO');
     const dialog = await openCreateDialog();
 
     await user.type(within(dialog).getByLabelText('Nome'), 'SINDICO');
-    await user.click(within(dialog).getByLabelText('Ver Cobrancas'));
+    await user.click(within(dialog).getByLabelText('Ver Cobranças'));
     await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
 
     expect(
-      await within(dialog).findByText('Ja existe um papel com este nome.'),
+      await within(dialog).findByText('Já existe um papel com este nome.'),
     ).toBeInTheDocument();
-    expect(within(dialog).getByLabelText('Ver Cobrancas')).toBeChecked();
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeChecked();
   });
 
-  it('duplo clique em cadastrar dispara uma requisicao so', async () => {
+  it('duplo clique em cadastrar dispara uma requisição so', async () => {
     const user = createUser();
     render();
 
@@ -269,7 +269,7 @@ describe('Cadastro', () => {
     const dialog = await openCreateDialog();
 
     await user.type(within(dialog).getByLabelText('Nome'), 'PORTARIA DIURNA');
-    await user.click(within(dialog).getByLabelText('Ver Cobrancas'));
+    await user.click(within(dialog).getByLabelText('Ver Cobranças'));
     const submit = within(dialog).getByRole('button', { name: 'Cadastrar' });
     await user.click(submit);
     await user.click(submit);
@@ -280,7 +280,7 @@ describe('Cadastro', () => {
 });
 
 describe('O curinga', () => {
-  it('nao e oferecido a quem nao e SUPER_ADMIN', async () => {
+  it('não e oferecido a quem não e SUPER_ADMIN', async () => {
     render(MANAGE, { user: { role: 'ADMIN' } });
 
     await screen.findByText('SINDICO');
@@ -329,7 +329,7 @@ describe('O curinga', () => {
 });
 
 describe('Papel do sistema', () => {
-  it('abre com nome e permissoes travados, e so a descricao editavel', async () => {
+  it('abre com nome e permissões travados, e so a descrição editável', async () => {
     render();
 
     await screen.findByText('SINDICO');
@@ -337,11 +337,11 @@ describe('Papel do sistema', () => {
     const dialog = await screen.findByRole('dialog');
 
     expect(await within(dialog).findByLabelText('Nome')).toBeDisabled();
-    expect(within(dialog).getByLabelText('Descricao')).toBeEnabled();
-    expect(within(dialog).getByLabelText('Ver Cobrancas')).toBeDisabled();
+    expect(within(dialog).getByLabelText('Descrição')).toBeEnabled();
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeDisabled();
   });
 
-  it('salva so a descricao — a chave permissions nem viaja', async () => {
+  it('salva so a descrição — a chave permissions nem viaja', async () => {
     const user = createUser();
     render();
 
@@ -349,20 +349,20 @@ describe('Papel do sistema', () => {
     clickTrigger(screen.getByRole('button', { name: 'Editar SINDICO' }));
     const dialog = await screen.findByRole('dialog');
 
-    const description = await within(dialog).findByLabelText('Descricao');
+    const description = await within(dialog).findByLabelText('Descrição');
     await user.clear(description);
-    await user.type(description, 'Sindico do predio.');
+    await user.type(description, 'Síndico do predio.');
     await user.click(within(dialog).getByRole('button', { name: 'Salvar' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalled());
     // `beforeUpdate` olha a *presenca* da chave, e nao o conteudo: reenviar as
     // mesmas permissoes seria recusado com 409.
-    expect(lastUpdateBody()).toEqual({ description: 'Sindico do predio.' });
+    expect(lastUpdateBody()).toEqual({ description: 'Síndico do predio.' });
     expect(lastUpdateBody()).not.toHaveProperty('permissions');
     expect(lastUpdateBody()).not.toHaveProperty('name');
   });
 
-  it('nao oferece excluir, porque o servidor sempre recusa', async () => {
+  it('não oferece excluir, porque o servidor sempre recusa', async () => {
     render();
 
     await screen.findByText('SINDICO');
@@ -372,16 +372,16 @@ describe('Papel do sistema', () => {
   });
 });
 
-describe('Ver permissoes', () => {
-  it('abre sem entrar em edicao, e a matriz e somente leitura', async () => {
+describe('Ver permissões', () => {
+  it('abre sem entrar em edição, e a matriz e somente leitura', async () => {
     render();
 
     await screen.findByText('SINDICO');
-    clickTrigger(screen.getByRole('button', { name: 'Ver permissoes de SINDICO' }));
+    clickTrigger(screen.getByRole('button', { name: 'Ver permissões de SINDICO' }));
     const dialog = await screen.findByRole('dialog');
 
-    expect(await within(dialog).findByText('Permissoes de SINDICO')).toBeInTheDocument();
-    expect(within(dialog).getByLabelText('Ver Condominios')).toBeDisabled();
+    expect(await within(dialog).findByText('Permissões de SINDICO')).toBeInTheDocument();
+    expect(within(dialog).getByLabelText('Ver Condomínios')).toBeDisabled();
     expect(within(dialog).queryByRole('button', { name: 'Salvar' })).not.toBeInTheDocument();
   });
 
@@ -389,20 +389,20 @@ describe('Ver permissoes', () => {
     render(READ_ONLY);
 
     await screen.findByText('SINDICO');
-    expect(screen.getByRole('button', { name: 'Ver permissoes de SINDICO' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ver permissões de SINDICO' })).toBeInTheDocument();
   });
 
   it('reflete o que o papel tem, marcado e desmarcado', async () => {
     render();
 
     await screen.findByText('SINDICO');
-    clickTrigger(screen.getByRole('button', { name: 'Ver permissoes de SINDICO' }));
+    clickTrigger(screen.getByRole('button', { name: 'Ver permissões de SINDICO' }));
     const dialog = await screen.findByRole('dialog');
 
     // A fixture concede `condominium:read` e `reservation:manage`.
-    expect(await within(dialog).findByLabelText('Ver Condominios')).toBeChecked();
+    expect(await within(dialog).findByLabelText('Ver Condomínios')).toBeChecked();
     expect(within(dialog).getByLabelText('Gerenciar Reservas')).toBeChecked();
-    expect(within(dialog).getByLabelText('Excluir Condominios')).not.toBeChecked();
+    expect(within(dialog).getByLabelText('Excluir Condomínios')).not.toBeChecked();
   });
 });
 
@@ -421,11 +421,11 @@ describe('Exclusao', () => {
     await waitFor(() => expect(mockDelete).toHaveBeenCalledWith('/roles/role-2'));
   });
 
-  it('recusa por usuarios vinculados aparece na linha, e o papel fica', async () => {
+  it('recusa por usuários vinculados aparece na linha, e o papel fica', async () => {
     const user = createUser();
     mockDelete.mockRejectedValue(
       new ApiError(
-        'Existem 3 usuario(s) com este papel. Reatribua-os antes de remover.',
+        'Existem 3 usuário(s) com este papel. Reatribua-os antes de remover.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -436,7 +436,7 @@ describe('Exclusao', () => {
     await user.click(screen.getByRole('button', { name: 'Excluir PORTARIA NOTURNA' }));
     await user.click(await screen.findByRole('button', { name: 'Excluir' }));
 
-    expect(await screen.findByText(/Existem 3 usuario\(s\) com este papel/)).toBeInTheDocument();
+    expect(await screen.findByText(/Existem 3 usuário\(s\) com este papel/)).toBeInTheDocument();
     expect(screen.getByText('PORTARIA NOTURNA')).toBeInTheDocument();
   });
 });
@@ -466,7 +466,7 @@ describe('Removidos', () => {
     await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/roles/role-2/restore'));
   });
 
-  it('linha removida mostra a tarja e nao oferece editar nem excluir', async () => {
+  it('linha removida mostra a tarja e não oferece editar nem excluir', async () => {
     world.roles = [
       makeRole({
         id: 'role-2',
@@ -487,12 +487,136 @@ describe('Removidos', () => {
   });
 });
 
+/**
+ * A saida do papel travado.
+ *
+ * `beforeUpdate` recusa alterar as permissoes de um papel semeado, para qualquer
+ * um — inclusive super-admin. Duplicar e o unico caminho para "um SINDICO com uma
+ * permissao a mais", e o que ele carrega e justamente o caro de reproduzir: a
+ * matriz.
+ */
+describe('Duplicar', () => {
+  /** Abre a copia de um papel e espera a matriz montar. */
+  async function openDuplicate(name: string): Promise<HTMLElement> {
+    clickTrigger(screen.getByRole('button', { name: `Duplicar ${name}` }));
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByLabelText('Nome');
+    return dialog;
+  }
+
+  it('abre o cadastro com as permissões da origem já marcadas', async () => {
+    render();
+
+    await screen.findByText('SINDICO');
+    const dialog = await openDuplicate('SINDICO');
+
+    // As tres do SINDICO, e nenhuma a mais.
+    expect(within(dialog).getByLabelText('Ver Condomínios')).toBeChecked();
+    expect(within(dialog).getByLabelText('Gerenciar Reservas')).toBeChecked();
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeChecked();
+    expect(within(dialog).getByLabelText('Excluir Cobranças')).not.toBeChecked();
+  });
+
+  it('a matriz da copia é editável, mesmo vindo de um papel do sistema', async () => {
+    render();
+
+    await screen.findByText('SINDICO');
+    const dialog = await openDuplicate('SINDICO');
+
+    // O travamento e da edicao do semeado, e nao de tudo que se pareca com ele:
+    // ler `isSystem` sem olhar o modo travaria a copia junto da origem.
+    expect(within(dialog).getByLabelText('Nome')).toBeEnabled();
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeEnabled();
+    expect(within(dialog).getByRole('button', { name: 'Cadastrar' })).toBeInTheDocument();
+  });
+
+  it('o nome vem vazio: o servidor recusa repetido, e sugerir so adiaria a recusa', async () => {
+    render();
+
+    await screen.findByText('SINDICO');
+    const dialog = await openDuplicate('SINDICO');
+
+    expect(within(dialog).getByLabelText('Nome')).toHaveValue('');
+    expect(within(dialog).getByLabelText('Descrição')).toHaveValue('');
+  });
+
+  it('salvar cadastra um papel novo — a origem não é tocada', async () => {
+    const user = createUser();
+    render();
+
+    await screen.findByText('SINDICO');
+    const dialog = await openDuplicate('SINDICO');
+
+    await user.type(within(dialog).getByLabelText('Nome'), 'SINDICO ADJUNTO');
+    await user.click(within(dialog).getByLabelText('Excluir Cobranças'));
+    await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
+
+    await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/roles', expect.anything()));
+    expect(lastCreateBody()).toEqual({
+      name: 'SINDICO ADJUNTO',
+      description: null,
+      permissions: ['condominium:read', 'reservation:manage', 'charge:read', 'charge:delete'],
+    });
+    // O papel de origem so emprestou as permissoes: decidir pela presenca do
+    // `role`, e nao pelo modo, faria a copia sobrescrever o original.
+    expect(mockPatch).not.toHaveBeenCalled();
+  });
+
+  it('parte de um papel personalizado tambem, e não so do sistema', async () => {
+    render();
+
+    await screen.findByText('PORTARIA NOTURNA');
+    const dialog = await openDuplicate('PORTARIA NOTURNA');
+
+    expect(
+      within(dialog).getByRole('heading', { name: 'Duplicar PORTARIA NOTURNA' }),
+    ).toBeVisible();
+  });
+
+  it('o curinga não vai junto para quem não pode concedê-lo', async () => {
+    const user = createUser();
+    world.roles = [
+      makeRole({ id: 'role-1', name: 'SUPER ADMIN', permissions: ['*', 'charge:read'] }),
+    ];
+    // O usuario padrao e ADMIN, e nao SUPER_ADMIN: `assertPermissions` recusaria
+    // o `*` dele. Levar o curinga adiante montaria a tela inteira para falhar no
+    // envio.
+    render(MANAGE);
+
+    await screen.findByText('SUPER ADMIN');
+    const dialog = await openDuplicate('SUPER ADMIN');
+
+    // O resto da origem sobrevive: so o curinga sai.
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeChecked();
+
+    await user.type(within(dialog).getByLabelText('Nome'), 'QUASE TUDO');
+    await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
+
+    await waitFor(() => expect(mockPost).toHaveBeenCalled());
+    expect(lastCreateBody()).toMatchObject({ permissions: ['charge:read'] });
+  });
+
+  it('a mensagem do papel travado aponta a saida', async () => {
+    render();
+
+    await screen.findByText('SINDICO');
+    clickTrigger(screen.getByRole('button', { name: 'Editar SINDICO' }));
+    const dialog = await screen.findByRole('dialog');
+
+    // A recusa do servidor ensina o caminho e nunca chega a ninguem: o
+    // formulario desabilita a matriz e o envio nem acontece.
+    expect(await within(dialog).findByText(/use Duplicar na listagem/i)).toBeInTheDocument();
+  });
+});
+
 describe('Permissao', () => {
   it('sem role:create, nao oferece cadastrar', async () => {
     render(READ_ONLY);
 
     await screen.findByText('SINDICO');
     expect(screen.queryByRole('button', { name: 'Novo papel' })).not.toBeInTheDocument();
+    // Duplicar cadastra, entao cai junto — e nao com `role:update`.
+    expect(screen.queryByRole('button', { name: 'Duplicar SINDICO' })).not.toBeInTheDocument();
   });
 
   it('sem role:update nem role:delete, so resta ver permissoes', async () => {
@@ -503,12 +627,12 @@ describe('Permissao', () => {
     expect(
       screen.queryByRole('button', { name: 'Excluir PORTARIA NOTURNA' }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Ver permissoes de SINDICO' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ver permissões de SINDICO' })).toBeInTheDocument();
   });
 });
 
-describe('Catalogo completo', () => {
-  it('agrupa os recursos em secoes nomeadas', async () => {
+describe('Catálogo completo', () => {
+  it('agrupa os recursos em seções nomeadas', async () => {
     world.catalog = CATALOG;
     render();
 
@@ -517,11 +641,11 @@ describe('Catalogo completo', () => {
 
     // Cobrancas em Financeiro, Reservas em Convivencia, Papeis em Administracao.
     expect(within(dialog).getByRole('heading', { name: 'Financeiro' })).toBeInTheDocument();
-    expect(within(dialog).getByRole('heading', { name: 'Convivencia' })).toBeInTheDocument();
-    expect(within(dialog).getByRole('heading', { name: 'Administracao' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('heading', { name: 'Convivência' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('heading', { name: 'Administração' })).toBeInTheDocument();
   });
 
-  it('recurso desconhecido aparece em Outros, e nao some', async () => {
+  it('recurso desconhecido aparece em Outros, e não some', async () => {
     world.catalog = ['recurso-novo:read', 'recurso-novo:manage'];
     render();
 

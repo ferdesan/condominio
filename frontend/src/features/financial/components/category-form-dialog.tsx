@@ -101,11 +101,11 @@ export function CategoryFormDialog({ category, condominiumId, onClose }: Categor
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-lg">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar conta' : 'Nova conta'}</DialogTitle>
             <DialogDescription>
-              As contas classificam cobrancas e despesas na prestacao de contas.
+              As contas classificam cobranças e despesas na prestação de contas.
             </DialogDescription>
           </DialogHeader>
 
@@ -142,9 +142,9 @@ export function CategoryFormDialog({ category, condominiumId, onClose }: Categor
 
               <FormField
                 id="category-code"
-                label="Codigo"
+                label="Código"
                 error={errors.code?.message}
-                description="Opcional. O numero da conta no plano."
+                description="Opcional. O número da conta no plano."
               >
                 {(aria) => <Input maxLength={20} {...aria} {...register('code')} />}
               </FormField>
@@ -152,7 +152,7 @@ export function CategoryFormDialog({ category, condominiumId, onClose }: Categor
 
             <FormField
               id="category-description"
-              label="Descricao"
+              label="Descrição"
               error={errors.description?.message}
               description="Opcional. O que entra nesta conta."
             >
@@ -170,7 +170,7 @@ export function CategoryFormDialog({ category, condominiumId, onClose }: Categor
                     onCheckedChange={(checked) => field.onChange(checked === true)}
                   />
                   <Label htmlFor="category-active" className="font-normal">
-                    Conta em uso — contas inativas seguem no historico, mas saem dos seletores
+                    Conta em uso — contas inativas seguem no histórico, mas saem dos seletores
                   </Label>
                 </div>
               )}
@@ -199,8 +199,8 @@ export function CategoryFormDialog({ category, condominiumId, onClose }: Categor
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

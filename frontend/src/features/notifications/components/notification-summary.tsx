@@ -32,7 +32,7 @@ export function NotificationSummary({ count, isPending, isError }: NotificationS
       {isError ? (
         // A falha fica contida: a lista continua utilizavel sem o indicador.
         <p role="alert" className="mt-2 text-sm text-destructive">
-          Nao foi possivel carregar a contagem. A lista continua disponivel.
+          Não foi possível carregar a contagem. A lista continua disponível.
         </p>
       ) : (
         <div className="mt-2">

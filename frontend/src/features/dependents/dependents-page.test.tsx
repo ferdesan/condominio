@@ -147,7 +147,7 @@ beforeEach(() => {
 });
 
 describe('Listagem de dependentes', () => {
-  it('busca, filtros e ordenacao chegam ao servidor com o nome e o formato que ele aceita', async () => {
+  it('busca, filtros e ordenação chegam ao servidor com o nome e o formato que ele aceita', async () => {
     serve([makeDependent()]);
     const user = createUser();
     renderWithProviders(<DependentsPage />);
@@ -170,7 +170,7 @@ describe('Listagem de dependentes', () => {
 
     // `active` e uma coluna booleana; o MySQL lê `'true'` como `0` ao comparar
     // com um numero, entao o valor enviado precisa ser `'1'`.
-    selectOption(screen.getByLabelText('Situacao'), 'Ativo');
+    selectOption(screen.getByLabelText('Situação'), 'Ativo');
     expect(lastListParams().active).toBe('1');
 
     // A tabela fala `asc`/`desc`; quem traduz para o vocabulario da API e a
@@ -201,7 +201,7 @@ describe('Listagem de dependentes', () => {
     await waitFor(() => expect(lastListParams().search).toBe('98765432100'));
   });
 
-  it('trezentos dependentes paginam, e a proxima pagina e pedida ao servidor', async () => {
+  it('trezentos dependentes paginam, e a próxima pagina e pedida ao servidor', async () => {
     serve(makeRoster(20));
     world.total = 300;
     const user = createUser();
@@ -212,7 +212,7 @@ describe('Listagem de dependentes', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.dependents = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Dependente 021')).toBeInTheDocument();
@@ -266,9 +266,9 @@ describe('Listagem de dependentes', () => {
     expect(screen.getByLabelText('Morador')).toBeInTheDocument();
     expect(screen.getByLabelText('Unidade')).toBeInTheDocument();
     expect(screen.getByLabelText('Parentesco')).toBeInTheDocument();
-    expect(screen.getByLabelText('Situacao')).toBeInTheDocument();
+    expect(screen.getByLabelText('Situação')).toBeInTheDocument();
 
-    for (const absent of ['CPF', 'Telefone', 'Nascimento', 'Cartao de acesso', 'Condominio']) {
+    for (const absent of ['CPF', 'Telefone', 'Nascimento', 'Cartao de acesso', 'Condomínio']) {
       expect(screen.queryByLabelText(absent)).not.toBeInTheDocument();
     }
   });
@@ -285,7 +285,7 @@ describe('Estados vazios de dependentes', () => {
     expect(screen.queryByRole('button', { name: 'Limpar busca' })).not.toBeInTheDocument();
   });
 
-  it('busca sem resultado oferece limpar, e nao se confunde com a lista vazia', async () => {
+  it('busca sem resultado oferece limpar, e não se confunde com a lista vazia', async () => {
     serve([makeDependent()]);
     const user = createUser();
     renderWithProviders(<DependentsPage />);
@@ -299,7 +299,7 @@ describe('Estados vazios de dependentes', () => {
     expect(screen.queryByText('Nenhum dependente cadastrado')).not.toBeInTheDocument();
   });
 
-  it('condominio sem moradores explica que o morador vem primeiro', async () => {
+  it('condomínio sem moradores explica que o morador vem primeiro', async () => {
     serve([], []);
     renderWithProviders(<DependentsPage />);
 
@@ -313,8 +313,8 @@ describe('Estados vazios de dependentes', () => {
   });
 });
 
-describe('Exclusao e restauracao de dependentes', () => {
-  it('a exclusao pede confirmacao antes de chegar ao servidor', async () => {
+describe('Exclusao e restauração de dependentes', () => {
+  it('a exclusao pede confirmação antes de chegar ao servidor', async () => {
     serve([makeDependent()]);
     mockDelete.mockResolvedValue(undefined);
     renderWithProviders(<DependentsPage />);
@@ -338,7 +338,7 @@ describe('Exclusao e restauracao de dependentes', () => {
     serve([makeDependent()]);
     mockDelete.mockRejectedValue(
       new ApiError(
-        'O dependente possui acessos registrados e nao pode ser excluido.',
+        'O dependente possui acessos registrados e não pode ser excluido.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -351,7 +351,7 @@ describe('Exclusao e restauracao de dependentes', () => {
 
     await waitFor(() =>
       expect(mockToastError).toHaveBeenCalledWith(
-        'O dependente possui acessos registrados e nao pode ser excluido.',
+        'O dependente possui acessos registrados e não pode ser excluido.',
       ),
     );
     expect(screen.getByText('Lucas Pereira')).toBeInTheDocument();
@@ -382,12 +382,12 @@ describe('Exclusao e restauracao de dependentes', () => {
   });
 });
 
-describe('Escopo e permissoes de dependentes', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões de dependentes', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     serve([makeDependent()]);
     renderWithProviders(<DependentsPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(mockGetPaginated).not.toHaveBeenCalled();
   });
 
@@ -402,7 +402,7 @@ describe('Escopo e permissoes de dependentes', () => {
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     serve([makeDependent({ deletedAt: '2026-02-01T10:00:00.000Z' })]);
     const user = createUser();
     renderWithProviders(<DependentsPage />, { role: 'STAFF' });
@@ -413,7 +413,7 @@ describe('Escopo e permissoes de dependentes', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('a consulta de moradores tambem fica presa ao condominio do shell', async () => {
+  it('a consulta de moradores também fica presa ao condomínio do shell', async () => {
     serve([makeDependent()]);
     renderWithProviders(<DependentsPage />);
 

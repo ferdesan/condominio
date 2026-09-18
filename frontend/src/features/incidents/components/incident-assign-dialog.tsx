@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,14 +11,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
 import type { Incident, IncidentAssignee } from '@/types/incident';
@@ -51,6 +45,13 @@ export interface IncidentAssignDialogProps {
  */
 export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentAssignDialogProps) {
   const queryClient = useQueryClient();
+
+  // O e-mail vai como dica porque nome não identifica usuário: dois cadastros
+  // podem trazer o mesmo, e ele também entra na busca.
+  const assigneeOptions = useMemo(
+    () => assignees.map((user) => ({ value: user.id, label: user.name, hint: user.email })),
+    [assignees],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const submittingRef = useRef(false);
 
@@ -96,11 +97,11 @@ export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentA
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent side="right" dismissible={false}>
         <DialogHeader>
-          <DialogTitle>Atribuir responsavel</DialogTitle>
+          <DialogTitle>Atribuir responsável</DialogTitle>
           <DialogDescription>
-            Quem for escolhido e avisado. Uma ocorrencia aberta passa a estar em analise.
+            Quem for escolhido e avisado. Uma ocorrência aberta passa a estar em analise.
           </DialogDescription>
         </DialogHeader>
 
@@ -116,28 +117,25 @@ export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentA
             render={({ field, fieldState }) => (
               <FormField
                 id="assignedToId"
-                label="Responsavel"
+                label="Responsável"
                 error={fieldState.error?.message}
-                description="Apenas usuarios ativos com acesso ao condominio selecionado."
+                description="Apenas usuários ativos com acesso ao condomínio selecionado."
               >
                 {(aria) =>
                   assignees.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                      Nenhum usuario ativo com acesso a este condominio.
+                      Nenhum usuário ativo com acesso a este condomínio.
                     </p>
                   ) : (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger {...aria}>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {assignees.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Combobox
+                      {...aria}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={assigneeOptions}
+                      placeholder="Selecione"
+                      searchPlaceholder="Buscar por nome ou e-mail"
+                      emptyMessage="Nenhum usuário corresponde à busca."
+                    />
                   )
                 }
               </FormField>
@@ -156,8 +154,8 @@ export function IncidentAssignDialog({ incident, assignees, onClose }: IncidentA
           <DialogFooter>
             {/*
               "Voltar" e nao "Fechar": o botao de fechar do proprio dialogo ja
-              usa esse nome, e dois controles com o mesmo nome acessivel no mesmo
-              dialogo sao indistinguiveis para quem navega por leitor.
+              usa esse nome, e dois controles com o mesmo nome acessível no mesmo
+              dialogo sao indistinguíveis para quem navega por leitor.
             */}
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
               Voltar

@@ -117,7 +117,7 @@ beforeEach(() => {
 });
 
 describe('Listagem de blocos', () => {
-  it('busca, filtro, paginacao e ordenacao chegam ao servidor como ele os aceita', async () => {
+  it('busca, filtro, paginação e ordenação chegam ao servidor como ele os aceita', async () => {
     serve(makeRoster(20));
     world.total = 60;
     const user = createUser();
@@ -142,7 +142,7 @@ describe('Listagem de blocos', () => {
     expect(lastListParams().sortOrder).toBe('ASC');
 
     world.blocks = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Bloco 021')).toBeInTheDocument();
@@ -173,11 +173,11 @@ describe('Listagem de blocos', () => {
     expect(screen.queryByRole('button', { name: 'Cadastrar bloco' })).not.toBeInTheDocument();
   });
 
-  it('sem condominio selecionado explica a exigencia e nao consulta', async () => {
+  it('sem condomínio selecionado explica a exigência e não consulta', async () => {
     serve([makeBlock()]);
     renderWithProviders(<BlocksPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(mockGetPaginated.mock.calls.filter(([url]) => url === '/blocks')).toHaveLength(0);
   });
 
@@ -187,7 +187,7 @@ describe('Listagem de blocos', () => {
 
     await screen.findByText('Torre A');
 
-    expect(cellsOf('Descricao')).toEqual(['—']);
+    expect(cellsOf('Descrição')).toEqual(['—']);
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
@@ -256,11 +256,11 @@ describe('Cadastro de bloco', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('409 sem campo vira mensagem do formulario e preserva o preenchido', async () => {
+  it('409 sem campo vira mensagem do formulário e preserva o preenchido', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Ja existe um bloco com este nome neste condominio.', 409, 'CONFLICT'),
+      new ApiError('Já existe um bloco com este nome neste condomínio.', 409, 'CONFLICT'),
     );
     renderWithProviders(<BlocksPage />);
 
@@ -274,12 +274,12 @@ describe('Cadastro de bloco', () => {
     clickTrigger(form.getByRole('button', { name: 'Criar bloco' }));
 
     const alert = await within(dialog).findByRole('alert');
-    expect(alert).toHaveTextContent('Ja existe um bloco com este nome neste condominio.');
+    expect(alert).toHaveTextContent('Já existe um bloco com este nome neste condomínio.');
     // O dialogo continua aberto com o que foi digitado.
     expect(form.getByLabelText('Nome')).toHaveValue('Torre A');
   });
 
-  it('dois cliques em salvar produzem uma unica requisicao', async () => {
+  it('dois cliques em salvar produzem uma única requisição', async () => {
     serve([]);
     const user = createUser();
     // A requisicao demora o bastante para que o segundo clique caia enquanto a
@@ -301,7 +301,7 @@ describe('Cadastro de bloco', () => {
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
   });
 
-  it('a edicao envia o parcial e a lista reflete a mudanca', async () => {
+  it('a edição envia o parcial e a lista reflete a mudança', async () => {
     serve([makeBlock()]);
     const user = createUser();
     mockPatch.mockImplementation(async () => {
@@ -332,8 +332,8 @@ describe('Cadastro de bloco', () => {
   });
 });
 
-describe('Exclusao e restauracao de blocos', () => {
-  it('a exclusao pede confirmacao antes de chamar o servidor', async () => {
+describe('Exclusao e restauração de blocos', () => {
+  it('a exclusao pede confirmação antes de chamar o servidor', async () => {
     serve([makeBlock()]);
     mockDelete.mockImplementation(async () => {
       world.blocks = [];
@@ -357,7 +357,7 @@ describe('Exclusao e restauracao de blocos', () => {
     serve([makeBlock()], [makeUnit()]);
     mockDelete.mockRejectedValue(
       new ApiError(
-        'Bloco possui unidades vinculadas e nao pode ser removido.',
+        'Bloco possui unidades vinculadas e não pode ser removido.',
         409,
         'BUSINESS_RULE_ERROR',
       ),
@@ -370,7 +370,7 @@ describe('Exclusao e restauracao de blocos', () => {
 
     await waitFor(() =>
       expect(mockToastError).toHaveBeenCalledWith(
-        'Bloco possui unidades vinculadas e nao pode ser removido.',
+        'Bloco possui unidades vinculadas e não pode ser removido.',
       ),
     );
     // A recusa nao remove nada: o bloco continua listado.
@@ -399,7 +399,7 @@ describe('Exclusao e restauracao de blocos', () => {
   });
 });
 
-describe('Permissoes', () => {
+describe('Permissões', () => {
   it('um operador ve a listagem sem cadastrar, editar ou excluir', async () => {
     serve([makeBlock()]);
     renderWithProviders(<BlocksPage />, { role: 'STAFF' });
@@ -411,7 +411,7 @@ describe('Permissoes', () => {
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     serve([makeBlock({ deletedAt: '2026-02-01T10:00:00.000Z' })]);
     const user = createUser();
     renderWithProviders(<BlocksPage />, { role: 'STAFF' });
@@ -422,7 +422,7 @@ describe('Permissoes', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('a lista vazia nao oferece cadastrar a quem nao pode criar', async () => {
+  it('a lista vazia não oferece cadastrar a quem não pode criar', async () => {
     serve([]);
     renderWithProviders(<BlocksPage />, { role: 'STAFF' });
 
@@ -442,7 +442,7 @@ describe('Permissoes', () => {
  * `features/units/components/block-manager-dialog.test.tsx`, que passou intacta.
  */
 describe('Regressao: a gestao de blocos dentro de Unidades', () => {
-  it('continua abrindo e criando pelo mesmo formulario', async () => {
+  it('continua abrindo e criando pelo mesmo formulário', async () => {
     serve([makeBlock()], [makeUnit()]);
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -453,7 +453,7 @@ describe('Regressao: a gestao de blocos dentro de Unidades', () => {
 
     // A gestao mora atras de um botao da tela de unidades, e nao de uma rota.
     clickTrigger(await screen.findByRole('button', { name: /blocos/i }));
-    expect(await screen.findByText('Blocos do condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Blocos do condomínio')).toBeInTheDocument();
 
     clickTrigger(screen.getByRole('button', { name: 'Novo bloco' }));
 

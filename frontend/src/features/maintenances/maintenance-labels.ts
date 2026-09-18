@@ -17,7 +17,7 @@ export const TYPE_LABELS: Record<MaintenanceType, string> = {
   PREVENTIVE: 'Preventiva',
   CORRECTIVE: 'Corretiva',
   EMERGENCY: 'Emergencial',
-  INSPECTION: 'Inspecao',
+  INSPECTION: 'Inspeção',
 };
 
 /**
@@ -31,14 +31,14 @@ export const TYPE_LABELS: Record<MaintenanceType, string> = {
  */
 export const STATUS_LABELS: Record<MaintenanceStatus, string> = {
   SCHEDULED: 'Agendada',
-  IN_PROGRESS: 'Em execucao',
+  IN_PROGRESS: 'Em execução',
   COMPLETED: 'Concluida',
   OVERDUE: 'Atrasada',
   CANCELED: 'Cancelada',
 };
 
 export const RECURRENCE_LABELS: Record<MaintenanceRecurrence, string> = {
-  NONE: 'Sem repeticao',
+  NONE: 'Sem repetição',
   MONTHLY: 'Mensal',
   QUARTERLY: 'Trimestral',
   SEMIANNUAL: 'Semestral',
@@ -46,16 +46,16 @@ export const RECURRENCE_LABELS: Record<MaintenanceRecurrence, string> = {
 };
 
 /** Dito quando a ordem nao foi entregue a nenhum prestador contratado. */
-export const NO_PROVIDER = 'Equipe propria';
+export const NO_PROVIDER = 'Equipe própria';
 
 /** Dito quando ha prestador, mas o registro referido nao esta na lista carregada. */
-export const PROVIDER_UNAVAILABLE = 'Prestador indisponivel';
+export const PROVIDER_UNAVAILABLE = 'Prestador indisponível';
 
 /** Dito quando ninguem do condominio foi designado para acompanhar a ordem. */
-export const NO_RESPONSIBLE = 'Sem responsavel';
+export const NO_RESPONSIBLE = 'Sem responsável';
 
 /** Dito quando ha responsavel, mas o usuario referido nao esta na lista carregada. */
-export const RESPONSIBLE_UNAVAILABLE = 'Responsavel indisponivel';
+export const RESPONSIBLE_UNAVAILABLE = 'Responsável indisponível';
 
 /** Dito quando a ordem nao nomeia o ativo ou o local a que se refere. */
-export const NO_ASSET = 'Ativo nao informado';
+export const NO_ASSET = 'Ativo não informado';

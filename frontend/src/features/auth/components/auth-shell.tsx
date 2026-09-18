@@ -54,7 +54,7 @@ export function AuthShell({ subtitle, children }: AuthShellProps) {
               <Building2 className="size-6" aria-hidden="true" />
             </span>
             <div>
-              <h1 className="text-xl font-semibold tracking-tight">Condominio SaaS</h1>
+              <h1 className="text-xl font-semibold tracking-tight">Condomínio SaaS</h1>
               <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
             </div>
           </div>

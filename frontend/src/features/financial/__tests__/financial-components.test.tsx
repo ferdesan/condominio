@@ -18,7 +18,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test/render';
 import { makeMeta, makeServiceProvider, makeUnit } from '@/test/fixtures';
-import { makeCategory, makeCharge, makeDelinquencyRow, makeExpense, makeSummary } from '../test-utils';
+import {
+  makeCategory,
+  makeCharge,
+  makeDelinquencyRow,
+  makeExpense,
+  makeSummary,
+} from '../test-utils';
 import {
   chargeHooks,
   categoryHooks,
@@ -95,19 +101,17 @@ describe('FinancialSummary (UT-031)', () => {
     vi.mocked(useDelinquency).mockReturnValue(makeQueryLike([makeDelinquencyRow()]));
   });
 
-  it('UT-031: apresenta as posicoes e as unidades mais inadimplentes', () => {
-    renderWithProviders(
-      <FinancialSummary condominiumId="cond-1" referenceMonth="2026-03" />,
-    );
+  it('UT-031: apresenta as posições e as unidades mais inadimplentes', () => {
+    renderWithProviders(<FinancialSummary condominiumId="cond-1" referenceMonth="2026-03" />);
 
-    expect(screen.getByText('Posicao financeira')).toBeInTheDocument();
-    expect(screen.getByText(/na competencia 2026-03/)).toBeInTheDocument();
+    expect(screen.getByText('Posição financeira')).toBeInTheDocument();
+    expect(screen.getByText(/na competência 2026-03/)).toBeInTheDocument();
     expect(screen.getByText('Faturado')).toBeInTheDocument();
     expect(screen.getByText('R$ 48.000,00')).toBeInTheDocument();
     expect(screen.getByText('Recebido')).toBeInTheDocument();
     expect(screen.getByText('R$ 31.500,00')).toBeInTheDocument();
     expect(screen.getByText('R$ 16.500,00')).toBeInTheDocument();
-    expect(screen.getByText('19 cobrancas a receber')).toBeInTheDocument();
+    expect(screen.getByText('19 cobranças a receber')).toBeInTheDocument();
     expect(screen.getByText('R$ 9.200,00')).toBeInTheDocument();
     expect(screen.getByText('Unidade 909')).toBeInTheDocument();
     expect(screen.getByText('R$ 3.600,00')).toBeInTheDocument();
@@ -123,27 +127,19 @@ describe('Cobrancas (UT-031.E1/E3/E4)', () => {
     vi.mocked(useCancelCharge).mockReturnValue(makeMutateLike());
   });
 
-  it('UT-031.E1: sem cobrancas, a secao mostra o estado vazio', () => {
+  it('UT-031.E1: sem cobranças, a seção mostra o estado vazio', () => {
     renderWithProviders(
-      <ChargesSection
-        condominiumId="cond-1"
-        units={[makeUnit()]}
-        categories={[makeCategory()]}
-      />,
+      <ChargesSection condominiumId="cond-1" units={[makeUnit()]} categories={[makeCategory()]} />,
     );
 
-    expect(screen.getByText('Nenhuma cobranca lancada')).toBeInTheDocument();
+    expect(screen.getByText('Nenhuma cobrança lancada')).toBeInTheDocument();
   });
 
-  it('UT-031.E3: a linha da cobranca mostra valor, saldo, situacao e vencimento', () => {
+  it('UT-031.E3: a linha da cobrança mostra valor, saldo, situação e vencimento', () => {
     vi.mocked(chargeHooks.useList).mockReturnValue(makeListLike([makeCharge()]));
 
     renderWithProviders(
-      <ChargesSection
-        condominiumId="cond-1"
-        units={[makeUnit()]}
-        categories={[makeCategory()]}
-      />,
+      <ChargesSection condominiumId="cond-1" units={[makeUnit()]} categories={[makeCategory()]} />,
     );
 
     expect(screen.getByText('Taxa condominial 03/2026')).toBeInTheDocument();
@@ -154,17 +150,13 @@ describe('Cobrancas (UT-031.E1/E3/E4)', () => {
     expect(screen.getByText('saldo R$ 800,00')).toBeInTheDocument();
   });
 
-  it('UT-031.E4: cobranca vencida diz "Vencida" e cobra os encargos', () => {
+  it('UT-031.E4: cobrança vencida diz "Vencida" e cobra os encargos', () => {
     vi.mocked(chargeHooks.useList).mockReturnValue(
       makeListLike([makeCharge({ status: 'OVERDUE' })]),
     );
 
     renderWithProviders(
-      <ChargesSection
-        condominiumId="cond-1"
-        units={[makeUnit()]}
-        categories={[makeCategory()]}
-      />,
+      <ChargesSection condominiumId="cond-1" units={[makeUnit()]} categories={[makeCategory()]} />,
     );
 
     expect(screen.getByText('Vencida')).toBeInTheDocument();
@@ -194,11 +186,11 @@ describe('Despesas (UT-031.E5)', () => {
 });
 
 describe('Plano de contas (UT-031.E2)', () => {
-  it('UT-031.E2: lista cada categoria do condominio', () => {
+  it('UT-031.E2: lista cada categoria do condomínio', () => {
     vi.mocked(categoryHooks.useList).mockReturnValue(
       makeListLike([
         makeCategory(),
-        makeCategory({ id: 'category-2', name: 'Agua', kind: 'EXPENSE' }),
+        makeCategory({ id: 'category-2', name: 'Água', kind: 'EXPENSE' }),
       ]),
     );
     vi.mocked(categoryHooks.useRemove).mockReturnValue(makeMutateLike());
@@ -207,7 +199,7 @@ describe('Plano de contas (UT-031.E2)', () => {
     renderWithProviders(<CategoriesSection condominiumId="cond-1" />);
 
     expect(screen.getByText('Taxa condominial')).toBeInTheDocument();
-    expect(screen.getByText('Agua')).toBeInTheDocument();
+    expect(screen.getByText('Água')).toBeInTheDocument();
     expect(screen.getByText('Receita')).toBeInTheDocument();
     expect(screen.getByText('Despesa')).toBeInTheDocument();
   });
@@ -224,7 +216,7 @@ describe('Formularios (UT-031.E6/E7/E8/E9)', () => {
     vi.mocked(useRegisterPayment).mockReturnValue(makeMutateLike());
   });
 
-  it('UT-031.E6: cobranca invalida e recusada na tela, sem chamar a API', async () => {
+  it('UT-031.E6: cobrança inválida e recusada na tela, sem chamar a API', async () => {
     const create = chargeHooks.useCreate();
     renderWithProviders(
       <ChargeFormDialog
@@ -237,14 +229,12 @@ describe('Formularios (UT-031.E6/E7/E8/E9)', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Lancar' }));
 
-    await waitFor(() =>
-      expect(screen.getByText('Escolha a unidade cobrada.')).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText('Escolha a unidade cobrada.')).toBeInTheDocument());
     expect(screen.getByText('Informe o valor.')).toBeInTheDocument();
     expect(create.mutateAsync).not.toHaveBeenCalled();
   });
 
-  it('UT-031.E7: despesa invalida e recusada na tela, sem chamar a API', async () => {
+  it('UT-031.E7: despesa inválida e recusada na tela, sem chamar a API', async () => {
     const create = expenseHooks.useCreate();
     renderWithProviders(
       <ExpenseFormDialog
@@ -258,13 +248,13 @@ describe('Formularios (UT-031.E6/E7/E8/E9)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Lancar' }));
 
     await waitFor(() =>
-      expect(screen.getByText('Informe a descricao da despesa.')).toBeInTheDocument(),
+      expect(screen.getByText('Informe a descrição da despesa.')).toBeInTheDocument(),
     );
     expect(screen.getByText('Informe o valor.')).toBeInTheDocument();
     expect(create.mutateAsync).not.toHaveBeenCalled();
   });
 
-  it('UT-031.E8: geracao valida envia o payload ao uso do batch', async () => {
+  it('UT-031.E8: geração válida envia o payload ao uso do batch', async () => {
     const generate = vi.fn(async () => ({ created: 4, total: 4, skipped: 0 }));
     vi.mocked(useGenerateCharges).mockReturnValue({
       isPending: false,
@@ -291,7 +281,7 @@ describe('Formularios (UT-031.E6/E7/E8/E9)', () => {
     );
   });
 
-  it('UT-031.E9: baixa valida envia id e payload ao uso do pagamento', async () => {
+  it('UT-031.E9: baixa válida envia id e payload ao uso do pagamento', async () => {
     const register = vi.fn(async () => undefined);
     vi.mocked(useRegisterPayment).mockReturnValue({
       isPending: false,

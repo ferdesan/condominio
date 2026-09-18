@@ -188,11 +188,11 @@ export function DependentsPage() {
     {
       key: 'hasAccessCard',
       label: 'Cartao de acesso',
-      render: (_value, row) => (row.hasAccessCard ? 'Sim' : 'Nao'),
+      render: (_value, row) => (row.hasAccessCard ? 'Sim' : 'Não'),
     },
     {
       key: 'active',
-      label: 'Situacao',
+      label: 'Situação',
       sortable: true,
       render: (_value, row) => (
         <Badge variant={row.active ? 'success' : 'neutral'}>
@@ -202,7 +202,7 @@ export function DependentsPage() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <DependentRowActions
           dependent={row}
@@ -232,8 +232,8 @@ export function DependentsPage() {
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="Os dependentes sao listados por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="Os dependentes sao listados por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -374,7 +374,7 @@ export function DependentsPage() {
   );
 }
 
-const DESCRIPTION = 'Quem mais mora com os moradores do condominio selecionado.';
+const DESCRIPTION = 'Quem mais mora com os moradores do condomínio selecionado.';
 
 const NO_RESIDENTS_HINT =
   'Cadastre ao menos um morador antes de registrar dependentes: todo dependente e vinculado a um morador.';

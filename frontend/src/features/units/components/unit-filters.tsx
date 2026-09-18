@@ -88,7 +88,7 @@ export function UnitFilters({ list, blocks }: UnitFiltersProps) {
               id="unit-search"
               className="pl-10"
               // O unico campo buscavel do recurso e o numero; prometer mais seria mentira.
-              placeholder="Numero da unidade"
+              placeholder="Número da unidade"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />
@@ -151,8 +151,8 @@ export function UnitFilters({ list, blocks }: UnitFiltersProps) {
 
       {/*
         Status aceita mais de um valor ao mesmo tempo — o backend le a lista
-        separada por virgula como teste de pertinencia —, e um select de valor
-        unico nao expressa isso.
+        separada por virgula como teste de pertinência —, e um select de valor
+        único não expressa isso.
       */}
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium">Status</legend>
@@ -175,7 +175,7 @@ export function UnitFilters({ list, blocks }: UnitFiltersProps) {
       {/*
         Sem gate de permissao: ver registros removidos e leitura, e o servidor
         aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a linha
-        marcada e nenhuma acao de restaurar (ADR-006).
+        marcada e nenhuma ação de restaurar (ADR-006).
       */}
       <div className="flex items-center gap-2">
         <Checkbox

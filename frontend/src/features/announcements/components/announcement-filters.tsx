@@ -65,14 +65,14 @@ export function AnnouncementFilters({ list }: AnnouncementFiltersProps) {
   if (list.filters.audience) {
     chips.push({
       id: 'audience',
-      label: 'Publico',
+      label: 'Público',
       value: labelOf(AUDIENCE_OPTIONS, list.filters.audience),
     });
   }
   if (list.filters.pinned) {
     chips.push({
       id: 'pinned',
-      label: 'Fixacao',
+      label: 'Fixação',
       value: labelOf(PINNED_OPTIONS, list.filters.pinned),
     });
   }
@@ -98,7 +98,7 @@ export function AnnouncementFilters({ list }: AnnouncementFiltersProps) {
             <Input
               id="announcement-search"
               className="pl-10"
-              placeholder="Titulo ou conteudo do comunicado"
+              placeholder="Título ou conteudo do comunicado"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />
@@ -146,7 +146,7 @@ export function AnnouncementFilters({ list }: AnnouncementFiltersProps) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="announcement-audience">Publico</Label>
+          <Label htmlFor="announcement-audience">Público</Label>
           <Select
             value={(list.filters.audience as string) ?? ANY}
             onValueChange={(value) => list.setFilter('audience', value === ANY ? undefined : value)}
@@ -167,11 +167,11 @@ export function AnnouncementFilters({ list }: AnnouncementFiltersProps) {
 
         {/*
           `pinned` e coluna booleana no servidor, entao o filtro tem tres
-          estados e nao dois: sem recorte, so fixados, so nao fixados. Uma
+          estados e não dois: sem recorte, so fixados, so não fixados. Uma
           caixa de marcar so conseguiria dizer dois deles.
         */}
         <div className="space-y-1.5">
-          <Label htmlFor="announcement-pinned-filter">Fixacao</Label>
+          <Label htmlFor="announcement-pinned-filter">Fixação</Label>
           <Select
             value={(list.filters.pinned as string) ?? ANY}
             onValueChange={(value) => list.setFilter('pinned', value === ANY ? undefined : value)}
@@ -180,7 +180,7 @@ export function AnnouncementFilters({ list }: AnnouncementFiltersProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ANY}>Fixados e nao fixados</SelectItem>
+              <SelectItem value={ANY}>Fixados e não fixados</SelectItem>
               {PINNED_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -194,7 +194,7 @@ export function AnnouncementFilters({ list }: AnnouncementFiltersProps) {
       {/*
         Sem gate de permissao: ver registros removidos e leitura, e o servidor
         aceita `includeDeleted` de quem pode ler. Quem nao pode editar ve a linha
-        marcada e nenhuma acao de restaurar (ADR-006).
+        marcada e nenhuma ação de restaurar (ADR-006).
       */}
       <div className="flex items-center gap-2">
         <Checkbox

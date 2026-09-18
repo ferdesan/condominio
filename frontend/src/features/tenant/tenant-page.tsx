@@ -7,7 +7,7 @@ import { PlanSummary } from './components/plan-summary';
 import { useTenant } from './tenant-hooks';
 
 const DESCRIPTION =
-  'O cadastro da administradora e a politica de encargos que vale para todos os condominios dela. Nao depende do condominio selecionado.';
+  'O cadastro da administradora e a politica de encargos que vale para todos os condomínios dela. Não depende do condomínio selecionado.';
 
 /**
  * Configuracoes da administradora.
@@ -35,7 +35,7 @@ export function TenantPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Configuracoes" description={DESCRIPTION} />
+      <PageHeader title="Configurações" description={DESCRIPTION} />
 
       {query.isPending ? (
         <div className="space-y-4">
@@ -47,7 +47,7 @@ export function TenantPage() {
           role="alert"
           className="space-y-3 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
-          <p>Nao foi possivel carregar as configuracoes. {query.error.message}</p>
+          <p>Não foi possível carregar as configurações. {query.error.message}</p>
           <Button variant="outline" size="sm" onClick={() => void query.refetch()}>
             Tentar de novo
           </Button>

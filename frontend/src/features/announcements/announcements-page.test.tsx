@@ -87,7 +87,7 @@ describe('Listagem de comunicados', () => {
     const user = createUser();
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
     // Toda consulta nasce presa ao condominio escolhido no shell.
     expect(lastListParams().condominiumId).toBe('cond-1');
 
@@ -102,10 +102,10 @@ describe('Listagem de comunicados', () => {
     selectOption(screen.getByLabelText('Categoria'), 'Assembleia');
     expect(lastListParams().category).toBe('ASSEMBLY');
 
-    selectOption(screen.getByLabelText('Publico'), 'Proprietarios');
+    selectOption(screen.getByLabelText('Público'), 'Proprietários');
     expect(lastListParams().audience).toBe('OWNERS');
 
-    selectOption(screen.getByLabelText('Fixacao'), 'Somente fixados');
+    selectOption(screen.getByLabelText('Fixação'), 'Somente fixados');
     expect(lastListParams().pinned).toBe('true');
 
     // Os controles se somam em vez de se substituirem.
@@ -123,15 +123,15 @@ describe('Listagem de comunicados', () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement()] });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
 
-    clickTrigger(screen.getByRole('button', { name: 'Titulo' }));
+    clickTrigger(screen.getByRole('button', { name: 'Título' }));
     await waitFor(() => expect(lastListParams().sortBy).toBe('title'));
     expect(lastListParams().sortOrder).toBe('ASC');
 
     // A tabela alterna a direcao; a traducao para a caixa da API e da camada de
     // dados, e e ela que precisa continuar valendo (ADR-009).
-    clickTrigger(screen.getByRole('button', { name: 'Titulo' }));
+    clickTrigger(screen.getByRole('button', { name: 'Título' }));
     await waitFor(() => expect(lastListParams().sortOrder).toBe('DESC'));
     expect(lastListParams().sortBy).toBe('title');
   });
@@ -146,7 +146,7 @@ describe('Listagem de comunicados', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.announcements = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Aviso 21')).toBeInTheDocument();
@@ -159,13 +159,13 @@ describe('Listagem de comunicados', () => {
     });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
 
     // Um rascunho ainda nao tem data de publicacao: o placeholder neutro diz a
     // ausencia sem inventar um valor.
     expect(cellsOf('Publicado em')).toEqual(['—']);
     // Autor ausente e um estado nomeado, e nao um dado faltando.
-    expect(cellsOf('Autor')).toEqual(['Autor nao registrado']);
+    expect(cellsOf('Autor')).toEqual(['Autor não registrado']);
     expect(screen.queryByText('null')).not.toBeInTheDocument();
   });
 
@@ -173,15 +173,15 @@ describe('Listagem de comunicados', () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement()] });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
 
     // Whitelist do servidor: condominiumId (vem do shell), status, category,
     // audience e pinned. Qualquer outro controle pareceria funcionar enquanto o
     // backend o descarta em silencio.
     expect(screen.getByLabelText('Status')).toBeInTheDocument();
     expect(screen.getByLabelText('Categoria')).toBeInTheDocument();
-    expect(screen.getByLabelText('Publico')).toBeInTheDocument();
-    expect(screen.getByLabelText('Fixacao')).toBeInTheDocument();
+    expect(screen.getByLabelText('Público')).toBeInTheDocument();
+    expect(screen.getByLabelText('Fixação')).toBeInTheDocument();
 
     for (const absent of ['Autor', 'Publicado em', 'Conteudo']) {
       expect(screen.queryByLabelText(absent)).not.toBeInTheDocument();
@@ -212,7 +212,7 @@ describe('Estados vazios de comunicados', () => {
     const user = createUser();
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
     world.announcements = [];
     await user.type(screen.getByLabelText('Buscar'), 'Nada');
 
@@ -225,20 +225,20 @@ describe('Estados vazios de comunicados', () => {
 });
 
 describe('Ciclo de vida do comunicado', () => {
-  it('um rascunho oferece publicar e nao oferece arquivar', async () => {
+  it('um rascunho oferece publicar e não oferece arquivar', async () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement({ status: 'DRAFT' })] });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
 
     expect(
-      screen.getByRole('button', { name: 'Publicar Manutencao do elevador' }),
+      screen.getByRole('button', { name: 'Publicar Manutenção do elevador' }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Arquivar/ })).not.toBeInTheDocument();
     expect(screen.getByText('Rascunho')).toBeInTheDocument();
   });
 
-  it('um publicado oferece arquivar e nao oferece publicar', async () => {
+  it('um publicado oferece arquivar e não oferece publicar', async () => {
     world = serveAnnouncements({
       announcements: [
         makeAnnouncement({ status: 'PUBLISHED', publishedAt: '2026-03-11T10:00:00.000Z' }),
@@ -246,16 +246,16 @@ describe('Ciclo de vida do comunicado', () => {
     });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
 
     expect(
-      screen.getByRole('button', { name: 'Arquivar Manutencao do elevador' }),
+      screen.getByRole('button', { name: 'Arquivar Manutenção do elevador' }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Publicar/ })).not.toBeInTheDocument();
     expect(screen.getByText('Publicado')).toBeInTheDocument();
   });
 
-  it('um arquivado nao oferece nenhuma das duas', async () => {
+  it('um arquivado não oferece nenhuma das duas', async () => {
     world = serveAnnouncements({
       announcements: [
         makeAnnouncement({ status: 'ARCHIVED', publishedAt: '2026-03-11T10:00:00.000Z' }),
@@ -263,14 +263,14 @@ describe('Ciclo de vida do comunicado', () => {
     });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
 
     // O ciclo e fechado: o servidor recusa publicar o arquivado, e arquivar de
     // novo nao teria efeito. Editar continua oferecido.
     expect(screen.queryByRole('button', { name: /^Publicar/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Arquivar/ })).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Editar Manutencao do elevador' }),
+      screen.getByRole('button', { name: 'Editar Manutenção do elevador' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Arquivado')).toBeInTheDocument();
   });
@@ -289,7 +289,7 @@ describe('Ciclo de vida do comunicado', () => {
     renderWithProviders(<AnnouncementsPage />);
 
     await screen.findByText('Rascunho');
-    clickTrigger(screen.getByRole('button', { name: 'Publicar Manutencao do elevador' }));
+    clickTrigger(screen.getByRole('button', { name: 'Publicar Manutenção do elevador' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
     expect(mockPost.mock.calls[0][0]).toBe('/announcements/announcement-1/publish');
@@ -299,7 +299,7 @@ describe('Ciclo de vida do comunicado', () => {
     expect(await screen.findByText('Publicado')).toBeInTheDocument();
     await waitFor(() =>
       expect(
-        screen.getByRole('button', { name: 'Arquivar Manutencao do elevador' }),
+        screen.getByRole('button', { name: 'Arquivar Manutenção do elevador' }),
       ).toBeInTheDocument(),
     );
   });
@@ -322,26 +322,26 @@ describe('Ciclo de vida do comunicado', () => {
     renderWithProviders(<AnnouncementsPage />);
 
     await screen.findByText('Publicado');
-    clickTrigger(screen.getByRole('button', { name: 'Arquivar Manutencao do elevador' }));
+    clickTrigger(screen.getByRole('button', { name: 'Arquivar Manutenção do elevador' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
     expect(mockPost.mock.calls[0][0]).toBe('/announcements/announcement-1/archive');
     expect(await screen.findByText('Arquivado')).toBeInTheDocument();
   });
 
-  it('a recusa do servidor numa transicao aparece na linha, e o status nao muda', async () => {
+  it('a recusa do servidor numa transição aparece na linha, e o status não muda', async () => {
     // O rascunho foi publicado por outra pessoa enquanto esta lista estava
     // aberta: a tela ainda o mostra como rascunho, e o servidor recusa.
     world = serveAnnouncements({ announcements: [makeAnnouncement({ status: 'DRAFT' })] });
     mockPost.mockRejectedValue(
-      new ApiError('Comunicado ja esta publicado.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('Comunicado já esta publicado.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<AnnouncementsPage />);
 
     await screen.findByText('Rascunho');
-    clickTrigger(screen.getByRole('button', { name: 'Publicar Manutencao do elevador' }));
+    clickTrigger(screen.getByRole('button', { name: 'Publicar Manutenção do elevador' }));
 
-    const message = await screen.findByText('Comunicado ja esta publicado.');
+    const message = await screen.findByText('Comunicado já esta publicado.');
     // A recusa aparece onde a acao foi tomada, e o registro continua como estava.
     expect(message).toHaveAttribute('role', 'alert');
     expect(screen.getByText('Rascunho')).toBeInTheDocument();
@@ -350,7 +350,7 @@ describe('Ciclo de vida do comunicado', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('dois cliques em publicar disparam uma requisicao so', async () => {
+  it('dois cliques em publicar disparam uma requisição so', async () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement({ status: 'DRAFT' })] });
     mockPost.mockImplementation(async () => {
       world.announcements = [makeAnnouncement({ status: 'PUBLISHED' })];
@@ -359,7 +359,7 @@ describe('Ciclo de vida do comunicado', () => {
     renderWithProviders(<AnnouncementsPage />);
 
     await screen.findByText('Rascunho');
-    const button = screen.getByRole('button', { name: 'Publicar Manutencao do elevador' });
+    const button = screen.getByRole('button', { name: 'Publicar Manutenção do elevador' });
     clickTrigger(button);
     clickTrigger(button);
 
@@ -367,16 +367,16 @@ describe('Ciclo de vida do comunicado', () => {
   });
 });
 
-describe('Exclusao e restauracao de comunicados', () => {
-  it('excluir pede confirmacao antes de remover', async () => {
+describe('Exclusao e restauração de comunicados', () => {
+  it('excluir pede confirmação antes de remover', async () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement()] });
     mockDelete.mockImplementation(async () => {
       world.announcements = [];
     });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
-    clickTrigger(screen.getByRole('button', { name: 'Excluir Manutencao do elevador' }));
+    await screen.findByText('Manutenção do elevador');
+    clickTrigger(screen.getByRole('button', { name: 'Excluir Manutenção do elevador' }));
 
     // O pedido so sai depois da confirmacao.
     expect(await screen.findByText('Excluir comunicado?')).toBeInTheDocument();
@@ -386,27 +386,27 @@ describe('Exclusao e restauracao de comunicados', () => {
 
     await waitFor(() => expect(mockDelete).toHaveBeenCalledWith('/announcements/announcement-1'));
     await waitFor(() =>
-      expect(screen.queryByText('Manutencao do elevador')).not.toBeInTheDocument(),
+      expect(screen.queryByText('Manutenção do elevador')).not.toBeInTheDocument(),
     );
   });
 
   it('um 409 de impedimento mostra a mensagem do servidor e mantem o registro', async () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement()] });
     mockDelete.mockRejectedValue(
-      new ApiError('Comunicado publicado nao pode ser excluido.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('Comunicado publicado não pode ser excluido.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
-    clickTrigger(screen.getByRole('button', { name: 'Excluir Manutencao do elevador' }));
+    await screen.findByText('Manutenção do elevador');
+    clickTrigger(screen.getByRole('button', { name: 'Excluir Manutenção do elevador' }));
     clickTrigger(await screen.findByRole('button', { name: 'Excluir' }));
 
     // A exclusao nao passa `onError`, entao herda o toast global — que e a
     // apresentacao certa para um 409 que traz so a mensagem do servidor.
     await waitFor(() =>
-      expect(mockToastError).toHaveBeenCalledWith('Comunicado publicado nao pode ser excluido.'),
+      expect(mockToastError).toHaveBeenCalledWith('Comunicado publicado não pode ser excluido.'),
     );
-    expect(screen.getByText('Manutencao do elevador')).toBeInTheDocument();
+    expect(screen.getByText('Manutenção do elevador')).toBeInTheDocument();
   });
 
   it('incluir removidos envia includeDeleted, e restaurar devolve o registro', async () => {
@@ -420,13 +420,13 @@ describe('Exclusao e restauracao de comunicados', () => {
     });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
     await user.click(screen.getByLabelText('Incluir removidos'));
 
     await waitFor(() => expect(lastListParams().includeDeleted).toBe(true));
     expect(screen.getByText('Removido')).toBeInTheDocument();
 
-    clickTrigger(await screen.findByRole('button', { name: 'Restaurar Manutencao do elevador' }));
+    clickTrigger(await screen.findByRole('button', { name: 'Restaurar Manutenção do elevador' }));
 
     await waitFor(() =>
       expect(mockPost).toHaveBeenCalledWith('/announcements/announcement-1/restore'),
@@ -435,25 +435,25 @@ describe('Exclusao e restauracao de comunicados', () => {
   });
 });
 
-describe('Escopo e permissoes de comunicados', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões de comunicados', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement()] });
     renderWithProviders(<AnnouncementsPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     // Nem a listagem nem a colecao de blocos saem sem condominio.
     expect(mockGetPaginated).not.toHaveBeenCalled();
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('um operador sem update nao recebe as acoes do ciclo', async () => {
+  it('um operador sem update não recebe as ações do ciclo', async () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement({ status: 'DRAFT' })] });
     renderWithProviders(<AnnouncementsPage />, {
       role: 'STAFF',
       permissions: ['announcement:read'],
     });
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
 
     // Publicar e arquivar exigem `announcement:update`; a interface nao oferece
     // o que o servidor recusaria.
@@ -464,7 +464,7 @@ describe('Escopo e permissoes de comunicados', () => {
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     world = serveAnnouncements({
       announcements: [makeAnnouncement({ deletedAt: '2026-03-11T10:00:00.000Z' })],
     });
@@ -474,7 +474,7 @@ describe('Escopo e permissoes de comunicados', () => {
       permissions: ['announcement:read'],
     });
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
     // Ver removidos e leitura; restaurar exige `update` (ADR-006).
     await user.click(screen.getByLabelText('Incluir removidos'));
 
@@ -482,11 +482,11 @@ describe('Escopo e permissoes de comunicados', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('a colecao de blocos tambem fica presa ao condominio do shell', async () => {
+  it('a coleção de blocos também fica presa ao condomínio do shell', async () => {
     world = serveAnnouncements({ announcements: [makeAnnouncement()] });
     renderWithProviders(<AnnouncementsPage />);
 
-    await screen.findByText('Manutencao do elevador');
+    await screen.findByText('Manutenção do elevador');
 
     const call = mockGetPaginated.mock.calls.find(([url]) => url === '/blocks');
     expect((call?.[1]?.params ?? {}) as Record<string, unknown>).toMatchObject({
@@ -501,19 +501,19 @@ describe('O mural', () => {
     return screen.getByRole('region', { name: 'No ar agora' });
   }
 
-  it('mostra o que esta publicado e vigente, escopado ao condominio', async () => {
+  it('mostra o que esta publicado e vigente, escopado ao condomínio', async () => {
     world = serveAnnouncements({
       announcements: [
-        makeAnnouncement({ id: 'a-1', title: 'Assembleia ordinaria', status: 'PUBLISHED' }),
+        makeAnnouncement({ id: 'a-1', title: 'Assembleia ordinária', status: 'PUBLISHED' }),
       ],
     });
     renderWithProviders(<AnnouncementsPage />);
 
-    expect(await within(board()).findByText('Assembleia ordinaria')).toBeInTheDocument();
+    expect(await within(board()).findByText('Assembleia ordinária')).toBeInTheDocument();
     expect(boardRequests().at(-1)?.condominiumId).toBe('cond-1');
   });
 
-  it('nao mostra rascunho, arquivado nem expirado', async () => {
+  it('não mostra rascunho, arquivado nem expirado', async () => {
     const past = new Date(Date.now() - 86_400_000).toISOString();
     world = serveAnnouncements({
       announcements: [
@@ -549,12 +549,12 @@ describe('O mural', () => {
     expect(items[0]).toHaveTextContent('Aviso fixado');
   });
 
-  it('o contador e de visualizacoes, e nao um marcador de lido', async () => {
+  it('o contador e de visualizações, e não um marcador de lido', async () => {
     world = serveAnnouncements({
       announcements: [
         makeAnnouncement({
           id: 'a-1',
-          title: 'Assembleia ordinaria',
+          title: 'Assembleia ordinária',
           status: 'PUBLISHED',
           readsCount: 42,
         }),
@@ -562,23 +562,23 @@ describe('O mural', () => {
     });
     renderWithProviders(<AnnouncementsPage />);
 
-    await within(board()).findByText('Assembleia ordinaria');
+    await within(board()).findByText('Assembleia ordinária');
     expect(within(board()).getByText('42')).toBeInTheDocument();
     // `incrementReads` soma numa coluna do comunicado, sem vinculo com quem
     // pediu: nao ha dado que sustente "lido por voce".
     expect(within(board()).queryByText(/lido/i)).not.toBeInTheDocument();
-    expect(within(board()).queryByText(/nao lido/i)).not.toBeInTheDocument();
+    expect(within(board()).queryByText(/não lido/i)).not.toBeInTheDocument();
   });
 
   it('a tela nunca registra leitura', async () => {
     world = serveAnnouncements({
       announcements: [
-        makeAnnouncement({ id: 'a-1', title: 'Assembleia ordinaria', status: 'PUBLISHED' }),
+        makeAnnouncement({ id: 'a-1', title: 'Assembleia ordinária', status: 'PUBLISHED' }),
       ],
     });
     renderWithProviders(<AnnouncementsPage />);
 
-    await within(board()).findByText('Assembleia ordinaria');
+    await within(board()).findByText('Assembleia ordinária');
     // Cada abertura daqui e de um administrador; contar isso como leitura de
     // morador corromperia o unico numero de alcance que o produto tem.
     const readCalls = vi

@@ -149,7 +149,7 @@ function UnitsProbe() {
     queryKey: ['units', 'probe'],
     queryFn: () => apiGetPaginated<Unit>('/units', { params: { perPage: 200 } }),
   });
-  return <p>Ocupacao: {data?.data[0]?.status ?? 'carregando'}</p>;
+  return <p>Ocupação: {data?.data[0]?.status ?? 'carregando'}</p>;
 }
 
 /** Le as reservas, cujo solicitante o servidor desnormaliza no proprio registro. */
@@ -182,7 +182,7 @@ function SwitchableShell({ children }: { children: ReactNode }) {
   return (
     <CondominiumContext.Provider value={value}>
       <button type="button" onClick={() => setSelectedId('cond-2')}>
-        Trocar condominio
+        Trocar condomínio
       </button>
       {children}
     </CondominiumContext.Provider>
@@ -270,7 +270,7 @@ describe('Listagem de moradores', () => {
     expect(lastListParams().perPage).toBe(20);
 
     world.residents = makeRoster(20, 20);
-    await user.click(screen.getByRole('button', { name: /proxima|próxima|next/i }));
+    await user.click(screen.getByRole('button', { name: /próxima|próxima|next/i }));
 
     await waitFor(() => expect(lastListParams().page).toBe(2));
     expect(await screen.findByText('Morador 021')).toBeInTheDocument();
@@ -278,7 +278,7 @@ describe('Listagem de moradores', () => {
   });
 });
 
-describe('Designacao do responsavel pela unidade', () => {
+describe('Designação do responsável pela unidade', () => {
   /** Dois moradores da mesma unidade; o primeiro e o responsavel atual. */
   function twoResidents(): Resident[] {
     return [
@@ -299,63 +299,63 @@ describe('Designacao do responsavel pela unidade', () => {
     });
   }
 
-  it('IT-107: marcar um responsavel deixa exatamente um na unidade', async () => {
+  it('IT-107: marcar um responsável deixa exatamente um na unidade', async () => {
     serve(twoResidents());
     respondByPromoting();
     renderWithProviders(<ResidentsPage />);
 
     await screen.findByText('Ana Souza');
-    clickTrigger(screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }));
+    clickTrigger(screen.getByRole('button', { name: 'Tornar Ana Souza responsável pela unidade' }));
 
     await waitFor(() =>
-      expect(cellsOf('Responsavel').filter((cell) => cell === 'Responsavel')).toHaveLength(1),
+      expect(cellsOf('Responsável').filter((cell) => cell === 'Responsável')).toHaveLength(1),
     );
     expect(mockPatch).toHaveBeenCalledTimes(1);
     expect(mockPatch).toHaveBeenCalledWith('/residents/r2', { isPrimary: true });
   });
 
-  it('IT-108: o responsavel anterior deixa de ser marcado na lista recarregada', async () => {
+  it('IT-108: o responsável anterior deixa de ser marcado na lista recarregada', async () => {
     serve(twoResidents());
     respondByPromoting();
     renderWithProviders(<ResidentsPage />);
 
     await screen.findByText('Ana Souza');
-    expect(cellsOf('Responsavel')).toEqual(['Responsavel', '—']);
+    expect(cellsOf('Responsável')).toEqual(['Responsável', '—']);
 
-    clickTrigger(screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }));
+    clickTrigger(screen.getByRole('button', { name: 'Tornar Ana Souza responsável pela unidade' }));
 
-    await waitFor(() => expect(cellsOf('Responsavel')).toEqual(['—', 'Responsavel']));
+    await waitFor(() => expect(cellsOf('Responsável')).toEqual(['—', 'Responsável']));
   });
 
-  it('IT-109: unidade sem responsavel nao mostra marca nem levanta objecao', async () => {
+  it('IT-109: unidade sem responsável não mostra marca nem levanta objeção', async () => {
     serve(twoResidents().map((resident) => ({ ...resident, isPrimary: false })));
     renderWithProviders(<ResidentsPage />);
 
     await screen.findByText('Ana Souza');
 
-    expect(cellsOf('Responsavel')).toEqual(['—', '—']);
+    expect(cellsOf('Responsável')).toEqual(['—', '—']);
     expect(mockToastError).not.toHaveBeenCalled();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('IT-110: duas designacoes seguidas convergem para um unico responsavel', async () => {
+  it('IT-110: duas designações seguidas convergem para um único responsável', async () => {
     serve(twoResidents().map((resident) => ({ ...resident, isPrimary: false })));
     respondByPromoting();
     renderWithProviders(<ResidentsPage />);
 
     await screen.findByText('Ana Souza');
     clickTrigger(
-      screen.getByRole('button', { name: 'Tornar Carlos Pereira responsavel pela unidade' }),
+      screen.getByRole('button', { name: 'Tornar Carlos Pereira responsável pela unidade' }),
     );
-    clickTrigger(screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }));
+    clickTrigger(screen.getByRole('button', { name: 'Tornar Ana Souza responsável pela unidade' }));
 
     await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(2));
     await waitFor(() =>
-      expect(cellsOf('Responsavel').filter((cell) => cell === 'Responsavel')).toHaveLength(1),
+      expect(cellsOf('Responsável').filter((cell) => cell === 'Responsável')).toHaveLength(1),
     );
   });
 
-  it('IT-111: excluir o responsavel deixa a unidade sem nenhum, e isso fica visivel', async () => {
+  it('IT-111: excluir o responsável deixa a unidade sem nenhum, e isso fica visível', async () => {
     serve(twoResidents());
     mockDelete.mockImplementation(async () => {
       world.residents = world.residents.filter((resident) => resident.id !== 'r1');
@@ -367,24 +367,24 @@ describe('Designacao do responsavel pela unidade', () => {
     clickTrigger(await screen.findByRole('button', { name: 'Excluir' }));
 
     await waitFor(() => expect(screen.queryByText('Carlos Pereira')).not.toBeInTheDocument());
-    expect(cellsOf('Responsavel')).toEqual(['—']);
+    expect(cellsOf('Responsável')).toEqual(['—']);
   });
 
-  it('IT-112: designar um morador inativo e impedido na propria tela', async () => {
+  it('IT-112: designar um morador inativo e impedido na própria tela', async () => {
     serve([makeResident({ id: 'r2', name: 'Ana Souza', status: 'INACTIVE', isPrimary: false })]);
     renderWithProviders(<ResidentsPage />);
 
     await screen.findByText('Ana Souza');
 
     expect(
-      screen.getByRole('button', { name: 'Tornar Ana Souza responsavel pela unidade' }),
+      screen.getByRole('button', { name: 'Tornar Ana Souza responsável pela unidade' }),
     ).toBeDisabled();
     expect(mockPatch).not.toHaveBeenCalled();
   });
 });
 
-describe('Exclusao e restauracao de moradores', () => {
-  it('IT-113: excluir um morador o remove da lista e atualiza a ocupacao da unidade', async () => {
+describe('Exclusao e restauração de moradores', () => {
+  it('IT-113: excluir um morador o remove da lista e atualiza a ocupação da unidade', async () => {
     serve([makeResident()], [makeUnit({ status: 'OCCUPIED' })]);
     mockDelete.mockImplementation(async () => {
       world.residents = [];
@@ -399,17 +399,17 @@ describe('Exclusao e restauracao de moradores', () => {
     );
 
     await screen.findByText('Carlos Pereira');
-    expect(await screen.findByText('Ocupacao: OCCUPIED')).toBeInTheDocument();
+    expect(await screen.findByText('Ocupação: OCCUPIED')).toBeInTheDocument();
 
     clickTrigger(screen.getByRole('button', { name: 'Excluir Carlos Pereira' }));
     clickTrigger(await screen.findByRole('button', { name: 'Excluir' }));
 
     await waitFor(() => expect(mockDelete).toHaveBeenCalledWith('/residents/resident-1'));
     await waitFor(() => expect(screen.queryByText('Carlos Pereira')).not.toBeInTheDocument());
-    expect(await screen.findByText('Ocupacao: VACANT')).toBeInTheDocument();
+    expect(await screen.findByText('Ocupação: VACANT')).toBeInTheDocument();
   });
 
-  it('IT-114: excluir o unico morador ativo mostra a unidade vaga', async () => {
+  it('IT-114: excluir o único morador ativo mostra a unidade vaga', async () => {
     serve(
       [
         makeResident({ id: 'r1', name: 'Carlos Pereira', status: 'ACTIVE' }),
@@ -438,11 +438,11 @@ describe('Exclusao e restauracao de moradores', () => {
     clickTrigger(screen.getByRole('button', { name: 'Excluir Carlos Pereira' }));
     clickTrigger(await screen.findByRole('button', { name: 'Excluir' }));
 
-    expect(await screen.findByText('Ocupacao: VACANT')).toBeInTheDocument();
+    expect(await screen.findByText('Ocupação: VACANT')).toBeInTheDocument();
     expect(screen.getByText('Ana Souza')).toBeInTheDocument();
   });
 
-  it('IT-115: excluir o responsavel nao deixa marca de responsavel em lugar nenhum', async () => {
+  it('IT-115: excluir o responsável não deixa marca de responsável em lugar nenhum', async () => {
     serve([
       makeResident({ id: 'r1', name: 'Carlos Pereira', isPrimary: true }),
       makeResident({ id: 'r2', name: 'Ana Souza', document: '98765432100', isPrimary: false }),
@@ -457,7 +457,7 @@ describe('Exclusao e restauracao de moradores', () => {
     clickTrigger(await screen.findByRole('button', { name: 'Excluir' }));
 
     await waitFor(() => expect(dataRows()).toHaveLength(1));
-    expect(cellsOf('Responsavel')).toEqual(['—']);
+    expect(cellsOf('Responsável')).toEqual(['—']);
   });
 
   it('IT-116: restaurar um morador cuja unidade sumiu mostra a falta em vez de calar', async () => {
@@ -483,7 +483,7 @@ describe('Exclusao e restauracao de moradores', () => {
     serve([makeResident({ deletedAt: '2026-02-01T10:00:00.000Z' })]);
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('Ja existe um morador cadastrado com este CPF.', 409, 'CONFLICT'),
+      new ApiError('Já existe um morador cadastrado com este CPF.', 409, 'CONFLICT'),
     );
     renderWithProviders(<ResidentsPage />);
 
@@ -492,7 +492,7 @@ describe('Exclusao e restauracao de moradores', () => {
     clickTrigger(await screen.findByRole('button', { name: 'Restaurar Carlos Pereira' }));
 
     await waitFor(() =>
-      expect(mockToastError).toHaveBeenCalledWith('Ja existe um morador cadastrado com este CPF.'),
+      expect(mockToastError).toHaveBeenCalledWith('Já existe um morador cadastrado com este CPF.'),
     );
     expect(await screen.findByText('Removido')).toBeInTheDocument();
   });
@@ -523,7 +523,7 @@ describe('Exclusao e restauracao de moradores', () => {
 });
 
 describe('Filtros de moradores', () => {
-  it('IT-119: filtra por unidade, tipo e status, com um chip removivel para cada', async () => {
+  it('IT-119: filtra por unidade, tipo e status, com um chip removível para cada', async () => {
     serve([makeResident()]);
     renderWithProviders(<ResidentsPage />);
 
@@ -532,7 +532,7 @@ describe('Filtros de moradores', () => {
     selectOption(screen.getByLabelText('Unidade'), 'Torre A - 101');
     expect(lastListParams().unitId).toBe('unit-1');
 
-    selectOption(screen.getByLabelText('Tipo'), 'Proprietario');
+    selectOption(screen.getByLabelText('Tipo'), 'Proprietário');
     expect(lastListParams().type).toBe('OWNER');
 
     selectOption(screen.getByLabelText('Status'), 'Ativo');
@@ -553,7 +553,7 @@ describe('Filtros de moradores', () => {
     expect(lastListParams().type).toBeUndefined();
   });
 
-  it('IT-120: combinacao de filtros sem resultado oferece limpar', async () => {
+  it('IT-120: combinação de filtros sem resultado oferece limpar', async () => {
     serve([makeResident()]);
     renderWithProviders(<ResidentsPage />);
 
@@ -585,7 +585,7 @@ describe('Filtros de moradores', () => {
     expect(screen.queryByLabelText('Remover filtro Unidade')).not.toBeInTheDocument();
   });
 
-  it('IT-122: trocar de condominio limpa o filtro de unidade', async () => {
+  it('IT-122: trocar de condomínio limpa o filtro de unidade', async () => {
     serve([makeResident()]);
     renderWithProviders(
       <SwitchableShell>
@@ -597,7 +597,7 @@ describe('Filtros de moradores', () => {
     selectOption(screen.getByLabelText('Unidade'), 'Torre A - 101');
     expect(lastListParams().unitId).toBe('unit-1');
 
-    clickTrigger(screen.getByRole('button', { name: 'Trocar condominio' }));
+    clickTrigger(screen.getByRole('button', { name: 'Trocar condomínio' }));
 
     await waitFor(() => expect(lastListParams().condominiumId).toBe('cond-2'));
     expect(lastListParams().unitId).toBeUndefined();
@@ -617,18 +617,18 @@ describe('Filtros de moradores', () => {
     expect(screen.getByLabelText('Tipo')).toBeInTheDocument();
     expect(screen.getByLabelText('Status')).toBeInTheDocument();
 
-    for (const absent of ['Responsavel', 'E-mail', 'CPF', 'Entrada', 'Condominio']) {
+    for (const absent of ['Responsável', 'E-mail', 'CPF', 'Entrada', 'Condomínio']) {
       expect(screen.queryByLabelText(absent)).not.toBeInTheDocument();
     }
   });
 });
 
-describe('Escopo e permissoes', () => {
-  it('sem condominio selecionado a tela explica a exigencia e nao consulta', async () => {
+describe('Escopo e permissões', () => {
+  it('sem condomínio selecionado a tela explica a exigência e não consulta', async () => {
     serve([makeResident()]);
     renderWithProviders(<ResidentsPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(mockGetPaginated.mock.calls.filter(([url]) => url === '/residents')).toHaveLength(0);
   });
 
@@ -644,7 +644,7 @@ describe('Escopo e permissoes', () => {
     expect(screen.queryByRole('button', { name: /^Tornar/ })).not.toBeInTheDocument();
   });
 
-  it('um operador nao ve restaurar nas linhas removidas', async () => {
+  it('um operador não ve restaurar nas linhas removidas', async () => {
     serve([makeResident({ deletedAt: '2026-02-01T10:00:00.000Z' })]);
     const user = createUser();
     renderWithProviders(<ResidentsPage />, { role: 'STAFF' });
@@ -655,7 +655,7 @@ describe('Escopo e permissoes', () => {
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
 
-  it('a consulta de unidades tambem fica presa ao condominio do shell', async () => {
+  it('a consulta de unidades também fica presa ao condomínio do shell', async () => {
     serve([makeResident()]);
     renderWithProviders(<ResidentsPage />);
 

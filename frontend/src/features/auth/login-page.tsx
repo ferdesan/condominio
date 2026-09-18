@@ -12,7 +12,7 @@ import { ApiError } from '@/lib/api';
 import { AuthShell } from './components/auth-shell';
 
 const loginSchema = z.object({
-  email: z.string().min(1, 'Informe o e-mail.').email('E-mail invalido.'),
+  email: z.string().min(1, 'Informe o e-mail.').email('E-mail inválido.'),
   password: z.string().min(1, 'Informe a senha.'),
 });
 
@@ -63,12 +63,12 @@ export function LoginPage() {
         setFormError(error.message);
         return;
       }
-      setFormError('Nao foi possivel entrar. Tente novamente.');
+      setFormError('Não foi possível entrar. Tente novamente.');
     }
   });
 
   return (
-    <AuthShell subtitle="Acesse para gerir seu condominio.">
+    <AuthShell subtitle="Acesse para gerir seu condomínio.">
       <form onSubmit={onSubmit} noValidate className="app-surface space-y-4 p-6">
         <div className="space-y-1.5">
           <Label htmlFor="email">E-mail</Label>
@@ -136,9 +136,9 @@ export function LoginPage() {
         </Button>
 
         {/*
-          Ate aqui a unica saida para quem esquecia a senha era pedir a um
+          Até aqui a única saída para quem esquecia a senha era pedir a um
           administrador que a resetasse em /usuarios. As duas rotas de
-          auto-atendimento existiam no servidor desde sempre e nao tinham porta.
+          auto-atendimento existiam no servidor desde sempre e não tinham porta.
         */}
         <p className="text-center text-sm">
           <Link

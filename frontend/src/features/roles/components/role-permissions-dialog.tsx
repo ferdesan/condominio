@@ -43,25 +43,25 @@ export function RolePermissionsDialog({ role, onClose }: RolePermissionsDialogPr
         if (!next) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle>{`Permissoes de ${role.name}`}</DialogTitle>
+          <DialogTitle>{`Permissões de ${role.name}`}</DialogTitle>
           <DialogDescription>
             {role.description ?? 'Somente leitura. Para alterar, use Editar na lista.'}
           </DialogDescription>
         </DialogHeader>
 
         {/*
-          O curinga nao cabe numa celula da matriz — ele nao tem recurso nem
-          acao. Anunciado aqui, ele explica por que todas as caixas abaixo podem
-          estar vazias enquanto o papel alcanca tudo.
+          O curinga não cabe numa celula da matriz — ele não tem recurso nem
+          ação. Anunciado aqui, ele explica por que todas as caixas abaixo podem
+          estar vazias enquanto o papel alcança tudo.
         */}
         {hasWildcard ? (
           <div className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
             <Badge variant="warning">Acesso total (*)</Badge>
             <p className="mt-1 text-muted-foreground">
-              Este papel alcanca todo o sistema, inclusive o que for acrescentado depois. A matriz
-              abaixo mostra o que foi concedido item a item, e nao o que o curinga ja libera.
+              Este papel alcança todo o sistema, inclusive o que for acrescentado depois. A matriz
+              abaixo mostra o que foi concedido item a item, e não o que o curinga já libera.
             </p>
           </div>
         ) : null}
@@ -70,7 +70,7 @@ export function RolePermissionsDialog({ role, onClose }: RolePermissionsDialogPr
           <Skeleton className="h-64 w-full" />
         ) : catalogQuery.isError ? (
           <p role="alert" className="text-sm text-destructive">
-            Nao foi possivel carregar o catalogo de permissoes. {catalogQuery.error.message}
+            Não foi possível carregar o catálogo de permissões. {catalogQuery.error.message}
           </p>
         ) : (
           <PermissionMatrix idPrefix="role-view" catalog={catalog} value={role.permissions} />

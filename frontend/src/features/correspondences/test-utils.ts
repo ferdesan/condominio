@@ -32,7 +32,7 @@ export function makeCorrespondence(overrides: Partial<Correspondence> = {}): Cor
     status: 'PENDING',
     carrier: 'Correios',
     trackingCode: 'BR123456789BR',
-    description: 'Caixa media',
+    description: 'Caixa média',
     receivedAt: '2026-03-12T09:30:00.000Z',
     receivedBy: 'Marina Alves',
     deliveredAt: null,

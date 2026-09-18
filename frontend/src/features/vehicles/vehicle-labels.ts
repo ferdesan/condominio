@@ -16,7 +16,7 @@ export const STATUS_LABELS: Record<VehicleStatus, string> = {
 };
 
 /** Dito na coluna do vinculo quando o veiculo nao tem dono cadastrado. */
-export const NO_LINK = 'Sem vinculo';
+export const NO_LINK = 'Sem vínculo';
 
 /** Dito quando havia vinculo e a unidade referida foi removida. */
 export const UNIT_REMOVED = 'Unidade removida';

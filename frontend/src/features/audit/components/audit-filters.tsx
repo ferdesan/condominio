@@ -49,7 +49,7 @@ export function AuditFilters({ list }: AuditFiltersProps) {
   if (list.filters.action) {
     chips.push({
       id: 'action',
-      label: 'Acao',
+      label: 'Ação',
       value: labelOf(ACTION_OPTIONS, list.filters.action),
     });
   }
@@ -82,7 +82,7 @@ export function AuditFilters({ list }: AuditFiltersProps) {
             <Input
               id="audit-search"
               className="pl-10"
-              placeholder="Autor, descricao ou recurso"
+              placeholder="Autor, descrição ou recurso"
               value={list.searchInput}
               onChange={(event) => list.setSearch(event.target.value)}
             />
@@ -90,7 +90,7 @@ export function AuditFilters({ list }: AuditFiltersProps) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="audit-action">Acao</Label>
+          <Label htmlFor="audit-action">Ação</Label>
           <Select
             value={(list.filters.action as string) ?? ANY}
             onValueChange={(value) => list.setFilter('action', value === ANY ? undefined : value)}

@@ -170,4 +170,25 @@ export function selectOption(trigger: HTMLElement, name: string | RegExp): void 
   fireEvent.click(screen.getByRole('option', { name }));
 }
 
+/**
+ * Abre um `Combobox`, que nao e um select do Radix e por isso nao abre com
+ * `openSelect`: aquele trata `keydown` por conta propria, e este e um Popover,
+ * que abre no clique. No navegador o `Enter` sobre o botao vira clique sozinho;
+ * o jsdom nao faz essa traducao.
+ */
+export function openCombobox(trigger: HTMLElement): void {
+  fireEvent.click(trigger);
+}
+
+/** Abre o combobox e escolhe a opcao pelo nome acessivel. */
+export function chooseOption(trigger: HTMLElement, name: string | RegExp): void {
+  openCombobox(trigger);
+  fireEvent.click(screen.getByRole('option', { name }));
+}
+
+/** Digita na busca de um combobox ja aberto. */
+export function searchCombobox(placeholder: string, term: string): void {
+  fireEvent.change(screen.getByPlaceholderText(placeholder), { target: { value: term } });
+}
+
 export * from '@testing-library/react';

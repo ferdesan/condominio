@@ -85,7 +85,7 @@ const baseBulkGenerateSchema = z.object({
   floors: intInRange(
     BULK_MIN_FLOORS,
     BULK_MAX_FLOORS,
-    `O numero de andares deve estar entre ${BULK_MIN_FLOORS} e ${BULK_MAX_FLOORS}.`,
+    `O número de andares deve estar entre ${BULK_MIN_FLOORS} e ${BULK_MAX_FLOORS}.`,
   ),
   unitsPerFloor: intInRange(
     BULK_MIN_UNITS_PER_FLOOR,
@@ -100,11 +100,11 @@ const baseBulkGenerateSchema = z.object({
   numberPattern: z
     .string()
     .trim()
-    .min(1, 'Informe o padrao de numeracao.')
-    .max(30, 'Use no maximo 30 caracteres.'),
+    .min(1, 'Informe o padrão de numeração.')
+    .max(30, 'Use no máximo 30 caracteres.'),
   type: z.enum(UNIT_TYPES),
   monthlyFee: optionalDecimalInRange(0, 999999.99, 'A taxa deve estar entre 0 e 999999,99.'),
-  area: optionalDecimalInRange(0, 100000, 'A area deve estar entre 0 e 100000.'),
+  area: optionalDecimalInRange(0, 100000, 'A área deve estar entre 0 e 100000.'),
 });
 
 export const bulkGenerateSchema = baseBulkGenerateSchema.superRefine((values, ctx) => {
@@ -127,7 +127,7 @@ export const bulkGenerateSchema = baseBulkGenerateSchema.superRefine((values, ct
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['numberPattern'],
-      message: `O padrao produz o numero "${longest}", com ${longest.length} caracteres. O limite e ${BULK_MAX_NUMBER_LENGTH}.`,
+      message: `O padrão produz o número "${longest}", com ${longest.length} caracteres. O limite e ${BULK_MAX_NUMBER_LENGTH}.`,
     });
   }
 });

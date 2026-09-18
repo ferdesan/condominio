@@ -13,8 +13,8 @@ export function PlaceholderPage({ title }: { title: string }) {
       <PageHeader title={title} />
       <EmptyState
         icon={Construction}
-        title="Modulo em construcao"
-        description={`A API de ${title.toLowerCase()} ja esta disponivel; a tela ainda sera implementada.`}
+        title="Modulo em construção"
+        description={`A API de ${title.toLowerCase()} já esta disponível; a tela ainda será implementada.`}
       />
     </>
   );

@@ -25,7 +25,7 @@ export const THEME_LABELS: Record<ThemePreference, string> = {
 const ROLE_LABELS: Record<SystemRole, string> = {
   SUPER_ADMIN: 'Super administrador',
   ADMIN: 'Administrador',
-  SINDICO: 'Sindico',
+  SINDICO: 'Síndico',
   STAFF: 'Equipe',
   RESIDENT: 'Morador',
 };

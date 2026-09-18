@@ -25,7 +25,7 @@ export function PollResultsPanel({ pollId }: PollResultsPanelProps) {
   if (results.isError) {
     return (
       <p role="alert" className="text-sm text-destructive">
-        Nao foi possivel carregar a apuracao desta deliberacao.
+        Não foi possível carregar a apuração desta deliberação.
       </p>
     );
   }
@@ -42,12 +42,12 @@ export function PollResultsPanel({ pollId }: PollResultsPanelProps) {
           </dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">Participacao</dt>
+          <dt className="text-muted-foreground">Participação</dt>
           <dd className="font-medium tabular-nums">
             {formatPercent(data.participationPercent)}
             {/* O texto diz se o quorum foi atingido: a cor sozinha nao diria. */}
             <span className="ml-1 font-normal text-muted-foreground">
-              ({data.quorumReached ? 'quorum atingido' : 'quorum nao atingido'}, exigido{' '}
+              ({data.quorumReached ? 'quorum atingido' : 'quorum não atingido'}, exigido{' '}
               {formatPercent(data.quorumPercent)})
             </span>
           </dd>

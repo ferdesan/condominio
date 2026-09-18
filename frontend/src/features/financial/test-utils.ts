@@ -35,7 +35,7 @@ export function makeCategory(overrides: Partial<FinancialCategory> = {}): Financ
     name: 'Taxa condominial',
     kind: 'INCOME',
     code: '1.1',
-    description: 'Receita ordinaria do condominio.',
+    description: 'Receita ordinária do condomínio.',
     color: null,
     active: true,
     ...TIMESTAMPS,

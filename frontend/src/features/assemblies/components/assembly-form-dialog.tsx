@@ -125,32 +125,32 @@ export function AssemblyFormDialog({ assembly, condominiumId, onClose }: Assembl
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar assembleia' : 'Nova assembleia'}</DialogTitle>
             <DialogDescription>
-              A convocacao: o que sera deliberado, quando, onde e com que quorum.
+              A convocação: o que será deliberado, quando, onde e com que quorum.
             </DialogDescription>
           </DialogHeader>
 
           <CondominiumScopeNotice condominiumId={condominiumId} />
 
           <form onSubmit={onSubmit} noValidate className="space-y-4">
-            <FormField id="title" label="Titulo" error={errors.title?.message}>
+            <FormField id="title" label="Título" error={errors.title?.message}>
               {(aria) => <Input autoFocus maxLength={180} {...aria} {...register('title')} />}
             </FormField>
 
             {/*
               Texto longo, e nao uma linha: a pauta e uma coluna `text` com teto
               de 5000 caracteres no servidor. O `Textarea` chega com 2000 por
-              padrao, entao o limite precisa ser dito aqui — senao o proprio
+              padrão, entao o limite precisa ser dito aqui — senao o próprio
               controle cortaria a pauta antes do envio.
             */}
             <FormField
               id="description"
               label="Pauta"
               error={errors.description?.message}
-              description={`Os itens que serao deliberados. Ate ${DESCRIPTION_MAX_LENGTH.toLocaleString('pt-BR')} caracteres.`}
+              description={`Os itens que serão deliberados. Até ${DESCRIPTION_MAX_LENGTH.toLocaleString('pt-BR')} caracteres.`}
             >
               {(aria) => (
                 <Textarea
@@ -211,12 +211,12 @@ export function AssemblyFormDialog({ assembly, condominiumId, onClose }: Assembl
             </div>
 
             {/*
-              A secao se chama "Convocacao", e nao "Horario": um `legend` com o
+              A secao se chama "Convocação", e nao "Horário": um `legend` com o
               texto de um rotulo de campo deixaria duas coisas com o mesmo nome
               dentro do mesmo dialogo.
             */}
             <fieldset className="space-y-4 rounded-md border border-border p-4">
-              <legend className="px-1 text-sm font-medium">Convocacao</legend>
+              <legend className="px-1 text-sm font-medium">Convocação</legend>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <Controller
@@ -243,7 +243,7 @@ export function AssemblyFormDialog({ assembly, condominiumId, onClose }: Assembl
                       id="secondCallAt"
                       label="Segunda chamada"
                       error={fieldState.error?.message}
-                      description="Opcional. Vale quando a primeira nao atinge o quorum."
+                      description="Opcional. Vale quando a primeira não atinge o quorum."
                     >
                       {(aria) => (
                         <DateTimeInput {...aria} value={field.value} onChange={field.onChange} />
@@ -265,7 +265,7 @@ export function AssemblyFormDialog({ assembly, condominiumId, onClose }: Assembl
 
                 <FormField
                   id="quorumPercent"
-                  label="Quorum minimo (%)"
+                  label="Quorum mínimo (%)"
                   error={errors.quorumPercent?.message}
                   description="Percentual de unidades presentes exigido para deliberar."
                 >
@@ -286,7 +286,7 @@ export function AssemblyFormDialog({ assembly, condominiumId, onClose }: Assembl
                   id="onlineUrl"
                   label="Link da transmissao"
                   error={errors.onlineUrl?.message}
-                  description="Opcional. Exigido pelo servidor como endereco completo."
+                  description="Opcional. Exigido pelo servidor como endereço completo."
                 >
                   {(aria) => (
                     <Input
@@ -303,7 +303,7 @@ export function AssemblyFormDialog({ assembly, condominiumId, onClose }: Assembl
                   id="agendaUrl"
                   label="Edital"
                   error={errors.agendaUrl?.message}
-                  description="Opcional. Endereco do documento de convocacao."
+                  description="Opcional. Endereço do documento de convocação."
                 >
                   {(aria) => (
                     <Input
@@ -341,8 +341,8 @@ export function AssemblyFormDialog({ assembly, condominiumId, onClose }: Assembl
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

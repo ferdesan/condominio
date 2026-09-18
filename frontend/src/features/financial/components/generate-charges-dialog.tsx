@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -11,16 +11,10 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
@@ -35,7 +29,7 @@ import {
   type GenerateFormValues,
 } from '../financial-schema';
 
-/** Valor sentinela: o Radix nao aceita `SelectItem` com valor vazio. */
+/** Valor sentinela do "sem conta": vazio nao distingue escolher de nao ter escolhido. */
 const NONE = '__none__';
 
 export interface GenerateChargesDialogProps {
@@ -61,6 +55,15 @@ export function GenerateChargesDialog({
   categories,
   onClose,
 }: GenerateChargesDialogProps) {
+  // "Sem conta" é a primeira opção, e não um estado à parte: a classificação é
+  // opcional e voltar atrás precisa ser tão alcançável quanto escolher.
+  const categoryOptions = useMemo(
+    () => [
+      { value: NONE, label: 'Sem conta' },
+      ...categories.map((category) => ({ value: category.id, label: category.name })),
+    ],
+    [categories],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [result, setResult] = useState<GenerateChargesResult | null>(null);
 
@@ -95,12 +98,12 @@ export function GenerateChargesDialog({
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Gerar cobrancas do mes</DialogTitle>
+          <DialogTitle>Gerar cobranças do mês</DialogTitle>
           <DialogDescription>
-            Uma cobranca por unidade na competencia escolhida. Unidades que ja tiverem cobranca
-            nessa competencia sao puladas.
+            Uma cobrança por unidade na competência escolhida. Unidades que já tiverem cobrança
+            nessa competência sao puladas.
           </DialogDescription>
         </DialogHeader>
 
@@ -113,12 +116,12 @@ export function GenerateChargesDialog({
               className="rounded-md border border-border bg-muted/40 px-3 py-3 text-sm"
             >
               <p className="font-medium">
-                {formatNumber(result.created)} cobrancas geradas de {formatNumber(result.total)}{' '}
+                {formatNumber(result.created)} cobranças geradas de {formatNumber(result.total)}{' '}
                 unidades.
               </p>
               {result.skipped > 0 ? (
                 <p className="text-muted-foreground">
-                  {formatNumber(result.skipped)} ja tinham cobranca nesta competencia e foram
+                  {formatNumber(result.skipped)} já tinham cobrança nesta competência e foram
                   puladas.
                 </p>
               ) : null}
@@ -135,7 +138,7 @@ export function GenerateChargesDialog({
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 id="generate-referenceMonth"
-                label="Competencia"
+                label="Competência"
                 error={errors.referenceMonth?.message}
               >
                 {(aria) => (
@@ -150,9 +153,9 @@ export function GenerateChargesDialog({
 
             <FormField
               id="generate-description"
-              label="Descricao"
+              label="Descrição"
               error={errors.description?.message}
-              description="Aparece em todas as cobrancas geradas."
+              description="Aparece em todas as cobranças geradas."
             >
               {(aria) => <Input maxLength={180} {...aria} {...register('description')} />}
             </FormField>
@@ -168,22 +171,14 @@ export function GenerateChargesDialog({
                   description="Opcional."
                 >
                   {(aria) => (
-                    <Select
+                    <Combobox
+                      {...aria}
                       value={field.value || NONE}
                       onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                    >
-                      <SelectTrigger {...aria}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={NONE}>Sem conta</SelectItem>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={categoryOptions}
+                      searchPlaceholder="Buscar conta"
+                      emptyMessage="Nenhuma conta corresponde à busca."
+                    />
                   )}
                 </FormField>
               )}
@@ -220,7 +215,7 @@ export function GenerateChargesDialog({
                   id="generate-totalToApportion"
                   label="Total a ratear (R$)"
                   error={errors.totalToApportion?.message}
-                  description="Dividido pelas fracoes ideais das unidades."
+                  description="Dividido pelas frações ideais das unidades."
                 >
                   {(aria) => (
                     <Input

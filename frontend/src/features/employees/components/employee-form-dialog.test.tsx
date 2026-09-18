@@ -95,7 +95,7 @@ const CURRENCY_2500 = /^R\$\s?2\.500,00$/;
 
 /** O campo monetario, lido como input para conferir o texto que ele apresenta. */
 function salaryField(): HTMLInputElement {
-  return within(dialog()).getByLabelText('Salario') as HTMLInputElement;
+  return within(dialog()).getByLabelText('Salário') as HTMLInputElement;
 }
 
 /**
@@ -107,12 +107,12 @@ function salaryField(): HTMLInputElement {
  * que exercita o contrato que interessa aqui: o que sai no corpo da requisicao.
  */
 function typeSalary(value: string): void {
-  fireEvent.change(within(dialog()).getByLabelText('Salario'), { target: { value } });
+  fireEvent.change(within(dialog()).getByLabelText('Salário'), { target: { value } });
 }
 
 /** Abre o dialogo de cadastro e espera o formulario aparecer. */
 async function openCreateDialog(): Promise<void> {
-  clickTrigger(screen.getByRole('button', { name: 'Novo funcionario' }));
+  clickTrigger(screen.getByRole('button', { name: 'Novo funcionário' }));
   await screen.findByLabelText('Nome');
 }
 
@@ -127,7 +127,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Cadastro de funcionario', () => {
+describe('Cadastro de funcionário', () => {
   it('cadastra com os campos contratuais, e a lista chega atualizada sem recarregar a tela', async () => {
     serve([]);
     const user = createUser();
@@ -137,12 +137,12 @@ describe('Cadastro de funcionario', () => {
     });
     renderWithProviders(<EmployeesPage />);
 
-    await screen.findByText('Nenhum funcionario cadastrado');
+    await screen.findByText('Nenhum funcionário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Marcos Lima');
     await user.type(within(dialog()).getByLabelText('Cargo'), 'Zelador');
-    await user.type(within(dialog()).getByLabelText('Departamento'), 'Manutencao');
+    await user.type(within(dialog()).getByLabelText('Departamento'), 'Manutenção');
     await user.type(within(dialog()).getByLabelText('Admissao'), '2026-02-01');
     selectOption(within(dialog()).getByLabelText('Tipo de contrato'), 'Terceirizado');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
@@ -155,7 +155,7 @@ describe('Cadastro de funcionario', () => {
       condominiumId: 'cond-1',
       name: 'Marcos Lima',
       position: 'Zelador',
-      department: 'Manutencao',
+      department: 'Manutenção',
       contractType: 'OUTSOURCED',
       status: 'ACTIVE',
       admissionDate: '2026-02-01',
@@ -166,7 +166,7 @@ describe('Cadastro de funcionario', () => {
     expect(await screen.findByText('Marcos Lima')).toBeInTheDocument();
   });
 
-  it('o salario sai numerico no corpo da requisicao, e formatado no campo', async () => {
+  it('o salário sai numerico no corpo da requisição, e formatado no campo', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -175,7 +175,7 @@ describe('Cadastro de funcionario', () => {
     });
     renderWithProviders(<EmployeesPage />);
 
-    await screen.findByText('Nenhum funcionario cadastrado');
+    await screen.findByText('Nenhum funcionário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Marcos Lima');
@@ -193,7 +193,7 @@ describe('Cadastro de funcionario', () => {
     expect(typeof lastCreateBody().salary).toBe('number');
   });
 
-  it('sem salario informado o corpo leva nulo, e nao zero', async () => {
+  it('sem salário informado o corpo leva nulo, e não zero', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -202,7 +202,7 @@ describe('Cadastro de funcionario', () => {
     });
     renderWithProviders(<EmployeesPage />);
 
-    await screen.findByText('Nenhum funcionario cadastrado');
+    await screen.findByText('Nenhum funcionário cadastrado');
     await openCreateDialog();
 
     expect(salaryField().value).toBe('');
@@ -217,12 +217,12 @@ describe('Cadastro de funcionario', () => {
     expect(lastCreateBody().salary).toBeNull();
   });
 
-  it('o cargo e obrigatorio, e a objecao cai no proprio campo', async () => {
+  it('o cargo e obrigatório, e a objeção cai no próprio campo', async () => {
     serve([]);
     const user = createUser();
     renderWithProviders(<EmployeesPage />);
 
-    await screen.findByText('Nenhum funcionario cadastrado');
+    await screen.findByText('Nenhum funcionário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Marcos Lima');
@@ -238,7 +238,7 @@ describe('Cadastro de funcionario', () => {
     const user = createUser();
     renderWithProviders(<EmployeesPage />);
 
-    await screen.findByText('Nenhum funcionario cadastrado');
+    await screen.findByText('Nenhum funcionário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Marcos Lima');
@@ -248,13 +248,13 @@ describe('Cadastro de funcionario', () => {
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     const message = await screen.findByText(
-      'A data de desligamento nao pode ser anterior a admissao.',
+      'A data de desligamento não pode ser anterior a admissao.',
     );
     expect(message).toHaveAttribute('id', 'terminationDate-error');
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('dois envios em sequencia produzem um unico POST', async () => {
+  it('dois envios em sequência produzem um único POST', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -263,7 +263,7 @@ describe('Cadastro de funcionario', () => {
     });
     renderWithProviders(<EmployeesPage />);
 
-    await screen.findByText('Nenhum funcionario cadastrado');
+    await screen.findByText('Nenhum funcionário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Marcos Lima');
@@ -277,8 +277,8 @@ describe('Cadastro de funcionario', () => {
   });
 });
 
-describe('Falhas do servidor no formulario de funcionario', () => {
-  it('um 422 que aponta o campo aparece nele, e nao em toast', async () => {
+describe('Falhas do servidor no formulário de funcionário', () => {
+  it('um 422 que aponta o campo aparece nele, e não em toast', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockRejectedValue(
@@ -288,7 +288,7 @@ describe('Falhas do servidor no formulario de funcionario', () => {
     );
     renderWithProviders(<EmployeesPage />);
 
-    await screen.findByText('Nenhum funcionario cadastrado');
+    await screen.findByText('Nenhum funcionário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Marcos Lima');
@@ -304,15 +304,15 @@ describe('Falhas do servidor no formulario de funcionario', () => {
     expect(screen.queryByText('Dados invalidos.')).not.toBeInTheDocument();
   });
 
-  it('um 409 sem detalhe de campo vira mensagem do formulario, preservando o preenchido', async () => {
+  it('um 409 sem detalhe de campo vira mensagem do formulário, preservando o preenchido', async () => {
     serve([]);
     const user = createUser();
     mockPost.mockRejectedValue(
-      new ApiError('CPF informado e invalido.', 409, 'BUSINESS_RULE_VIOLATION'),
+      new ApiError('CPF informado e inválido.', 409, 'BUSINESS_RULE_VIOLATION'),
     );
     renderWithProviders(<EmployeesPage />);
 
-    await screen.findByText('Nenhum funcionario cadastrado');
+    await screen.findByText('Nenhum funcionário cadastrado');
     await openCreateDialog();
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Marcos Lima');
@@ -321,7 +321,7 @@ describe('Falhas do servidor no formulario de funcionario', () => {
     typeSalary('3200');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
-    expect(await screen.findByText('CPF informado e invalido.')).toBeInTheDocument();
+    expect(await screen.findByText('CPF informado e inválido.')).toBeInTheDocument();
     // O dialogo fica, com os valores no lugar, para a correcao.
     expect(within(dialog()).getByLabelText('Nome')).toHaveValue('Marcos Lima');
     expect(within(dialog()).getByLabelText('Cargo')).toHaveValue('Zelador');
@@ -330,8 +330,8 @@ describe('Falhas do servidor no formulario de funcionario', () => {
   });
 });
 
-describe('Edicao de funcionario', () => {
-  it('os valores atuais chegam preenchidos, com o salario ja formatado', async () => {
+describe('Edição de funcionário', () => {
+  it('os valores atuais chegam preenchidos, com o salário já formatado', async () => {
     serve([makeEmployee({ salary: 2500 })]);
     const user = createUser();
     mockPatch.mockImplementation(async () => {

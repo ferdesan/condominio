@@ -48,8 +48,8 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
       {condominiums.length > 0 ? (
         <div className="min-w-0 flex-1 sm:max-w-xs">
           <Select value={selectedId ?? undefined} onValueChange={select}>
-            <SelectTrigger aria-label="Condominio selecionado">
-              <SelectValue placeholder="Selecione o condominio" />
+            <SelectTrigger aria-label="Condomínio selecionado">
+              <SelectValue placeholder="Selecione o condomínio" />
             </SelectTrigger>
             <SelectContent>
               {condominiums.map((condominium) => (

@@ -24,11 +24,11 @@ export function makeDocument(overrides: Partial<DocumentFile> = {}): DocumentFil
   return {
     id: 'document-1',
     condominiumId: 'cond-1',
-    title: 'Convencao do condominio',
-    description: 'Texto registrado em cartorio.',
+    title: 'Convenção do condomínio',
+    description: 'Texto registrado em cartório.',
     category: 'CONVENTION',
     visibility: 'RESIDENTS',
-    fileName: 'convencao.pdf',
+    fileName: 'convenção.pdf',
     mimeType: 'application/pdf',
     sizeBytes: 524_288,
     version: 1,
@@ -98,6 +98,6 @@ export function lastListParams(): RequestParams {
 
 /** O corpo multipart do ultimo envio, ja legivel como pares chave/valor. */
 export function uploadedFields(data: unknown): Record<string, unknown> {
-  if (!(data instanceof FormData)) throw new Error('O envio nao foi multipart.');
+  if (!(data instanceof FormData)) throw new Error('O envio não foi multipart.');
   return Object.fromEntries(data.entries());
 }

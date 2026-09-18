@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DateTimeInput } from '@/components/ui/date-time-input';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import {
@@ -71,6 +72,29 @@ export function CorrespondenceFormDialog({
 }: CorrespondenceFormDialogProps) {
   const isEdit = Boolean(correspondence);
   const queryClient = useQueryClient();
+
+  // A lista inteira do condomínio cabe no seletor, mas não cabe no olho: sem
+  // busca, escolher uma unidade vira rolagem.
+  const unitOptions = useMemo(
+    () => units.map((unit) => ({ value: unit.id, label: unitLabel(unit) })),
+    [units],
+  );
+
+  // "Sem destinatário" é a primeira opção, e não um estado à parte: o vínculo é
+  // opcional no servidor e voltar atrás precisa ser tão alcançável quanto
+  // escolher. A unidade vai como dica porque nome não identifica morador — dois
+  // cadastros podem trazer o mesmo — e ela também entra na busca.
+  const residentOptions = useMemo(
+    () => [
+      { value: NONE, label: NO_RESIDENT },
+      ...residents.map((resident) => ({
+        value: resident.id,
+        label: resident.name,
+        hint: resident.unit ? unitLabel(resident.unit) : undefined,
+      })),
+    ],
+    [residents],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
@@ -132,9 +156,9 @@ export function CorrespondenceFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar correspondencia' : 'Nova correspondencia'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar correspondência' : 'Nova correspondência'}</DialogTitle>
             <DialogDescription>
               O que chegou, para qual unidade e quando a portaria recebeu.
             </DialogDescription>
@@ -143,8 +167,8 @@ export function CorrespondenceFormDialog({
           <CondominiumScopeNotice condominiumId={condominiumId} />
 
           <form onSubmit={onSubmit} noValidate className="space-y-6">
-            <FormSection title="Correspondencia">
-              <FormField id="description" label="Descricao" error={errors.description?.message}>
+            <FormSection title="Correspondência">
+              <FormField id="description" label="Descrição" error={errors.description?.message}>
                 {(aria) => <Input autoFocus {...aria} {...register('description')} />}
               </FormField>
 
@@ -200,7 +224,7 @@ export function CorrespondenceFormDialog({
 
               <FormField
                 id="trackingCode"
-                label="Codigo de rastreio"
+                label="Código de rastreio"
                 error={errors.trackingCode?.message}
               >
                 {(aria) => <Input {...aria} {...register('trackingCode')} />}
@@ -225,28 +249,25 @@ export function CorrespondenceFormDialog({
                     id="unitId"
                     label="Unidade"
                     error={fieldState.error?.message}
-                    description="Apenas unidades do condominio selecionado."
+                    description="Apenas unidades do condomínio selecionado."
                   >
                     {(aria) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger {...aria}>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {units.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unitLabel(unit)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        {...aria}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        options={unitOptions}
+                        placeholder="Selecione"
+                        searchPlaceholder="Buscar unidade"
+                        emptyMessage="Nenhuma unidade corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}
               />
 
               {/*
-                O destinatario nominal e opcional no servidor: a portaria nem
+                O destinatário nominal e opcional no servidor: a portaria nem
                 sempre identifica para quem da unidade a encomenda veio.
               */}
               <Controller
@@ -255,27 +276,19 @@ export function CorrespondenceFormDialog({
                 render={({ field, fieldState }) => (
                   <FormField
                     id="residentId"
-                    label="Destinatario"
+                    label="Destinatário"
                     error={fieldState.error?.message}
-                    description="Opcional. Apenas moradores do condominio selecionado."
+                    description="Opcional. Apenas moradores do condomínio selecionado."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value === '' ? NONE : field.value}
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>{NO_RESIDENT}</SelectItem>
-                          {residents.map((resident) => (
-                            <SelectItem key={resident.id} value={resident.id}>
-                              {resident.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={residentOptions}
+                        searchPlaceholder="Buscar por nome ou unidade"
+                        emptyMessage="Nenhum morador corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}
@@ -305,7 +318,7 @@ export function CorrespondenceFormDialog({
               </FormField>
             </FormSection>
 
-            <FormField id="notes" label="Observacoes" error={errors.notes?.message}>
+            <FormField id="notes" label="Observações" error={errors.notes?.message}>
               {(aria) => <Textarea {...aria} {...register('notes')} />}
             </FormField>
 
@@ -332,8 +345,8 @@ export function CorrespondenceFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

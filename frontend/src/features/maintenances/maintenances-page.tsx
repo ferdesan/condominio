@@ -40,7 +40,7 @@ import { MaintenanceStatusBadge } from './components/maintenance-status-badge';
 import { UpcomingMaintenances } from './components/upcoming-maintenances';
 
 const DESCRIPTION =
-  'As ordens de manutencao do predio: o que esta agendado, o que esta em execucao e o que ja foi concluido.';
+  'As ordens de manutenção do predio: o que esta agendado, o que esta em execução e o que já foi concluido.';
 
 /**
  * `maintenance: null` cadastra; um registro edita. Ausente mantem o dialogo
@@ -206,7 +206,7 @@ export function MaintenancesPage() {
   const columns: Column<Maintenance>[] = [
     {
       key: 'title',
-      label: 'Titulo',
+      label: 'Título',
       sortable: true,
       render: (_value, row) => (
         <div className="flex items-center gap-2">
@@ -237,7 +237,7 @@ export function MaintenancesPage() {
     },
     {
       key: 'recurrence',
-      label: 'Recorrencia',
+      label: 'Recorrência',
       sortable: true,
       render: (_value, row) => RECURRENCE_LABELS[row.recurrence],
     },
@@ -257,13 +257,13 @@ export function MaintenancesPage() {
     },
     {
       key: 'responsibleId',
-      label: 'Responsavel',
+      label: 'Responsável',
       sortable: true,
       render: (_value, row) => responsibleCell(row),
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => (
         <MaintenanceRowActions
           maintenance={row}
@@ -287,13 +287,13 @@ export function MaintenancesPage() {
   if (!selectedId) {
     return (
       <CrudLayout
-        header={<PageHeader title="Manutencoes" description={DESCRIPTION} />}
+        header={<PageHeader title="Manutenções" description={DESCRIPTION} />}
         content={
           <div className="p-4">
             <EmptyState
               icon={Building2}
-              title="Selecione um condominio"
-              description="As manutencoes sao listadas por condominio. Escolha um no topo da tela para continuar."
+              title="Selecione um condomínio"
+              description="As manutenções sao listadas por condomínio. Escolha um no topo da tela para continuar."
             />
           </div>
         }
@@ -307,14 +307,14 @@ export function MaintenancesPage() {
         header={
           <div className="space-y-4">
             <PageHeader
-              title="Manutencoes"
+              title="Manutenções"
               description={DESCRIPTION}
               actions={
                 canCreate ? (
                   <Button
                     onClick={() => setFormTarget({ maintenance: null, condominiumId: selectedId })}
                   >
-                    Nova manutencao
+                    Nova manutenção
                   </Button>
                 ) : undefined
               }
@@ -338,7 +338,7 @@ export function MaintenancesPage() {
                 <EmptyState
                   icon={SearchX}
                   title="Nenhum resultado para esta busca"
-                  description="Nenhuma manutencao corresponde aos termos e filtros aplicados."
+                  description="Nenhuma manutenção corresponde aos termos e filtros aplicados."
                   action={
                     <Button
                       variant="outline"
@@ -354,8 +354,8 @@ export function MaintenancesPage() {
               ) : (
                 <EmptyState
                   icon={Wrench}
-                  title="Nenhuma manutencao registrada"
-                  description="Nenhuma ordem foi aberta para este condominio ate agora."
+                  title="Nenhuma manutenção registrada"
+                  description="Nenhuma ordem foi aberta para este condomínio até agora."
                   action={
                     canCreate ? (
                       <Button
@@ -363,7 +363,7 @@ export function MaintenancesPage() {
                           setFormTarget({ maintenance: null, condominiumId: selectedId })
                         }
                       >
-                        Agendar manutencao
+                        Agendar manutenção
                       </Button>
                     ) : undefined
                   }
@@ -407,7 +407,7 @@ export function MaintenancesPage() {
 
       <ConfirmDialog
         open={deleting !== null}
-        title="Excluir manutencao?"
+        title="Excluir manutenção?"
         description={
           deleting
             ? `${deleting.title} deixara de aparecer na listagem. A exclusao e logica e pode ser desfeita.`

@@ -34,7 +34,7 @@ const tenantFields = z.object({
     .string()
     .trim()
     .min(3, 'Informe o nome da administradora.')
-    .max(150, 'Use no maximo 150 caracteres.'),
+    .max(150, 'Use no máximo 150 caracteres.'),
   /** CNPJ: o servidor normaliza para digitos e exige exatamente catorze. */
   document: z
     .string()
@@ -46,17 +46,17 @@ const tenantFields = z.object({
     .string()
     .trim()
     .refine((value) => value === '' || z.string().email().safeParse(value).success, {
-      message: 'E-mail invalido.',
+      message: 'E-mail inválido.',
     })
-    .refine((value) => value.length <= 180, { message: 'Use no maximo 180 caracteres.' }),
+    .refine((value) => value.length <= 180, { message: 'Use no máximo 180 caracteres.' }),
   /** Opcional, mas o servidor exige forma quando presente (`phoneSchema`). */
   phone: z
     .string()
     .trim()
     .refine((value) => value === '' || value.replace(/\D/g, '').length >= 8, {
-      message: 'Telefone invalido.',
+      message: 'Telefone inválido.',
     })
-    .refine((value) => value.length <= 20, { message: 'Use no maximo 20 caracteres.' }),
+    .refine((value) => value.length <= 20, { message: 'Use no máximo 20 caracteres.' }),
   /** O servidor exige URL absoluta quando presente; vazio limpa o campo. */
   logoUrl: z
     .string()
@@ -64,7 +64,7 @@ const tenantFields = z.object({
     .refine((value) => value === '' || z.string().url().safeParse(value).success, {
       message: 'Informe uma URL completa, comecando com http:// ou https://.',
     })
-    .refine((value) => value.length <= 255, { message: 'Use no maximo 255 caracteres.' }),
+    .refine((value) => value.length <= 255, { message: 'Use no máximo 255 caracteres.' }),
 
   // -------------------------------------------------------------------------
   // Politica de encargos: os tres campos de `settings` que tem leitor
@@ -74,8 +74,8 @@ const tenantFields = z.object({
     min: 0,
     max: GRACE_DAYS_MAX,
     integer: true,
-    required: 'Informe os dias de carencia.',
-    range: `Use um numero inteiro de 0 a ${GRACE_DAYS_MAX}.`,
+    required: 'Informe os dias de carência.',
+    range: `Use um número inteiro de 0 a ${GRACE_DAYS_MAX}.`,
   }),
   latePenaltyPercent: numericField({
     min: 0,

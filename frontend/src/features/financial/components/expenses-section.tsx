@@ -110,12 +110,12 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
   if (list.filters.status) {
     chips.push({
       id: 'status',
-      label: 'Situacao',
+      label: 'Situação',
       value: EXPENSE_STATUS_LABELS[list.filters.status as keyof typeof EXPENSE_STATUS_LABELS],
     });
   }
   if (list.filters.competence) {
-    chips.push({ id: 'competence', label: 'Competencia', value: String(list.filters.competence) });
+    chips.push({ id: 'competence', label: 'Competência', value: String(list.filters.competence) });
   }
   if (list.filters.categoryId) {
     chips.push({
@@ -168,7 +168,7 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
         return provider?.tradeName ?? provider?.companyName ?? row.serviceProviderId;
       },
     },
-    { key: 'competence', label: 'Competencia', sortable: true },
+    { key: 'competence', label: 'Competência', sortable: true },
     {
       // Nao ordenavel: `dueDate` e o `defaultSort` e nao entra no conjunto
       // ordenavel do servidor.
@@ -185,13 +185,13 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
     },
     {
       key: 'status',
-      label: 'Situacao',
+      label: 'Situação',
       sortable: true,
       render: (_value, row) => <ExpenseStatusBadge status={row.status} />,
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (_value, row) => {
         const label = expenseLabel(row);
 
@@ -266,7 +266,7 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
               <Input
                 id="expense-search"
                 className="pl-10"
-                placeholder="Descricao ou nota fiscal"
+                placeholder="Descrição ou nota fiscal"
                 value={list.searchInput}
                 onChange={(event) => list.setSearch(event.target.value)}
               />
@@ -274,7 +274,7 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="expense-status-filter">Situacao</Label>
+            <Label htmlFor="expense-status-filter">Situação</Label>
             <Select
               value={(list.filters.status as string) ?? ANY}
               onValueChange={(value) => list.setFilter('status', value === ANY ? undefined : value)}
@@ -294,7 +294,7 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="expense-month-filter">Competencia</Label>
+            <Label htmlFor="expense-month-filter">Competência</Label>
             <Input
               id="expense-month-filter"
               type="month"
@@ -366,7 +366,7 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
           <EmptyState
             icon={Wallet}
             title="Nenhuma despesa lancada"
-            description="Folha, agua, energia e contratos entram aqui, com competencia e vencimento."
+            description="Folha, água, energia e contratos entram aqui, com competência e vencimento."
           />
         )
       ) : (

@@ -71,8 +71,8 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('Indicadores de ocupacao', () => {
-  it('IT-080: total, ocupadas e disponiveis vem das contagens escopadas ao condominio', async () => {
+describe('Indicadores de ocupação', () => {
+  it('IT-080: total, ocupadas e disponíveis vem das contagens escopadas ao condomínio', async () => {
     serve({ total: 48, OCCUPIED: 30, VACANT: 18 });
     renderWithProviders(<UnitsPage />);
 
@@ -80,7 +80,7 @@ describe('Indicadores de ocupacao', () => {
       expect(within(indicator('Total de unidades')).getByText('48')).toBeInTheDocument(),
     );
     expect(within(indicator('Unidades ocupadas')).getByText('30')).toBeInTheDocument();
-    expect(within(indicator('Unidades disponiveis')).getByText('18')).toBeInTheDocument();
+    expect(within(indicator('Unidades disponíveis')).getByText('18')).toBeInTheDocument();
 
     // Uma pagina de um registro por indicador: nao existe endpoint de agregacao.
     const calls = countCalls();
@@ -91,7 +91,7 @@ describe('Indicadores de ocupacao', () => {
     expect(calls.map((params) => params.status)).toEqual([undefined, 'OCCUPIED', 'VACANT']);
   });
 
-  it('IT-081: condominio sem unidades mostra zeros, distintos do carregamento', async () => {
+  it('IT-081: condomínio sem unidades mostra zeros, distintos do carregamento', async () => {
     serve({ total: 0, OCCUPIED: 0, VACANT: 0 });
     renderWithProviders(<UnitsPage />);
 
@@ -99,12 +99,12 @@ describe('Indicadores de ocupacao', () => {
       expect(within(indicator('Total de unidades')).getByText('0')).toBeInTheDocument(),
     );
     expect(within(indicator('Unidades ocupadas')).getByText('0')).toBeInTheDocument();
-    expect(within(indicator('Unidades disponiveis')).getByText('0')).toBeInTheDocument();
+    expect(within(indicator('Unidades disponíveis')).getByText('0')).toBeInTheDocument();
     // Zero e um numero; carregando seria um esqueleto no lugar dele.
     expect(document.querySelectorAll('.animate-pulse')).toHaveLength(0);
   });
 
-  it('IT-082: reforma e bloqueada entram no total e as tres figuras fecham', async () => {
+  it('IT-082: reforma e bloqueada entram no total e as três figuras fecham', async () => {
     serve({ total: 10, OCCUPIED: 6, VACANT: 3 });
     renderWithProviders(<UnitsPage />);
 
@@ -112,7 +112,7 @@ describe('Indicadores de ocupacao', () => {
       expect(within(indicator('Total de unidades')).getByText('10')).toBeInTheDocument(),
     );
     expect(within(indicator('Unidades ocupadas')).getByText('6')).toBeInTheDocument();
-    expect(within(indicator('Unidades disponiveis')).getByText('3')).toBeInTheDocument();
+    expect(within(indicator('Unidades disponíveis')).getByText('3')).toBeInTheDocument();
 
     // A diferenca e nomeada, entao 6 + 3 + 1 = 10 sem sugerir que uma unidade
     // esteja em dois estados ao mesmo tempo.
@@ -128,7 +128,7 @@ describe('Indicadores de ocupacao', () => {
     // 5xx ainda passa pelas duas tentativas que o cliente faz antes de desistir.
     expect(
       await screen.findByText(
-        'Nao foi possivel carregar os indicadores de ocupacao.',
+        'Não foi possível carregar os indicadores de ocupação.',
         {},
         { timeout: 15_000 },
       ),
@@ -145,14 +145,14 @@ describe('Indicadores de ocupacao', () => {
       expect(within(indicator('Total de unidades')).getByText('48')).toBeInTheDocument(),
     );
 
-    expect(screen.getByText(/Indicadores de todo o condominio selecionado\./)).toBeInTheDocument();
-    expect(screen.queryByText(/os filtros da lista nao se aplicam/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Indicadores de todo o condomínio selecionado\./)).toBeInTheDocument();
+    expect(screen.queryByText(/os filtros da lista não se aplicam/)).not.toBeInTheDocument();
 
     clickTrigger(screen.getByLabelText('Ocupada'));
 
     // Os numeros continuam sendo do condominio inteiro; o rotulo passa a dizer isso.
     expect(
-      await screen.findByText(/os filtros da lista nao se aplicam a eles/),
+      await screen.findByText(/os filtros da lista não se aplicam a eles/),
     ).toBeInTheDocument();
     expect(within(indicator('Total de unidades')).getByText('48')).toBeInTheDocument();
   });

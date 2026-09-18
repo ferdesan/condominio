@@ -82,7 +82,7 @@ beforeEach(() => {
 });
 
 describe('Cadastro de unidade', () => {
-  it('IT-052: cadastra a unidade no condominio do shell e atualiza a lista', async () => {
+  it('IT-052: cadastra a unidade no condomínio do shell e atualiza a lista', async () => {
     serve([], [TOWER_A]);
     const created = makeUnit({ id: 'unit-9', number: '101', block: TOWER_A });
     mockPost.mockResolvedValue(created);
@@ -91,9 +91,9 @@ describe('Cadastro de unidade', () => {
     await screen.findByText('Nenhuma unidade cadastrada');
 
     clickTrigger(screen.getByRole('button', { name: 'Cadastrar unidade' }));
-    await screen.findByLabelText('Numero');
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await screen.findByLabelText('Número');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
 
     // Os blocos pedidos pela tela ja vieram escopados ao condominio do shell.
     expect(mockGetPaginated).toHaveBeenCalledWith(
@@ -116,25 +116,25 @@ describe('Cadastro de unidade', () => {
     expect(await screen.findByText('101')).toBeInTheDocument();
   });
 
-  it('IT-053: 409 de numero duplicado aparece no formulario e preserva o preenchido', async () => {
-    const message = 'Ja existe uma unidade com este numero neste bloco.';
+  it('IT-053: 409 de número duplicado aparece no formulário e preserva o preenchido', async () => {
+    const message = 'Já existe uma unidade com este número neste bloco.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'CONFLICT'));
     const user = createUser();
     renderForm();
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
     submit('Cadastrar');
 
     expect(await screen.findByText(message)).toBeInTheDocument();
     // Sem detalhe de campo, nenhum controle e marcado como invalido.
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByLabelText('Numero')).toHaveValue('101');
+    expect(screen.getByLabelText('Número')).toHaveValue('101');
     // A mensagem inline substitui o toast global, nao soma a ele.
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('IT-054: o seletor oferece apenas os blocos do condominio selecionado', async () => {
+  it('IT-054: o seletor oferece apenas os blocos do condomínio selecionado', async () => {
     serve([makeUnit()], [TOWER_A, TOWER_B]);
     renderWithProviders(<UnitsPage />);
     await screen.findByText('101');
@@ -145,82 +145,82 @@ describe('Cadastro de unidade', () => {
     );
 
     clickTrigger(screen.getByRole('button', { name: 'Nova unidade' }));
-    await screen.findByLabelText('Numero');
+    await screen.findByLabelText('Número');
 
     openSelect(within(screen.getByRole('dialog')).getByLabelText('Bloco'));
     const options = screen.getAllByRole('option').map((option) => option.textContent);
     expect(options).toEqual(['Torre A', 'Torre B']);
   });
 
-  it('IT-055: 409 de bloco em outro condominio aparece com a mensagem do servidor', async () => {
-    const message = 'O bloco informado pertence a outro condominio.';
+  it('IT-055: 409 de bloco em outro condomínio aparece com a mensagem do servidor', async () => {
+    const message = 'O bloco informado pertence a outro condomínio.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'BUSINESS_RULE_VIOLATION'));
     const user = createUser();
     renderForm();
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
     submit('Cadastrar');
 
     expect(await screen.findByText(message)).toBeInTheDocument();
   });
 
-  it('IT-056: andar 201 e fracao 1.5 param antes da requisicao', async () => {
+  it('IT-056: andar 201 e fração 1.5 param antes da requisição', async () => {
     const user = createUser();
     renderForm();
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
     await user.clear(screen.getByLabelText('Andar'));
     await user.type(screen.getByLabelText('Andar'), '201');
-    await user.type(screen.getByLabelText('Fracao ideal'), '1.5');
+    await user.type(screen.getByLabelText('Fração ideal'), '1.5');
     submit('Cadastrar');
 
     expect(await screen.findByText('O andar deve estar entre -10 e 200.')).toBeInTheDocument();
-    expect(screen.getByText('A fracao ideal deve estar entre 0 e 1.')).toBeInTheDocument();
+    expect(screen.getByText('A fração ideal deve estar entre 0 e 1.')).toBeInTheDocument();
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('IT-057: dois cliques seguidos produzem uma unica requisicao', async () => {
+  it('IT-057: dois cliques seguidos produzem uma única requisição', async () => {
     mockPost.mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve(makeUnit()), 50)),
     );
     const user = createUser();
     renderForm();
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '101');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '101');
     submit('Cadastrar');
     submit('Cadastrar');
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
   });
 
-  it('IT-058: 409 por numero de unidade removida mostra a mensagem do servidor', async () => {
-    const message = 'Ja existe uma unidade com este numero neste bloco.';
+  it('IT-058: 409 por número de unidade removida mostra a mensagem do servidor', async () => {
+    const message = 'Já existe uma unidade com este número neste bloco.';
     mockPost.mockRejectedValue(new ApiError(message, 409, 'CONFLICT'));
     const user = createUser();
     renderForm();
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '999');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '999');
     submit('Cadastrar');
 
     // Nada de "falha inesperada": a explicacao do servidor e a que aparece.
     expect(await screen.findByText(message)).toBeInTheDocument();
   });
 
-  it('IT-059: sem blocos, o seletor oferece a criacao no lugar de uma lista vazia', async () => {
+  it('IT-059: sem blocos, o seletor oferece a criação no lugar de uma lista vazia', async () => {
     renderForm({ blocks: [] });
 
     expect(screen.getByRole('button', { name: 'Cadastrar o primeiro bloco' })).toBeInTheDocument();
-    expect(screen.getByText(/ainda nao tem blocos/i)).toBeInTheDocument();
+    expect(screen.getByText(/ainda não tem blocos/i)).toBeInTheDocument();
     expect(screen.queryByRole('combobox', { name: 'Bloco' })).not.toBeInTheDocument();
   });
 });
 
-describe('Edicao de unidade', () => {
-  it('IT-068: edita numero e taxa e a lista reflete a mudanca', async () => {
+describe('Edição de unidade', () => {
+  it('IT-068: edita número e taxa e a lista reflete a mudança', async () => {
     const unit = makeUnit({ number: '101', monthlyFee: 850, block: TOWER_A });
     serve([unit], [TOWER_A]);
     const updated = makeUnit({ ...unit, number: '102', monthlyFee: 900 });
@@ -230,13 +230,13 @@ describe('Edicao de unidade', () => {
     await screen.findByText('101');
 
     clickTrigger(screen.getByRole('button', { name: 'Editar unidade 101' }));
-    await screen.findByLabelText('Numero');
+    await screen.findByLabelText('Número');
     // Os valores atuais ja chegam preenchidos, bloco inclusive.
-    expect(screen.getByLabelText('Numero')).toHaveValue('101');
+    expect(screen.getByLabelText('Número')).toHaveValue('101');
     expect(within(screen.getByRole('dialog')).getByLabelText('Bloco')).toHaveTextContent('Torre A');
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '102');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '102');
     await user.clear(screen.getByLabelText('Taxa mensal'));
     await user.type(screen.getByLabelText('Taxa mensal'), '900');
     serve([updated], [TOWER_A]);
@@ -250,19 +250,19 @@ describe('Edicao de unidade', () => {
     expect(await screen.findByText('102')).toBeInTheDocument();
   });
 
-  it('IT-069: 409 de numero em uso mantem o dialogo aberto', async () => {
-    const message = 'Ja existe uma unidade com este numero neste bloco.';
+  it('IT-069: 409 de número em uso mantem o dialogo aberto', async () => {
+    const message = 'Já existe uma unidade com este número neste bloco.';
     mockPatch.mockRejectedValue(new ApiError(message, 409, 'CONFLICT'));
     const user = createUser();
     renderForm({ unit: makeUnit({ number: '101' }) });
 
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '102');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '102');
     submit('Salvar');
 
     expect(await screen.findByText(message)).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByLabelText('Numero')).toHaveValue('102');
+    expect(screen.getByLabelText('Número')).toHaveValue('102');
   });
 
   it('IT-070: status enviado como ocupada aparece como o servidor devolveu', async () => {
@@ -275,7 +275,7 @@ describe('Edicao de unidade', () => {
     await screen.findByText('101');
 
     clickTrigger(screen.getByRole('button', { name: 'Editar unidade 101' }));
-    await screen.findByLabelText('Numero');
+    await screen.findByLabelText('Número');
     // A tela explica a interacao em vez de deixar o campo parecer livre.
     expect(screen.getByText(/recalculadas a partir dos moradores/i)).toBeInTheDocument();
 
@@ -295,7 +295,7 @@ describe('Edicao de unidade', () => {
     expect(within(row).queryByText('Ocupada')).not.toBeInTheDocument();
   });
 
-  it('IT-071: status em reforma persiste, porque o recalculo nao o sobrescreve', async () => {
+  it('IT-071: status em reforma persiste, porque o recalculo não o sobrescreve', async () => {
     const unit = makeUnit({ number: '101', status: 'VACANT', block: TOWER_A });
     serve([unit], [TOWER_A]);
     const saved = makeUnit({ ...unit, status: 'RENOVATION' });
@@ -304,7 +304,7 @@ describe('Edicao de unidade', () => {
     await screen.findByText('101');
 
     clickTrigger(screen.getByRole('button', { name: 'Editar unidade 101' }));
-    await screen.findByLabelText('Numero');
+    await screen.findByLabelText('Número');
 
     serve([saved], [TOWER_A]);
     selectOption(within(screen.getByRole('dialog')).getByLabelText('Status'), 'Em reforma');
@@ -319,7 +319,7 @@ describe('Edicao de unidade', () => {
     expect(within(row).getByText('Em reforma')).toBeInTheDocument();
   });
 
-  it('IT-072: o campo de bloco e oferecido na edicao e validado contra o condominio', async () => {
+  it('IT-072: o campo de bloco e oferecido na edição e validado contra o condomínio', async () => {
     mockPatch.mockResolvedValue(makeUnit({ blockId: 'block-2' }));
     renderForm({
       unit: makeUnit({ number: '101', blockId: 'block-1' }),
@@ -340,18 +340,18 @@ describe('Edicao de unidade', () => {
     );
   });
 
-  it('IT-073: 404 na edicao fecha o dialogo e recarrega a lista', async () => {
+  it('IT-073: 404 na edição fecha o dialogo e recarrega a lista', async () => {
     const unit = makeUnit({ number: '101', block: TOWER_A });
     serve([unit], [TOWER_A]);
-    mockPatch.mockRejectedValue(new ApiError('Unidade nao encontrado.', 404, 'NOT_FOUND'));
+    mockPatch.mockRejectedValue(new ApiError('Unidade não encontrado.', 404, 'NOT_FOUND'));
     const user = createUser();
     renderWithProviders(<UnitsPage />);
     await screen.findByText('101');
 
     clickTrigger(screen.getByRole('button', { name: 'Editar unidade 101' }));
-    await screen.findByLabelText('Numero');
-    await user.clear(screen.getByLabelText('Numero'));
-    await user.type(screen.getByLabelText('Numero'), '102');
+    await screen.findByLabelText('Número');
+    await user.clear(screen.getByLabelText('Número'));
+    await user.type(screen.getByLabelText('Número'), '102');
 
     const listCallsBefore = mockGetPaginated.mock.calls.length;
     serve([], [TOWER_A]);

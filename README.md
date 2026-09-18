@@ -19,6 +19,41 @@ Sistema multi-tenant completo para gestão de condomínios com autenticação, a
 - ✅ **Validação**: Zod para validação de schemas
 - ✅ **CI/CD Automatizado**: GitHub Actions com testes e segurança
 - ✅ **Docker**: Ambiente containerizado pronto para produção
+- ✅ **Conformidade LGPD**: Pedido de exclusão, anonimização em cascata, exportação de dados e registro de consentimento
+- ✅ **Trilha de Auditoria**: Registro *append-only* de quem mudou o quê e quando
+
+## 📱 Módulos Implementados
+
+A navegação tem **25 telas**, todas ligadas à API — nenhuma é protótipo. Cada
+item do menu é guardado pela mesma permissão que o servidor exige na rota
+correspondente, então um papel sem acesso não vê o item nem alcança a URL.
+
+| Área | Telas |
+| --- | --- |
+| **Visão geral** | Dashboard |
+| **Estrutura** | Condomínios · Blocos e torres · Unidades |
+| **Pessoas** | Moradores · Dependentes · Funcionários · Prestadores |
+| **Portaria** | Visitantes · Veículos · Correspondências |
+| **Convivência** | Áreas comuns · Reservas · Assembleias · Comunicados |
+| **Operação** | Financeiro · Ocorrências · Manutenções · Documentos |
+| **Administração** | Notificações · Usuários · Papéis · Auditoria · Configurações |
+| **Privacidade** | LGPD |
+
+O backend expõe **27 módulos** sob `/api/v1`, incluindo os que não têm tela
+própria: `auth`, `dashboard` e `health`.
+
+### Recortes que valem saber
+
+- **Multi-tenant por administradora.** Quase todo recurso é escopado por
+  condomínio e segue o seletor do topo. As exceções são por *tenant* e não
+  seguem esse seletor: `Usuários`, `Papéis`, `Auditoria`, `Configurações` e
+  `LGPD`.
+- **A trilha de auditoria não tem escrita.** São duas rotas, ambas de leitura:
+  a trilha é *append-only* por exigência da LGPD (art. 37) e da prestação de
+  contas. Não existe criar, editar nem excluir — nem no servidor, nem na tela.
+- **Documentos têm matriz de visibilidade própria.** Cinco níveis
+  (`PUBLIC`, `RESIDENTS`, `OWNERS`, `STAFF`, `ADMIN`) decidem quem baixa o quê,
+  e o arquivo só é servido pela rota autenticada de download.
 
 ## 🛠 Stack Tecnológico
 
@@ -155,6 +190,20 @@ npm run docker:prune           # Limpeza de volumes e imagens
 | MySQL | localhost:3306 | admin | admin123 |
 | Redis | localhost:6379 | - | - |
 
+### Entrar na aplicação
+
+O seed cria um usuário por papel, todos com a senha `Demo@1234` e o *tenant*
+`demo`. Entrar com papéis diferentes é a forma mais rápida de ver o RBAC em
+ação: o menu encolhe e as rotas passam a negar acesso.
+
+| Papel | E-mail |
+| --- | --- |
+| Super admin | `super@condominio.app` |
+| Administrador | `admin@horizonte.com.br` |
+| Síndico | `sindico@parqueflores.com.br` |
+| Portaria | `portaria@parqueflores.com.br` |
+| Morador | `morador@parqueflores.com.br` |
+
 ## 🌍 Variáveis de Ambiente
 
 Veja `.env.example` para lista completa de variáveis. Principais:
@@ -186,30 +235,38 @@ VITE_API_URL=http://localhost:3333
 condominio/
 ├── backend/                 # API Node.js/Express
 │   ├── src/
-│   │   ├── config/         # Configurações
-│   │   ├── database/       # Migrations, seeds
-│   │   ├── modules/        # Módulos da aplicação
-│   │   │   ├── auth/       # Autenticação
-│   │   │   ├── users/      # Usuários
-│   │   │   ├── condominios/# Condomínios
-│   │   │   ├── unidades/   # Unidades
-│   │   │   ├── moradores/  # Moradores
-│   │   │   └── reservas/   # Reservas
-│   │   ├── middleware/     # Middlewares Express
-│   │   ├── utils/          # Utilidades
-│   │   └── server.ts       # Entrada da aplicação
-│   ├── tests/              # Testes
+│   │   ├── config/         # Configuração e variáveis de ambiente
+│   │   ├── database/       # Migrations e seeds
+│   │   ├── modules/        # Os 27 módulos, um por recurso
+│   │   │   ├── auth/       # Autenticação e recuperação de senha
+│   │   │   ├── audit/      # Trilha append-only
+│   │   │   ├── lgpd/       # Exclusão, exportação e consentimento
+│   │   │   ├── documents/  # Upload com matriz de visibilidade
+│   │   │   └── ...         # condominiums, units, residents, financial, ...
+│   │   ├── middlewares/    # Auth, validação, upload, rate limit
+│   │   ├── shared/         # Entidades base, fábrica de CRUD, constantes
+│   │   ├── realtime/       # Canal de eventos
+│   │   ├── jobs/           # Rotinas agendadas
+│   │   ├── routes/         # Montagem do router da API
+│   │   ├── app.ts          # Aplicação Express
+│   │   └── server.ts       # Entrada do processo
+│   ├── tests/
+│   │   ├── integration/    # Suítes por módulo, sobre SQLite em memória
+│   │   ├── unit/           # Regras isoladas
+│   │   └── helpers/        # Contexto de teste e personas
 │   ├── Dockerfile          # Container backend
 │   └── package.json        # Dependências
 │
 ├── frontend/                # SPA React/Vite
 │   ├── src/
-│   │   ├── components/     # Componentes React
-│   │   ├── pages/          # Páginas
-│   │   ├── hooks/          # Custom hooks
-│   │   ├── services/       # Serviços HTTP
-│   │   ├── context/        # Context API
-│   │   ├── utils/          # Utilidades
+│   │   ├── features/       # Uma pasta por módulo: página, hooks, schema
+│   │   ├── components/     # ui/ (primitivos), common/, layout/, charts/
+│   │   ├── providers/      # Auth, tema, React Query, condomínio
+│   │   ├── routes/         # Navegação, router e guarda de permissão
+│   │   ├── hooks/          # Hooks compartilhados
+│   │   ├── lib/            # Cliente HTTP, permissões, formatação, CRUD
+│   │   ├── types/          # Contratos espelhados do backend
+│   │   ├── test/           # Harness de render e dublês de transporte
 │   │   ├── App.tsx         # Componente raiz
 │   │   └── main.tsx        # Entrada da aplicação
 │   ├── public/             # Assets estáticos
@@ -366,7 +423,4 @@ Para reportar issues ou sugestões:
 
 **Pronto para começar?** Execute: `npm run docker:up` 🚀
 
-Última atualização: 2026-09-12
---super@condominio.app
---Demo@1234
-## compozy tasks run backend-integration-specs --parallel-tasks --ide opencode
+Última atualização: 2026-09-17

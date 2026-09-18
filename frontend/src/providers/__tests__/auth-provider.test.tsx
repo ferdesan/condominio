@@ -40,19 +40,13 @@ function Probe() {
       <p data-testid="initializing">{String(initializing)}</p>
       <p data-testid="authenticated">{String(isAuthenticated)}</p>
       <p data-testid="role">{user?.role ?? 'none'}</p>
-      <button
-        type="button"
-        onClick={() => void login('admin@exemplo.com', 'segredo')}
-      >
+      <button type="button" onClick={() => void login('admin@exemplo.com', 'segredo')}>
         login
       </button>
       <button type="button" onClick={() => void logout()}>
         logout
       </button>
-      <button
-        type="button"
-        onClick={() => user && updateUser({ ...user, role: 'RESIDENT' })}
-      >
+      <button type="button" onClick={() => user && updateUser({ ...user, role: 'RESIDENT' })}>
         update
       </button>
       <p data-testid="can">{String(can('role:read'))}</p>
@@ -89,7 +83,7 @@ describe('AuthProvider (IT-054)', () => {
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('restaura a sessao quando ha token, sem sacudir a tela', async () => {
+  it('restaura a sessão quando ha token, sem sacudir a tela', async () => {
     tokenStorage.set('access-1', 'refresh-1');
     mockGet.mockResolvedValue(admin);
 
@@ -117,8 +111,11 @@ describe('AuthProvider (IT-054)', () => {
     expect(tokenStorage.refreshToken).toBeNull();
   });
 
-  it('login registra os tokens e o usuario; logout encerra a sessao', async () => {
-    mockPost.mockResolvedValue({ user: admin, tokens: { accessToken: 'a2', refreshToken: 'r2' } } satisfies LoginResponse);
+  it('login registra os tokens e o usuário; logout encerra a sessão', async () => {
+    mockPost.mockResolvedValue({
+      user: admin,
+      tokens: { accessToken: 'a2', refreshToken: 'r2' },
+    } satisfies LoginResponse);
 
     view = renderProvider();
     fireEvent.click(screen.getByText('login'));
@@ -136,7 +133,7 @@ describe('AuthProvider (IT-054)', () => {
     expect(mockPost).toHaveBeenCalledWith('/auth/logout', { refreshToken: 'r2' });
   });
 
-  it('logout segue encerrando quando o servidor ja nao reconhece a sessao', async () => {
+  it('logout segue encerrando quando o servidor já não reconhece a sessão', async () => {
     mockPost.mockRejectedValueOnce(new Error('invalid refresh'));
     tokenStorage.set('a', 'r');
 
@@ -162,7 +159,7 @@ describe('AuthProvider (IT-054)', () => {
     expect(mockGet).toHaveBeenCalledTimes(1);
   });
 
-  it('o evento de sessao expirada do transporte derruba a sessao local', async () => {
+  it('o evento de sessão expirada do transporte derruba a sessão local', async () => {
     tokenStorage.set('access-1', 'refresh-1');
     mockGet.mockResolvedValue(admin);
 
@@ -175,7 +172,7 @@ describe('AuthProvider (IT-054)', () => {
     expect(tokenStorage.accessToken).toBeNull();
   });
 
-  it('UT-024.E4: acesso expirado restaura a sessao quando o refresh renova os tokens', async () => {
+  it('UT-024.E4: acesso expirado restaura a sessão quando o refresh renova os tokens', async () => {
     tokenStorage.set('expired-access', 'refresh-1');
     // O transporte, ao ver o acesso velho, chama o refresh e regrava os tokens
     // novos antes de responder o /auth/me que o provedor pediu (UT-046/UT-047).
@@ -184,7 +181,7 @@ describe('AuthProvider (IT-054)', () => {
         tokenStorage.set('fresh-access', 'fresh-refresh');
         return { ...admin, id: admin.id };
       }
-      throw new ApiError('nao encontrado', 404, 'NOT_FOUND');
+      throw new ApiError('não encontrado', 404, 'NOT_FOUND');
     });
 
     view = renderProvider();
@@ -196,9 +193,9 @@ describe('AuthProvider (IT-054)', () => {
     expect(mockGet).toHaveBeenCalledWith('/auth/me');
   });
 
-  it('UT-024.E5: refresh morto no boot derruba a sessao e zera os tokens', async () => {
+  it('UT-024.E5: refresh morto no boot derruba a sessão e zera os tokens', async () => {
     tokenStorage.set('expired-access', 'refresh-1');
-    mockGet.mockRejectedValue(new ApiError('Sessao expirada.', 401, 'UNAUTHORIZED'));
+    mockGet.mockRejectedValue(new ApiError('Sessão expirada.', 401, 'UNAUTHORIZED'));
 
     view = renderProvider();
     // O transporte nao consegue renovar e dispara o fim da sessao.

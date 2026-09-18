@@ -3,7 +3,7 @@ import type { LgpdRequestStatus } from '@/types/lgpd';
 
 /** Rotulos fixados no TechSpec, secoes de labels da tela LGPD. */
 export const REQUEST_STATUS_LABELS: Record<LgpdRequestStatus, string> = {
-  PENDING: 'Aguardando execucao',
+  PENDING: 'Aguardando execução',
   EXECUTED: 'Executado',
   CANCELLED: 'Cancelado',
 };

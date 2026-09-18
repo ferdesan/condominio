@@ -46,15 +46,15 @@ export function CondominiumRecordCard({ condominium }: { condominium: Condominiu
           </Badge>
         </Field>
         <Field label="CEP">{text(condominium.zipCode)}</Field>
-        <Field label="Endereco">{formatAddress(condominium)}</Field>
+        <Field label="Endereço">{formatAddress(condominium)}</Field>
         <Field label="Telefone">{formatPhone(condominium.phone)}</Field>
         <Field label="E-mail">{text(condominium.email)}</Field>
-        <Field label="Sindico">{text(condominium.syndicName)}</Field>
-        <Field label="Telefone do sindico">{formatPhone(condominium.syndicPhone)}</Field>
+        <Field label="Síndico">{text(condominium.syndicName)}</Field>
+        <Field label="Telefone do síndico">{formatPhone(condominium.syndicPhone)}</Field>
         <Field label="Fim do mandato">{formatDate(condominium.syndicTermEndsAt)}</Field>
         <Field label="Dia de vencimento">{formatNumber(condominium.chargeDueDay)}</Field>
         <Field label="Total de unidades">{formatNumber(condominium.totalUnits)}</Field>
-        <Field label="Observacoes" className="sm:col-span-2">
+        <Field label="Observações" className="sm:col-span-2">
           {text(condominium.notes)}
         </Field>
       </dl>

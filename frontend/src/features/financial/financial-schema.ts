@@ -79,10 +79,10 @@ const categoryFields = z.object({
     .string()
     .trim()
     .min(2, 'Informe o nome da categoria.')
-    .max(120, 'Use no maximo 120 caracteres.'),
+    .max(120, 'Use no máximo 120 caracteres.'),
   kind: z.enum(CATEGORY_KINDS),
-  code: z.string().trim().max(20, 'Use no maximo 20 caracteres.'),
-  description: z.string().trim().max(255, 'Use no maximo 255 caracteres.'),
+  code: z.string().trim().max(20, 'Use no máximo 20 caracteres.'),
+  description: z.string().trim().max(255, 'Use no máximo 255 caracteres.'),
   active: z.boolean(),
 });
 
@@ -137,15 +137,15 @@ const chargeFields = z.object({
   description: z
     .string()
     .trim()
-    .min(3, 'Informe a descricao da cobranca.')
-    .max(180, 'Use no maximo 180 caracteres.'),
+    .min(3, 'Informe a descrição da cobrança.')
+    .max(180, 'Use no máximo 180 caracteres.'),
   referenceMonth,
   dueDate: isoDate,
   amount: money('O valor deve estar entre 0 e 99.999.999,99.'),
   discount: optionalMoney('O desconto deve estar entre 0 e 99.999.999,99.'),
   interest: optionalMoney('Os juros devem estar entre 0 e 99.999.999,99.'),
   penalty: optionalMoney('A multa deve estar entre 0 e 99.999.999,99.'),
-  notes: z.string().trim().max(1000, 'Use no maximo 1000 caracteres.'),
+  notes: z.string().trim().max(1000, 'Use no máximo 1000 caracteres.'),
 });
 
 export const chargeSchema = chargeFields;
@@ -227,8 +227,8 @@ const generateFields = z
     description: z
       .string()
       .trim()
-      .min(3, 'Informe a descricao das cobrancas.')
-      .max(180, 'Use no maximo 180 caracteres.'),
+      .min(3, 'Informe a descrição das cobranças.')
+      .max(180, 'Use no máximo 180 caracteres.'),
     /** Vazio usa a taxa cadastrada na unidade. */
     fixedAmount: optionalMoney('O valor deve estar entre 0 e 99.999.999,99.'),
     /** Vazio nao rateia. */
@@ -307,8 +307,8 @@ const paymentFields = z.object({
   ),
   paidAt: z.string().min(1, 'Informe quando o pagamento foi recebido.'),
   method: z.enum(PAYMENT_METHODS),
-  transactionId: z.string().trim().max(80, 'Use no maximo 80 caracteres.'),
-  notes: z.string().trim().max(1000, 'Use no maximo 1000 caracteres.'),
+  transactionId: z.string().trim().max(80, 'Use no máximo 80 caracteres.'),
+  notes: z.string().trim().max(1000, 'Use no máximo 1000 caracteres.'),
 });
 
 export const registerPaymentSchema = paymentFields;
@@ -354,14 +354,14 @@ const expenseFields = z.object({
   description: z
     .string()
     .trim()
-    .min(3, 'Informe a descricao da despesa.')
-    .max(180, 'Use no maximo 180 caracteres.'),
+    .min(3, 'Informe a descrição da despesa.')
+    .max(180, 'Use no máximo 180 caracteres.'),
   competence: referenceMonth,
   dueDate: isoDate,
   amount: money('O valor deve estar entre 0 e 99.999.999,99.'),
-  documentNumber: z.string().trim().max(60, 'Use no maximo 60 caracteres.'),
+  documentNumber: z.string().trim().max(60, 'Use no máximo 60 caracteres.'),
   isRecurring: z.boolean(),
-  notes: z.string().trim().max(1000, 'Use no maximo 1000 caracteres.'),
+  notes: z.string().trim().max(1000, 'Use no máximo 1000 caracteres.'),
 });
 
 export const expenseSchema = expenseFields;
@@ -438,7 +438,7 @@ export const EXPENSE_STATUS_VALUES = EXPENSE_STATUSES;
 const payExpenseFields = z.object({
   paidAt: z.string().min(1, 'Informe quando a despesa foi paga.'),
   paymentMethod: z.enum(PAYMENT_METHODS),
-  notes: z.string().trim().max(1000, 'Use no maximo 1000 caracteres.'),
+  notes: z.string().trim().max(1000, 'Use no máximo 1000 caracteres.'),
 });
 
 export const payExpenseSchema = payExpenseFields;

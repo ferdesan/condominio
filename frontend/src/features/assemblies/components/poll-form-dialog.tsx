@@ -118,11 +118,11 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar deliberacao' : 'Nova deliberacao'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar deliberação' : 'Nova deliberação'}</DialogTitle>
             <DialogDescription>
-              A pergunta que sera votada, quem pode votar e ate quando.
+              A pergunta que será votada, quem pode votar e até quando.
             </DialogDescription>
           </DialogHeader>
 
@@ -198,9 +198,9 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
 
               <FormField
                 id="poll-quorumPercent"
-                label="Quorum minimo (%)"
+                label="Quorum mínimo (%)"
                 error={errors.quorumPercent?.message}
-                description="Participacao exigida para a apuracao valer."
+                description="Participação exigida para a apuração valer."
               >
                 {(aria) => (
                   <Input type="number" min={0} max={100} {...aria} {...register('quorumPercent')} />
@@ -220,7 +220,7 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
                       onCheckedChange={(checked) => field.onChange(checked === true)}
                     />
                     <Label htmlFor="poll-weighted" className="font-normal">
-                      Ponderar o voto pela fracao ideal da unidade
+                      Ponderar o voto pela fração ideal da unidade
                     </Label>
                   </div>
                 )}
@@ -237,7 +237,7 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
                       onCheckedChange={(checked) => field.onChange(checked === true)}
                     />
                     <Label htmlFor="poll-secret" className="font-normal">
-                      Votacao secreta — os votos individuais nao poderao ser consultados
+                      Votação secreta — os votos individuais não poderao ser consultados
                     </Label>
                   </div>
                 )}
@@ -246,12 +246,12 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
 
             {isEdit ? (
               <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                As alternativas nao podem ser alteradas depois de criadas: os votos ja registrados
+                As alternativas não podem ser alteradas depois de criadas: os votos já registrados
                 pertencem a cada uma delas.
               </p>
             ) : (
               /*
-                A secao se chama "Alternativas", e nao "Opcoes": o `legend` nao
+                A secao se chama "Alternativas", e nao "Opções": o `legend` nao
                 pode repetir o texto de um rotulo de campo dentro do mesmo
                 dialogo, sob pena de deixar duas coisas com o mesmo nome.
               */
@@ -323,7 +323,7 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
                 Voltar
               </Button>
               <Button type="submit" loading={pending}>
-                {isEdit ? 'Salvar' : 'Criar deliberacao'}
+                {isEdit ? 'Salvar' : 'Criar deliberação'}
               </Button>
             </DialogFooter>
           </form>
@@ -332,8 +332,8 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

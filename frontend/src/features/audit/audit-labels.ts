@@ -10,24 +10,30 @@
 import type { AuditAction, AuditLog } from '@/types/audit';
 
 /**
- * As onze acoes registradas pelo servidor.
+ * As dezessete acoes registradas pelo servidor.
  *
  * Nenhum rotulo repete um cabecalho de coluna ("Quando", "Autor", "Acao",
  * "Recurso", "Descricao", "Campos alterados") nem o rotulo de um filtro — a
  * colisao que ja quebrou consultas por texto em telas anteriores.
  */
 export const ACTION_LABELS: Record<AuditAction, string> = {
-  CREATE: 'Criacao',
-  UPDATE: 'Alteracao',
+  CREATE: 'Criação',
+  UPDATE: 'Alteração',
   DELETE: 'Exclusao',
-  RESTORE: 'Restauracao',
+  RESTORE: 'Restauração',
   LOGIN: 'Entrada no sistema',
-  LOGOUT: 'Saida do sistema',
+  LOGOUT: 'Saída do sistema',
   LOGIN_FAILED: 'Falha de entrada',
   PASSWORD_CHANGED: 'Troca de senha',
   PERMISSION_DENIED: 'Permissao negada',
-  EXPORT: 'Exportacao',
-  IMPORT: 'Importacao',
+  EXPORT: 'Exportação',
+  IMPORT: 'Importação',
+  LGPD_DELETE_REQUEST: 'Pedido de exclusao LGPD',
+  LGPD_DELETE: 'Exclusao LGPD executada',
+  LGPD_DELETE_CANCEL: 'Pedido de exclusao cancelado',
+  LGPD_EXPORT: 'Exportação de dados pessoais',
+  LGPD_CONSENT_GRANTED: 'Consentimento concedido',
+  LGPD_CONSENT_REVOKED: 'Consentimento revogado',
 };
 
 /**
@@ -41,37 +47,37 @@ export const ACTION_LABELS: Record<AuditAction, string> = {
  * leitura passa por `resourceLabel`.
  */
 export const RESOURCE_LABELS: Record<string, string> = {
-  auth: 'Autenticacao',
+  auth: 'Autenticação',
   tenant: 'Administradora',
-  user: 'Usuario',
+  user: 'Usuário',
   role: 'Papel de acesso',
-  condominium: 'Condominio',
+  condominium: 'Condomínio',
   block: 'Bloco',
   unit: 'Unidade',
   resident: 'Morador',
   dependent: 'Dependente',
-  employee: 'Funcionario',
+  employee: 'Funcionário',
   visitor: 'Visitante',
   'service-provider': 'Prestador',
-  vehicle: 'Veiculo',
-  correspondence: 'Correspondencia',
-  'common-area': 'Area comum',
+  vehicle: 'Veículo',
+  correspondence: 'Correspondência',
+  'common-area': 'Área comum',
   reservation: 'Reserva',
   'financial-category': 'Categoria financeira',
-  charge: 'Cobranca',
+  charge: 'Cobrança',
   payment: 'Pagamento',
   expense: 'Despesa',
   assembly: 'Assembleia',
   poll: 'Enquete',
   vote: 'Voto',
   announcement: 'Comunicado',
-  incident: 'Ocorrencia',
-  maintenance: 'Manutencao',
+  incident: 'Ocorrência',
+  maintenance: 'Manutenção',
   document: 'Documento',
   dashboard: 'Painel',
   'audit-log': 'Trilha de auditoria',
-  notification: 'Notificacao',
-  unknown: 'Recurso nao identificado',
+  notification: 'Notificação',
+  unknown: 'Recurso não identificado',
 };
 
 /** Nome do recurso por extenso; o proprio identificador quando nao ha traducao. */
@@ -96,7 +102,7 @@ export const ABSENT_VALUE = 'vazio';
 
 /** Dito quando a acao nao tem registro alvo e portanto nao tem historico. */
 export const NO_RESOURCE_TARGET =
-  'Esta acao nao aponta para um registro especifico, entao nao ha historico a consultar.';
+  'Esta ação não aponta para um registro especifico, entao não ha histórico a consultar.';
 
 /**
  * Os campos que mudaram, na ordem em que o servidor os gravou.

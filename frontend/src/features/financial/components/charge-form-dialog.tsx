@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,15 +11,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
@@ -37,7 +31,7 @@ import {
   type ChargeFormValues,
 } from '../financial-schema';
 
-/** Valor sentinela: o Radix nao aceita `SelectItem` com valor vazio. */
+/** Valor sentinela do "sem conta": vazio nao distingue escolher de nao ter escolhido. */
 const NONE = '__none__';
 
 export interface ChargeFormDialogProps {
@@ -71,6 +65,27 @@ export function ChargeFormDialog({
 }: ChargeFormDialogProps) {
   const isEdit = Boolean(charge);
   const queryClient = useQueryClient();
+
+  // A lista inteira do condomínio cabe no seletor, mas não cabe no olho: sem
+  // busca, escolher uma unidade vira rolagem.
+  const unitOptions = useMemo(
+    () =>
+      units.map((unit) => ({
+        value: unit.id,
+        label: `${unit.number}${unit.block?.name ? ` · ${unit.block.name}` : ''}`,
+      })),
+    [units],
+  );
+
+  // "Sem conta" é a primeira opção, e não um estado à parte: a classificação é
+  // opcional e voltar atrás precisa ser tão alcançável quanto escolher.
+  const categoryOptions = useMemo(
+    () => [
+      { value: NONE, label: 'Sem conta' },
+      ...categories.map((category) => ({ value: category.id, label: category.name })),
+    ],
+    [categories],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
@@ -121,11 +136,11 @@ export function ChargeFormDialog({
           if (!next) requestClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar cobranca' : 'Nova cobranca'}</DialogTitle>
+            <DialogTitle>{isEdit ? 'Editar cobrança' : 'Nova cobrança'}</DialogTitle>
             <DialogDescription>
-              O lancamento de uma unidade: o que se cobra, de que competencia e quando vence.
+              O lancamento de uma unidade: o que se cobra, de que competência e quando vence.
             </DialogDescription>
           </DialogHeader>
 
@@ -139,19 +154,15 @@ export function ChargeFormDialog({
                 render={({ field, fieldState }) => (
                   <FormField id="charge-unitId" label="Unidade" error={fieldState.error?.message}>
                     {(aria) => (
-                      <Select value={field.value || NONE} onValueChange={field.onChange}>
-                        <SelectTrigger {...aria}>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {units.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unit.number}
-                              {unit.block?.name ? ` · ${unit.block.name}` : ''}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        {...aria}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        options={unitOptions}
+                        placeholder="Selecione"
+                        searchPlaceholder="Buscar unidade"
+                        emptyMessage="Nenhuma unidade corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}
@@ -165,25 +176,17 @@ export function ChargeFormDialog({
                     id="charge-categoryId"
                     label="Conta"
                     error={fieldState.error?.message}
-                    description="Opcional. Classifica a cobranca na prestacao de contas."
+                    description="Opcional. Classifica a cobrança na prestação de contas."
                   >
                     {(aria) => (
-                      <Select
+                      <Combobox
+                        {...aria}
                         value={field.value || NONE}
                         onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                      >
-                        <SelectTrigger {...aria}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={NONE}>Sem conta</SelectItem>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={categoryOptions}
+                        searchPlaceholder="Buscar conta"
+                        emptyMessage="Nenhuma conta corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}
@@ -192,7 +195,7 @@ export function ChargeFormDialog({
 
             <FormField
               id="charge-description"
-              label="Descricao"
+              label="Descrição"
               error={errors.description?.message}
             >
               {(aria) => <Input maxLength={180} {...aria} {...register('description')} />}
@@ -201,11 +204,11 @@ export function ChargeFormDialog({
             <div className="grid gap-4 sm:grid-cols-3">
               {/*
                 Competencia e mes, e nao data: o servidor guarda `AAAA-MM` e o
-                input nativo de mes fala exatamente esse formato.
+                input nativo de mês fala exatamente esse formato.
               */}
               <FormField
                 id="charge-referenceMonth"
-                label="Competencia"
+                label="Competência"
                 error={errors.referenceMonth?.message}
               >
                 {(aria) => <Input type="month" {...aria} {...register('referenceMonth')} />}
@@ -216,9 +219,9 @@ export function ChargeFormDialog({
               </FormField>
 
               {/*
-                Dinheiro entra como numero decimal, e nao pelo controle de moeda:
+                Dinheiro entra como número decimal, e não pelo controle de moeda:
                 ele guarda `number` e formata no proprio estado, o que quebraria a
-                convencao de valores em texto deste projeto.
+                convenção de valores em texto deste projeto.
               */}
               <FormField id="charge-amount" label="Valor (R$)" error={errors.amount?.message}>
                 {(aria) => (
@@ -255,7 +258,7 @@ export function ChargeFormDialog({
 
             <FormField
               id="charge-notes"
-              label="Observacoes"
+              label="Observações"
               error={errors.notes?.message}
               description="Opcional."
             >
@@ -285,8 +288,8 @@ export function ChargeFormDialog({
 
       <ConfirmDialog
         open={discardOpen}
-        title="Descartar alteracoes?"
-        description="As informacoes preenchidas serao perdidas."
+        title="Descartar alterações?"
+        description="As informações preenchidas serão perdidas."
         actionLabel="Descartar"
         cancelLabel="Continuar editando"
         variant="warning"

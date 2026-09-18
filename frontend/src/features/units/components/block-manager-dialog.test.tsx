@@ -66,7 +66,7 @@ function serve(
 /** Abre a gestao de blocos a partir da tela de unidades. */
 async function openBlockManager(): Promise<void> {
   clickTrigger(screen.getByRole('button', { name: 'Gerenciar blocos' }));
-  await screen.findByText('Blocos do condominio');
+  await screen.findByText('Blocos do condomínio');
 }
 
 /** O dialogo do topo da pilha: o Radix esconde o de baixo dos leitores. */
@@ -87,7 +87,7 @@ function SwitchableShell({ first, second }: { first: Condominium; second: Condom
       }}
     >
       <button type="button" onClick={() => setSelected(second)}>
-        Trocar condominio
+        Trocar condomínio
       </button>
       <UnitsPage />
     </CondominiumContext.Provider>
@@ -98,7 +98,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('Gestao de blocos do condominio', () => {
+describe('Gestao de blocos do condomínio', () => {
   it('IT-200: renomeia um bloco e exclui um vazio; a lista de unidades acompanha', async () => {
     const unit = makeUnit({ id: 'unit-1', number: '101', blockId: 'block-1', block: TOWER_A });
     serve({ units: [unit] });
@@ -151,7 +151,7 @@ describe('Gestao de blocos do condominio', () => {
 
   it('IT-201: recusa por unidades vinculadas aparece como o servidor escreveu', async () => {
     serve();
-    const message = 'Bloco possui unidades vinculadas e nao pode ser removido.';
+    const message = 'Bloco possui unidades vinculadas e não pode ser removido.';
     mockDelete.mockRejectedValue(new ApiError(message, 409, 'BUSINESS_RULE_VIOLATION'));
     renderWithProviders(<UnitsPage />);
     await screen.findByText('Nenhuma unidade cadastrada');
@@ -165,7 +165,7 @@ describe('Gestao de blocos do condominio', () => {
     expect(within(topDialog()).getByText('Torre A')).toBeInTheDocument();
   });
 
-  it('IT-202: sem blocos, a gestao oferece a criacao do primeiro', async () => {
+  it('IT-202: sem blocos, a gestao oferece a criação do primeiro', async () => {
     serve({ blocksByCondominium: { 'cond-1': [] } });
     renderWithProviders(<UnitsPage />);
     await screen.findByText('Nenhuma unidade cadastrada');
@@ -178,9 +178,9 @@ describe('Gestao de blocos do condominio', () => {
     ).toBeInTheDocument();
   });
 
-  it('IT-203: renomear para um nome ja usado aparece como conflito no formulario', async () => {
+  it('IT-203: renomear para um nome já usado aparece como conflito no formulário', async () => {
     serve();
-    const message = 'Ja existe um bloco com este nome neste condominio.';
+    const message = 'Já existe um bloco com este nome neste condomínio.';
     mockPatch.mockRejectedValue(new ApiError(message, 409, 'CONFLICT'));
     const user = createUser();
     renderWithProviders(<UnitsPage />);
@@ -198,7 +198,7 @@ describe('Gestao de blocos do condominio', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('IT-205: trocar de condominio recarrega a gestao para o novo', async () => {
+  it('IT-205: trocar de condomínio recarrega a gestao para o novo', async () => {
     const other = makeCondominium({ id: 'cond-2', name: 'Residencial Bosque' });
     const OUTRO = makeBlock({ id: 'block-9', condominiumId: 'cond-2', name: 'Ala Norte' });
     serve({ blocksByCondominium: { 'cond-1': [TOWER_A], 'cond-2': [OUTRO] } });
@@ -210,7 +210,7 @@ describe('Gestao de blocos do condominio', () => {
 
     // Com a gestao aberta, o Radix marca o resto da pagina como aria-hidden; a
     // troca vem do shell, que fica justamente nessa parte escondida.
-    clickTrigger(screen.getByRole('button', { name: 'Trocar condominio', hidden: true }));
+    clickTrigger(screen.getByRole('button', { name: 'Trocar condomínio', hidden: true }));
 
     await waitFor(() => expect(within(topDialog()).getByText('Ala Norte')).toBeInTheDocument());
     expect(within(topDialog()).queryByText('Torre A')).not.toBeInTheDocument();
@@ -220,7 +220,7 @@ describe('Gestao de blocos do condominio', () => {
     );
   });
 
-  it('IT-206: mudar os andares com unidades existentes e aceito e nao mexe nelas', async () => {
+  it('IT-206: mudar os andares com unidades existentes e aceito e não mexe nelas', async () => {
     const unit = makeUnit({ id: 'unit-1', number: '101', blockId: 'block-1', block: TOWER_A });
     serve({ units: [unit] });
     const updated = makeBlock({ ...TOWER_A, floors: 20 });
@@ -258,7 +258,7 @@ describe('Gestao de blocos do condominio', () => {
     );
   });
 
-  it('com acesso apenas de leitura, nenhuma acao de escrita e oferecida', async () => {
+  it('com acesso apenas de leitura, nenhuma ação de escrita e oferecida', async () => {
     serve();
     renderWithProviders(<UnitsPage />, { permissions: ['unit:read', 'block:read'] });
     await screen.findByText('Nenhuma unidade cadastrada');

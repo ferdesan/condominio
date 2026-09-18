@@ -82,8 +82,8 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Posicao financeira', () => {
-  it('os numeros vem do endpoint de resumo, e nao da soma das linhas', async () => {
+describe('Posição financeira', () => {
+  it('os números vem do endpoint de resumo, e não da soma das linhas', async () => {
     // A unica cobranca carregada vale mil reais; o resumo fala em quarenta e
     // oito mil. Se a tela somasse as linhas, mostraria o numero errado.
     world = serveFinancial({ charges: [makeCharge()], summary: makeSummary() });
@@ -91,16 +91,16 @@ describe('Posicao financeira', () => {
 
     await screen.findByText(CHARGE);
 
-    const region = screen.getByRole('region', { name: 'Posicao financeira' });
+    const region = screen.getByRole('region', { name: 'Posição financeira' });
     expect(within(region).getByText('R$ 48.000,00')).toBeInTheDocument();
     expect(within(region).getByText('R$ 31.500,00')).toBeInTheDocument();
-    expect(within(region).getByText(/19 cobrancas a receber/)).toBeInTheDocument();
+    expect(within(region).getByText(/19 cobranças a receber/)).toBeInTheDocument();
     expect(allReadRequests().some((request) => request.url === '/financial/charges/summary')).toBe(
       true,
     );
   });
 
-  it('a inadimplencia por unidade vem da rota propria, ja ordenada pelo servidor', async () => {
+  it('a inadimplência por unidade vem da rota própria, já ordenada pelo servidor', async () => {
     world = serveFinancial({
       charges: [makeCharge()],
       delinquency: [
@@ -112,22 +112,22 @@ describe('Posicao financeira', () => {
 
     await screen.findByText(CHARGE);
 
-    const region = screen.getByRole('region', { name: 'Posicao financeira' });
+    const region = screen.getByRole('region', { name: 'Posição financeira' });
     expect(await within(region).findByText('Unidade 909')).toBeInTheDocument();
     expect(within(region).getByText('Unidade 808')).toBeInTheDocument();
   });
 
-  it('sem condominio selecionado explica a exigencia e nao consulta nada', async () => {
+  it('sem condomínio selecionado explica a exigência e não consulta nada', async () => {
     world = serveFinancial({ charges: [makeCharge()] });
     renderWithProviders(<FinancialPage />, { condominium: null });
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(mockGetPaginated).not.toHaveBeenCalled();
   });
 });
 
-describe('Cobrancas', () => {
-  it('a listagem carrega escopada no condominio do shell', async () => {
+describe('Cobranças', () => {
+  it('a listagem carrega escopada no condomínio do shell', async () => {
     world = serveFinancial({ charges: [makeCharge()] });
     renderWithProviders(<FinancialPage />);
 
@@ -135,7 +135,7 @@ describe('Cobrancas', () => {
     expect(lastParamsOf('/financial/charges').condominiumId).toBe('cond-1');
   });
 
-  it('o saldo soma encargos e abate o que ja entrou', async () => {
+  it('o saldo soma encargos e abate o que já entrou', async () => {
     world = serveFinancial({ charges: [makeCharge()] });
     renderWithProviders(<FinancialPage />);
 
@@ -149,7 +149,7 @@ describe('Cobrancas', () => {
     expect(valor).toContain('800,00');
   });
 
-  it('registrar pagamento ja vem com o saldo preenchido e envia a baixa', async () => {
+  it('registrar pagamento já vem com o saldo preenchido e envia a baixa', async () => {
     world = serveFinancial({ charges: [makeCharge()] });
     const user = createUser();
     mockPost.mockImplementation(async () => {
@@ -175,10 +175,10 @@ describe('Cobrancas', () => {
     expect(String((body as { paidAt: string }).paidAt)).toMatch(/Z$/);
   });
 
-  it('cancelar pede confirmacao e a recusa do servidor aparece na linha', async () => {
+  it('cancelar pede confirmação e a recusa do servidor aparece na linha', async () => {
     world = serveFinancial({ charges: [makeCharge({ status: 'PAID' })] });
     mockPost.mockRejectedValue(
-      new ApiError('Cobranca ja quitada nao pode ser cancelada.', 409, 'BUSINESS_RULE'),
+      new ApiError('Cobrança já quitada não pode ser cancelada.', 409, 'BUSINESS_RULE'),
     );
     renderWithProviders(<FinancialPage />);
 
@@ -187,13 +187,13 @@ describe('Cobrancas', () => {
 
     // O pedido so sai depois da confirmacao.
     expect(mockPost).not.toHaveBeenCalled();
-    clickTrigger(await screen.findByRole('button', { name: 'Cancelar cobranca' }));
+    clickTrigger(await screen.findByRole('button', { name: 'Cancelar cobrança' }));
 
     await waitFor(() =>
       expect(mockPost).toHaveBeenCalledWith('/financial/charges/charge-1/cancel', {}),
     );
 
-    const message = await screen.findByText('Cobranca ja quitada nao pode ser cancelada.');
+    const message = await screen.findByText('Cobrança já quitada não pode ser cancelada.');
     expect(message).toHaveAttribute('role', 'alert');
     // O `onError` proprio substitui o toast global: a mesma recusa nao pode
     // aparecer duas vezes.
@@ -214,14 +214,14 @@ describe('Cobrancas', () => {
     expect(screen.getByRole('button', { name: `Cancelar ${CHARGE_ACTION}` })).toBeInTheDocument();
   });
 
-  it('cobranca lancada a mao envia os encargos e nenhum status', async () => {
+  it('cobrança lancada a mao envia os encargos e nenhum status', async () => {
     world = serveFinancial({ charges: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => makeCharge() as never);
     renderWithProviders(<FinancialPage />);
 
-    await screen.findByText('Nenhuma cobranca lancada');
-    clickTrigger(screen.getByRole('button', { name: 'Nova cobranca' }));
+    await screen.findByText('Nenhuma cobrança lancada');
+    clickTrigger(screen.getByRole('button', { name: 'Nova cobrança' }));
 
     const dialog = await screen.findByRole('dialog');
     // O painel de filtros tem rotulos iguais: as consultas sao escopadas no
@@ -248,15 +248,15 @@ describe('Cobrancas', () => {
   });
 });
 
-describe('Geracao em lote', () => {
+describe('Geração em lote', () => {
   it('envia o pedido e diz quantas foram geradas e quantas foram puladas', async () => {
     world = serveFinancial({ charges: [] });
     const user = createUser();
     mockPost.mockResolvedValue({ created: 44, skipped: 4, total: 48 } as never);
     renderWithProviders(<FinancialPage />);
 
-    await screen.findByText('Nenhuma cobranca lancada');
-    clickTrigger(screen.getByRole('button', { name: 'Gerar cobrancas do mes' }));
+    await screen.findByText('Nenhuma cobrança lancada');
+    clickTrigger(screen.getByRole('button', { name: 'Gerar cobranças do mês' }));
 
     const dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: 'Gerar' }));
@@ -271,8 +271,8 @@ describe('Geracao em lote', () => {
     expect(body).not.toHaveProperty('totalToApportion');
 
     // "Gerou" sem quantidade nao diria se a competencia ja tinha cobrancas.
-    expect(await screen.findByText(/44 cobrancas geradas de 48 unidades/)).toBeInTheDocument();
-    expect(screen.getByText(/4 ja tinham cobranca nesta competencia/)).toBeInTheDocument();
+    expect(await screen.findByText(/44 cobranças geradas de 48 unidades/)).toBeInTheDocument();
+    expect(screen.getByText(/4 já tinham cobrança nesta competência/)).toBeInTheDocument();
   });
 
   it('valor fixo e total a ratear juntos sao barrados antes do envio', async () => {
@@ -280,8 +280,8 @@ describe('Geracao em lote', () => {
     const user = createUser();
     renderWithProviders(<FinancialPage />);
 
-    await screen.findByText('Nenhuma cobranca lancada');
-    clickTrigger(screen.getByRole('button', { name: 'Gerar cobrancas do mes' }));
+    await screen.findByText('Nenhuma cobrança lancada');
+    clickTrigger(screen.getByRole('button', { name: 'Gerar cobranças do mês' }));
 
     const dialog = await screen.findByRole('dialog');
     await user.type(within(dialog).getByLabelText('Valor fixo por unidade (R$)'), '500');
@@ -297,7 +297,7 @@ describe('Geracao em lote', () => {
 });
 
 describe('Despesas', () => {
-  it('a secao troca sem sair da rota', async () => {
+  it('a seção troca sem sair da rota', async () => {
     world = serveFinancial({ charges: [makeCharge()], expenses: [makeExpense()] });
     renderWithProviders(<FinancialPage />);
 
@@ -324,7 +324,7 @@ describe('Despesas', () => {
 
     const dialog = await screen.findByRole('dialog');
     // A despesa e recorrente: o dialogo diz que a proxima sera agendada.
-    expect(within(dialog).getByText(/a proxima sera agendada/)).toBeInTheDocument();
+    expect(within(dialog).getByText(/a próxima será agendada/)).toBeInTheDocument();
 
     await user.click(within(dialog).getByRole('button', { name: 'Liquidar' }));
 
@@ -335,7 +335,7 @@ describe('Despesas', () => {
     expect(String((body as { paidAt: string }).paidAt)).toMatch(/Z$/);
   });
 
-  it('despesa nova nao envia status: quem liquida e a rota propria', async () => {
+  it('despesa nova não envia status: quem liquida e a rota própria', async () => {
     world = serveFinancial({ expenses: [] });
     const user = createUser();
     mockPost.mockImplementation(async () => makeExpense() as never);
@@ -346,7 +346,7 @@ describe('Despesas', () => {
     clickTrigger(screen.getByRole('button', { name: 'Nova despesa' }));
 
     const dialog = await screen.findByRole('dialog');
-    await user.type(within(dialog).getByLabelText('Descricao'), 'Energia eletrica');
+    await user.type(within(dialog).getByLabelText('Descrição'), 'Energia eletrica');
     await user.type(within(dialog).getByLabelText('Valor (R$)'), '3100');
     await user.click(within(dialog).getByRole('button', { name: 'Lancar' }));
 
@@ -357,7 +357,7 @@ describe('Despesas', () => {
     expect(body).not.toHaveProperty('status');
   });
 
-  it('excluir despesa pede confirmacao', async () => {
+  it('excluir despesa pede confirmação', async () => {
     world = serveFinancial({ expenses: [makeExpense()] });
     mockDelete.mockImplementation(async () => {
       world.expenses = [];
@@ -420,7 +420,7 @@ describe('Plano de contas', () => {
   it('editar uma conta manda o PATCH na rota do modulo', async () => {
     world = serveFinancial({ categories: [makeCategory()] });
     const user = createUser();
-    mockPatch.mockImplementation(async () => makeCategory({ name: 'Taxa ordinaria' }) as never);
+    mockPatch.mockImplementation(async () => makeCategory({ name: 'Taxa ordinária' }) as never);
     renderWithProviders(<FinancialPage />);
 
     openSection('Plano de contas');
@@ -430,20 +430,20 @@ describe('Plano de contas', () => {
     const dialog = await screen.findByRole('dialog');
     const name = within(dialog).getByLabelText('Nome');
     await user.clear(name);
-    await user.type(name, 'Taxa ordinaria');
+    await user.type(name, 'Taxa ordinária');
     await user.click(within(dialog).getByRole('button', { name: 'Salvar' }));
 
     await waitFor(() =>
       expect(mockPatch).toHaveBeenCalledWith(
         '/financial/categories/category-1',
-        expect.objectContaining({ name: 'Taxa ordinaria' }),
+        expect.objectContaining({ name: 'Taxa ordinária' }),
       ),
     );
   });
 });
 
 describe('Multa e juros em massa', () => {
-  it('pede confirmacao e diz quantas cobrancas foram atualizadas', async () => {
+  it('pede confirmação e diz quantas cobranças foram atualizadas', async () => {
     world = serveFinancial({ charges: [makeCharge({ status: 'OVERDUE' })] });
     mockPost.mockResolvedValue({ updated: 7 } as never);
     renderWithProviders(<FinancialPage />);
@@ -460,7 +460,7 @@ describe('Multa e juros em massa', () => {
         condominiumId: 'cond-1',
       }),
     );
-    expect(await screen.findByText(/7 cobrancas vencidas foram atualizadas/)).toBeInTheDocument();
+    expect(await screen.findByText(/7 cobranças vencidas foram atualizadas/)).toBeInTheDocument();
   });
 
   it('sem charge:manage, a acao em massa nao e oferecida', async () => {
@@ -473,18 +473,18 @@ describe('Multa e juros em massa', () => {
 
     expect(screen.queryByRole('button', { name: 'Aplicar multa e juros' })).not.toBeInTheDocument();
     // Gerar continua: exige `charge:create`, que o papel tem.
-    expect(screen.getByRole('button', { name: 'Gerar cobrancas do mes' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Gerar cobranças do mês' })).toBeInTheDocument();
   });
 });
 
-describe('Historico de pagamentos de uma cobranca', () => {
+describe('Histórico de pagamentos de uma cobrança', () => {
   /**
    * `chargeLabel` acrescenta a unidade ao rotulo acessivel: numa tabela de
    * cobrancas, a descricao sozinha se repete entre unidades.
    */
   const VIEW_PAYMENTS = `Ver pagamentos de ${CHARGE} da unidade 101`;
 
-  it('abre o historico e pede so os pagamentos daquela cobranca', async () => {
+  it('abre o histórico e pede so os pagamentos daquela cobrança', async () => {
     const user = createUser();
     serveFinancial({
       charges: [makeCharge({ id: 'charge-1', description: CHARGE, amount: 600 })],
@@ -530,7 +530,7 @@ describe('Historico de pagamentos de uma cobranca', () => {
     expect(within(dialog).getByText('R$ 600,00')).toBeInTheDocument();
   });
 
-  it('cobranca sem baixa rende estado vazio, e nao tabela de zero linhas', async () => {
+  it('cobrança sem baixa rende estado vazio, e não tabela de zero linhas', async () => {
     const user = createUser();
     serveFinancial({
       charges: [makeCharge({ id: 'charge-1', description: CHARGE })],
@@ -545,7 +545,7 @@ describe('Historico de pagamentos de uma cobranca', () => {
     expect(await within(dialog).findByText('Nenhum pagamento registrado')).toBeInTheDocument();
   });
 
-  it('o historico nao oferece lancar pagamento', async () => {
+  it('o histórico não oferece lancar pagamento', async () => {
     const user = createUser();
     serveFinancial({
       charges: [makeCharge({ id: 'charge-1', description: CHARGE })],

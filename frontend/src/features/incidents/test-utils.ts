@@ -27,7 +27,7 @@ export function makeIncident(overrides: Partial<Incident> = {}): Incident {
     unitId: 'unit-1',
     protocol: 'OC-2026-000001',
     title: 'Vazamento na garagem',
-    description: 'Poca de agua embaixo da vaga 14, aumentando desde ontem.',
+    description: 'Poca de água embaixo da vaga 14, aumentando desde ontem.',
     category: 'MAINTENANCE',
     priority: 'HIGH',
     status: 'OPEN',

@@ -112,7 +112,7 @@ export function serveVisitors(initial: Partial<VisitorWorld> = {}): VisitorWorld
       );
       if (!found) {
         throw new ApiError(
-          'Codigo de acesso invalido ou ja utilizado.',
+          'Código de acesso inválido ou já utilizado.',
           409,
           'BUSINESS_RULE_VIOLATION',
         );

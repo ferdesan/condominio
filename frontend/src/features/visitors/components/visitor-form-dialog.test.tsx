@@ -9,7 +9,7 @@ import {
   createUser,
   renderWithProviders,
   screen,
-  selectOption,
+  chooseOption,
   waitFor,
   within,
 } from '@/test/render';
@@ -69,7 +69,7 @@ function submitCreate(): void {
 async function fillRequired(name = 'Pedro Nunes'): Promise<void> {
   const user = createUser();
   await user.type(within(dialog()).getByLabelText('Nome'), name);
-  selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+  chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
 }
 
 /**
@@ -93,7 +93,7 @@ function SwitchableShell({ children }: { children: ReactNode }) {
   return (
     <CondominiumContext.Provider value={value}>
       <button type="button" onClick={() => setSelectedId('cond-2')}>
-        Trocar condominio
+        Trocar condomínio
       </button>
       {children}
     </CondominiumContext.Provider>
@@ -135,7 +135,7 @@ describe('Cadastro de visitante', () => {
     expect(await screen.findByText('Pedro Nunes')).toBeInTheDocument();
   });
 
-  it('sem unidade de destino o envio para no proprio campo', async () => {
+  it('sem unidade de destino o envio para no próprio campo', async () => {
     world = serveVisitors({ visitors: [] });
     renderWithProviders(<VisitorsPage />);
 
@@ -152,7 +152,7 @@ describe('Cadastro de visitante', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
-  it('o fim do periodo antes do inicio e recusado no campo, sem ir ao servidor', async () => {
+  it('o fim do período antes do início e recusado no campo, sem ir ao servidor', async () => {
     world = serveVisitors({ visitors: [] });
     renderWithProviders(<VisitorsPage />);
 
@@ -162,12 +162,12 @@ describe('Cadastro de visitante', () => {
 
     const user = createUser();
     await user.type(within(dialog()).getByLabelText('Previsto a partir de'), '2026-03-14T18:00');
-    await user.type(within(dialog()).getByLabelText('Previsto ate'), '2026-03-14T17:00');
+    await user.type(within(dialog()).getByLabelText('Previsto até'), '2026-03-14T17:00');
     submitCreate();
 
     // O servidor recusa isto como regra de negocio, sem apontar campo; dito aqui,
     // tem conserto obvio.
-    const message = await screen.findByText('O fim do periodo deve ser depois do inicio.');
+    const message = await screen.findByText('O fim do período deve ser depois do início.');
     expect(message).toHaveAttribute('id', 'expectedUntil-error');
     expect(mockPost).not.toHaveBeenCalled();
   });
@@ -176,7 +176,7 @@ describe('Cadastro de visitante', () => {
     world = serveVisitors({ visitors: [] });
     mockPost.mockRejectedValue(
       new ApiError('Dados invalidos.', 422, 'VALIDATION_ERROR', [
-        { field: 'badgeNumber', message: 'Cracha ja esta em uso por outro visitante.' },
+        { field: 'badgeNumber', message: 'Cracha já esta em uso por outro visitante.' },
       ]),
     );
     renderWithProviders(<VisitorsPage />);
@@ -189,18 +189,18 @@ describe('Cadastro de visitante', () => {
     await user.type(within(dialog()).getByLabelText('Cracha'), 'C-014');
     submitCreate();
 
-    const message = await screen.findByText('Cracha ja esta em uso por outro visitante.');
+    const message = await screen.findByText('Cracha já esta em uso por outro visitante.');
     expect(message).toHaveAttribute('id', 'badgeNumber-error');
     // O formulario define `onError`, entao substitui o toast global em vez de
     // somar a ele: a mesma recusa nao pode aparecer duas vezes.
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
-  it('um 409 sem campo aparece como mensagem do formulario, preservando o preenchido', async () => {
+  it('um 409 sem campo aparece como mensagem do formulário, preservando o preenchido', async () => {
     world = serveVisitors({ visitors: [] });
     mockPost.mockRejectedValue(
       new ApiError(
-        'A unidade informada pertence a outro condominio.',
+        'A unidade informada pertence a outro condomínio.',
         409,
         'BUSINESS_RULE_VIOLATION',
       ),
@@ -216,14 +216,14 @@ describe('Cadastro de visitante', () => {
     submitCreate();
 
     expect(
-      await screen.findByText('A unidade informada pertence a outro condominio.'),
+      await screen.findByText('A unidade informada pertence a outro condomínio.'),
     ).toBeInTheDocument();
     // O dialogo fica, com os valores no lugar, para a correcao.
     expect(within(dialog()).getByLabelText('Nome')).toHaveValue('Pedro Nunes');
     expect(within(dialog()).getByLabelText('Empresa')).toHaveValue('Entrega Rapida');
   });
 
-  it('dois envios em sequencia produzem um unico POST', async () => {
+  it('dois envios em sequência produzem um único POST', async () => {
     world = serveVisitors({ visitors: [] });
     mockPost.mockImplementation(async () => {
       world.visitors = [makeVisitor({ name: 'Pedro Nunes' })];
@@ -242,7 +242,7 @@ describe('Cadastro de visitante', () => {
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
   });
 
-  it('o formulario grava no condominio em que abriu, mesmo se o shell mudar', async () => {
+  it('o formulário grava no condomínio em que abriu, mesmo se o shell mudar', async () => {
     world = serveVisitors({ visitors: [] });
     mockPost.mockImplementation(async () => {
       world.visitors = [makeVisitor({ name: 'Pedro Nunes' })];
@@ -260,7 +260,7 @@ describe('Cadastro de visitante', () => {
 
     // Por papel nao da: o dialogo modal marca o resto da pagina como
     // `aria-hidden`, e `getByRole` nao enxerga fora da arvore acessivel.
-    clickTrigger(screen.getByText('Trocar condominio'));
+    clickTrigger(screen.getByText('Trocar condomínio'));
 
     // A divergencia entre o que o dialogo grava e o que a tela mostra e nomeada,
     // em vez de silenciosamente reapontada (US-027.EC-3).
@@ -273,8 +273,8 @@ describe('Cadastro de visitante', () => {
   });
 });
 
-describe('Edicao de visitante', () => {
-  it('editar emite um unico PATCH e a linha reflete', async () => {
+describe('Edição de visitante', () => {
+  it('editar emite um único PATCH e a linha reflete', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     mockPatch.mockImplementation(async () => {
       world.visitors = [makeVisitor({ company: 'Correios' })];
@@ -301,7 +301,7 @@ describe('Edicao de visitante', () => {
     expect(await screen.findByText('Correios')).toBeInTheDocument();
   });
 
-  it('limpar um campo opcional envia null, e nao a chave ausente', async () => {
+  it('limpar um campo opcional envia null, e não a chave ausente', async () => {
     world = serveVisitors({ visitors: [makeVisitor()] });
     mockPatch.mockImplementation(async () => {
       world.visitors = [makeVisitor({ badgeNumber: null })];

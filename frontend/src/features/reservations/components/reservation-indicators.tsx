@@ -59,24 +59,24 @@ export function ReservationIndicators({ condominiumId, month, areas }: Reservati
           Indicadores de {monthLabel}
         </h2>
         <p className="text-xs text-muted-foreground">
-          Numeros do mes inteiro, independentes dos filtros aplicados na lista.
+          Números do mês inteiro, independentes dos filtros aplicados na lista.
         </p>
       </div>
 
       {failed ? (
         <p role="alert" className="text-sm text-destructive">
-          Nao foi possivel carregar os indicadores do mes. A lista de reservas continua disponivel.
+          Não foi possível carregar os indicadores do mês. A lista de reservas continua disponível.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-3">
-          <Metric label="Reservas no mes" value={total.data} loading={total.isPending} />
+          <Metric label="Reservas no mês" value={total.data} loading={total.isPending} />
           <Metric label="Cancelamentos" value={canceled.data} loading={canceled.isPending} />
 
           <div className="sm:col-span-1">
-            <p className="text-xs text-muted-foreground">Por area comum</p>
+            <p className="text-xs text-muted-foreground">Por área comum</p>
             {areas.length === 0 ? (
               <p className="mt-1 text-sm text-muted-foreground">
-                Nenhuma area comum cadastrada neste condominio.
+                Nenhuma área comum cadastrada neste condomínio.
               </p>
             ) : (
               <ul className="mt-1 space-y-0.5 text-sm">
@@ -88,7 +88,7 @@ export function ReservationIndicators({ condominiumId, month, areas }: Reservati
                 ))}
                 {rest.length > 0 ? (
                   <li className="flex items-baseline justify-between gap-2 text-muted-foreground">
-                    <span className="truncate">Outras {rest.length} areas</span>
+                    <span className="truncate">Outras {rest.length} áreas</span>
                     <span className="font-medium tabular-nums">{restTotal}</span>
                   </li>
                 ) : null}

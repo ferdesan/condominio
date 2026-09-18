@@ -45,7 +45,7 @@ function entry(overrides: Partial<AvailabilityEntry> = {}): AvailabilityEntry {
 
 /** Troca para a visao de calendario e espera a grade aparecer. */
 async function openCalendar(): Promise<void> {
-  clickTrigger(screen.getByRole('button', { name: 'Calendario' }));
+  clickTrigger(screen.getByRole('button', { name: 'Calendário' }));
   await screen.findByRole('table', { name: /Reservas de/ });
 }
 
@@ -56,10 +56,10 @@ function dayCell(day: number): HTMLElement {
   const cells = screen.getAllByRole('cell');
   const found = cells.find(
     (cell) =>
-      !cell.getAttribute('aria-label')?.includes('fora do mes') &&
+      !cell.getAttribute('aria-label')?.includes('fora do mês') &&
       cell.querySelector('span')?.textContent === String(day),
   );
-  if (!found) throw new Error(`Celula do dia ${day} nao encontrada`);
+  if (!found) throw new Error(`Celula do dia ${day} não encontrada`);
   return found;
 }
 
@@ -70,8 +70,8 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Calendario de reservas', () => {
-  it('IT-130: navega entre meses e filtra por area, pedindo uma disponibilidade por mes', async () => {
+describe('Calendário de reservas', () => {
+  it('IT-130: navega entre meses e filtra por área, pedindo uma disponibilidade por mês', async () => {
     const thisMonth = entry({
       id: 'deste-mes',
       commonAreaName: 'Salao de Festas',
@@ -109,19 +109,19 @@ describe('Calendario de reservas', () => {
     expect(new Date(String(first?.from)).getMonth()).toBe(CURRENT_MONTH.getMonth());
     expect(new Date(String(first?.to)).getMonth()).toBe(CURRENT_MONTH.getMonth());
 
-    clickTrigger(screen.getByRole('button', { name: 'Proximo mes' }));
+    clickTrigger(screen.getByRole('button', { name: 'Próximo mês' }));
 
     await waitFor(() => expect(within(dayCell(5)).getByText(/Churrasqueira/)).toBeInTheDocument());
     expect(new Date(String(availabilityRequests().at(-1)?.from)).getMonth()).toBe(next.getMonth());
     // Um pedido por mes: o do mes atual e o do seguinte.
     expect(availabilityRequests()).toHaveLength(2);
 
-    selectOption(screen.getByLabelText('Area comum'), 'Churrasqueira');
+    selectOption(screen.getByLabelText('Área comum'), 'Churrasqueira');
 
     await waitFor(() => expect(availabilityRequests().at(-1)?.commonAreaId).toBe('area-2'));
   });
 
-  it('IT-131: um mes sem reservas renderiza a grade cheia de dias vazios', async () => {
+  it('IT-131: um mês sem reservas renderiza a grade cheia de dias vazios', async () => {
     serveApi({ areas: AREAS, units: [makeUnit()], reservations: [], availability: [] });
 
     renderWithProviders(<ReservationsPage />);
@@ -137,7 +137,7 @@ describe('Calendario de reservas', () => {
     const entries = Array.from({ length: 5 }, (_, index) =>
       entry({
         id: `reservation-${index + 1}`,
-        commonAreaName: `Area ${index + 1}`,
+        commonAreaName: `Área ${index + 1}`,
         startsAt: at(CURRENT_MONTH.getFullYear(), CURRENT_MONTH.getMonth() + 1, 12, 8 + index),
         endsAt: at(CURRENT_MONTH.getFullYear(), CURRENT_MONTH.getMonth() + 1, 12, 9 + index),
       }),
@@ -150,7 +150,7 @@ describe('Calendario de reservas', () => {
 
     const cell = await waitFor(() => {
       const found = dayCell(12);
-      expect(within(found).getByText(/Area 1/)).toBeInTheDocument();
+      expect(within(found).getByText(/Área 1/)).toBeInTheDocument();
       return found;
     });
 
@@ -189,7 +189,7 @@ describe('Calendario de reservas', () => {
     const steps =
       (target.getFullYear() - CURRENT_MONTH.getFullYear()) * 12 +
       (target.getMonth() - CURRENT_MONTH.getMonth());
-    const forward = screen.getByRole('button', { name: 'Proximo mes' });
+    const forward = screen.getByRole('button', { name: 'Próximo mês' });
     for (let step = 0; step < steps; step += 1) clickTrigger(forward);
 
     await screen.findByRole('table', {
@@ -198,18 +198,18 @@ describe('Calendario de reservas', () => {
 
     const cells = screen.getAllByRole('cell');
     const inMonth = cells.filter(
-      (cell) => !cell.getAttribute('aria-label')?.includes('fora do mes'),
+      (cell) => !cell.getAttribute('aria-label')?.includes('fora do mês'),
     );
     expect(inMonth).toHaveLength(29);
 
     // Os dias de preenchimento existem e sao identificaveis.
     const outside = cells.filter((cell) =>
-      cell.getAttribute('aria-label')?.includes('fora do mes'),
+      cell.getAttribute('aria-label')?.includes('fora do mês'),
     );
     expect(outside.length).toBeGreaterThan(0);
   });
 
-  it('IT-135: avancar dois meses rapido mostra o mes da ultima resposta, e nao o da que atrasou', async () => {
+  it('IT-135: avancar dois meses rapido mostra o mês da última resposta, e não o da que atrasou', async () => {
     const second = addMonths(CURRENT_MONTH, 1);
     const third = addMonths(CURRENT_MONTH, 2);
 
@@ -245,7 +245,7 @@ describe('Calendario de reservas', () => {
     renderWithProviders(<ReservationsPage />);
     await openCalendar();
 
-    const forward = screen.getByRole('button', { name: 'Proximo mes' });
+    const forward = screen.getByRole('button', { name: 'Próximo mês' });
     clickTrigger(forward);
     clickTrigger(forward);
 
@@ -257,7 +257,7 @@ describe('Calendario de reservas', () => {
     expect(within(dayCell(9)).getByText(/Resposta final/)).toBeInTheDocument();
   });
 
-  it('IT-136: recusadas, canceladas e concluidas ficam fora do calendario e dentro da lista', async () => {
+  it('IT-136: recusadas, canceladas e concluidas ficam fora do calendário e dentro da lista', async () => {
     const confirmed = entry({
       id: 'confirmada',
       commonAreaName: 'Salao de Festas',
@@ -301,14 +301,14 @@ describe('Calendario de reservas', () => {
     expect(screen.getByText(/apenas reservas pendentes e confirmadas/i)).toBeInTheDocument();
   });
 
-  it('IT-137: sem condominio selecionado, o calendario explica a exigencia', async () => {
+  it('IT-137: sem condomínio selecionado, o calendário explica a exigência', async () => {
     serveApi({ areas: [], units: [], reservations: [], availability: [] });
 
     renderWithProviders(<ReservationsPage />, { condominium: null });
 
-    clickTrigger(screen.getByRole('button', { name: 'Calendario' }));
+    clickTrigger(screen.getByRole('button', { name: 'Calendário' }));
 
-    expect(await screen.findByText('Selecione um condominio')).toBeInTheDocument();
+    expect(await screen.findByText('Selecione um condomínio')).toBeInTheDocument();
     expect(screen.queryByRole('table', { name: /Reservas de/ })).not.toBeInTheDocument();
     // Sem condominio nao ha o que pedir.
     expect(availabilityRequests()).toHaveLength(0);

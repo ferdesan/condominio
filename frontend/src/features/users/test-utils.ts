@@ -26,7 +26,7 @@ export function makeRole(overrides: Partial<Role> = {}): Role {
   return {
     id: 'role-1',
     name: 'SINDICO',
-    description: 'Administra o condominio no dia a dia.',
+    description: 'Administra o condomínio no dia a dia.',
     permissions: ['condominium:manage'],
     isSystem: true,
     ...TIMESTAMPS,

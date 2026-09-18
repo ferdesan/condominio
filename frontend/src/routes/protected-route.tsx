@@ -12,7 +12,7 @@ export function ProtectedRoute({ permission }: { permission?: string }) {
   const location = useLocation();
 
   // Sem esperar a revalidacao, um F5 jogaria o usuario logado para o login.
-  if (initializing) return <FullPageLoader label="Restaurando sessao" />;
+  if (initializing) return <FullPageLoader label="Restaurando sessão" />;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;

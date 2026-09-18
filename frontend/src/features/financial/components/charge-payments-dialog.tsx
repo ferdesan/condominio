@@ -72,7 +72,7 @@ export function ChargePaymentsDialog({ charge, onClose }: ChargePaymentsDialogPr
     },
     {
       key: 'notes',
-      label: 'Observacao',
+      label: 'Observação',
       render: (_value, row) =>
         row.notes ? (
           <span className="text-muted-foreground">{row.notes}</span>
@@ -89,9 +89,9 @@ export function ChargePaymentsDialog({ charge, onClose }: ChargePaymentsDialogPr
         if (!next) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Pagamentos da cobranca</DialogTitle>
+          <DialogTitle>Pagamentos da cobrança</DialogTitle>
           <DialogDescription>
             Historico de baixas. Para registrar uma nova, use &ldquo;Registrar pagamento&rdquo; na
             lista.
@@ -110,20 +110,20 @@ export function ChargePaymentsDialog({ charge, onClose }: ChargePaymentsDialogPr
           <EmptyState
             icon={Receipt}
             title="Nenhum pagamento registrado"
-            description="Esta cobranca ainda nao recebeu nenhuma baixa."
+            description="Esta cobrança ainda não recebeu nenhuma baixa."
           />
         ) : (
           <div className="space-y-3">
             <DataTable columns={columns} data={payments} idKey="id" searchable={false} />
 
             {/*
-              A soma e do que esta na tabela, e a tabela traz o historico
-              inteiro da cobranca — nao e um subtotal de pagina. Comparada ao
-              valor da cobranca, ela explica um saldo parcial.
+              A soma e do que esta na tabela, e a tabela traz o histórico
+              inteiro da cobrança — não e um subtotal de pagina. Comparada ao
+              valor da cobrança, ela explica um saldo parcial.
             */}
             <dl className="flex flex-wrap justify-end gap-x-6 gap-y-1 border-t pt-3 text-sm">
               <div className="flex gap-2">
-                <dt className="text-muted-foreground">Valor da cobranca</dt>
+                <dt className="text-muted-foreground">Valor da cobrança</dt>
                 <dd className="tabular-nums">{formatCurrency(charge.amount)}</dd>
               </div>
               <div className="flex gap-2">

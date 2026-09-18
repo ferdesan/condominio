@@ -82,12 +82,12 @@ export function PayExpenseDialog({ expense, onClose }: PayExpenseDialogProps) {
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Liquidar despesa</DialogTitle>
           <DialogDescription>
             {expense.description} · {formatCurrency(expense.amount)}
-            {expense.isRecurring ? ' · recorrente: a proxima sera agendada' : ''}
+            {expense.isRecurring ? ' · recorrente: a próxima será agendada' : ''}
           </DialogDescription>
         </DialogHeader>
 
@@ -136,7 +136,7 @@ export function PayExpenseDialog({ expense, onClose }: PayExpenseDialogProps) {
 
           <FormField
             id="pay-notes"
-            label="Observacoes"
+            label="Observações"
             error={errors.notes?.message}
             description="Opcional."
           >
