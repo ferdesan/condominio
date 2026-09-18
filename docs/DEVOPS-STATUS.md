@@ -139,7 +139,7 @@
 - [ ] `npm run docker:down:all` - Limpar tudo
 
 ### CI/CD Pipeline
-- [ ] Fazer commit inicial no branch `main` ou `develop`
+- [ ] Fazer push para `master` (ou disparar pela aba Actions)
 - [ ] Verificar execução do workflow no GitHub Actions
 - [ ] Validar jobs: lint-typecheck, test, build
 - [ ] Confirmar upload de artefatos

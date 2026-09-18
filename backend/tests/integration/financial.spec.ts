@@ -214,4 +214,86 @@ describe('Financeiro (cobrancas, pagamentos e despesas)', () => {
     expect(response.body.data.total).toBeGreaterThan(0);
     expect(Array.isArray(response.body.data.byCategory)).toBe(true);
   });
+
+  /**
+   * Uma despesa `PAID` sem `paidAt` nao pertence a mes nenhum no balancete de
+   * caixa: o dinheiro sai e nao aparece em competencia alguma. Ate esta esteira,
+   * o estado era criavel pela API normal.
+   */
+  describe('Invariante da despesa paga (ADR-004)', () => {
+    let sequence = 0;
+
+    const newExpense = (overrides: Record<string, unknown> = {}) => ({
+      condominiumId: ctx.seed.condominiumId,
+      description: `Despesa do invariante ${(sequence += 1)}`,
+      competence: referenceMonth,
+      dueDate,
+      amount: 320.5,
+      ...overrides,
+    });
+
+    it('IT-298: recusa criar despesa paga sem data de pagamento', async () => {
+      const response = await admin
+        .post('/financial/expenses')
+        .send(newExpense({ status: 'PAID' }));
+
+      expect(response.status).toBe(409);
+      expect(response.body.error.message).toMatch(/data de pagamento/i);
+    });
+
+    it('IT-299: recusa marcar como paga uma despesa que nao tem data', async () => {
+      const created = await admin.post('/financial/expenses').send(newExpense());
+      expect(created.status).toBe(201);
+
+      const response = await admin
+        .patch(`/financial/expenses/${created.body.data.id}`)
+        .send({ status: 'PAID' });
+
+      expect(response.status).toBe(409);
+      expect(response.body.error.message).toMatch(/data de pagamento/i);
+    });
+
+    it('IT-300: aceita marcar como paga quando a data ja esta na linha', async () => {
+      const paidAt = dayjs(`${referenceMonth}-05T12:00:00`).toISOString();
+      const created = await admin.post('/financial/expenses').send(newExpense({ paidAt }));
+      expect(created.status).toBe(201);
+
+      const response = await admin
+        .patch(`/financial/expenses/${created.body.data.id}`)
+        .send({ status: 'PAID' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.status).toBe('PAID');
+      expect(response.body.data.paidAt).not.toBeNull();
+    });
+
+    it('IT-301: recusa limpar a data de pagamento de uma despesa paga', async () => {
+      const paidAt = dayjs(`${referenceMonth}-06T12:00:00`).toISOString();
+      const created = await admin
+        .post('/financial/expenses')
+        .send(newExpense({ status: 'PAID', paidAt }));
+      expect(created.status).toBe(201);
+
+      const response = await admin
+        .patch(`/financial/expenses/${created.body.data.id}`)
+        .send({ paidAt: null });
+
+      expect(response.status).toBe(409);
+      expect(response.body.error.message).toMatch(/data de pagamento/i);
+    });
+
+    it('IT-302: a rota de baixa segue gravando status e data juntos', async () => {
+      const created = await admin.post('/financial/expenses').send(newExpense());
+      expect(created.status).toBe(201);
+
+      const paidAt = dayjs(`${referenceMonth}-07T09:30:00`).toISOString();
+      const response = await admin
+        .post(`/financial/expenses/${created.body.data.id}/pay`)
+        .send({ paidAt, paymentMethod: 'PIX' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.status).toBe('PAID');
+      expect(dayjs(response.body.data.paidAt).isSame(dayjs(paidAt))).toBe(true);
+    });
+  });
 });

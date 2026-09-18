@@ -1,5 +1,5 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
-import { TenantScopedEntity } from '@/shared/entities';
+import { TenantScopedEntity, numericTransformer } from '@/shared/entities';
 import { Block } from '@/modules/blocks/block.entity';
 
 export const CONDOMINIUM_TYPES = ['RESIDENTIAL', 'COMMERCIAL', 'MIXED'] as const;
@@ -65,6 +65,29 @@ export class Condominium extends TenantScopedEntity {
   /** Dia padrao de vencimento das taxas condominiais (1-28). */
   @Column({ name: 'charge_due_day', type: 'int', default: 10 })
   chargeDueDay: number;
+
+  /**
+   * Saldo em caixa na data de corte, digitado uma vez. E o ponto de partida do
+   * balancete: dele em diante cada mes fechado entrega o seu saldo ao seguinte,
+   * e so os meses anteriores ao primeiro fechamento voltam a este numero.
+   */
+  @Column({
+    name: 'opening_balance',
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+    transformer: numericTransformer,
+  })
+  openingBalance: number;
+
+  /**
+   * Data a que o saldo de abertura se refere. Nulo significa "sem corte": tudo
+   * o que o banco guarda entra na conta, que e a leitura honesta de nao ter sido
+   * informada.
+   */
+  @Column({ name: 'opening_balance_date', type: 'date', nullable: true })
+  openingBalanceDate?: string | null;
 
   @Column({ name: 'total_units', type: 'int', default: 0 })
   totalUnits: number;

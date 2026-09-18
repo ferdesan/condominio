@@ -8,7 +8,8 @@ import { CondominiumScopedService } from '@/shared/services/condominium-scoped.s
 import { assertReferenceExists } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
 import { addByRecurrence, dayjs, isOverdue } from '@/shared/utils/date.util';
-import { Expense } from '../entities/expense.entity';
+import { assertMonthOpen } from '../closing-guard';
+import { Expense, type ExpenseStatus } from '../entities/expense.entity';
 import { expenseRepository, type ExpenseRepository } from '../repositories/expense.repository';
 import type {
   CreateExpenseDTO,
@@ -34,10 +35,14 @@ export class ExpenseService extends CondominiumScopedService<
   ): Promise<DeepPartial<Expense>> {
     await this.assertReferences(ctx, dto.categoryId ?? null, dto.serviceProviderId ?? null);
 
-    return {
-      ...dto,
-      status: dto.status === 'PENDING' && isOverdue(dto.dueDate) ? 'OVERDUE' : dto.status,
-    } as DeepPartial<Expense>;
+    const status = dto.status === 'PENDING' && isOverdue(dto.dueDate) ? 'OVERDUE' : dto.status;
+    this.assertPaidHasDate(status, dto.paidAt ?? null);
+
+    if (status === 'PAID') {
+      await assertMonthOpen(ctx.scope, dto.condominiumId, dto.paidAt);
+    }
+
+    return { ...dto, status } as DeepPartial<Expense>;
   }
 
   protected override async prepareUpdate(
@@ -45,11 +50,71 @@ export class ExpenseService extends CondominiumScopedService<
     current: Expense,
     dto: UpdateExpenseDTO,
   ): Promise<DeepPartial<Expense>> {
+    // A guarda de mes fechado vem antes da regra de valor: nada de um mes
+    // fechado pode mudar, e a recusa precisa dizer isso em vez de falar sobre
+    // outra regra que tambem se aplicaria.
+    if (current.status === 'PAID') {
+      await assertMonthOpen(ctx.scope, current.condominiumId, current.paidAt);
+    }
+    const nextPaidAt = dto.paidAt !== undefined ? dto.paidAt : (current.paidAt ?? null);
+    const nextStatus = dto.status ?? current.status;
+    if (nextStatus === 'PAID') {
+      await assertMonthOpen(ctx.scope, current.condominiumId, nextPaidAt);
+    }
+
     if (current.status === 'PAID' && dto.amount !== undefined && dto.amount !== current.amount) {
       throw new BusinessRuleError('Despesas pagas nao podem ter o valor alterado.');
     }
+
+    this.assertPaidHasDate(nextStatus, nextPaidAt);
+
     await this.assertReferences(ctx, dto.categoryId ?? null, dto.serviceProviderId ?? null);
     return dto as DeepPartial<Expense>;
+  }
+
+  /**
+   * Excluir uma despesa paga muda o total de um mes que pode estar fechado. O
+   * hook existe; aqui ele so ganha mais uma guarda.
+   */
+  protected override async beforeRemove(ctx: RequestContext, entity: Expense): Promise<void> {
+    if (entity.status === 'PAID') {
+      await assertMonthOpen(ctx.scope, entity.condominiumId, entity.paidAt);
+    }
+  }
+
+  /**
+   * `BaseCrudService.restore` **nao tem hook** e restaura antes de ler a linha,
+   * entao a unica forma de guardar este caminho e sobrescrever e ler a removida
+   * primeiro — `query(scope, true)` inclui excluidas. Sem isto, devolver uma
+   * despesa paga a um mes fechado passaria sem recusa (ADR-003).
+   */
+  override async restore(ctx: RequestContext, id: string): Promise<Expense> {
+    const current = await this.expenses
+      .query(ctx.scope, true)
+      .andWhere('expense.id = :id', { id })
+      .getOne();
+
+    if (current?.status === 'PAID') {
+      await assertMonthOpen(ctx.scope, current.condominiumId, current.paidAt);
+    }
+
+    return super.restore(ctx, id);
+  }
+
+  /**
+   * Uma despesa `PAID` sem `paidAt` nao pertence a mes nenhum: o balancete e de
+   * caixa e soma pela data do pagamento, entao esse dinheiro sai do condominio e
+   * nao aparece em competencia alguma — sem erro, sem aviso, sem lugar onde
+   * procurar.
+   *
+   * A verificacao olha o estado **resultante**, e nao o corpo enviado. Marcar
+   * `PAID` numa linha que ja tem data passa; limpar a data de uma linha ja paga
+   * nao passa. Olhar so o payload deixaria a segunda entrar.
+   */
+  private assertPaidHasDate(status: ExpenseStatus, paidAt: Date | null): void {
+    if (status === 'PAID' && !paidAt) {
+      throw new BusinessRuleError('Uma despesa paga precisa da data de pagamento.');
+    }
   }
 
   /**

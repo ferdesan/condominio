@@ -19,6 +19,7 @@ export const RESOURCES = [
   'charge',
   'payment',
   'expense',
+  'financial-closing',
   'assembly',
   'poll',
   'vote',

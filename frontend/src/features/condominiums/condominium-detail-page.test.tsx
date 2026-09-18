@@ -136,6 +136,22 @@ describe('Detalhe do condomínio', () => {
     expect(await screen.findByText('Joana Ribeiro')).toBeInTheDocument();
   });
 
+  it('IT-317: o saldo de abertura e a data de corte aparecem no cadastro', async () => {
+    serveDetail(
+      makeCondominium({ openingBalance: 12_500.5, openingBalanceDate: '2026-01-01' }),
+      STATS,
+    );
+    renderDetail();
+
+    const record = await screen.findByRole('region', { name: 'Cadastro' });
+
+    // So os digitos: `Intl.NumberFormat` separa "R$" do numero com espaco rigido,
+    // e comparar a string inteira prenderia o caso ao formato.
+    const balance = within(record).getByText('Saldo de abertura').parentElement as HTMLElement;
+    expect(balance.textContent?.replace(/\D/g, '')).toContain('1250050');
+    expect(within(record).getByText('01/01/2026')).toBeInTheDocument();
+  });
+
   it('IT-027: condomínio removido rende não encontrado', async () => {
     serveDetail(new ApiError('Condomínio não encontrado.', 404, 'NOT_FOUND'), STATS);
     renderDetail('cond-removido');

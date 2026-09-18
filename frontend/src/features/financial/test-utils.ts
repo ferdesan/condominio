@@ -10,7 +10,7 @@
  */
 
 import { vi } from 'vitest';
-import { apiGet, apiGetPaginated } from '@/lib/api';
+import { apiGet, apiGetPaginated, apiPost } from '@/lib/api';
 import { makeMeta, makeServiceProvider, makeUnit } from '@/test/fixtures';
 import type { ServiceProvider, Unit } from '@/types/api';
 import type {
@@ -20,6 +20,7 @@ import type {
   DelinquencyRow,
   Expense,
   FinancialCategory,
+  MonthlyStatement,
 } from '@/types/financial';
 
 const TIMESTAMPS = {
@@ -131,6 +132,28 @@ export function makeSummary(overrides: Partial<ChargeSummary> = {}): ChargeSumma
   };
 }
 
+export function makeStatement(overrides: Partial<MonthlyStatement> = {}): MonthlyStatement {
+  return {
+    condominiumId: 'condo-1',
+    referenceMonth: new Date().toISOString().slice(0, 7),
+    status: 'OPEN',
+    openingBalance: { amount: 1_000, source: 'COMPUTED', from: '2026-01-01' },
+    income: [{ categoryId: 'cat-1', name: 'Taxa condominial', total: 3_000 }],
+    expense: [{ categoryId: 'cat-2', name: 'Agua e energia', total: 1_200 }],
+    totalIncome: 3_000,
+    totalExpense: 1_200,
+    result: 1_800,
+    closingBalance: 2_800,
+    unresolvedPaidExpenses: { count: 0, total: 0 },
+    delinquency: { amount: 900, count: 3 },
+    closedAt: null,
+    closedBy: null,
+    reopenedAt: null,
+    reopenCount: 0,
+    ...overrides,
+  };
+}
+
 export function makeDelinquencyRow(overrides: Partial<DelinquencyRow> = {}): DelinquencyRow {
   return {
     unitId: 'unit-9',
@@ -155,6 +178,8 @@ export type FinancialWorld = {
   providers: ServiceProvider[];
   summary: ChargeSummary;
   delinquency: DelinquencyRow[];
+  /** Balancete servido por `/financial/closings/:mes`, mutado por fechar e reabrir. */
+  statement: MonthlyStatement;
   /** `meta.total` da listagem de cobrancas, para exercitar a paginacao. */
   chargeTotal?: number;
 };
@@ -174,6 +199,7 @@ export function serveFinancial(initial: Partial<FinancialWorld> = {}): Financial
     providers: [makeServiceProvider({ id: 'provider-1' })],
     summary: makeSummary(),
     delinquency: [],
+    statement: makeStatement(),
     ...initial,
   };
 
@@ -219,7 +245,23 @@ export function serveFinancial(initial: Partial<FinancialWorld> = {}): Financial
   vi.mocked(apiGet).mockImplementation(async (url) => {
     if (url === '/financial/charges/summary') return world.summary as never;
     if (url === '/financial/charges/delinquency') return world.delinquency as never;
+    // O balancete e pedido por competencia, entao o duble responde a qualquer
+    // mes com o estado do mundo — trocar de mes e um refetch, e o caso decide o
+    // que muda alterando `world.statement`.
+    if (url.startsWith('/financial/closings/')) return world.statement as never;
     throw new Error(`URL nao prevista no teste: ${url}`);
+  });
+
+  vi.mocked(apiPost).mockImplementation(async (url) => {
+    if (url.endsWith('/close')) {
+      world.statement = { ...world.statement, status: 'CLOSED', closedAt: new Date().toISOString() };
+      return world.statement as never;
+    }
+    if (url.endsWith('/reopen')) {
+      world.statement = { ...world.statement, status: 'OPEN', closedAt: null, reopenCount: 1 };
+      return world.statement as never;
+    }
+    throw new Error(`URL de escrita nao prevista no teste: ${url}`);
   });
 
   return world;

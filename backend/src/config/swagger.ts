@@ -276,6 +276,59 @@ function customPaths(): OpenApiObject {
       },
     },
     '/financial/expenses/{id}/pay': action('Financeiro', 'Quita a despesa'),
+    '/financial/closings': {
+      get: {
+        tags: ['Financeiro'],
+        summary: 'Lista os meses ja fechados do condominio',
+        parameters: [
+          { name: 'condominiumId', in: 'query', required: true, schema: { type: 'string', format: 'uuid' } },
+          { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+          { name: 'perPage', in: 'query', schema: { type: 'integer', default: 20 } },
+        ],
+        responses: { 200: { $ref: '#/components/responses/PaginatedList' }, ...ERROR_RESPONSES },
+      },
+    },
+    '/financial/closings/{referenceMonth}': {
+      get: {
+        tags: ['Financeiro'],
+        summary: 'Balancete do mes: saldo anterior, entradas e saidas por categoria, saldo final',
+        description:
+          'Regime de caixa: a receita vem da data do pagamento e a despesa da data em que foi paga. ' +
+          'Recalcula enquanto o mes esta aberto e serve o documento gravado depois de fechado.',
+        parameters: [
+          { name: 'referenceMonth', in: 'path', required: true, schema: { type: 'string', example: '2026-09' } },
+          { name: 'condominiumId', in: 'query', required: true, schema: { type: 'string', format: 'uuid' } },
+        ],
+        responses: { 200: { $ref: '#/components/responses/Entity' }, ...ERROR_RESPONSES },
+      },
+    },
+    '/financial/closings/{referenceMonth}/close': {
+      post: {
+        tags: ['Financeiro'],
+        summary: 'Fecha o mes e congela o balancete',
+        description:
+          'Exige `financial-closing:create`. Recusa mes que ainda nao terminou e mes ja fechado. ' +
+          'Depois disto, lancamento que moveria o caixa do mes e recusado com 409.',
+        parameters: [
+          { name: 'referenceMonth', in: 'path', required: true, schema: { type: 'string', example: '2026-08' } },
+        ],
+        requestBody: { $ref: '#/components/requestBodies/GenericPayload' },
+        responses: { 200: { $ref: '#/components/responses/Entity' }, ...ERROR_RESPONSES },
+      },
+    },
+    '/financial/closings/{referenceMonth}/reopen': {
+      post: {
+        tags: ['Financeiro'],
+        summary: 'Reabre o mes fechado, deixando registro',
+        description:
+          'Exige `financial-closing:manage`, estritamente mais forte do que a permissao de fechar.',
+        parameters: [
+          { name: 'referenceMonth', in: 'path', required: true, schema: { type: 'string', example: '2026-08' } },
+        ],
+        requestBody: { $ref: '#/components/requestBodies/GenericPayload' },
+        responses: { 200: { $ref: '#/components/responses/Entity' }, ...ERROR_RESPONSES },
+      },
+    },
     '/assemblies/{id}/start': action('Assembleias', 'Inicia a assembleia', false),
     '/assemblies/{id}/finish': action('Assembleias', 'Encerra e anexa a ata'),
     '/polls/{id}/open': action('Votacoes', 'Abre a votacao', false),
