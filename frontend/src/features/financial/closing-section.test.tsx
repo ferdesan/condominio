@@ -34,10 +34,14 @@ vi.setConfig({ testTimeout: 120_000, hookTimeout: 120_000 });
 const condominium = makeCondominium({ id: 'condo-1' });
 const currentMonth = new Date().toISOString().slice(0, 7);
 
-/** Abre a secao do balancete e espera o titulo aparecer. */
+/**
+ * Abre a secao e espera o titulo. O nome casa por trecho porque o titulo carrega
+ * tambem o nome do condominio — a casca some na impressao, e o documento precisa
+ * dizer de quem ele e.
+ */
 async function openClosing(): Promise<void> {
   clickTrigger(screen.getByRole('button', { name: 'Balancete' }));
-  await screen.findByRole('heading', { name: 'Balancete mensal' });
+  await screen.findByRole('heading', { name: /^Balancete mensal/ });
 }
 
 function render(options: { permissions?: string[] } = {}) {
@@ -191,6 +195,55 @@ describe('Balancete na tela de Financeiro', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/já está fechada/);
     expect(screen.getByRole('button', { name: 'Fechar mês' })).toBeInTheDocument();
+  });
+
+  it('IT-314: exportar entrega um arquivo pela âncora, sem tocar na rede', async () => {
+    /*
+      O jsdom nao implementa `URL.createObjectURL` nem o download de um link. Os
+      dois stubs mais o espiao no clique mantem o caso silencioso: sem o espiao,
+      o clique vira tentativa de navegacao e polui o log.
+    */
+    const createObjectURL = vi.fn((_blob: Blob) => 'blob:balancete');
+    const revokeObjectURL = vi.fn();
+    Object.defineProperty(URL, 'createObjectURL', { value: createObjectURL, configurable: true });
+    Object.defineProperty(URL, 'revokeObjectURL', { value: revokeObjectURL, configurable: true });
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+
+    serveFinancial();
+    render();
+    await openClosing();
+    await screen.findByText('Taxa condominial');
+
+    clickTrigger(screen.getByRole('button', { name: 'Exportar CSV' }));
+
+    await waitFor(() => expect(click).toHaveBeenCalledTimes(1));
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+    expect(createObjectURL.mock.calls[0][0]).toBeInstanceOf(Blob);
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:balancete');
+    expect(apiPost).not.toHaveBeenCalled();
+
+    click.mockRestore();
+  });
+
+  it('a folha de impressão tem onde se agarrar: região marcada e controles marcados', async () => {
+    /*
+      O jsdom nao calcula layout, entao nenhum caso prova que a impressao parece
+      certa. O que pode quebrar em silencio e a marcacao que o `@media print`
+      procura — alguem remover a classe e a folha passar a esconder tudo, ou a
+      revelar tudo. Isto aqui e testavel, e e o que se testa.
+    */
+    serveFinancial();
+    render();
+    await openClosing();
+    await screen.findByText('Taxa condominial');
+
+    const document_ = screen.getByRole('region', { name: /Balancete mensal/ });
+    expect(document_).toHaveClass('print-document');
+    expect(
+      document_.querySelector('.print-hide')?.contains(screen.getByLabelText('Competência')),
+    ).toBe(true);
   });
 
   it('IT-315: abrir /financeiro não lê o balancete — a seção só monta quando escolhida', async () => {

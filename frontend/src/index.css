@@ -197,3 +197,54 @@
     scroll-behavior: auto !important;
   }
 }
+
+/*
+  Impressao do balancete.
+ 
+  Fora de qualquer `@layer`, no fim do arquivo, como o unico outro `@media`
+  global daqui. A tecnica e esconder tudo e revelar so a regiao marcada: a casca
+  autenticada, o menu lateral e o cabecalho nao sao alcancaveis por seletor
+  estavel a partir daqui, e enumera-los quebraria no dia em que um deles mudasse
+  de nome.
+ 
+  Nao ha teste que prove que isto parece certo: o jsdom nao calcula layout. O que
+  pode errar de forma que importe — o conteudo do arquivo — e o CSV, e esse e
+  testado como funcao pura.
+*/
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-document,
+  .print-document * {
+    visibility: visible;
+  }
+
+  .print-document {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Controles: seletor de mes, fechar, reabrir, exportar. */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Cartoes viram folha: sem sombra, sem fundo, com divisao visivel. */
+  .print-document [class*='rounded'] {
+    border-color: #999 !important;
+    box-shadow: none !important;
+  }
+
+  /* Uma tabela partida ao meio entre paginas nao se le. */
+  .print-document table {
+    break-inside: avoid;
+  }
+
+  @page {
+    margin: 1.5cm;
+  }
+}
