@@ -43,7 +43,7 @@ export function RolePermissionsDialog({ role, onClose }: RolePermissionsDialogPr
         if (!next) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>{`Permissões de ${role.name}`}</DialogTitle>
           <DialogDescription>

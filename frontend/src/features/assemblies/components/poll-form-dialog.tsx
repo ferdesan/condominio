@@ -118,7 +118,7 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
           if (!next) requestClose();
         }}
       >
-        <DialogContent side="right" dismissible={false} className="max-w-2xl overflow-y-auto">
+        <DialogContent side="right" dismissible={false} className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Editar deliberação' : 'Nova deliberação'}</DialogTitle>
             <DialogDescription>

@@ -155,7 +155,7 @@ export function ReservationFormDialog({
 
   return (
     <Dialog open onOpenChange={(next) => (!next && !pending ? onClose() : undefined)}>
-      <DialogContent side="right" dismissible={false} className="max-w-2xl overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Nova reserva</DialogTitle>
           <DialogDescription>

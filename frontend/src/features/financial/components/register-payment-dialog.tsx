@@ -86,7 +86,7 @@ export function RegisterPaymentDialog({ charge, onClose }: RegisterPaymentDialog
         if (!next && !pending) onClose();
       }}
     >
-      <DialogContent side="right" dismissible={false} className="max-w-lg overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Registrar pagamento</DialogTitle>
           <DialogDescription>

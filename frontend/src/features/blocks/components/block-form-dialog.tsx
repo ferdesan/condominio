@@ -104,7 +104,7 @@ export function BlockFormDialog({
         if (!next) onCancel();
       }}
     >
-      <DialogContent side="right" dismissible={false} className="max-w-xl overflow-y-auto">
+      <DialogContent side="right" dismissible={false} className="max-w-xl">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Editar bloco' : 'Novo bloco'}</DialogTitle>
           <DialogDescription>

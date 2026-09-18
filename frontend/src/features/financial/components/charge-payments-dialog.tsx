@@ -89,7 +89,7 @@ export function ChargePaymentsDialog({ charge, onClose }: ChargePaymentsDialogPr
         if (!next) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Pagamentos da cobrança</DialogTitle>
           <DialogDescription>

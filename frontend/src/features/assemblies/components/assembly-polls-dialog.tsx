@@ -99,7 +99,7 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
           if (!next) onClose();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Deliberações</DialogTitle>
             <DialogDescription>
