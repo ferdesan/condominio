@@ -13,6 +13,7 @@ import { recipientsService, type RecipientsService } from '@/shared/services/rec
 import { assertReferenceExists, resolveUnitCondominium } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
 import { dayjs, isOverdue } from '@/shared/utils/date.util';
+import { assertMonthOpen } from '../closing-guard';
 import { Charge } from '../entities/charge.entity';
 import { Payment } from '../entities/payment.entity';
 import { chargeRepository, type ChargeRepository } from '../repositories/charge.repository';
@@ -194,6 +195,12 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
     if (charge.status === 'CANCELED') {
       throw new BusinessRuleError('Cobranca cancelada nao aceita pagamentos.');
     }
+
+    // A guarda mora aqui, inline, e nao num hook: `registerPayment` escreve a
+    // cobranca por `this.repository.update` (abaixo), sem passar por
+    // `beforeUpdate`. Montada so como hook, ela deixaria aberta exatamente a
+    // porta mais usada do modulo (ADR-003).
+    await assertMonthOpen(ctx.scope, charge.condominiumId, dto.paidAt);
 
     const total = this.totalDue(charge);
     const alreadyPaid = await this.payments.sumByCharge(ctx.scope, charge.id);

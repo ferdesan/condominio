@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "Fechar, reabrir e o congelamento"
 type: backend
 complexity: critical
@@ -39,18 +39,18 @@ pontos de guarda não passam por hook algum do CRUD base.
 
 ## Subtasks
 
-- [ ] 3.1 Escrever `ClosingService.close`: recalcula, valida as três recusas, persiste o documento com autor e data, devolve a forma fechada
-- [ ] 3.2 Escrever `ClosingService.reopen`: valida, marca `OPEN`, grava autor, data e contagem
-- [ ] 3.3 Escrever a serialização e a desserialização do `breakdown`, com tolerância a documento de forma anterior
-- [ ] 3.4 Fazer a leitura de mês fechado servir o gravado, sem tocar em agregação alguma
-- [ ] 3.5 Escrever `closing-guard.ts` com `assertMonthOpen`, sobre o repositório apenas
-- [ ] 3.6 Ligar a guarda em `ChargeService.registerPayment`, antes de criar a linha de pagamento
-- [ ] 3.7 Ligar a guarda nos quatro pontos de `ExpenseService`: `prepareCreate`, `prepareUpdate`, `pay` e `beforeRemove`
-- [ ] 3.8 Sobrescrever `ExpenseService.restore` só para ligar a guarda, e delegar ao `super`
-- [ ] 3.9 Acrescentar as duas rotas de escrita, com as permissões assimétricas, e documentá-las no Swagger
-- [ ] 3.10 Escrever a auditoria de `close` e `reopen`
-- [ ] 3.11 Escrever os casos atribuídos, inclusive os que provam o que **não** é congelado
-- [ ] 3.12 Rodar o pipeline do backend e comparar a contagem
+- [x] 3.1 Escrever `ClosingService.close`: recalcula, valida as três recusas, persiste o documento com autor e data, devolve a forma fechada
+- [x] 3.2 Escrever `ClosingService.reopen`: valida, marca `OPEN`, grava autor, data e contagem
+- [x] 3.3 Escrever a serialização e a desserialização do `breakdown`, com tolerância a documento de forma anterior
+- [x] 3.4 Fazer a leitura de mês fechado servir o gravado, sem tocar em agregação alguma
+- [x] 3.5 Escrever `closing-guard.ts` com `assertMonthOpen`, sobre o repositório apenas
+- [x] 3.6 Ligar a guarda em `ChargeService.registerPayment`, antes de criar a linha de pagamento
+- [x] 3.7 Ligar a guarda nos quatro pontos de `ExpenseService`: `prepareCreate`, `prepareUpdate`, `pay` e `beforeRemove`
+- [x] 3.8 Sobrescrever `ExpenseService.restore` só para ligar a guarda, e delegar ao `super`
+- [x] 3.9 Acrescentar as duas rotas de escrita, com as permissões assimétricas, e documentá-las no Swagger
+- [x] 3.10 Escrever a auditoria de `close` e `reopen`
+- [x] 3.11 Escrever os casos atribuídos, inclusive os que provam o que **não** é congelado
+- [x] 3.12 Rodar o pipeline do backend e comparar a contagem
 
 ## Implementation Details
 
@@ -116,12 +116,12 @@ Ver "API Endpoints", "Monitoring and Observability" e "Known Risks" no
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's
 full definition there before writing tests.
 
-- [ ] UT-116, UT-117 — desserialização tolerante do `breakdown`
-- [ ] IT-275, IT-276, IT-277, IT-278, IT-279, IT-280 — fechar: o congelamento, o documento imune a escrita posterior, as três recusas e a permissão
-- [ ] IT-281, IT-283, IT-284, IT-285, IT-286, IT-287, IT-288 — os seis pontos de guarda, um caso por ponto (a despesa responde em quatro deles)
-- [ ] IT-282, IT-289, IT-290 — o que **não** é congelado: pagamento em mês aberto, cobrança com competência no mês fechado, e encargos aplicados sem alterar o documento
-- [ ] IT-291, IT-292, IT-293, IT-294, IT-295 — reabrir: o registro, a escrita liberada, o refechamento sem duplicata, a permissão mais forte e a recusa do nunca fechado
-- [ ] IT-303, IT-304 — a matriz de papéis: morador recusado, síndico completo sobre as permissões que o seed concede
+- [x] UT-116, UT-117 — desserialização tolerante do `breakdown`
+- [x] IT-275, IT-276, IT-277, IT-278, IT-279, IT-280 — fechar: o congelamento, o documento imune a escrita posterior, as três recusas e a permissão
+- [x] IT-281, IT-283, IT-284, IT-285, IT-286, IT-287, IT-288 — os seis pontos de guarda, um caso por ponto (a despesa responde em quatro deles)
+- [x] IT-282, IT-289, IT-290 — o que **não** é congelado: pagamento em mês aberto, cobrança com competência no mês fechado, e encargos aplicados sem alterar o documento
+- [x] IT-291, IT-292, IT-293, IT-294, IT-295 — reabrir: o registro, a escrita liberada, o refechamento sem duplicata, a permissão mais forte e a recusa do nunca fechado
+- [x] IT-303, IT-304 — a matriz de papéis: morador recusado, síndico completo sobre as permissões que o seed concede
 
 ## Notas de execução
 
@@ -137,6 +137,44 @@ full definition there before writing tests.
   buraco no congelamento; está no ADR-003 para não ser lido como tal.
 - A mensagem da recusa precisa nomear o mês e dizer a saída ("reabra o mês para
   lançar"). Uma recusa que não ensina a saída faz a pessoa tentar de novo igual.
+
+## Execução — o que ficou provado
+
+**Três canárias, cada uma mordendo exatamente onde devia:**
+
+| Defeito plantado | Casos que caem |
+|---|---|
+| a leitura recalcula em vez de servir o gravado | 2 — IT-276 e IT-290, e **só** eles |
+| sem a guarda em `registerPayment` e sem o `restore` sobrescrito | 2 — IT-281 e IT-288 |
+
+A segunda é a que importa para o ADR-003: as duas portas sem hook caem juntas, e
+os outros quatro pontos continuam verdes — ou seja, os casos cobrem os seis
+caminhos separadamente, e não por acidente de um deles cobrir os demais.
+
+**IT-290 tem substância que não é óbvia.** `apply-late-fees` muda `penalty` e
+`interest` de cobranças vencidas, o que mudaria a inadimplência do documento se
+ela fosse recalculada. Ela está congelada por ter sido **gravada** no
+fechamento, e não por bloqueio de escrita — que é exatamente o desenho do
+ADR-003, e o caso o prova ao mudar as cobranças e reler o mesmo número.
+
+**`pay` não ganhou chamada própria.** O ADR lista seis pontos e `pay` é um deles,
+mas ele roteia por `this.update`, então `prepareUpdate` já o cobre — IT-286
+prova. Uma chamada explícita ali seria uma segunda consulta ao banco pelo mesmo
+resultado. Os seis pontos continuam guardados; cinco chamadas os cobrem.
+
+**A guarda de mês fechado vem antes da regra de valor** em `prepareUpdate`. As
+duas dariam 409, mas a mensagem certa é a do mês fechado: nada de um mês fechado
+pode mudar, e uma recusa que fala de outra regra manda a pessoa para o caminho
+errado. IT-285 afirma a mensagem, e não só o status.
+
+**`referenceMonthOf` foi acrescentado ao lado de `monthRange`.** O requisito pedia
+que a guarda derivasse o mês "usando `monthRange`"; a guarda recebe um instante e
+precisa do caminho inverso. As duas funções vivem juntas e documentadas como
+inversas, que é o que o requisito protege: uma aritmética de mês só, para que um
+pagamento não seja recusado por cair num mês e depois somado em outro.
+
+**IT-276 precisou de uma cobrança real.** `payments.charge_id` é `NOT NULL`, então
+a escrita direta que prova o congelamento aponta para a cobrança do próprio mês.
 
 ## Success Criteria
 

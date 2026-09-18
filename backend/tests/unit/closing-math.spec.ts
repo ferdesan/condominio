@@ -2,6 +2,7 @@ import {
   MISSING_CATEGORY_LABEL,
   UNCATEGORIZED_LABEL,
   openingBalanceWindow,
+  readBreakdown,
   round2,
   resolveOpeningBalance,
   toStatementLines,
@@ -138,5 +139,34 @@ describe('toStatementLines', () => {
       { categoryId: 'sumiu', name: MISSING_CATEGORY_LABEL, total: 15 },
     ]);
     expect(total).toBe(15);
+  });
+});
+
+describe('readBreakdown', () => {
+  it('UT-116: documento gravado sem a linha de reconciliacao le como zero, e nao lanca', () => {
+    const stored = { income: [{ categoryId: null, name: 'Sem categoria', total: 10 }], expense: [] };
+
+    expect(readBreakdown(stored).unresolvedPaidExpenses).toEqual({ count: 0, total: 0 });
+    expect(readBreakdown(stored).income).toHaveLength(1);
+  });
+
+  it('UT-117: chave desconhecida no documento e ignorada, sem erro', () => {
+    const stored = {
+      income: [],
+      expense: [],
+      unresolvedPaidExpenses: { count: 2, total: 50 },
+      totalDeUmaVersaoFutura: 999,
+    };
+
+    expect(readBreakdown(stored)).toEqual({
+      income: [],
+      expense: [],
+      unresolvedPaidExpenses: { count: 2, total: 50 },
+    });
+    expect(readBreakdown(null)).toEqual({
+      income: [],
+      expense: [],
+      unresolvedPaidExpenses: { count: 0, total: 0 },
+    });
   });
 });

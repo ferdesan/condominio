@@ -138,5 +138,8 @@ export const closingQuerySchema = z.object({ condominiumId: uuidSchema });
  */
 export const closingListQuerySchema = closingQuerySchema.passthrough();
 
+/** Corpo de fechar e reabrir: o condominio, e nada mais. */
+export const closingBodySchema = z.object({ condominiumId: uuidSchema });
+
 export type ClosingMonthParams = z.infer<typeof closingMonthParamsSchema>;
 export type ClosingQuery = z.infer<typeof closingQuerySchema>;
