@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -77,6 +78,13 @@ export function ResidentFormDialog({
 }: ResidentFormDialogProps) {
   const isEdit = Boolean(resident);
   const queryClient = useQueryClient();
+
+  // A lista inteira do condomínio cabe no seletor, mas não cabe no olho: sem
+  // busca, escolher uma unidade vira rolagem.
+  const unitOptions = useMemo(
+    () => units.map((unit) => ({ value: unit.id, label: unitLabel(unit) })),
+    [units],
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [conflictHint, setConflictHint] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
@@ -172,18 +180,15 @@ export function ResidentFormDialog({
                     description="Apenas unidades do condomínio selecionado."
                   >
                     {(aria) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger {...aria}>
-                          <SelectValue placeholder="Selecione a unidade" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {units.map((unit) => (
-                            <SelectItem key={unit.id} value={unit.id}>
-                              {unitLabel(unit)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Combobox
+                        {...aria}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        options={unitOptions}
+                        placeholder="Selecione a unidade"
+                        searchPlaceholder="Buscar unidade"
+                        emptyMessage="Nenhuma unidade corresponde à busca."
+                      />
                     )}
                   </FormField>
                 )}

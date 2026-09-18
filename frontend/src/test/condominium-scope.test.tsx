@@ -28,6 +28,7 @@ import {
   createUser,
   renderWithProviders,
   screen,
+  chooseOption,
   selectOption,
   waitFor,
   within,
@@ -191,7 +192,7 @@ describe('Escopo de condomínio', () => {
 
     clickTrigger(screen.getByRole('button', { name: 'Novo morador' }));
     await screen.findByRole('dialog');
-    selectOption(dialog().getByLabelText('Unidade'), 'Torre A - 101');
+    chooseOption(dialog().getByLabelText('Unidade'), 'Torre A - 101');
     await user.type(dialog().getByLabelText('Nome'), 'Beatriz Lima');
 
     switchCondominium();

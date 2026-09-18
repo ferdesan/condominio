@@ -9,7 +9,7 @@ import {
   createUser,
   renderWithProviders,
   screen,
-  selectOption,
+  chooseOption,
   waitFor,
   within,
 } from '@/test/render';
@@ -69,7 +69,7 @@ function submitCreate(): void {
 async function fillRequired(name = 'Pedro Nunes'): Promise<void> {
   const user = createUser();
   await user.type(within(dialog()).getByLabelText('Nome'), name);
-  selectOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
+  chooseOption(within(dialog()).getByLabelText('Unidade'), 'Torre A - 101');
 }
 
 /**
