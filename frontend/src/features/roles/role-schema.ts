@@ -57,6 +57,28 @@ export function toRoleFormValues(role: Role): RoleFormValues {
   };
 }
 
+/**
+ * Os valores iniciais de uma **copia**: as permissoes do papel de origem, e mais
+ * nada.
+ *
+ * Nome e descricao ficam vazios de proposito. O nome porque o servidor recusa
+ * repetido (`nameTaken`, 409) e um sugerido so adiaria a recusa para o primeiro
+ * salvar; a descricao porque duas linhas identicas na listagem nao descrevem
+ * papel nenhum. O que se copia e o caro de reproduzir: a matriz.
+ *
+ * **O curinga sai quando quem copia nao pode concede-lo.** `assertPermissions`
+ * recusa `*` a quem nao e super-admin, e duplicar o SUPER_ADMIN e o caminho mais
+ * curto para essa recusa — levar o curinga adiante seria montar a tela inteira
+ * para falhar no envio.
+ */
+export function toDuplicateFormValues(role: Role, canGrantWildcard: boolean): RoleFormValues {
+  const permissions = canGrantWildcard
+    ? [...role.permissions]
+    : role.permissions.filter((permission) => permission !== WILDCARD);
+
+  return { name: '', description: '', permissions };
+}
+
 export type RolePayload = {
   name: string;
   /** Vazio vira `null`, e nunca chave ausente: limpar a descricao precisa apaga-la. */

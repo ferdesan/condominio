@@ -27,6 +27,15 @@ const DESCRIPTION =
 type RowError = { id: string; message: string } | null;
 
 /**
+ * O que o formulario faz quando abre; `null` o mantem fechado.
+ *
+ * Duplicar carrega o papel de origem como `edit`, e por isso o modo nao pode ser
+ * deduzido da presenca dele: sao a mesma entrada com destinos opostos — um
+ * altera o papel, o outro cadastra um novo com as permissoes dele.
+ */
+type FormIntent = { mode: 'create' } | { mode: 'edit' | 'duplicate'; role: Role };
+
+/**
  * Papeis de acesso do tenant.
  *
  * **Fecha a lacuna mais antiga do controle de acesso:** dava para *atribuir* um
@@ -47,7 +56,7 @@ export function RolesPage() {
   const { can, user } = useAuth();
   const queryClient = useQueryClient();
   const list = useListState();
-  const [formTarget, setFormTarget] = useState<Role | null | undefined>(undefined);
+  const [form, setForm] = useState<FormIntent | null>(null);
   const [viewing, setViewing] = useState<Role | null>(null);
   const [deleting, setDeleting] = useState<Role | null>(null);
   const [removing, setRemoving] = useState(false);
@@ -171,10 +180,12 @@ export function RolesPage() {
         <RoleRowActions
           role={row}
           canUpdate={canUpdate}
+          canCreate={canCreate}
           canDelete={canDelete}
           error={rowError?.id === row.id ? rowError.message : undefined}
           onViewPermissions={setViewing}
-          onEdit={setFormTarget}
+          onEdit={(role) => setForm({ mode: 'edit', role })}
+          onDuplicate={(role) => setForm({ mode: 'duplicate', role })}
           onDelete={setDeleting}
           onRestore={(role) => restore.mutate(role.id, { onError: refreshOnRefusal })}
         />
@@ -194,7 +205,7 @@ export function RolesPage() {
             description={DESCRIPTION}
             actions={
               canCreate ? (
-                <Button onClick={() => setFormTarget(null)}>Novo papel</Button>
+                <Button onClick={() => setForm({ mode: 'create' })}>Novo papel</Button>
               ) : undefined
             }
           />
@@ -253,15 +264,18 @@ export function RolesPage() {
       />
 
       {/*
-        `key` no id: os valores iniciais entram uma vez, e um refetch da lista nao
-        sobrescreve o que já foi marcado na matriz.
+        `key` no modo e no id: os valores iniciais entram uma vez, e um refetch da
+        lista nao sobrescreve o que já foi marcado na matriz. O modo entra na
+        chave porque editar e duplicar o **mesmo** papel sao dois formularios
+        diferentes — sem ele, ir de um para o outro reaproveitaria a montagem e
+        manteria os valores do anterior.
       */}
-      {formTarget !== undefined ? (
+      {form ? (
         <RoleFormDialog
-          key={formTarget?.id ?? 'new'}
-          {...(formTarget ? { role: formTarget } : {})}
+          key={`${form.mode}:${form.mode === 'create' ? 'new' : form.role.id}`}
+          {...form}
           canGrantWildcard={canGrantWildcard}
-          onClose={() => setFormTarget(undefined)}
+          onClose={() => setForm(null)}
         />
       ) : null}
 

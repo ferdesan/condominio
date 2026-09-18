@@ -487,12 +487,136 @@ describe('Removidos', () => {
   });
 });
 
+/**
+ * A saida do papel travado.
+ *
+ * `beforeUpdate` recusa alterar as permissoes de um papel semeado, para qualquer
+ * um — inclusive super-admin. Duplicar e o unico caminho para "um SINDICO com uma
+ * permissao a mais", e o que ele carrega e justamente o caro de reproduzir: a
+ * matriz.
+ */
+describe('Duplicar', () => {
+  /** Abre a copia de um papel e espera a matriz montar. */
+  async function openDuplicate(name: string): Promise<HTMLElement> {
+    clickTrigger(screen.getByRole('button', { name: `Duplicar ${name}` }));
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByLabelText('Nome');
+    return dialog;
+  }
+
+  it('abre o cadastro com as permissões da origem já marcadas', async () => {
+    render();
+
+    await screen.findByText('SINDICO');
+    const dialog = await openDuplicate('SINDICO');
+
+    // As tres do SINDICO, e nenhuma a mais.
+    expect(within(dialog).getByLabelText('Ver Condomínios')).toBeChecked();
+    expect(within(dialog).getByLabelText('Gerenciar Reservas')).toBeChecked();
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeChecked();
+    expect(within(dialog).getByLabelText('Excluir Cobranças')).not.toBeChecked();
+  });
+
+  it('a matriz da copia é editável, mesmo vindo de um papel do sistema', async () => {
+    render();
+
+    await screen.findByText('SINDICO');
+    const dialog = await openDuplicate('SINDICO');
+
+    // O travamento e da edicao do semeado, e nao de tudo que se pareca com ele:
+    // ler `isSystem` sem olhar o modo travaria a copia junto da origem.
+    expect(within(dialog).getByLabelText('Nome')).toBeEnabled();
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeEnabled();
+    expect(within(dialog).getByRole('button', { name: 'Cadastrar' })).toBeInTheDocument();
+  });
+
+  it('o nome vem vazio: o servidor recusa repetido, e sugerir so adiaria a recusa', async () => {
+    render();
+
+    await screen.findByText('SINDICO');
+    const dialog = await openDuplicate('SINDICO');
+
+    expect(within(dialog).getByLabelText('Nome')).toHaveValue('');
+    expect(within(dialog).getByLabelText('Descrição')).toHaveValue('');
+  });
+
+  it('salvar cadastra um papel novo — a origem não é tocada', async () => {
+    const user = createUser();
+    render();
+
+    await screen.findByText('SINDICO');
+    const dialog = await openDuplicate('SINDICO');
+
+    await user.type(within(dialog).getByLabelText('Nome'), 'SINDICO ADJUNTO');
+    await user.click(within(dialog).getByLabelText('Excluir Cobranças'));
+    await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
+
+    await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/roles', expect.anything()));
+    expect(lastCreateBody()).toEqual({
+      name: 'SINDICO ADJUNTO',
+      description: null,
+      permissions: ['condominium:read', 'reservation:manage', 'charge:read', 'charge:delete'],
+    });
+    // O papel de origem so emprestou as permissoes: decidir pela presenca do
+    // `role`, e nao pelo modo, faria a copia sobrescrever o original.
+    expect(mockPatch).not.toHaveBeenCalled();
+  });
+
+  it('parte de um papel personalizado tambem, e não so do sistema', async () => {
+    render();
+
+    await screen.findByText('PORTARIA NOTURNA');
+    const dialog = await openDuplicate('PORTARIA NOTURNA');
+
+    expect(
+      within(dialog).getByRole('heading', { name: 'Duplicar PORTARIA NOTURNA' }),
+    ).toBeVisible();
+  });
+
+  it('o curinga não vai junto para quem não pode concedê-lo', async () => {
+    const user = createUser();
+    world.roles = [
+      makeRole({ id: 'role-1', name: 'SUPER ADMIN', permissions: ['*', 'charge:read'] }),
+    ];
+    // O usuario padrao e ADMIN, e nao SUPER_ADMIN: `assertPermissions` recusaria
+    // o `*` dele. Levar o curinga adiante montaria a tela inteira para falhar no
+    // envio.
+    render(MANAGE);
+
+    await screen.findByText('SUPER ADMIN');
+    const dialog = await openDuplicate('SUPER ADMIN');
+
+    // O resto da origem sobrevive: so o curinga sai.
+    expect(within(dialog).getByLabelText('Ver Cobranças')).toBeChecked();
+
+    await user.type(within(dialog).getByLabelText('Nome'), 'QUASE TUDO');
+    await user.click(within(dialog).getByRole('button', { name: 'Cadastrar' }));
+
+    await waitFor(() => expect(mockPost).toHaveBeenCalled());
+    expect(lastCreateBody()).toMatchObject({ permissions: ['charge:read'] });
+  });
+
+  it('a mensagem do papel travado aponta a saida', async () => {
+    render();
+
+    await screen.findByText('SINDICO');
+    clickTrigger(screen.getByRole('button', { name: 'Editar SINDICO' }));
+    const dialog = await screen.findByRole('dialog');
+
+    // A recusa do servidor ensina o caminho e nunca chega a ninguem: o
+    // formulario desabilita a matriz e o envio nem acontece.
+    expect(await within(dialog).findByText(/use Duplicar na listagem/i)).toBeInTheDocument();
+  });
+});
+
 describe('Permissao', () => {
   it('sem role:create, nao oferece cadastrar', async () => {
     render(READ_ONLY);
 
     await screen.findByText('SINDICO');
     expect(screen.queryByRole('button', { name: 'Novo papel' })).not.toBeInTheDocument();
+    // Duplicar cadastra, entao cai junto — e nao com `role:update`.
+    expect(screen.queryByRole('button', { name: 'Duplicar SINDICO' })).not.toBeInTheDocument();
   });
 
   it('sem role:update nem role:delete, so resta ver permissoes', async () => {
