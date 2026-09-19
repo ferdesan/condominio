@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "A leitura dos lançamentos, nos dois modos"
 type: backend
 complexity: high
@@ -35,13 +35,13 @@ impede a lista de um mês fechado de discordar do total que aparece acima dela.
 
 ## Subtasks
 
-- [ ] 2.1 Escrever `ClosingService.entries` com os dois caminhos e o `frozen`
-- [ ] 2.2 Ligar o caminho gravado ao repositório de lançamentos, ordenado
-- [ ] 2.3 Ligar o caminho calculado às leituras de linha criadas na task_01, resolvendo nomes de categoria, unidade e prestador
-- [ ] 2.4 Acrescentar a rota e o seu schema de parâmetros, reusando o `referenceMonthSchema` privado do módulo
-- [ ] 2.5 Documentar a rota no bloco escrito à mão de `swagger.ts`
-- [ ] 2.6 Escrever os casos atribuídos, inclusive a canária do congelamento
-- [ ] 2.7 Rodar o pipeline do backend e comparar a contagem
+- [x] 2.1 Escrever `ClosingService.entries` com os dois caminhos e o `frozen`
+- [x] 2.2 Ligar o caminho gravado ao repositório de lançamentos, ordenado
+- [x] 2.3 Ligar o caminho calculado às leituras de linha criadas na task_01, resolvendo nomes de categoria, unidade e prestador
+- [x] 2.4 Acrescentar a rota e o seu schema de parâmetros, reusando o `referenceMonthSchema` privado do módulo
+- [x] 2.5 Documentar a rota no bloco escrito à mão de `swagger.ts`
+- [x] 2.6 Escrever os casos atribuídos, inclusive a canária do congelamento
+- [x] 2.7 Rodar o pipeline do backend e comparar a contagem
 
 ## Implementation Details
 
@@ -91,11 +91,11 @@ Ver "API Endpoints" e "Core Interfaces" no [`_techspec.md`](_techspec.md).
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's
 full definition there before writing tests.
 
-- [ ] IT-324, IT-325 — o mês fechado serve o gravado, e escrita direta no banco depois do fechamento não muda a lista
-- [ ] IT-326, IT-327 — o mês aberto calcula, e a soma dos lançamentos bate com o resumo da mesma competência
-- [ ] IT-328, IT-329 — mês sem movimento devolve lista vazia e não erro; a ordem é por data
-- [ ] IT-330, IT-331, IT-332, IT-333 — competência malformada, condomínio ausente, condomínio fora do escopo e permissão faltando
-- [ ] IT-334 — documento fechado sem lançamentos gravados responde `frozen: true` com lista vazia, distinguível de um mês sem movimento
+- [x] IT-324, IT-325 — o mês fechado serve o gravado, e escrita direta no banco depois do fechamento não muda a lista
+- [x] IT-326, IT-327 — o mês aberto calcula, e a soma dos lançamentos bate com o resumo da mesma competência
+- [x] IT-328, IT-329 — mês sem movimento devolve lista vazia e não erro; a ordem é por data
+- [x] IT-330, IT-331, IT-332, IT-333 — competência malformada, condomínio ausente, condomínio fora do escopo e permissão faltando
+- [x] IT-334 — documento fechado sem lançamentos gravados responde `frozen: true` com lista vazia, distinguível de um mês sem movimento
 
 ## Notas de execução
 
