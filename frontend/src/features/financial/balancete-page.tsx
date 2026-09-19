@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { Building2, FileClock, FileText } from 'lucide-react';
+import { Building2, FileClock, FileSpreadsheet, FileText, Printer } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
 import { EmptyState } from '@/components/common/empty-state';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { ForbiddenPage } from '@/features/misc/forbidden-page';
 import { useCondominium } from '@/hooks/use-condominium';
 import { formatCurrency, formatDate, formatNumber, formatReferenceMonth } from '@/lib/format';
 import type { MonthlyStatement } from '@/types/financial';
+import { downloadClosingCsv } from './closing-csv';
 import { ClosingEntriesTable } from './closing-entries-table';
 import { useClosing, useClosingEntries } from './financial-hooks';
 import { isReferenceMonth, openingBalanceProvenance } from './financial-labels';
@@ -33,6 +34,11 @@ const DESCRIPTION =
  * Duas leituras independentes, como em `condominium-detail-page.tsx`: o resumo e
  * os lancamentos. A pagina usa `PageHeader` e cartoes proprios, e nao
  * `CrudLayout`, que e a moldura das listagens.
+ *
+ * **E daqui que o documento sai**, impresso ou em CSV, e so daqui
+ * ([ADR-005](.compozy/tasks/balancete-detalhe/adrs/adr-005.md)): a secao de
+ * `/financeiro` mostra o resumo e aponta para ca. Um lugar exporta, e exporta
+ * tudo o que mostra.
  */
 export function BalancetePage() {
   const { mes = '' } = useParams<{ mes: string }>();
@@ -88,15 +94,38 @@ export function BalancetePage() {
    */
   const predatesEntries = frozen && rows.length === 0 && data.totalIncome + data.totalExpense > 0;
 
+  /*
+    A raiz do documento e os controles, marcados para a folha de impressao.
+
+    O `@media print` de `index.css` nao muda: ele procura `.print-document` e
+    `.print-hide`, que sao nomes de classe e nao nomes de tela, e e isso que
+    torna esta migracao barata (ADR-005). O embrulho cobre tambem o `PageHeader`
+    — a casca autenticada some na impressao, e sem o titulo a folha nao diria de
+    que mes nem de que condominio ela e.
+
+    Exportar e imprimir leem `rows`, que e o mes inteiro como ele chegou, e nao o
+    recorte que o filtro e a paginacao da tabela mostram. O arquivo tem de
+    concordar com o documento, que e o que o ADR-004 existe para garantir.
+  */
   return (
-    <>
+    <div className="print-document">
       <PageHeader
         title={`Balancete de ${formatReferenceMonth(data.referenceMonth)}`}
         description={selected ? `${selected.name} · ${DESCRIPTION}` : DESCRIPTION}
         actions={
-          <Button asChild variant="outline">
-            <Link to="/financeiro">Voltar para o financeiro</Link>
-          </Button>
+          <div className="print-hide flex flex-wrap items-center gap-2">
+            <Button type="button" variant="outline" onClick={() => window.print()}>
+              <Printer className="size-4" aria-hidden="true" />
+              Imprimir
+            </Button>
+            <Button type="button" variant="outline" onClick={() => downloadClosingCsv(data, rows)}>
+              <FileSpreadsheet className="size-4" aria-hidden="true" />
+              Exportar CSV
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/financeiro">Voltar para o financeiro</Link>
+            </Button>
+          </div>
         }
       />
 
@@ -119,7 +148,7 @@ export function BalancetePage() {
           )}
         </Card>
       </div>
-    </>
+    </div>
   );
 }
 

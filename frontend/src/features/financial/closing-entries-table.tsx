@@ -109,7 +109,12 @@ export function ClosingEntriesTable({ entries, frozen }: ClosingEntriesTableProp
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      {/*
+        O filtro some da folha impressa: um seletor de categoria numa prestacao
+        de contas de papel nao seleciona coisa alguma, e a contagem ao lado dele
+        fala do recorte na tela, que nao e o recorte do documento.
+      */}
+      <div className="print-hide flex flex-wrap items-end justify-between gap-3">
         <div className="grid gap-1.5">
           <Label htmlFor="closing-entries-category">Categoria</Label>
           <Select

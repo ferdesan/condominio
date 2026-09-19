@@ -6,11 +6,18 @@
  * avisos deste repositorio nao sobe.
  *
  * O arquivo e montado no navegador a partir do payload que a tela ja tem
- * (ADR-006). Nao ha requisicao: nada que o servidor pudesse acrescentar a esta
- * planilha esta fora do que a secao carregou.
+ * (`balancete-mensal` ADR-006). Nao ha requisicao: nada que o servidor pudesse
+ * acrescentar a esta planilha esta fora do que a tela carregou.
+ *
+ * Quem exporta e a rota `/financeiro/balancete/:mes`, e so ela (ADR-005): o
+ * arquivo carrega o resumo **e** os lancamentos, e exportar tambem da secao de
+ * `/financeiro` produziria dois arquivos de mesmo nome com conteudos
+ * diferentes.
  */
 
-import type { MonthlyStatement } from '@/types/financial';
+import { formatDate } from '@/lib/format';
+import type { MonthlyStatement, StatementEntry } from '@/types/financial';
+import { CLOSING_ENTRY_KIND_LABELS } from './financial-labels';
 
 /** Ponto e virgula, CRLF e BOM: o consumidor e o Excel em pt-BR. */
 const SEPARATOR = ';';
@@ -48,8 +55,19 @@ function row(...cells: (string | number)[]): string {
  * A linha das despesas pagas sem data fica **depois** do bloco de totais e
  * rotulada como fora dele — ela existe para ser resolvida, e somar seria
  * exatamente o erro que ela denuncia (ADR-004).
+ *
+ * Os lancamentos entram num **segundo bloco do mesmo arquivo**, e nao num
+ * arquivo proprio: uma prestacao de contas e um documento, e dois downloads com
+ * o mesmo nome e conteudos diferentes seriam o problema que o ADR-005 recusou.
+ *
+ * O segundo argumento e **opcional de proposito**: um mes cujos lancamentos
+ * ainda nao chegaram continua exportavel, e o arquivo que sai e exatamente o que
+ * a esteira anterior produzia.
  */
-export function buildClosingCsv(statement: MonthlyStatement): string {
+export function buildClosingCsv(
+  statement: MonthlyStatement,
+  entries: StatementEntry[] = [],
+): string {
   const rows: string[] = [row('Seção', 'Categoria', 'Valor')];
 
   for (const line of statement.income) {
@@ -75,6 +93,33 @@ export function buildClosingCsv(statement: MonthlyStatement): string {
     );
   }
 
+  if (entries.length > 0) {
+    // Linha em branco e um titulo: os dois blocos tem larguras diferentes, e sem
+    // a separacao o leitor da planilha veria uma tabela so com colunas tortas.
+    rows.push('');
+    rows.push(row('Lançamentos'));
+    rows.push(row('Data', 'Seção', 'Categoria', 'Histórico', 'Contraparte', 'Valor'));
+
+    for (const entry of entries) {
+      rows.push(
+        row(
+          formatDate(entry.occurredAt),
+          // Singular, e os mesmos rotulos da tela: `Entrada` e `Saída` nomeiam
+          // um lancamento, enquanto o `Entradas`/`Saídas` do resumo nomeia um
+          // total por categoria. Ordenar a planilha por esta coluna separa os
+          // quatro grupos em vez de misturar linha e soma.
+          CLOSING_ENTRY_KIND_LABELS[entry.kind],
+          entry.categoryName,
+          entry.description,
+          // Celula vazia, e nao o traco da tela: o traco e legivel para quem le,
+          // e vira texto para quem soma.
+          entry.counterpart ?? '',
+          money(entry.amount),
+        ),
+      );
+    }
+  }
+
   return BOM + rows.join(ROW_END) + ROW_END;
 }
 
@@ -89,8 +134,8 @@ export function closingCsvFileName(referenceMonth: string): string {
  * requisicao: `Blob`, URL de objeto, ancora com `download`, e `revokeObjectURL`
  * no `finally` — sem ele o blob fica na memoria da aba ate ela fechar.
  */
-export function downloadClosingCsv(statement: MonthlyStatement): void {
-  const blob = new Blob([buildClosingCsv(statement)], { type: 'text/csv;charset=utf-8' });
+export function downloadClosingCsv(statement: MonthlyStatement, entries?: StatementEntry[]): void {
+  const blob = new Blob([buildClosingCsv(statement, entries)], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
 
   try {

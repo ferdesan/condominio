@@ -34,14 +34,14 @@ mesmo nome e conteúdos diferentes.
 
 ## Subtasks
 
-- [ ] 4.1 Mover as marcações de impressão para a tela da rota
-- [ ] 4.2 Estender `buildClosingCsv` com o segundo bloco, mantendo o segundo argumento opcional
-- [ ] 4.3 Ligar os botões de imprimir e exportar na tela da rota
-- [ ] 4.4 Remover os botões de exportação da seção, preservando o link
-- [ ] 4.5 Mover o caso estrutural das marcações de impressão para a tela nova
-- [ ] 4.6 Escrever os casos atribuídos
+- [x] 4.1 Mover as marcações de impressão para a tela da rota
+- [x] 4.2 Estender `buildClosingCsv` com o segundo bloco, mantendo o segundo argumento opcional
+- [x] 4.3 Ligar os botões de imprimir e exportar na tela da rota
+- [x] 4.4 Remover os botões de exportação da seção, preservando o link
+- [x] 4.5 Mover o caso estrutural das marcações de impressão para a tela nova
+- [x] 4.6 Escrever os casos atribuídos
 - [ ] 4.7 Conferir a impressão a olho, num mês aberto e num fechado, e registrar o que foi visto
-- [ ] 4.8 Rodar o pipeline do frontend e comparar a contagem
+- [x] 4.8 Rodar o pipeline do frontend e comparar a contagem
 
 ## Implementation Details
 
@@ -90,11 +90,11 @@ Ver o [ADR-005](adrs/adr-005.md) e "Testing Approach" no [`_techspec.md`](_techs
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's
 full definition there before writing tests.
 
-- [ ] UT-131, UT-132 — o arquivo com os dois blocos; e o arquivo só com o resumo, que continua válido
-- [ ] UT-133, UT-134 — o escape do separador numa descrição, e os rótulos distintos das duas seções
-- [ ] IT-341 — a seção oferece o link e não oferece mais o `Exportar CSV`
-- [ ] IT-344 — as marcações de impressão estão na raiz da rota e nos seus controles
-- [ ] IT-345 (realocado de `balancete-mensal` IT-314) — exportar da rota entrega um `Blob` pela âncora, sem requisição, e o arquivo contém os lançamentos
+- [x] UT-131, UT-132 — o arquivo com os dois blocos; e o arquivo só com o resumo, que continua válido
+- [x] UT-133, UT-134 — o escape do separador numa descrição, e os rótulos distintos das duas seções
+- [x] IT-341 — a seção oferece o link e não oferece mais o `Exportar CSV`
+- [x] IT-344 — as marcações de impressão estão na raiz da rota e nos seus controles
+- [x] IT-345 (realocado de `balancete-mensal` IT-314) — exportar da rota entrega um `Blob` pela âncora, sem requisição, e o arquivo contém os lançamentos
 
 ## Notas de execução
 
@@ -111,6 +111,30 @@ full definition there before writing tests.
 - O caractere BOM precisa entrar como sequência de escape no arquivo de teste. Na
   esteira anterior ele entrou literal e o `no-irregular-whitespace` pegou.
 
+### O que 4.7 já tem, e o que falta
+
+A metade mecanizável foi feita: as três regras do `@media print` foram lidas do
+`index.css` real e aplicadas ao DOM renderizado dos dois estados. Registro:
+
+- **Aparece (aberto e fechado):** `Balancete de ago/2026`, `<condomínio> ·
+  <descrição>`, a região `Resumo da competência` inteira — selo de estado, a
+  frase que diz de qual estado os números vieram, os cinco valores e a
+  procedência do saldo anterior —, o título `Lançamentos`, o cabeçalho da tabela
+  e as linhas.
+- **Some (aberto e fechado):** `Imprimir`, `Exportar CSV`, `Voltar para o
+  financeiro`, o rótulo `Categoria` com `Todas as categorias`, e a linha de
+  contagem.
+- **Defeito medido, deixado em aberto:** com 25 lançamentos a folha leva 20
+  linhas e o rodapé `Página 1 de 2` — o `clientPagination` recorta o array, e as
+  outras 5 não existem para o CSS revelar. O CSV não sofre disso. Era o primeiro
+  dos dois riscos da task_03; o segundo (exportar com filtro ativo) foi
+  resolvido, porque o botão lê o payload da rota. As duas saídas e os seus
+  custos estão em `memory/task_04.md`.
+
+**Falta a conferência humana**: margem, quebra de página, cor de fundo e se a
+tabela cabe na folha. O `jsdom` não calcula layout, e é só por isso que 4.7
+continua desmarcado — como em `balancete-mensal` 5.5.
+
 ## Success Criteria
 
 - Every assigned test case implemented and passing
@@ -118,3 +142,12 @@ full definition there before writing tests.
 - O CSV de um mês fechado abre no Excel em pt-BR com resumo e lançamentos, colunas separadas e valores reconhecidos como número
 - A impressão da rota mostra o documento e esconde os controles, conferida a olho nos dois estados e registrada
 - `npm --prefix frontend run lint` com os mesmos cinco avisos; `typecheck`, `test` e `build` verdes, com a contagem da referência mais os sete desta task
+
+  Medido: lint com os mesmos cinco avisos, `typecheck` e `build` verdes, e
+  **91 arquivos / 1101 casos** contra a referência de 91 / 1096. O líquido é
+  **+5, e não +7**, porque dois dos sete não nascem aqui: IT-345 é o IT-314 de
+  `balancete-mensal` realocado, e o caso estrutural da impressão migrou junto —
+  os dois saem de `closing-section.test.tsx` na mesma entrega. É o que o
+  [ADR-005](adrs/adr-005.md) ("loses its export case (IT-314) and gains a case
+  for the link"), o [`_tasks.md`](_tasks.md) ("Um caso mudou de esteira") e o
+  requisito 7 desta task dizem; a aritmética acima é que não os acompanhou.
