@@ -1,5 +1,7 @@
+import { Unit } from '@/modules/units/unit.entity';
 import { BaseRepository } from '@/shared/repositories/base.repository';
 import type { TenantScope } from '@/shared/repositories/types';
+import type { RawMovement } from '../closing-math';
 import { Charge } from '../entities/charge.entity';
 import { Payment } from '../entities/payment.entity';
 
@@ -47,6 +49,38 @@ export class PaymentRepository extends BaseRepository<Payment> {
       .addSelect('SUM(payment.amount)', 'total')
       .groupBy('charge.categoryId')
       .getRawMany<{ categoryId: string | null; total: string | null }>();
+  }
+
+  /**
+   * As entradas do balancete uma a uma, e nao somadas: mesma janela e mesmo
+   * regime de caixa de `incomeByCategory`, so que linha por linha.
+   *
+   * Os dois joins sao manuais pela razao escrita em `:25-33` — um join de
+   * relacao herda o filtro de exclusao logica, e aqui ele custaria mais do que
+   * a categoria: uma cobranca ou uma unidade removida depois levaria consigo a
+   * linha inteira de um pagamento que aconteceu de verdade. O documento
+   * descreve o dinheiro que entrou, e nao o cadastro que sobreviveu.
+   */
+  async movementsInRange(
+    scope: TenantScope,
+    condominiumId: string,
+    from: Date,
+    toExclusive: Date,
+  ): Promise<RawMovement[]> {
+    return this.query(scope)
+      .leftJoin(Charge, 'charge', 'charge.id = payment.chargeId')
+      .leftJoin(Unit, 'unit', 'unit.id = charge.unitId')
+      .andWhere('payment.condominiumId = :condominiumId', { condominiumId })
+      .andWhere('payment.paidAt >= :from', { from })
+      .andWhere('payment.paidAt < :toExclusive', { toExclusive })
+      .select('payment.id', 'sourceId')
+      .addSelect('payment.paidAt', 'occurredAt')
+      .addSelect('charge.categoryId', 'categoryId')
+      .addSelect('charge.description', 'description')
+      .addSelect('unit.number', 'counterpart')
+      .addSelect('payment.amount', 'amount')
+      .addSelect('payment.method', 'method')
+      .getRawMany<RawMovement>();
   }
 
   /**

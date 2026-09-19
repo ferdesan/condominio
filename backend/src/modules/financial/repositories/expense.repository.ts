@@ -1,5 +1,7 @@
+import { ServiceProvider } from '@/modules/service-providers/service-provider.entity';
 import { BaseRepository } from '@/shared/repositories/base.repository';
 import type { TenantScope } from '@/shared/repositories/types';
+import type { RawMovement } from '../closing-math';
 import { Expense } from '../entities/expense.entity';
 
 export class ExpenseRepository extends BaseRepository<Expense> {
@@ -33,6 +35,38 @@ export class ExpenseRepository extends BaseRepository<Expense> {
       .addSelect('SUM(expense.amount)', 'total')
       .groupBy('expense.categoryId')
       .getRawMany<{ categoryId: string | null; total: string | null }>();
+  }
+
+  /**
+   * As saidas do balancete uma a uma: mesma janela e mesmo filtro de
+   * `paidByCategory`, so que linha por linha. Os dois precisam concordar — a
+   * lista e o total que aparece acima dela descrevem um mes so.
+   *
+   * O prestador entra pelo join manual, e pelo nome com que o produto inteiro
+   * o chama (`tradeName ?? companyName`). Join de relacao herdaria a exclusao
+   * logica e um prestador descadastrado depois apagaria a outra parte de uma
+   * despesa que foi paga de verdade.
+   */
+  async paidMovementsInRange(
+    scope: TenantScope,
+    condominiumId: string,
+    from: Date,
+    toExclusive: Date,
+  ): Promise<RawMovement[]> {
+    return this.query(scope)
+      .leftJoin(ServiceProvider, 'provider', 'provider.id = expense.serviceProviderId')
+      .andWhere('expense.condominiumId = :condominiumId', { condominiumId })
+      .andWhere('expense.status = :paid', { paid: 'PAID' })
+      .andWhere('expense.paidAt >= :from', { from })
+      .andWhere('expense.paidAt < :toExclusive', { toExclusive })
+      .select('expense.id', 'sourceId')
+      .addSelect('expense.paidAt', 'occurredAt')
+      .addSelect('expense.categoryId', 'categoryId')
+      .addSelect('expense.description', 'description')
+      .addSelect('COALESCE(provider.trade_name, provider.company_name)', 'counterpart')
+      .addSelect('expense.amount', 'amount')
+      .addSelect('expense.paymentMethod', 'method')
+      .getRawMany<RawMovement>();
   }
 
   /** Soma das despesas pagas numa janela semiaberta; `from` nulo nao limita por baixo. */

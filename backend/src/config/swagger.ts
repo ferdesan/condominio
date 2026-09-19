@@ -302,6 +302,23 @@ function customPaths(): OpenApiObject {
         responses: { 200: { $ref: '#/components/responses/Entity' }, ...ERROR_RESPONSES },
       },
     },
+    '/financial/closings/{referenceMonth}/entries': {
+      get: {
+        tags: ['Financeiro'],
+        summary: 'Lancamentos do balancete: cada entrada e cada saida do mes',
+        description:
+          'Exige `financial-closing:read`. Serve os lancamentos gravados quando a competencia esta ' +
+          'fechada e os calcula quando esta aberta — `frozen` diz de qual dos dois a lista veio. ' +
+          '`frozen: true` com lista vazia e um documento fechado antes de os lancamentos passarem a ' +
+          'ser gravados, e nao um mes sem movimento. ' +
+          'O mes vem inteiro numa resposta so: `page` e `perPage` sao recusados, nao ignorados.',
+        parameters: [
+          { name: 'referenceMonth', in: 'path', required: true, schema: { type: 'string', example: '2026-08' } },
+          { name: 'condominiumId', in: 'query', required: true, schema: { type: 'string', format: 'uuid' } },
+        ],
+        responses: { 200: { $ref: '#/components/responses/Entity' }, ...ERROR_RESPONSES },
+      },
+    },
     '/financial/closings/{referenceMonth}/close': {
       post: {
         tags: ['Financeiro'],
