@@ -4,14 +4,14 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 
 ## Current State
 
-- **task_01, task_02 e task_03 entregues.** O backend esta completo — tabela,
-  migration, escrita atomica no fechamento, rota e leitura nos dois modos — e a
-  tela existe em `/financeiro/balancete/:mes`, com guarda propria, filtro por
-  categoria e paginacao no cliente. Backend verde: lint 0, typecheck 0,
-  **30 suites / 378 casos**. Frontend verde: lint com os 5 avisos de sempre,
-  **91 arquivos / 1096 casos** (eram 90 / 1087).
-- Proxima: **task_04** (a exportacao migra para a rota). A tela nao lhe deve
-  nada alem dos dois botoes e das marcacoes de impressao.
+- **As quatro tasks estao entregues.** Backend completo — tabela, migration,
+  escrita atomica no fechamento, rota e leitura nos dois modos. Frontend
+  completo — a tela em `/financeiro/balancete/:mes` com guarda propria, filtro e
+  paginacao no cliente, e a exportacao (impressao e CSV) morando so nela.
+  Backend verde: lint 0, typecheck 0, **30 suites / 378 casos**. Frontend verde:
+  lint com os 5 avisos de sempre, **91 arquivos / 1101 casos** (a referencia
+  anterior era 91 / 1096; a task_04 e +7 −2, porque dois casos migraram).
+- Resta um follow-up conhecido, em **Open Risks**.
 
 ## Shared Decisions
 
@@ -42,6 +42,14 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
   exigiria exatamente a guarda `if (existing)` que a ADR proibe. As invariantes
   dela — atomicidade e limpeza incondicional **antes** da insercao — estao
   preservadas. Quem ler a ADR e achar o codigo errado deve ler isto antes.
+- **O CSV e um arquivo so, com dois blocos de larguras diferentes**, separados
+  por linha em branco, o titulo `Lançamentos` e um cabecalho proprio. Os
+  lancamentos usam rotulos de secao no **singular** (`Entrada`/`Saída`, os mesmos
+  da tela), e o resumo usa o plural (`Entradas`/`Saídas`): ordenar a planilha por
+  essa coluna separa lancamento de soma de categoria.
+- **Quem exporta le o payload da rota, nunca o recorte da tabela.** Filtro e
+  paginacao sao estado de tela. Vale para o CSV hoje e valeria para qualquer
+  exportacao nova.
 
 ## Shared Learnings
 
@@ -63,30 +71,32 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 - Para derrubar so uma escrita dentro de uma transacao, o espiao vai em
   `EntityManager.prototype.save` filtrado por `instanceof <Entidade>`. sqljs faz
   rollback de verdade, entao o caso mede a transacao.
+- **O `Blob` do jsdom 25 nao tem `text()` nem `arrayBuffer()`.** Qualquer caso
+  que confira o conteudo de um download precisa do `FileReader.readAsText`. Vale
+  para todo o frontend, nao so para o balancete.
+- **`:has()` nao e confiavel no seletor do jsdom.** `element.closest(...)`
+  responde a mesma pergunta de baixo para cima e funciona.
 
 ## Open Risks
 
-- Nenhum aberto no backend. O risco anterior — entidade sem migration — foi
-  fechado pela `1757900000000-ClosingEntries`, verificada contra o MySQL local
-  nos dois sentidos.
-- No frontend, os dois que a task_04 precisa resolver estao em **Handoffs**:
-  impressao com a tabela paginada, e exportacao com filtro ativo.
+- Nenhum aberto no backend.
+- **A folha impressa da rota mostra so a pagina visivel da tabela.** Mes com 25
+  lancamentos: 20 linhas no DOM, 5 fora, e o rodape `Página 1 de 2` impresso
+  junto — o `clientPagination` da `DataTable` recorta o array, entao as linhas
+  restantes nao existem para o CSS revelar. O CSV nao sofre disso. Medido na
+  task_04 e **deixado em aberto de proposito**: nenhum requisito nem caso
+  atribuido o cobre, e as duas saidas custam mais do que aquela task comportava —
+  uma copia completa so para impressao quebra `getByText` em IT-335/336/337/339
+  (casos entregues), e `beforeprint` + `flushSync` nao e testavel em jsdom e o
+  Safari nao emite o evento. Detalhe em `memory/task_04.md`.
 
 ## Handoffs
 
-**Para a task_04**, a task_03 entrega a tela em `/financeiro/balancete/:mes`,
-com `ClosingEntriesTable` ao lado, e o link "Ver o documento completo" ja na
-secao — a metade do IT-341 que fala do link ja e verdade; a que fala da ausencia
-do `Exportar CSV` e trabalho da task_04.
+**Nao sobra nada das quatro tasks.** A esteira esta completa.
 
-**Dois riscos que a task_04 herda, e nenhum caso pega:**
-
-1. **A tabela pagina no cliente (20 por pagina), entao a folha impressa mostraria
-   so a pagina visivel.** O CSV nao sofre disso — le o payload, nao o DOM. Quem
-   mover `print-document` para a rota precisa decidir o que a impressao faz com
-   as outras paginas.
-2. **O filtro por categoria tambem nao e do payload.** Exportar com filtro ativo
-   tem de exportar o mes inteiro; exportar o recorte faria o arquivo discordar do
-   que o ADR-004 existe para garantir.
-
-**Nao sobra nada das tasks 01, 02 e 03.**
+**O que continua precisando de um humano:** a conferencia visual da impressao —
+margem, quebra de pagina, cor de fundo, se a tabela cabe na folha. A task_04
+simulou as tres regras do `@media print` sobre o DOM dos dois estados e
+registrou o que aparece e o que some (em `memory/task_04.md`), mas o jsdom nao
+calcula layout e essa metade nao e automatizavel, como o ADR-006 da esteira
+anterior ja dizia.

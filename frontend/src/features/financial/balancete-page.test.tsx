@@ -11,10 +11,12 @@ import { Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeCondominium } from '@/test/fixtures';
 import {
+  clickTrigger,
   createUser,
   renderWithProviders,
   screen,
   selectOption,
+  waitFor,
   within,
   type RenderWithProvidersOptions,
 } from '@/test/render';
@@ -108,6 +110,21 @@ async function entriesTable(): Promise<HTMLElement> {
 /** As linhas de dados: o `<thead>` tambem e uma linha, e nao conta. */
 function dataRows(table: HTMLElement): HTMLElement[] {
   return within(table).getAllByRole('row').slice(1);
+}
+
+/**
+ * Le o conteudo de um `Blob`.
+ *
+ * Pelo `FileReader`, e nao por `blob.text()`: o `Blob` do jsdom nao implementa
+ * `text()` nem `arrayBuffer()`, e o `FileReader` ele implementa.
+ */
+function readBlob(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
 }
 
 beforeEach(() => {
@@ -268,5 +285,86 @@ describe('Balancete na rota própria', () => {
     // E nem chega a perguntar: o servidor recusaria `2026-13` com 422, e gastar
     // a requisicao para descobrir o que a competencia ja diz seria desperdicio.
     expect(allReadRequests()).toHaveLength(0);
+  });
+
+  it('IT-344: a raiz da rota carrega print-document e os controles ficam sob print-hide', async () => {
+    /*
+      O jsdom nao calcula layout, entao nenhum caso prova que a impressao parece
+      certa. O que pode quebrar em silencio e a marcacao que o `@media print` de
+      `index.css` procura — o bloco nomeia classes, nao telas, e e isso que faz
+      esta migracao caber numa troca de embrulho (ADR-005). Isto aqui e testavel,
+      e e o que se testa; o resto e o item humano da task.
+
+      Este caso veio da secao junto com a exportacao.
+    */
+    serveMonth({ frozen: false, entries: [INCOME, EXPENSE] });
+    renderBalancete();
+
+    await entriesTable();
+
+    const root = screen
+      .getByRole('region', { name: 'Resumo da competência' })
+      .closest('.print-document');
+    expect(root).not.toBeNull();
+
+    // O cabecalho entra na folha: a casca autenticada some na impressao, e sem o
+    // titulo o papel nao diria de que mes nem de que condominio ele e.
+    expect(root).toContainElement(screen.getByRole('heading', { level: 1 }));
+    expect(root).toContainElement(screen.getByRole('table'));
+
+    const controls = root?.querySelector('.print-hide');
+    expect(controls?.contains(screen.getByRole('button', { name: /Imprimir/ }))).toBe(true);
+    expect(controls?.contains(screen.getByRole('button', { name: /Exportar CSV/ }))).toBe(true);
+
+    // O filtro tambem some: um seletor de categoria impresso nao seleciona nada.
+    expect(screen.getByLabelText('Categoria').closest('.print-hide')).not.toBeNull();
+  });
+
+  it('IT-345: exportar da rota entrega o arquivo pela âncora, sem requisição e com os lançamentos', async () => {
+    /*
+      Realocado de `balancete-mensal` IT-314, que afirmava o mesmo contra a
+      secao. A metade nova e a ultima asercao: o arquivo carrega os lancamentos,
+      que e a razao de a exportacao ter mudado de tela (ADR-005).
+
+      O jsdom nao implementa `URL.createObjectURL` nem o download de um link. Os
+      dois stubs mais o espiao no clique mantem o caso silencioso: sem o espiao,
+      o clique vira tentativa de navegacao e polui o log.
+    */
+    const createObjectURL = vi.fn((_blob: Blob) => 'blob:balancete');
+    const revokeObjectURL = vi.fn();
+    Object.defineProperty(URL, 'createObjectURL', { value: createObjectURL, configurable: true });
+    Object.defineProperty(URL, 'revokeObjectURL', { value: revokeObjectURL, configurable: true });
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+
+    serveMonth(
+      { frozen: true, entries: [INCOME, EXPENSE] },
+      makeStatement({ status: 'CLOSED', closedAt: '2026-09-02T10:00:00.000Z' }),
+    );
+    renderBalancete();
+
+    await entriesTable();
+    const before = allReadRequests().length;
+    expect(before).toBeGreaterThan(0); // guarda contra a asercao vazia la embaixo
+
+    clickTrigger(screen.getByRole('button', { name: /Exportar CSV/ }));
+
+    await waitFor(() => expect(click).toHaveBeenCalledTimes(1));
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+
+    const blob = createObjectURL.mock.calls[0][0];
+    expect(blob).toBeInstanceOf(Blob);
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:balancete');
+
+    // Sem requisicao: o arquivo e montado do payload que a tela ja tem (ADR-004).
+    expect(allReadRequests()).toHaveLength(before);
+
+    const csv = await readBlob(blob);
+    expect(csv).toContain('Totais;Saldo final');
+    expect(csv).toContain('Taxa condominial da 101');
+    expect(csv).toContain('Conta de energia');
+
+    click.mockRestore();
   });
 });
