@@ -1,3 +1,5 @@
+import type { PaymentMethod } from './entities/charge.entity';
+import type { ClosingEntryKind } from './entities/financial-closing-entry.entity';
 import type {
   ClosingBreakdown,
   ClosingStatus,
@@ -130,4 +132,87 @@ export function resolveOpeningBalance(input: OpeningBalanceInput): ResolvedOpeni
     source: 'COMPUTED',
     from: condominium.openingBalanceDate ?? null,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Lancamentos do balancete (ADR-002)
+// ---------------------------------------------------------------------------
+
+/** Um lancamento do balancete: uma entrada ou uma saida, como ela foi naquele dia. */
+export type StatementEntry = {
+  kind: ClosingEntryKind;
+  /** Data de caixa: `payment.paid_at` ou `expense.paid_at`. */
+  occurredAt: Date;
+  categoryId: string | null;
+  /** Congelado: a categoria pode ser renomeada ou removida depois. */
+  categoryName: string;
+  description: string;
+  /** A outra parte: numero da unidade na entrada, prestador na saida. */
+  counterpart: string | null;
+  amount: number;
+  method: PaymentMethod | null;
+  /** Referencia a origem (`payment.id` ou `expense.id`). Nao e um link. */
+  sourceId: string;
+};
+
+/** Linha crua de um movimento, como o QueryBuilder a devolve do join manual. */
+export type RawMovement = {
+  sourceId: string;
+  occurredAt: Date | string;
+  categoryId: string | null;
+  description: string | null;
+  counterpart: string | null;
+  amount: number | string | null;
+  method: string | null;
+};
+
+/**
+ * Monta um lancamento a partir de uma linha crua, resolvendo o nome da categoria
+ * pelo mesmo par de rotulos que `toStatementLines` ja usa nas linhas por
+ * categoria: `Sem categoria` quando ninguem classificou, `Categoria removida`
+ * quando alguem classificou e a referencia se perdeu. Duas situacoes
+ * diferentes, e confundi-las esconderia um defeito de dado atras de um rotulo
+ * que parece normal.
+ */
+export function toStatementEntry(
+  kind: ClosingEntryKind,
+  row: RawMovement,
+  categoryNames: Map<string, string>,
+): StatementEntry {
+  return {
+    kind,
+    occurredAt: row.occurredAt instanceof Date ? row.occurredAt : new Date(row.occurredAt),
+    categoryId: row.categoryId ?? null,
+    categoryName: row.categoryId
+      ? (categoryNames.get(row.categoryId) ?? MISSING_CATEGORY_LABEL)
+      : UNCATEGORIZED_LABEL,
+    description: row.description ?? '',
+    counterpart: row.counterpart ?? null,
+    amount: round2(Number(row.amount ?? 0)),
+    method: (row.method as PaymentMethod | null) ?? null,
+    sourceId: row.sourceId,
+  };
+}
+
+/**
+ * A ordem do documento: data crescente, valor decrescente, `sourceId` para
+ * desempatar.
+ *
+ * O terceiro criterio e o que torna a ordem **total**, e nao um detalhe: sem
+ * ele, dois lancamentos do mesmo dia e do mesmo valor sairiam em ordem
+ * arbitraria, duas leituras do mesmo mes fechado poderiam divergir, e o diff de
+ * duas exportacoes deixaria de significar alguma coisa. A mesma funcao ordena
+ * os dois modos de leitura de proposito: quem le nao deve conseguir dizer, pela
+ * ordem, se o mes estava aberto.
+ */
+export function sortStatementEntries(entries: StatementEntry[]): StatementEntry[] {
+  return [...entries].sort((a, b) => {
+    const byDate = a.occurredAt.getTime() - b.occurredAt.getTime();
+    if (byDate !== 0) return byDate;
+
+    const byAmount = b.amount - a.amount;
+    if (byAmount !== 0) return byAmount;
+
+    return a.sourceId < b.sourceId ? -1 : a.sourceId > b.sourceId ? 1 : 0;
+  });
 }

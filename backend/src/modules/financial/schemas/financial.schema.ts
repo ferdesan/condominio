@@ -138,8 +138,18 @@ export const closingQuerySchema = z.object({ condominiumId: uuidSchema });
  */
 export const closingListQuerySchema = closingQuerySchema.passthrough();
 
+/**
+ * Os lancamentos vem do mes inteiro, sem paginacao (ADR-004), e por isso o
+ * schema e **estrito**: `page` e `perPage` sao recusados em vez de descartados
+ * em silencio. Um `z.object` comum removeria as duas chaves sem dizer nada, que
+ * e exatamente o "aceitar e ignorar" que convidaria quem chama a acreditar que
+ * uma pagina foi aplicada.
+ */
+export const closingEntriesQuerySchema = closingQuerySchema.strict();
+
 /** Corpo de fechar e reabrir: o condominio, e nada mais. */
 export const closingBodySchema = z.object({ condominiumId: uuidSchema });
 
 export type ClosingMonthParams = z.infer<typeof closingMonthParamsSchema>;
 export type ClosingQuery = z.infer<typeof closingQuerySchema>;
+export type ClosingEntriesQuery = z.infer<typeof closingEntriesQuerySchema>;

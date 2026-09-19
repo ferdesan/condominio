@@ -15,9 +15,13 @@ import {
   readBreakdown,
   resolveOpeningBalance,
   round2,
+  sortStatementEntries,
+  toStatementEntry,
   toStatementLines,
   type ResolvedOpeningBalance,
+  type StatementEntry,
 } from '../closing-math';
+import type { FinancialClosingEntry } from '../entities/financial-closing-entry.entity';
 import type { ClosingStatus, StatementLine } from '../entities/financial-closing.entity';
 import { FinancialClosing } from '../entities/financial-closing.entity';
 import { chargeRepository, type ChargeRepository } from '../repositories/charge.repository';
@@ -29,6 +33,10 @@ import {
   financialCategoryRepository,
   type FinancialCategoryRepository,
 } from '../repositories/financial-category.repository';
+import {
+  financialClosingEntryRepository,
+  type FinancialClosingEntryRepository,
+} from '../repositories/financial-closing-entry.repository';
 import {
   financialClosingRepository,
   type FinancialClosingRepository,
@@ -63,6 +71,20 @@ export type MonthlyStatement = {
 };
 
 /**
+ * Os lancamentos de uma competencia, e de onde eles vieram.
+ *
+ * `frozen` nao e redundante com `status`: ele diz se **estas linhas** sairam do
+ * armazenamento ou foram calculadas agora. E o que distingue um documento
+ * fechado antes desta esteira — `frozen: true`, lista vazia e totais acima de
+ * zero — de um mes que simplesmente nao teve movimento. Renderizar o primeiro
+ * como o segundo seria uma afirmacao falsa dentro de uma prestacao de contas.
+ */
+export type ClosingEntries = {
+  entries: StatementEntry[];
+  frozen: boolean;
+};
+
+/**
  * Nao estende `CondominiumScopedService`: nao ha create/update/delete a herdar.
  * Montar a fabrica exporia seis operacoes sobre um recurso que tem tres, e a
  * regra ja esta escrita no lado do cliente, em `features/tenant/tenant-hooks.ts`
@@ -71,6 +93,7 @@ export type MonthlyStatement = {
 export class ClosingService {
   constructor(
     private readonly closings: FinancialClosingRepository = financialClosingRepository,
+    private readonly closingEntries: FinancialClosingEntryRepository = financialClosingEntryRepository,
     private readonly payments: PaymentRepository = paymentRepository,
     private readonly expenses: ExpenseRepository = expenseRepository,
     private readonly charges: ChargeRepository = chargeRepository,
@@ -95,6 +118,37 @@ export class ClosingService {
     if (existing && existing.status === 'CLOSED') return this.fromSnapshot(existing);
 
     return this.compute(ctx, condominiumId, referenceMonth, existing);
+  }
+
+  /**
+   * Os lancamentos do mes, pela mesma regra de dois modos que `statement` segue:
+   * serve o gravado quando a competencia esta `CLOSED`, calcula quando esta
+   * aberta. Ausencia de linha e `status = 'OPEN'` sao o mesmo estado aqui
+   * tambem — o segundo apenas ja foi fechado alguma vez.
+   *
+   * A regra nao e simetria por gosto: o mes fechado tem totais congelados, e
+   * `balancete-mensal` IT-276 prova que uma escrita direta no banco depois do
+   * fechamento nao os move. Uma lista recalculada mostraria uma linha que o
+   * total acima dela exclui, e o documento se contradiria na propria tela.
+   */
+  async entries(
+    ctx: RequestContext,
+    condominiumId: string,
+    referenceMonth: string,
+  ): Promise<ClosingEntries> {
+    await assertCondominiumAccess(ctx.scope, condominiumId);
+
+    const existing = await this.closings.findByMonth(ctx.scope, condominiumId, referenceMonth);
+
+    if (existing && existing.status === 'CLOSED') {
+      const stored = await this.closingEntries.findByClosing(ctx.scope, existing.id);
+      return { entries: sortStatementEntries(stored.map(fromStoredEntry)), frozen: true };
+    }
+
+    return {
+      entries: await this.computeEntries(ctx.scope, condominiumId, referenceMonth),
+      frozen: false,
+    };
   }
 
   async list(ctx: RequestContext, options: QueryOptions): Promise<Paginated<FinancialClosing>> {
@@ -253,6 +307,37 @@ export class ClosingService {
     };
   }
 
+  /**
+   * Os lancamentos de um mes aberto, montados dos movimentos que existem agora.
+   *
+   * A janela e a mesma de `compute`, e as duas leituras sao as irmas linha a
+   * linha das agregacoes que ele usa — e por isso que a soma dos lancamentos
+   * fecha com os totais do resumo. Duas janelas independentes divergiriam no
+   * dia em que uma delas ganhasse um filtro que a outra nao ganhou.
+   */
+  private async computeEntries(
+    scope: RequestContext['scope'],
+    condominiumId: string,
+    referenceMonth: string,
+  ): Promise<StatementEntry[]> {
+    const { start, endExclusive } = monthRange(referenceMonth);
+
+    const [incomeRows, expenseRows] = await Promise.all([
+      this.payments.movementsInRange(scope, condominiumId, start, endExclusive),
+      this.expenses.paidMovementsInRange(scope, condominiumId, start, endExclusive),
+    ]);
+
+    const categoryIds = [...incomeRows, ...expenseRows]
+      .map((row) => row.categoryId)
+      .filter((id): id is string => Boolean(id));
+    const names = await this.categories.namesByIds(scope, [...new Set(categoryIds)]);
+
+    return sortStatementEntries([
+      ...incomeRows.map((row) => toStatementEntry('INCOME', row, names)),
+      ...expenseRows.map((row) => toStatementEntry('EXPENSE', row, names)),
+    ]);
+  }
+
   private async compute(
     ctx: RequestContext,
     condominiumId: string,
@@ -333,6 +418,26 @@ export class ClosingService {
 
     return resolveOpeningBalance({ previous, condominium, movements: { income, expense } });
   }
+}
+
+/**
+ * A linha gravada, devolvida como foi gravada. Nada e resolvido aqui de
+ * proposito: o nome da categoria, a outra parte e o metodo ja foram congelados
+ * no fechamento, e reconsultar qualquer um deles deixaria um cadastro alterado
+ * depois reescrever uma prestacao de contas ja publicada.
+ */
+function fromStoredEntry(row: FinancialClosingEntry): StatementEntry {
+  return {
+    kind: row.kind,
+    occurredAt: row.occurredAt,
+    categoryId: row.categoryId ?? null,
+    categoryName: row.categoryName,
+    description: row.description,
+    counterpart: row.counterpart ?? null,
+    amount: row.amount,
+    method: row.method ?? null,
+    sourceId: row.sourceId,
+  };
 }
 
 export const closingService = new ClosingService();
