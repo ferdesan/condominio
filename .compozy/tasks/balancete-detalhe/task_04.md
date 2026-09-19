@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "A exportação migra para a rota"
 type: frontend
 complexity: medium
