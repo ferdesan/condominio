@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { EmptyState } from '@/components/common/empty-state';
@@ -136,6 +137,19 @@ export function ClosingSection({ condominiumId }: ClosingSectionProps) {
               Fechar mês
             </Button>
           ) : null}
+
+          {/*
+            A secao resume; o documento completo — com um lancamento por
+            pagamento recebido e por despesa paga — mora na rota propria
+            (ADR-001). Nada foi tirado daqui: o link e uma saida a mais.
+
+            Sempre visivel, inclusive sem `statement.data`: a rota le o mes por
+            conta propria e sabe dizer que ele nao existe, o que e melhor do que
+            o link sumir sem explicacao enquanto a secao carrega.
+          */}
+          <Button asChild variant="outline">
+            <Link to={`/financeiro/balancete/${referenceMonth}`}>Ver o documento completo</Link>
+          </Button>
 
           {/*
             Sem requisicao: o arquivo e montado do payload que a secao ja tem

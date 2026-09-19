@@ -12,6 +12,7 @@ import type {
   CategoryKind,
   Charge,
   ChargeStatus,
+  ClosingEntryKind,
   Expense,
   ExpenseStatus,
   FinancialCategory,
@@ -53,6 +54,29 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   CASH: 'Dinheiro',
   OTHER: 'Outro',
 };
+
+/**
+ * Os dois lados de um lancamento do balancete.
+ *
+ * Nao reusa `CATEGORY_KIND_LABELS`: ali o texto e o do plano de contas —
+ * "Receita" e "Despesa" nomeiam a conta —, e aqui a coluna nomeia o movimento,
+ * do mesmo jeito que as duas tabelas da secao ja dizem "Entradas por categoria"
+ * e "Saidas por categoria". Rotulos distintos tambem sao o que faz ordenar a
+ * planilha exportada por essa coluna separar os dois lados.
+ */
+export const CLOSING_ENTRY_KIND_LABELS: Record<ClosingEntryKind, string> = {
+  INCOME: 'Entrada',
+  EXPENSE: 'Saída',
+};
+
+/**
+ * Forma de pagamento de um lancamento, com o traco quando a origem nao registrou
+ * nenhuma — uma despesa liquidada sem meio informado e um dado ausente, e nao um
+ * meio chamado "Outro", que e uma escolha de quem lancou.
+ */
+export function paymentMethodLabel(method: PaymentMethod | null): string {
+  return method ? PAYMENT_METHOD_LABELS[method] : '—';
+}
 
 /**
  * Receita e despesa no plano de contas.

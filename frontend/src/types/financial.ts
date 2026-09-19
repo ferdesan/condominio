@@ -227,3 +227,61 @@ export type FinancialClosing = {
   closedByName: string | null;
   reopenCount: number;
 };
+
+// ---------------------------------------------------------------------------
+// Lancamentos do balancete
+// ---------------------------------------------------------------------------
+
+export const CLOSING_ENTRY_KINDS = ['INCOME', 'EXPENSE'] as const;
+
+/**
+ * De que lado do balancete o lancamento esta.
+ *
+ * Tem os mesmos dois valores de `CategoryKind` e nao e ele: aquele classifica
+ * uma conta do plano de contas, este diz se o dinheiro entrou ou saiu. Unir os
+ * dois faria uma renomeacao no plano de contas alcancar um documento fechado.
+ */
+export type ClosingEntryKind = (typeof CLOSING_ENTRY_KINDS)[number];
+
+/**
+ * Um lancamento do balancete: uma entrada ou uma saida, como ela foi naquele dia.
+ *
+ * Espelha `backend/src/modules/financial/closing-math.ts`. Ali `occurredAt` e um
+ * `Date`; aqui e a string ISO que o JSON entrega, como em `Payment.paidAt`.
+ *
+ * `categoryName` e `counterpart` chegam congelados no mes fechado: a categoria
+ * pode ser renomeada e o prestador removido depois, e nenhum dos dois pode
+ * reescrever uma prestacao de contas ja publicada (ADR-002).
+ */
+export type StatementEntry = {
+  kind: ClosingEntryKind;
+  /** Data de caixa: o pagamento recebido ou a despesa paga. */
+  occurredAt: string;
+  categoryId: string | null;
+  categoryName: string;
+  description: string;
+  /** A outra parte: numero da unidade na entrada, prestador na saida. */
+  counterpart: string | null;
+  amount: number;
+  method: PaymentMethod | null;
+  /** Referencia a origem (`payment.id` ou `expense.id`). **Nao e um link** (ADR-002). */
+  sourceId: string;
+};
+
+/**
+ * Corpo de `GET /financial/closings/:referenceMonth/entries`.
+ *
+ * Um objeto, e nao a lista crua: o mes inteiro vem numa resposta so e a tabela
+ * pagina no cliente (ADR-004), entao uma adicao futura — uma contagem, um aviso
+ * de corte — nao muda a forma do que ja foi publicado.
+ *
+ * `frozen` diz de onde as linhas vieram: `true` quando foram lidas do
+ * fechamento gravado, `false` quando foram calculadas ao vivo. E o que permite
+ * distinguir um documento anterior ao registro dos lancamentos — `frozen: true`,
+ * lista vazia e totais acima de zero — de um mes que simplesmente nao teve
+ * movimento.
+ */
+export type ClosingEntries = {
+  entries: StatementEntry[];
+  frozen: boolean;
+};

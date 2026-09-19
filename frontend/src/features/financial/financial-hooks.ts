@@ -25,6 +25,7 @@ import type {
   ApplyLateFeesResult,
   Charge,
   ChargeSummary,
+  ClosingEntries,
   DelinquencyRow,
   Expense,
   FinancialCategory,
@@ -403,6 +404,31 @@ export function useClosing(
     queryKey: [CLOSINGS_KEY, 'detail', condominiumId, referenceMonth],
     queryFn: () =>
       apiGet<MonthlyStatement>(`/financial/closings/${referenceMonth}`, {
+        params: { condominiumId: condominiumId ?? '' },
+      }),
+    enabled: Boolean(condominiumId) && Boolean(referenceMonth),
+  });
+}
+
+/**
+ * Os lancamentos do mes, o mes inteiro numa resposta so (ADR-004).
+ *
+ * Chave propria ao lado da do resumo, e nao um campo dentro dele: sao duas
+ * requisicoes independentes, e a lista pode falhar sem levar os totais junto —
+ * o mesmo arranjo de `condominium-detail-page.tsx`. As duas ficam sob
+ * `CLOSINGS_KEY`, entao fechar ou reabrir o mes ja invalida ambas.
+ *
+ * Nao recebe `page` nem `perPage`: o servidor os recusa com 422 de proposito, e
+ * a tabela recorta no cliente o que ja esta em memoria.
+ */
+export function useClosingEntries(
+  condominiumId: string | null,
+  referenceMonth: string,
+): UseQueryResult<ClosingEntries, ApiError> {
+  return useQuery<ClosingEntries, ApiError>({
+    queryKey: [CLOSINGS_KEY, 'entries', condominiumId, referenceMonth],
+    queryFn: () =>
+      apiGet<ClosingEntries>(`/financial/closings/${referenceMonth}/entries`, {
         params: { condominiumId: condominiumId ?? '' },
       }),
     enabled: Boolean(condominiumId) && Boolean(referenceMonth),

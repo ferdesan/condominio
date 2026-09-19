@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "A tela na rota própria"
 type: frontend
 complexity: high
@@ -36,16 +36,16 @@ condições têm precedente — o que ela rompe, e por quê, está no ADR-001.
 
 ## Subtasks
 
-- [ ] 3.1 Espelhar `StatementEntry` e a forma da resposta em `types/financial.ts`
-- [ ] 3.2 Escrever `useClosingEntries`, com a chave de consulta por condomínio e competência
-- [ ] 3.3 Escrever a página da rota: cabeçalho, estados de carregando, negado e não encontrado
-- [ ] 3.4 Escrever a tabela de lançamentos, com as colunas, o filtro por categoria e a paginação no cliente
-- [ ] 3.5 Tratar o caso do documento anterior ao registro dos lançamentos
-- [ ] 3.6 Registrar a rota com a sua própria guarda, sem tocar em `navigation.ts`
-- [ ] 3.7 Acrescentar o link a partir da seção
-- [ ] 3.8 Acrescentar as entradas em `AUXILIARY_READS`, com o comentário que explica a mudança
-- [ ] 3.9 Escrever os casos atribuídos, inclusive o da rota dentro do roteador real
-- [ ] 3.10 Rodar o pipeline do frontend e comparar a contagem
+- [x] 3.1 Espelhar `StatementEntry` e a forma da resposta em `types/financial.ts`
+- [x] 3.2 Escrever `useClosingEntries`, com a chave de consulta por condomínio e competência
+- [x] 3.3 Escrever a página da rota: cabeçalho, estados de carregando, negado e não encontrado
+- [x] 3.4 Escrever a tabela de lançamentos, com as colunas, o filtro por categoria e a paginação no cliente
+- [x] 3.5 Tratar o caso do documento anterior ao registro dos lançamentos
+- [x] 3.6 Registrar a rota com a sua própria guarda, sem tocar em `navigation.ts`
+- [x] 3.7 Acrescentar o link a partir da seção
+- [x] 3.8 Acrescentar as entradas em `AUXILIARY_READS`, com o comentário que explica a mudança
+- [x] 3.9 Escrever os casos atribuídos, inclusive o da rota dentro do roteador real
+- [x] 3.10 Rodar o pipeline do frontend e comparar a contagem
 
 ## Implementation Details
 
@@ -106,11 +106,11 @@ Ver "API Endpoints" no [`_techspec.md`](_techspec.md) e o [ADR-001](adrs/adr-001
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's
 full definition there before writing tests.
 
-- [ ] IT-335, IT-336, IT-337 — a tela com resumo e lançamentos, o filtro por categoria, e a paginação no cliente sem segunda requisição
-- [ ] IT-338, IT-339 — mês aberto identificado como aberto; mês fechado com o selo e os lançamentos do documento
-- [ ] IT-340 — documento anterior ao registro dos lançamentos diz isso, em vez de mostrar tabela vazia
-- [ ] IT-342, IT-343 — sem permissão rende acesso negado; competência malformada rende não encontrado com volta
-- [ ] IT-346 — a rota dentro do roteador real, e ausente da barra lateral
+- [x] IT-335, IT-336, IT-337 — a tela com resumo e lançamentos, o filtro por categoria, e a paginação no cliente sem segunda requisição
+- [x] IT-338, IT-339 — mês aberto identificado como aberto; mês fechado com o selo e os lançamentos do documento
+- [x] IT-340 — documento anterior ao registro dos lançamentos diz isso, em vez de mostrar tabela vazia
+- [x] IT-342, IT-343 — sem permissão rende acesso negado; competência malformada rende não encontrado com volta
+- [x] IT-346 — a rota dentro do roteador real, e ausente da barra lateral
 
 ## Notas de execução
 
