@@ -5,7 +5,10 @@ import {
   readBreakdown,
   round2,
   resolveOpeningBalance,
+  sortStatementEntries,
+  toStatementEntry,
   toStatementLines,
+  type StatementEntry,
 } from '@/modules/financial/closing-math';
 
 describe('resolveOpeningBalance', () => {
@@ -168,5 +171,143 @@ describe('readBreakdown', () => {
       expense: [],
       unresolvedPaidExpenses: { count: 0, total: 0 },
     });
+  });
+});
+
+describe('toStatementEntry', () => {
+  const names = new Map([
+    ['cat-1', 'Taxa condominial'],
+    ['cat-2', 'Manutencao predial'],
+  ]);
+
+  /** Linha crua como o QueryBuilder a devolve: dinheiro em texto, o resto nulavel. */
+  const incomeRow = {
+    sourceId: 'pag-1',
+    occurredAt: new Date('2026-08-12T10:30:00.000Z'),
+    categoryId: 'cat-1',
+    description: 'Taxa de agosto',
+    counterpart: 'A-101',
+    amount: '600.00',
+    method: 'PIX',
+  };
+
+  it('UT-125: linha de entrada vira lancamento com a unidade, o nome da categoria e o valor numerico', () => {
+    const entry = toStatementEntry('INCOME', incomeRow, names);
+
+    expect(entry).toEqual({
+      kind: 'INCOME',
+      occurredAt: new Date('2026-08-12T10:30:00.000Z'),
+      categoryId: 'cat-1',
+      categoryName: 'Taxa condominial',
+      description: 'Taxa de agosto',
+      counterpart: 'A-101',
+      amount: 600,
+      method: 'PIX',
+      sourceId: 'pag-1',
+    });
+    // O DECIMAL chega como texto do banco e sai numero da montagem: o documento
+    // soma os lancamentos, e somar strings concatenaria em vez de adicionar.
+    expect(typeof entry.amount).toBe('number');
+  });
+
+  it('UT-126: categoria nula rende a linha "Sem categoria" e conserva o nulo', () => {
+    const entry = toStatementEntry('INCOME', { ...incomeRow, categoryId: null }, names);
+
+    expect(entry.categoryId).toBeNull();
+    expect(entry.categoryName).toBe(UNCATEGORIZED_LABEL);
+    // Nada se perde no caminho: nao classificar nao e motivo para sumir do
+    // documento, e o resto da linha continua inteiro.
+    expect(entry.amount).toBe(600);
+    expect(entry.counterpart).toBe('A-101');
+    expect(entry.sourceId).toBe('pag-1');
+  });
+
+  it('UT-127: categoria que o cadastro nao tem mais conserva o id e ganha rotulo proprio', () => {
+    const entry = toStatementEntry('INCOME', { ...incomeRow, categoryId: 'sumiu' }, names);
+
+    expect(entry.categoryId).toBe('sumiu');
+    // Distinto de `Sem categoria` de proposito: ali ninguem classificou, aqui
+    // alguem classificou e a referencia se perdeu.
+    expect(entry.categoryName).toBe(MISSING_CATEGORY_LABEL);
+    expect(entry.categoryName).not.toBe(UNCATEGORIZED_LABEL);
+  });
+
+  it('UT-128: saida sem prestador fica sem a outra parte, e ainda assim completa', () => {
+    const entry = toStatementEntry(
+      'EXPENSE',
+      {
+        sourceId: 'desp-1',
+        occurredAt: new Date('2026-08-15T00:00:00.000Z'),
+        categoryId: 'cat-2',
+        description: 'Reparo do portao',
+        counterpart: null,
+        amount: '250.50',
+        method: null,
+      },
+      names,
+    );
+
+    expect(entry.kind).toBe('EXPENSE');
+    expect(entry.counterpart).toBeNull();
+    expect(entry.method).toBeNull();
+    // Sem prestador nao e lancamento pela metade: valor, data, descricao e
+    // categoria seguem la, e e isso que o documento mostra.
+    expect(entry.amount).toBe(250.5);
+    expect(entry.categoryName).toBe('Manutencao predial');
+    expect(entry.description).toBe('Reparo do portao');
+  });
+});
+
+describe('sortStatementEntries', () => {
+  const entry = (overrides: Partial<StatementEntry>): StatementEntry => ({
+    kind: 'INCOME',
+    occurredAt: new Date('2026-08-10T00:00:00.000Z'),
+    categoryId: null,
+    categoryName: UNCATEGORIZED_LABEL,
+    description: 'Lancamento',
+    counterpart: null,
+    amount: 100,
+    method: null,
+    sourceId: 'a',
+    ...overrides,
+  });
+
+  it('UT-129: tres lancamentos de datas diferentes saem por data crescente, seja qual for a ordem de chegada', () => {
+    const dia = (day: number) =>
+      new Date(`2026-08-${String(day).padStart(2, '0')}T00:00:00.000Z`);
+
+    const sorted = sortStatementEntries([
+      entry({ occurredAt: dia(20), sourceId: 'c' }),
+      entry({ occurredAt: dia(5), sourceId: 'a' }),
+      entry({ occurredAt: dia(12), sourceId: 'b' }),
+    ]);
+
+    expect(sorted.map((item) => item.sourceId)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('UT-130: mesma data e mesmo valor desempatam por sourceId, e a ordem nao depende da chegada', () => {
+    const mesmoDia = new Date('2026-08-12T00:00:00.000Z');
+    const primeiro = entry({ occurredAt: mesmoDia, amount: 300, sourceId: 'aaa' });
+    const segundo = entry({ occurredAt: mesmoDia, amount: 300, sourceId: 'bbb' });
+
+    // O terceiro criterio e o que torna a ordem total: sem ele estas duas linhas
+    // sairiam em ordem arbitraria, duas leituras do mesmo mes fechado poderiam
+    // divergir, e o diff de duas exportacoes deixaria de significar alguma coisa.
+    expect(sortStatementEntries([segundo, primeiro]).map((item) => item.sourceId)).toEqual([
+      'aaa',
+      'bbb',
+    ]);
+    expect(sortStatementEntries([primeiro, segundo]).map((item) => item.sourceId)).toEqual([
+      'aaa',
+      'bbb',
+    ]);
+
+    // E o desempate so entra depois do valor: no mesmo dia, o maior vem antes,
+    // ainda que o `sourceId` dele seja o ultimo da ordem alfabetica.
+    const porValor = sortStatementEntries([
+      entry({ occurredAt: mesmoDia, amount: 50, sourceId: 'aaa' }),
+      entry({ occurredAt: mesmoDia, amount: 900, sourceId: 'zzz' }),
+    ]);
+    expect(porValor.map((item) => item.amount)).toEqual([900, 50]);
   });
 });

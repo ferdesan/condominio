@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { EmptyState } from '@/components/common/empty-state';
@@ -13,7 +14,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { useCondominium } from '@/hooks/use-condominium';
 import { formatCurrency, formatDate, formatNumber, formatReferenceMonth } from '@/lib/format';
 import type { MonthlyStatement, StatementLine } from '@/types/financial';
-import { downloadClosingCsv } from '../closing-csv';
 import { useCloseMonth, useClosing, useReopenMonth } from '../financial-hooks';
 import { openingBalanceProvenance } from '../financial-labels';
 
@@ -94,7 +94,7 @@ export function ClosingSection({ condominiumId }: ClosingSectionProps) {
   const hasMovement = Boolean(data && (data.income.length > 0 || data.expense.length > 0));
 
   return (
-    <section aria-labelledby="closing-title" className="print-document space-y-4">
+    <section aria-labelledby="closing-title" className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 id="closing-title" className="text-sm font-semibold">
@@ -105,7 +105,7 @@ export function ClosingSection({ condominiumId }: ClosingSectionProps) {
           </p>
         </div>
 
-        <div className="print-hide flex flex-wrap items-end gap-3">
+        <div className="flex flex-wrap items-end gap-3">
           <div className="grid gap-1.5">
             <Label htmlFor="closing-month">Competência</Label>
             <Input
@@ -138,15 +138,22 @@ export function ClosingSection({ condominiumId }: ClosingSectionProps) {
           ) : null}
 
           {/*
-            Sem requisicao: o arquivo e montado do payload que a secao ja tem
-            (ADR-006). Quem le o balancete pode exporta-lo — nao ha permissao
-            propria, porque nao ha nada aqui que a leitura ja nao mostre.
+            A secao resume; o documento completo — com um lancamento por
+            pagamento recebido e por despesa paga — mora na rota propria
+            (ADR-001), e **e de la que ele sai**, impresso ou em CSV (ADR-005).
+
+            Exportar tambem daqui produziria dois arquivos de mesmo nome com
+            conteudos diferentes, porque o payload desta secao e o resumo e nao
+            o documento inteiro. Por isso o link e uma saida e nao um atalho: ele
+            leva a unica tela que tem tudo o que ela exporta.
+
+            Sempre visivel, inclusive sem `statement.data`: a rota le o mes por
+            conta propria e sabe dizer que ele nao existe, o que e melhor do que
+            o link sumir sem explicacao enquanto a secao carrega.
           */}
-          {data ? (
-            <Button type="button" variant="outline" onClick={() => downloadClosingCsv(data)}>
-              Exportar CSV
-            </Button>
-          ) : null}
+          <Button asChild variant="outline">
+            <Link to={`/financeiro/balancete/${referenceMonth}`}>Ver o documento completo</Link>
+          </Button>
         </div>
       </div>
 

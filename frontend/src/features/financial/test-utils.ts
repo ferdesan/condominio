@@ -17,10 +17,12 @@ import type {
   Charge,
   Payment,
   ChargeSummary,
+  ClosingEntries,
   DelinquencyRow,
   Expense,
   FinancialCategory,
   MonthlyStatement,
+  StatementEntry,
 } from '@/types/financial';
 
 const TIMESTAMPS = {
@@ -154,6 +156,28 @@ export function makeStatement(overrides: Partial<MonthlyStatement> = {}): Monthl
   };
 }
 
+/**
+ * Um lancamento do balancete.
+ *
+ * O padrao e uma entrada: a saida se monta trocando `kind`, `counterpart` — que
+ * vira o prestador — e `sourceId`. O `sourceId` e a chave de linha da tabela,
+ * entao um caso com varios lancamentos precisa dar um valor diferente a cada um.
+ */
+export function makeStatementEntry(overrides: Partial<StatementEntry> = {}): StatementEntry {
+  return {
+    kind: 'INCOME',
+    occurredAt: '2026-08-05T12:00:00.000Z',
+    categoryId: 'cat-1',
+    categoryName: 'Taxa condominial',
+    description: 'Taxa condominial 08/2026',
+    counterpart: '101',
+    amount: 500,
+    method: 'PIX',
+    sourceId: 'payment-1',
+    ...overrides,
+  };
+}
+
 export function makeDelinquencyRow(overrides: Partial<DelinquencyRow> = {}): DelinquencyRow {
   return {
     unitId: 'unit-9',
@@ -180,6 +204,14 @@ export type FinancialWorld = {
   delinquency: DelinquencyRow[];
   /** Balancete servido por `/financial/closings/:mes`, mutado por fechar e reabrir. */
   statement: MonthlyStatement;
+  /**
+   * Lancamentos servidos por `/financial/closings/:mes/entries`.
+   *
+   * Independente de `statement`: e justamente a combinacao de um fechamento com
+   * totais e uma lista vazia — o documento anterior ao registro dos lancamentos —
+   * que a tela precisa saber distinguir de um mes sem movimento.
+   */
+  closingEntries: ClosingEntries;
   /** `meta.total` da listagem de cobrancas, para exercitar a paginacao. */
   chargeTotal?: number;
 };
@@ -200,6 +232,7 @@ export function serveFinancial(initial: Partial<FinancialWorld> = {}): Financial
     summary: makeSummary(),
     delinquency: [],
     statement: makeStatement(),
+    closingEntries: { entries: [], frozen: false },
     ...initial,
   };
 
@@ -248,13 +281,23 @@ export function serveFinancial(initial: Partial<FinancialWorld> = {}): Financial
     // O balancete e pedido por competencia, entao o duble responde a qualquer
     // mes com o estado do mundo — trocar de mes e um refetch, e o caso decide o
     // que muda alterando `world.statement`.
+    //
+    // Os lancamentos vem antes do resumo na cadeia porque a URL deles estende a
+    // dele: `/financial/closings/2026-08/entries` tambem comeca com o prefixo.
+    if (url.startsWith('/financial/closings/') && url.endsWith('/entries')) {
+      return world.closingEntries as never;
+    }
     if (url.startsWith('/financial/closings/')) return world.statement as never;
     throw new Error(`URL nao prevista no teste: ${url}`);
   });
 
   vi.mocked(apiPost).mockImplementation(async (url) => {
     if (url.endsWith('/close')) {
-      world.statement = { ...world.statement, status: 'CLOSED', closedAt: new Date().toISOString() };
+      world.statement = {
+        ...world.statement,
+        status: 'CLOSED',
+        closedAt: new Date().toISOString(),
+      };
       return world.statement as never;
     }
     if (url.endsWith('/reopen')) {

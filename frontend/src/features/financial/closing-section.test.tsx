@@ -197,53 +197,36 @@ describe('Balancete na tela de Financeiro', () => {
     expect(screen.getByRole('button', { name: 'Fechar mês' })).toBeInTheDocument();
   });
 
-  it('IT-314: exportar entrega um arquivo pela âncora, sem tocar na rede', async () => {
+  it('IT-341: a seção oferece o link para o documento completo e não oferece mais exportar', async () => {
     /*
-      O jsdom nao implementa `URL.createObjectURL` nem o download de um link. Os
-      dois stubs mais o espiao no clique mantem o caso silencioso: sem o espiao,
-      o clique vira tentativa de navegacao e polui o log.
-    */
-    const createObjectURL = vi.fn((_blob: Blob) => 'blob:balancete');
-    const revokeObjectURL = vi.fn();
-    Object.defineProperty(URL, 'createObjectURL', { value: createObjectURL, configurable: true });
-    Object.defineProperty(URL, 'revokeObjectURL', { value: revokeObjectURL, configurable: true });
-    const click = vi
-      .spyOn(HTMLAnchorElement.prototype, 'click')
-      .mockImplementation(() => undefined);
+      A exportacao migrou para `/financeiro/balancete/:mes` (ADR-005), e as duas
+      metades deste caso sao uma so afirmacao: a secao aponta para o documento em
+      vez de tentar ser ele. Exportar tambem daqui produziria dois arquivos com o
+      mesmo nome — `closingCsvFileName` so olha a competencia — e conteudos
+      diferentes, porque o payload desta secao e o resumo.
 
-    serveFinancial();
-    render();
-    await openClosing();
-    await screen.findByText('Taxa condominial');
-
-    clickTrigger(screen.getByRole('button', { name: 'Exportar CSV' }));
-
-    await waitFor(() => expect(click).toHaveBeenCalledTimes(1));
-    expect(createObjectURL).toHaveBeenCalledTimes(1);
-    expect(createObjectURL.mock.calls[0][0]).toBeInstanceOf(Blob);
-    expect(revokeObjectURL).toHaveBeenCalledWith('blob:balancete');
-    expect(apiPost).not.toHaveBeenCalled();
-
-    click.mockRestore();
-  });
-
-  it('a folha de impressão tem onde se agarrar: região marcada e controles marcados', async () => {
-    /*
-      O jsdom nao calcula layout, entao nenhum caso prova que a impressao parece
-      certa. O que pode quebrar em silencio e a marcacao que o `@media print`
-      procura — alguem remover a classe e a folha passar a esconder tudo, ou a
-      revelar tudo. Isto aqui e testavel, e e o que se testa.
+      `balancete-mensal` IT-314 foi realocado para la como IT-345, e nao e
+      reimplementado aqui.
     */
     serveFinancial();
     render();
     await openClosing();
     await screen.findByText('Taxa condominial');
 
-    const document_ = screen.getByRole('region', { name: /Balancete mensal/ });
-    expect(document_).toHaveClass('print-document');
-    expect(
-      document_.querySelector('.print-hide')?.contains(screen.getByLabelText('Competência')),
-    ).toBe(true);
+    expect(screen.getByRole('link', { name: 'Ver o documento completo' })).toHaveAttribute(
+      'href',
+      `/financeiro/balancete/${currentMonth}`,
+    );
+    expect(screen.queryByRole('button', { name: 'Exportar CSV' })).not.toBeInTheDocument();
+
+    /*
+      As marcacoes de impressao foram junto. Enquanto elas estivessem aqui,
+      imprimir a partir de `/financeiro` renderia uma folha com o resumo e sem os
+      lancamentos — o documento incompleto que a rota existe para substituir.
+    */
+    const section = screen.getByRole('region', { name: /Balancete mensal/ });
+    expect(section).not.toHaveClass('print-document');
+    expect(section.querySelector('.print-hide')).toBeNull();
   });
 
   it('IT-315: abrir /financeiro não lê o balancete — a seção só monta quando escolhida', async () => {

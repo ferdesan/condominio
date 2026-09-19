@@ -25,6 +25,7 @@ import { UsersPage } from '@/features/users/users-page';
 import { AuditPage } from '@/features/audit/audit-page';
 import { NotificationsPage } from '@/features/notifications/notifications-page';
 import { FinancialPage } from '@/features/financial/financial-page';
+import { BalancetePage } from '@/features/financial/balancete-page';
 import { AssembliesPage } from '@/features/assemblies/assemblies-page';
 import { DocumentsPage } from '@/features/documents/documents-page';
 import { RolesPage } from '@/features/roles/roles-page';
@@ -185,6 +186,25 @@ export function AppRouter() {
           */}
           <Route element={<ProtectedRoute permission="charge:read" />}>
             <Route path="/financeiro" element={<FinancialPage />} />
+          </Route>
+
+          {/*
+            O balancete de um mes tem rota propria, e guarda propria (ADR-001).
+            Fica fora do bloco acima de proposito: herdar `charge:read` deixaria
+            quem le cobrancas alcancar a prestacao de contas digitando o
+            endereco, e as duas permissoes existem justamente para separar isso.
+
+            Nao entra em `navigation.ts` nem em `IMPLEMENTED`: nao e item de
+            menu — chega-se a ela pela seção em `/financeiro` ou por um link que
+            alguem colou —, e `IMPLEMENTED` so serve para tirar do gerador de
+            placeholders os caminhos do menu que ja tem tela. Segundo caso do
+            genero, depois de `/perfil`, e como ela e exercitada por um caso
+            proprio em `routes.test.tsx`, a comparação entre as rotas
+            registradas e `NAV_ITEMS.length` continua significando o que
+            significava.
+          */}
+          <Route element={<ProtectedRoute permission="financial-closing:read" />}>
+            <Route path="/financeiro/balancete/:mes" element={<BalancetePage />} />
           </Route>
 
           <Route element={<ProtectedRoute permission="assembly:read" />}>
