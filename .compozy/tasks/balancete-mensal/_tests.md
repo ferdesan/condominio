@@ -294,7 +294,11 @@ The coverage matrix is organised that way for the same reason.
   is absent from the section switcher and the other three sections still work.
 - **IT-313**: a close that answers 409 — the refusal from the server is shown in
   the section and the month stays open on screen.
-- **IT-314**: clicking `Exportar CSV` — `URL.createObjectURL` receives a `Blob`
+- **IT-314** *(relocated)*: the export moved to `/financeiro/balancete/:mes` by
+  `balancete-detalhe` ADR-005, and this case moved with it — it is re-asserted
+  there as **IT-345**, against the new screen. The id is not reused. The section's replacement behavior, a link instead of the buttons, is
+  that workflow's IT-341. Original definition, kept for the record: clicking
+  `Exportar CSV` — `URL.createObjectURL` receives a `Blob`
   and `HTMLAnchorElement.prototype.click` is called once; no request is made.
 - **IT-315**: render `/financeiro` and assert the requests made on mount — none of
   them is a closing URL; the statement is read only after the section is opened.
