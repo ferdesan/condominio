@@ -18,6 +18,7 @@ import { NAV_ITEMS } from '@/routes/navigation';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { makeCondominium, makeMeta } from '@/test/fixtures';
 import { makeTenant } from '@/features/tenant/test-utils';
+import { makeStatement } from '@/features/financial/test-utils';
 import { CATALOG } from '@/features/roles/test-utils';
 import { renderWithProviders, screen, within } from '@/test/render';
 import type { DashboardOverview } from '@/types/api';
@@ -42,6 +43,9 @@ vi.mock('sonner', () => ({
 vi.setConfig({ testTimeout: 180_000, hookTimeout: 180_000 });
 
 const CONDOMINIUM = makeCondominium({ id: 'cond-1', name: 'Residencial Aurora' });
+
+/** A competencia da rota de balancete, usada na URL e nas leituras servidas. */
+const STATEMENT_MONTH = '2026-08';
 
 const ZERO_OVERVIEW: DashboardOverview = {
   condominium: { id: CONDOMINIUM.id, name: CONDOMINIUM.name },
@@ -98,6 +102,29 @@ const AUXILIARY_READS: Record<string, unknown> = {
   // `types/api.ts`, fechado para contratos novos.
   '/tenants/me': makeTenant(),
   '/roles/permissions': { permissions: CATALOG },
+
+  /*
+    As duas leituras de `/financeiro/balancete/:mes`, e as primeiras entradas
+    desta lista desde que o balancete foi construido.
+
+    **A mudanca e deliberada, e nao uma regressao.** A task_04 de
+    `balancete-mensal` garantiu que esta lista nao cresceria, e o IT-315 provou a
+    garantia: `/financeiro` nao le o balancete ao montar, porque a secao so faz a
+    requisicao quando alguem a escolhe. Isso continua valendo palavra por
+    palavra. A rota de detalhe e outra superficie — ela **existe para** ler o
+    balancete na montagem —, entao sem estas duas chaves o `apiGet` do mundo
+    vazio responderia o 422 de URL nao prevista e o caso da rota mediria o estado
+    de erro da tela em vez da tela.
+
+    Sao duas porque a tela faz duas leituras independentes: o resumo e os
+    lancamentos. A competencia e a mesma constante que o caso usa na URL, para
+    que uma nao possa mudar sem a outra.
+  */
+  [`/financial/closings/${STATEMENT_MONTH}`]: makeStatement({
+    condominiumId: CONDOMINIUM.id,
+    referenceMonth: STATEMENT_MONTH,
+  }),
+  [`/financial/closings/${STATEMENT_MONTH}/entries`]: { entries: [], frozen: false },
 };
 
 /**
@@ -362,5 +389,52 @@ describe('O mecanismo de placeholder', () => {
       await screen.findByRole('heading', { level: 1, name: 'Condomínio SaaS' }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 1, name: 'Meu perfil' })).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * A segunda rota do sistema alcancável so por link, depois de `/perfil`.
+ *
+ * Fica fora de `REGISTERED` pelo mesmo motivo que aquela: nao e item de menu, e
+ * `REGISTERED` existe para casar com `NAV_ITEMS`. Por isso e exercitada aqui,
+ * num caso proprio, sem mexer na contagem que o primeiro caso deste arquivo
+ * compara.
+ */
+describe('A rota do balancete', () => {
+  const ROUTE = `/financeiro/balancete/${STATEMENT_MONTH}`;
+
+  it('IT-346: e alcancável pelo endereço e não aparece na navegação lateral', async () => {
+    renderRoute(ROUTE);
+
+    // O resumo, e nao o `h1`: o esqueleto da tela carrega o mesmo titulo, entao
+    // so a regiao com os dados prova que as duas leituras foram servidas — que e
+    // justamente o que as entradas novas de `AUXILIARY_READS` garantem.
+    expect(
+      await screen.findByRole('region', { name: 'Resumo da competência' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /^Balancete de / })).toBeInTheDocument();
+    expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
+
+    // Nem no menu: o documento se alcanca pela seção em `/financeiro` ou por um
+    // link colado, e um item para uma tela aberta uma vez por mês foi recusado
+    // junto com a decisao de dar rota a ela.
+    const menu = screen.getByRole('navigation');
+    expect(within(menu).queryByRole('link', { name: /Balancete/ })).not.toBeInTheDocument();
+    for (const item of NAV_ITEMS) {
+      expect(item.to).not.toBe(ROUTE);
+    }
+  });
+
+  it('IT-342: quem le cobranças sem ler a prestação de contas rende acesso negado', async () => {
+    // `charge:read` de proposito, e nao uma lista vazia: e a permissao que
+    // guarda `/financeiro`, e o caso so prova alguma coisa se quem a tem for
+    // barrado aqui. Herdar aquela guarda deixaria o documento alcancável
+    // digitando o endereço.
+    renderRoute(ROUTE, { permissions: ['charge:read'] });
+
+    expect(await screen.findByText('Acesso negado')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { level: 1, name: /^Balancete de / }),
+    ).not.toBeInTheDocument();
   });
 });
