@@ -1,3 +1,4 @@
+import { AppDataSource } from '@/config/data-source';
 import { condominiumRepository, type CondominiumRepository } from '@/modules/condominiums/condominium.repository';
 import { auditService, type AuditService } from '@/modules/audit/audit.service';
 import { BusinessRuleError, NotFoundError } from '@/shared/errors';
@@ -21,7 +22,7 @@ import {
   type ResolvedOpeningBalance,
   type StatementEntry,
 } from '../closing-math';
-import type { FinancialClosingEntry } from '../entities/financial-closing-entry.entity';
+import { FinancialClosingEntry } from '../entities/financial-closing-entry.entity';
 import type { ClosingStatus, StatementLine } from '../entities/financial-closing.entity';
 import { FinancialClosing } from '../entities/financial-closing.entity';
 import { chargeRepository, type ChargeRepository } from '../repositories/charge.repository';
@@ -160,8 +161,16 @@ export class ClosingService {
   }
 
   /**
-   * Congela o mes: recalcula uma ultima vez, grava o documento inteiro e passa a
-   * servi-lo dali em diante (ADR-005).
+   * Congela o mes: recalcula uma ultima vez, grava o documento inteiro — resumo
+   * e lancamentos — e passa a servi-lo dali em diante (ADR-005).
+   *
+   * **A escrita inteira cabe numa transacao so** (ADR-003). Um fechamento cujos
+   * totais foram gravados e cujos lancamentos nao e um documento que afirma um
+   * numero que nao consegue mostrar; e como sao duas tabelas, so a transacao
+   * impede o meio-termo. E a unica escrita do modulo financeiro que contorna o
+   * `BaseRepository` de proposito: o getter dele resolve o repositorio global do
+   * DataSource (`base.repository.ts:37-40`), de modo que uma chamada por ali nao
+   * participaria do bloco e quebraria a atomicidade em silencio.
    */
   async close(
     ctx: RequestContext,
@@ -185,6 +194,16 @@ export class ClosingService {
     }
 
     const statement = await this.compute(ctx, condominiumId, referenceMonth, existing);
+    // Mesma janela e mesmo regime de caixa do resumo acima: e o que faz a soma
+    // dos lancamentos fechar com os totais gravados ao lado deles.
+    const entries = await this.computeEntries(ctx.scope, condominiumId, referenceMonth);
+
+    // Lido antes da transacao porque a gravacao mescla o documento novo sobre
+    // `existing`: consultado depois, o estado de chegada apareceria na
+    // auditoria como se fosse o de partida.
+    const before = existing
+      ? { status: existing.status, closingBalance: existing.closingBalance }
+      : null;
 
     const document = {
       condominiumId,
@@ -208,22 +227,63 @@ export class ClosingService {
       closedByName: ctx.actor.name ?? null,
     };
 
-    // O indice unico por competencia torna o refechamento uma atualizacao da
-    // mesma linha, e nao uma segunda linha — estrutural, e nao convencao.
-    const saved = existing
-      ? await this.closings.update(ctx.scope, existing.id, document)
-      : await this.closings.create(ctx.scope, document);
+    const closingId = await AppDataSource.transaction(async (manager) => {
+      // O documento vem primeiro, e nao na ordem em que a ADR-003 o lista, por
+      // uma razao que a propria ADR-003 cria: o lancamento e filho do
+      // fechamento, e numa competencia fechada pela primeira vez nao existe
+      // `closing_id` nem para apagar por ele nem para apontar para ele. Inverter
+      // isso exigiria limpar so "quando ja havia fechamento" — exatamente a
+      // guarda condicional que a decisao proibe. O indice unico por competencia
+      // torna o refechamento uma atualizacao da mesma linha, e nao uma segunda.
+      const row = existing
+        ? manager.merge(FinancialClosing, existing, document)
+        : manager.create(FinancialClosing, { ...document, tenantId: ctx.scope.tenantId });
+      const closing = await manager.save(row);
 
+      // Incondicional, sem perguntar se havia fechamento anterior. Uma guarda
+      // que so limpa "quando devia haver" confia na propria contabilidade;
+      // apagar o que nao deveria estar la custa uma declaracao e elimina a
+      // classe inteira de duplicata.
+      await this.closingEntries.deleteByClosing(manager, ctx.scope, closing.id);
+
+      // `tenantId` explicito em cada linha: quem normalmente o injeta e o
+      // repositorio, a partir do escopo, e ele nao esta neste caminho. Esquecer
+      // nao da erro de tipo — da linha sem tenant, invisivel para todo o resto
+      // do sistema.
+      await manager.save(
+        entries.map((entry) =>
+          manager.create(FinancialClosingEntry, {
+            ...entry,
+            tenantId: ctx.scope.tenantId,
+            closingId: closing.id,
+          }),
+        ),
+        { chunk: 100 },
+      );
+
+      return closing.id;
+    });
+
+    // Relido pelo repositorio depois do commit, e nao devolvido de dentro da
+    // transacao: e o que garante que o documento servido a quem fechou seja o
+    // que o banco guarda, com os defaults de coluna que a entidade em memoria
+    // ainda nao tem.
+    const saved = await this.closings.findById(ctx.scope, closingId);
     if (!saved) throw new NotFoundError('Balancete');
 
+    // Fora da transacao, depois do commit: uma escrita de auditoria e
+    // fire-and-forget por desenho (`audit.service.ts:85-88`) e nao pode derrubar
+    // um fato financeiro que ja aconteceu.
     await this.audit.record({
       tenantId: ctx.scope.tenantId,
       action: 'UPDATE',
       resource: 'financial-closing',
       resourceId: saved.id,
       description: `Balancete de ${referenceMonth} fechado.`,
-      before: existing ? { status: existing.status, closingBalance: existing.closingBalance } : null,
-      after: { status: 'CLOSED', closingBalance: saved.closingBalance },
+      before,
+      // A contagem entra no rastro para que ele registre nao so que um mes foi
+      // fechado, mas o tamanho do documento que o fechamento produziu.
+      after: { status: 'CLOSED', closingBalance: saved.closingBalance, entries: entries.length },
       actor: ctx.actor,
       ipAddress: ctx.ipAddress,
       userAgent: ctx.userAgent,
@@ -236,7 +296,14 @@ export class ClosingService {
   /**
    * Devolve o mes ao estado vivo, deixando registro de quem e quando. Exige
    * permissao estritamente mais forte do que fechar: fechar e rotina, desfazer
-   * uma prestacao de contas nao e (ADR-003).
+   * uma prestacao de contas nao e (ADR-003 de `balancete-mensal`).
+   *
+   * **Nao apaga os lancamentos gravados.** Enquanto o mes esta aberto eles nao
+   * sao lidos — `entries` recalcula, como `statement` ja faz com os totais —,
+   * entao mante-los nao mostra nada obsoleto a ninguem. Apaga-los, por outro
+   * lado, destruiria o documento de um mes que talvez seja reaberto e fechado de
+   * novo sem uma alteracao sequer, e tornaria destrutiva uma operacao que existe
+   * para ser reversivel e registrada.
    */
   async reopen(
     ctx: RequestContext,

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "Armazenamento e a escrita atômica do fechamento"
 type: backend
 complexity: critical
@@ -38,16 +38,16 @@ falar direto com o `EntityManager`.
 
 ## Subtasks
 
-- [ ] 1.1 Criar a entidade `FinancialClosingEntry` com as colunas, os índices e a FK em cascata
-- [ ] 1.2 Criar o repositório, com leitura por fechamento e remoção por fechamento
-- [ ] 1.3 Escrever as funções puras que montam um `StatementEntry` a partir de uma linha crua, e a ordenação total
-- [ ] 1.4 Escrever a migration: tabela, os dois índices de `paid_at`, e o `down()` simétrico
-- [ ] 1.5 Escrever as leituras de linha nos repositórios de pagamento e despesa, com o join manual para unidade e prestador
-- [ ] 1.6 Reescrever `close` dentro de `AppDataSource.transaction`, com a remoção incondicional antes da inserção
-- [ ] 1.7 Acrescentar a contagem de lançamentos ao `after` da auditoria de fechamento
-- [ ] 1.8 Escrever os casos atribuídos, inclusive o de atomicidade
-- [ ] 1.9 Rodar `migration:run` e `migration:revert` contra o MySQL local e registrar o resultado
-- [ ] 1.10 Rodar o pipeline do backend e comparar a contagem
+- [x] 1.1 Criar a entidade `FinancialClosingEntry` com as colunas, os índices e a FK em cascata
+- [x] 1.2 Criar o repositório, com leitura por fechamento e remoção por fechamento
+- [x] 1.3 Escrever as funções puras que montam um `StatementEntry` a partir de uma linha crua, e a ordenação total
+- [x] 1.4 Escrever a migration: tabela, os dois índices de `paid_at`, e o `down()` simétrico
+- [x] 1.5 Escrever as leituras de linha nos repositórios de pagamento e despesa, com o join manual para unidade e prestador
+- [x] 1.6 Reescrever `close` dentro de `AppDataSource.transaction`, com a remoção incondicional antes da inserção
+- [x] 1.7 Acrescentar a contagem de lançamentos ao `after` da auditoria de fechamento
+- [x] 1.8 Escrever os casos atribuídos, inclusive o de atomicidade
+- [x] 1.9 Rodar `migration:run` e `migration:revert` contra o MySQL local e registrar o resultado
+- [x] 1.10 Rodar o pipeline do backend e comparar a contagem
 
 ## Implementation Details
 
@@ -109,12 +109,12 @@ Ver "Data Models" e "Development Sequencing" no [`_techspec.md`](_techspec.md).
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's
 full definition there before writing tests.
 
-- [ ] UT-125, UT-126, UT-127, UT-128 — a montagem de um lançamento: entrada com unidade, categoria nula, categoria órfã, saída sem prestador
-- [ ] UT-129, UT-130 — a ordenação total, inclusive o desempate por `sourceId`
-- [ ] IT-318, IT-319 — o fechamento grava um lançamento por movimento, e cada um carrega a outra parte
-- [ ] IT-320, IT-321 — refechar substitui em vez de duplicar, e incorpora o que entrou entre um fechamento e outro
-- [ ] IT-322 — atomicidade: falhar a inserção não deixa nem os lançamentos nem o documento
-- [ ] IT-323 — reabrir não apaga os lançamentos gravados
+- [x] UT-125, UT-126, UT-127, UT-128 — a montagem de um lançamento: entrada com unidade, categoria nula, categoria órfã, saída sem prestador
+- [x] UT-129, UT-130 — a ordenação total, inclusive o desempate por `sourceId`
+- [x] IT-318, IT-319 — o fechamento grava um lançamento por movimento, e cada um carrega a outra parte
+- [x] IT-320, IT-321 — refechar substitui em vez de duplicar, e incorpora o que entrou entre um fechamento e outro
+- [x] IT-322 — atomicidade: falhar a inserção não deixa nem os lançamentos nem o documento
+- [x] IT-323 — reabrir não apaga os lançamentos gravados
 
 ## Notas de execução
 

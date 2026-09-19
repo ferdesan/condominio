@@ -1,4 +1,3 @@
-import { financialClosingEntryRepository } from '@/modules/financial/repositories/financial-closing-entry.repository';
 import { financialClosingRepository } from '@/modules/financial/repositories/financial-closing.repository';
 import { paymentRepository } from '@/modules/financial/repositories/payment.repository';
 import { dayjs } from '@/shared/utils/date.util';
@@ -45,61 +44,37 @@ describe('Balancete detalhado — os lancamentos, nos dois modos', () => {
     return response.body.data as EntriesBody;
   };
 
-  /** Um mes anterior com movimento, para haver o que fechar. */
-  const seedMovement = async (tenant: IsolatedTenant) => {
-    const charge = await tenant.agent.post('/financial/charges').send({
-      condominiumId: tenant.condominiumId,
-      unitId: tenant.unitId,
-      description: 'Taxa do mes fechado',
-      referenceMonth: previous,
-      dueDate: previousDay(10).format('YYYY-MM-DD'),
-      amount: 600,
-    });
-    expect(charge.status).toBe(201);
-
-    const payment = await tenant.agent
-      .post(`/financial/charges/${charge.body.data.id}/payments`)
-      .send({ amount: 600, paidAt: previousDay(12).toISOString(), method: 'PIX' });
-    expect(payment.status).toBe(201);
-
-    return { chargeId: charge.body.data.id as string };
-  };
-
   /**
-   * Grava lancamentos direto pelo repositorio.
-   *
-   * A escrita dos lancamentos pertence a task_01 e ainda nao acontece no
-   * fechamento; o que estes casos afirmam e a **leitura** do que esta gravado,
-   * e nao o ato de gravar. E o mesmo recurso que `balancete.spec.ts:335-348` ja
-   * usa para a linha de fechamento cuja rota morava noutra task.
+   * Um mes anterior com dois movimentos, para haver o que fechar — e para que a
+   * lista fechada tenha mais de uma linha e a ordem signifique alguma coisa.
    */
-  const storeEntries = async (
-    tenantId: string,
-    closingId: string,
-    rows: Record<string, unknown>[],
-  ) => {
-    for (const row of rows) {
-      await financialClosingEntryRepository.create({ tenantId }, {
-        closingId,
-        kind: 'INCOME',
-        categoryId: null,
-        categoryName: 'Sem categoria',
-        description: 'Lancamento gravado',
-        counterpart: null,
-        method: 'PIX',
-        ...row,
-      } as never);
-    }
-  };
+  const seedMovement = async (tenant: IsolatedTenant) => {
+    const payCharge = async (description: string, amount: number, day: number) => {
+      const charge = await tenant.agent.post('/financial/charges').send({
+        condominiumId: tenant.condominiumId,
+        unitId: tenant.unitId,
+        description,
+        referenceMonth: previous,
+        dueDate: previousDay(10).format('YYYY-MM-DD'),
+        amount,
+      });
+      expect(charge.status).toBe(201);
 
-  const closingIdOf = async (tenant: IsolatedTenant, month: string): Promise<string> => {
-    const row = await financialClosingRepository.findByMonth(
-      { tenantId: tenant.tenantId },
-      tenant.condominiumId,
-      month,
-    );
-    expect(row).toBeTruthy();
-    return (row as { id: string }).id;
+      const payment = await tenant.agent
+        .post(`/financial/charges/${charge.body.data.id}/payments`)
+        .send({ amount, paidAt: previousDay(day).toISOString(), method: 'PIX' });
+      expect(payment.status).toBe(201);
+
+      return charge.body.data.id as string;
+    };
+
+    // Pagos fora da ordem do documento de proposito — o mais recente primeiro —,
+    // porque a ordem que o balancete mostra e dele, e nao pode depender da ordem
+    // em que os movimentos entraram.
+    await payCharge('Taxa avulsa da unidade I-01', 250, 20);
+    const chargeId = await payCharge('Taxa do mes fechado', 600, 12);
+
+    return { chargeId };
   };
 
   beforeAll(async () => {
@@ -117,29 +92,15 @@ describe('Balancete detalhado — os lancamentos, nos dois modos', () => {
       tenant = await registerIsolatedTenant(ctx, 'lancamentos-fechado');
       seededChargeId = (await seedMovement(tenant)).chargeId;
 
+      // As linhas saem do proprio fechamento, e nao de uma semeadura pelo
+      // repositorio: quando estes casos foram escritos, `close` ainda nao
+      // gravava lancamento nenhum (a escrita era da task_01) e a semeadura era
+      // o unico jeito de ter o que ler. Agora que ela existe, ler o que a
+      // escrita de verdade produziu e o que torna o caso honesto.
       const closed = await tenant.agent
         .post(`/financial/closings/${previous}/close`)
         .send({ condominiumId: tenant.condominiumId });
       expect(closed.status).toBe(200);
-
-      // Gravados fora de ordem de proposito: o documento tem ordem propria, e
-      // ela nao pode depender da ordem de insercao.
-      await storeEntries(tenant.tenantId, await closingIdOf(tenant, previous), [
-        {
-          occurredAt: previousDay(20).toDate(),
-          amount: 250,
-          description: 'Taxa avulsa da unidade I-01',
-          counterpart: 'I-01',
-          sourceId: 'b0000000-0000-4000-8000-000000000002',
-        },
-        {
-          occurredAt: previousDay(12).toDate(),
-          amount: 600,
-          description: 'Taxa do mes fechado',
-          counterpart: 'I-01',
-          sourceId: 'a0000000-0000-4000-8000-000000000001',
-        },
-      ]);
     });
 
     it('IT-324: mes fechado devolve os lancamentos gravados, congelados e em ordem', async () => {
