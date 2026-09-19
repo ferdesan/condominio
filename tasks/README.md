@@ -18,8 +18,13 @@ Uma auditoria de **2026-09-14** comparou cada rota de
 `backend/src/modules/*/*.routes.ts` com os literais de caminho em `frontend/src`
 e encontrou cinco lacunas. As cinco foram fechadas no workflow
 [`.compozy/tasks/backoffice-gaps/`](../.compozy/tasks/backoffice-gaps/) — ver
-"Já entregue", abaixo. O que sobra desta pasta são **decisões de produto**, e
-não trabalho de interface pendente.
+"Já entregue", abaixo. O que sobra desta pasta são **decisões de produto** mais
+uma spec de backend, e não trabalho de interface pendente.
+
+> **Conferido contra o código em 2026-09-19.** Esta seção já ficou desatualizada
+> uma vez — listava como pendente o módulo LGPD e quatro specs que existiam há
+> dias. Quem mexer aqui, atualize esta data; quem ler, desconfie dela se estiver
+> velha e confirme com um `grep` antes de reimplementar qualquer coisa.
 
 A mais consequente das cinco era **Configurações da administradora**:
 `charge.service.ts` lê a multa, os juros e a carência de `tenant.settings`, e
@@ -30,7 +35,8 @@ usava o valor da semente ou o padrão embutido no código.
 
 São três naturezas diferentes, e vale não confundi-las:
 
-- **Trabalho por fazer, no backend**: as specs de integração e a exportação LGPD.
+- **Trabalho por fazer, no backend**: uma spec de integração, a de
+  `common-areas`. A exportação LGPD saiu desta lista — foi entregue.
 - **Outro produto**: o portal do morador — as rotas existem, a interface é de
   outro escopo.
 - **Existe e fica sem tela de propósito**: as três últimas. Usá-las deste
@@ -38,14 +44,21 @@ São três naturezas diferentes, e vale não confundi-las:
 
 | Item | Onde estava | Estado |
 |---|---|---|
-| **Specs de integração ausentes** no backend | Fase 7 | As 8 specs não cobrem `documents`, `dependents`, `employees`, `service-providers` nem `common-areas` |
-| **Exportação/anonimização de dados pessoais (LGPD)** | 2.6 | Não existe endpoint. O próprio documento marca como "confirmar com o dono do produto" |
+| **Spec de integração de `common-areas`** | Fase 7 | É o único módulo do backend sem spec. O roteador é gerado por `createCrudRouter`, mas `beforeRemove` recusa apagar área com reserva futura — e essa guarda não tem teste nenhum |
 | **Portal do morador** | — | `POST /polls/:id/vote`, `GET /financial/charges/my` e `GET /residents/my-unit` existem no servidor. É outro produto, não uma lacuna deste back-office |
 | **Preferências de notificação sem despachante** | — | `users.preferences.emailNotifications` e `pushNotifications` são gravadas e **nenhum código as lê**. A tela de perfil as omite de propósito |
 | **Contador de visualizações de comunicado** | — | `POST /announcements/:id/read` soma em `reads_count` sem vínculo com quem leu. Chamá-lo de um back-office corromperia o dado; pertence ao portal do morador |
 | **`dashboard:refresh`** | — | Declarado em `RealtimeEvent` e **nunca emitido** por nenhum serviço. Fica sem ouvinte até alguém dispará-lo |
 
 ### Já entregue
+
+Duas linhas saíram da tabela de abertos depois de conferidas contra o código em
+2026-09-19 — estavam descrevendo trabalho que já tinha sido feito:
+
+| Item | O que dizia | O que existe |
+|---|---|---|
+| **Exportação/anonimização LGPD** | "Não existe endpoint" | [`backend/src/modules/lgpd/`](../backend/src/modules/lgpd/) completo — rotas, service, schema, duas entities, dois repositories e migration —, mais quatro specs (`lgpd`, `lgpd-export`, `lgpd-consent`, `lgpd-anonymize`) e o frontend em `fc1d817` |
+| **Specs de integração** | "não cobrem `documents`, `dependents`, `employees`, `service-providers` nem `common-areas`" | Quatro das cinco existem e passam. Só `common-areas` continua aberta, e subiu para a tabela acima com o motivo |
 
 O workflow `backoffice-gaps` fechou em 2026-09-14, com as seis tasks concluídas.
 A suíte do frontend saiu de 69 arquivos / 810 casos para **74 / 945**, sempre com

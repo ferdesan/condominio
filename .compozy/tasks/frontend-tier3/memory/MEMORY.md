@@ -30,7 +30,7 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 ## Open Risks
 
 - Os 5 `warning` de lint que sobram sao anteriores a todo este esforco (`no-explicit-any` em `data-table.tsx` e `filter-panel.tsx`, `only-export-components` em `test/render.tsx`). Entregar sem aumentar esse numero.
-- **`/financial/payments` nao tem tela.** A rota e somente leitura e a baixa acontece pela cobranca; o historico de pagamentos de uma cobranca especifica nao e consultavel pela interface hoje. Nao foi pedido, e e a lacuna conhecida mais proxima.
+- ~~**`/financial/payments` nao tem tela.**~~ Fechado pela task_04 de `backoffice-gaps` (2026-09-14): o historico de baixas de uma cobranca e servido por `GET /financial/payments` filtrado por `chargeId` — ver `financial-hooks.ts:168`.
 - **O voto nao e emitido pela interface.** `POST /polls/:id/vote` existe e exige `vote:create`, mas a tela de Assembleias e de back-office: ela conduz a votacao (abre, apura) e nao vota. O portal do morador, que votaria, nao existe neste frontend.
 
 ## Handoffs
