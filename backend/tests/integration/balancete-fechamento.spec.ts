@@ -1,6 +1,10 @@
+import { EntityManager } from 'typeorm';
+import { FinancialClosingEntry } from '@/modules/financial/entities/financial-closing-entry.entity';
+import { financialClosingEntryRepository } from '@/modules/financial/repositories/financial-closing-entry.repository';
+import { financialClosingRepository } from '@/modules/financial/repositories/financial-closing.repository';
 import { paymentRepository } from '@/modules/financial/repositories/payment.repository';
 import { dayjs } from '@/shared/utils/date.util';
-import { registerIsolatedTenant, type IsolatedTenant } from '../helpers/test-data';
+import { freshCnpj, registerIsolatedTenant, type IsolatedTenant } from '../helpers/test-data';
 import {
   login,
   seedUsers,
@@ -524,6 +528,253 @@ describe('Balancete mensal — fechamento, reabertura e congelamento', () => {
         .send({ condominiumId: ctx.seed.condominiumId });
       expect(reopened.status).toBe(200);
       expect((reopened.body.data as StatementBody).status).toBe('OPEN');
+    });
+  });
+});
+
+describe('Balancete detalhado — o fechamento grava os lancamentos', () => {
+  let ctx: TestContext;
+
+  const previous = dayjs().subtract(1, 'month').format('YYYY-MM');
+  const previousDay = (day: number) => dayjs().subtract(1, 'month').date(day);
+
+  const scopeOf = (tenant: IsolatedTenant) => ({ tenantId: tenant.tenantId });
+
+  const close = (tenant: IsolatedTenant) =>
+    tenant.agent
+      .post(`/financial/closings/${previous}/close`)
+      .send({ condominiumId: tenant.condominiumId });
+
+  const reopen = (tenant: IsolatedTenant) =>
+    tenant.agent
+      .post(`/financial/closings/${previous}/reopen`)
+      .send({ condominiumId: tenant.condominiumId });
+
+  const documentOf = (tenant: IsolatedTenant) =>
+    financialClosingRepository.findByMonth(scopeOf(tenant), tenant.condominiumId, previous);
+
+  /**
+   * Os lancamentos como estao na tabela, e nao como a rota os serve: o que estes
+   * casos afirmam e o ato de gravar, e ler pela rota deixaria a leitura da
+   * task_02 decidir se a escrita aconteceu.
+   */
+  const storedEntries = async (tenant: IsolatedTenant): Promise<FinancialClosingEntry[]> => {
+    const document = await documentOf(tenant);
+    if (!document) return [];
+    return financialClosingEntryRepository.findByClosing(scopeOf(tenant), document.id);
+  };
+
+  const sumOf = (rows: FinancialClosingEntry[], kind: 'INCOME' | 'EXPENSE') =>
+    Number(
+      rows
+        .filter((row) => row.kind === kind)
+        .reduce((total, row) => total + row.amount, 0)
+        .toFixed(2),
+    );
+
+  /** Paga uma cobranca nova e devolve o id do pagamento, que vira `sourceId`. */
+  const payNewCharge = async (
+    tenant: IsolatedTenant,
+    description: string,
+    amount: number,
+    day: number,
+  ): Promise<string> => {
+    const charge = await tenant.agent.post('/financial/charges').send({
+      condominiumId: tenant.condominiumId,
+      unitId: tenant.unitId,
+      description,
+      referenceMonth: previous,
+      dueDate: previousDay(day).format('YYYY-MM-DD'),
+      amount,
+    });
+    expect(charge.status).toBe(201);
+
+    const payment = await tenant.agent
+      .post(`/financial/charges/${charge.body.data.id}/payments`)
+      .send({ amount, paidAt: previousDay(day + 2).toISOString(), method: 'PIX' });
+    expect(payment.status).toBe(201);
+
+    return payment.body.data.payment.id as string;
+  };
+
+  /** Dois pagamentos e uma despesa paga: tres movimentos, dos dois lados. */
+  const seedDetailedMonth = async (tenant: IsolatedTenant) => {
+    const provider = await tenant.agent.post('/service-providers').send({
+      condominiumId: tenant.condominiumId,
+      companyName: 'Conservadora Central LTDA',
+      tradeName: 'Conservadora Central',
+      document: freshCnpj(),
+      serviceType: 'Limpeza',
+      contactName: 'Contato da Conservadora',
+      phone: '(11) 91111-0002',
+      status: 'ACTIVE',
+    });
+    expect(provider.status).toBe(201);
+
+    const expense = await tenant.agent.post('/financial/expenses').send({
+      condominiumId: tenant.condominiumId,
+      description: 'Limpeza do mes fechado',
+      competence: previous,
+      dueDate: previousDay(15).format('YYYY-MM-DD'),
+      amount: 250,
+      status: 'PAID',
+      paidAt: previousDay(15).toISOString(),
+      serviceProviderId: provider.body.data.id,
+    });
+    expect(expense.status).toBe(201);
+
+    await payNewCharge(tenant, 'Taxa condominial do mes fechado', 600, 8);
+    await payNewCharge(tenant, 'Taxa extra do mes fechado', 180, 16);
+  };
+
+  beforeAll(async () => {
+    ctx = await setupTestContext();
+  });
+
+  afterAll(teardownTestContext);
+
+  describe('Um lancamento por movimento', () => {
+    let tenant: IsolatedTenant;
+
+    beforeAll(async () => {
+      tenant = await registerIsolatedTenant(ctx, 'grava-lancamentos');
+      await seedDetailedMonth(tenant);
+      expect((await close(tenant)).status).toBe(200);
+    });
+
+    it('IT-318: o mes fechado tem um lancamento por movimento, e eles somam os totais gravados', async () => {
+      const document = await documentOf(tenant);
+      expect(document).toBeTruthy();
+
+      const rows = await storedEntries(tenant);
+      expect(rows).toHaveLength(3);
+      expect(rows.filter((row) => row.kind === 'INCOME')).toHaveLength(2);
+      expect(rows.filter((row) => row.kind === 'EXPENSE')).toHaveLength(1);
+
+      // A lista e o total acima dela descrevem um mes so: se divergissem, o
+      // documento se contradiria na propria tela.
+      expect(sumOf(rows, 'INCOME')).toBe(document?.totalIncome);
+      expect(sumOf(rows, 'EXPENSE')).toBe(document?.totalExpense);
+    });
+
+    it('IT-319: a entrada carrega a unidade que pagou, e a saida o prestador que recebeu', async () => {
+      const rows = await storedEntries(tenant);
+
+      const income = rows.filter((row) => row.kind === 'INCOME');
+      expect(income).toHaveLength(2);
+      expect(income.every((row) => row.counterpart === 'I-01')).toBe(true);
+
+      const expense = rows.find((row) => row.kind === 'EXPENSE');
+      expect(expense?.counterpart).toBe('Conservadora Central');
+
+      // Congelados, e nao resolvidos na leitura: e o que impede uma unidade
+      // renumerada ou um prestador descadastrado depois de reescrever uma
+      // prestacao de contas ja publicada.
+      expect(expense?.sourceId).toBeTruthy();
+      expect(expense?.categoryName).toBeTruthy();
+    });
+
+    it('IT-323: reabrir o mes nao apaga os lancamentos gravados', async () => {
+      const before = await storedEntries(tenant);
+      expect(before).toHaveLength(3);
+
+      expect((await reopen(tenant)).status).toBe(200);
+
+      // Enquanto o mes esta aberto eles nao sao lidos — `entries` recalcula.
+      // Apaga-los tornaria destrutiva uma operacao feita para ser reversivel.
+      const after = await storedEntries(tenant);
+      expect(after).toHaveLength(3);
+      expect(after.map((row) => row.sourceId).sort()).toEqual(
+        before.map((row) => row.sourceId).sort(),
+      );
+    });
+  });
+
+  describe('Refechar substitui, e nunca acumula', () => {
+    let tenant: IsolatedTenant;
+
+    beforeAll(async () => {
+      tenant = await registerIsolatedTenant(ctx, 'refecha-lancamentos');
+      await seedDetailedMonth(tenant);
+      expect((await close(tenant)).status).toBe(200);
+    });
+
+    it('IT-320: fechar, reabrir e fechar de novo deixa tres lancamentos, e nao seis', async () => {
+      expect(await storedEntries(tenant)).toHaveLength(3);
+
+      expect((await reopen(tenant)).status).toBe(200);
+      expect((await close(tenant)).status).toBe(200);
+
+      // A limpeza incondicional antes da insercao e o que torna a duplicata
+      // estruturalmente impossivel, em vez de improvavel.
+      expect(await storedEntries(tenant)).toHaveLength(3);
+    });
+
+    it('IT-321: o pagamento que entrou entre um fechamento e outro entra no documento refechado', async () => {
+      expect((await reopen(tenant)).status).toBe(200);
+
+      const paymentId = await payNewCharge(tenant, 'Taxa lancada apos a reabertura', 320, 23);
+
+      expect((await close(tenant)).status).toBe(200);
+
+      const rows = await storedEntries(tenant);
+      expect(rows).toHaveLength(4);
+      expect(rows.map((row) => row.sourceId)).toContain(paymentId);
+      expect(sumOf(rows, 'INCOME')).toBe(1100);
+    });
+  });
+
+  describe('Atomicidade da escrita', () => {
+    let tenant: IsolatedTenant;
+
+    beforeAll(async () => {
+      tenant = await registerIsolatedTenant(ctx, 'atomicidade');
+      await seedDetailedMonth(tenant);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('IT-322: falhar a insercao dos lancamentos nao deixa nem eles nem o documento', async () => {
+      const save = EntityManager.prototype.save;
+
+      // O espiao derruba **apenas** a insercao dos lancamentos: a gravacao do
+      // documento passa direto, alguns milissegundos antes, dentro do mesmo
+      // bloco. E o que faz o caso provar a transacao em vez da ordem das
+      // chamadas — se as escritas estivessem soltas, o documento sobreviveria.
+      jest
+        .spyOn(EntityManager.prototype, 'save')
+        .mockImplementation(function (this: EntityManager, ...args: unknown[]) {
+          const target = Array.isArray(args[0]) ? args[0][0] : args[0];
+          if (target instanceof FinancialClosingEntry) {
+            return Promise.reject(new Error('falha forcada na insercao dos lancamentos'));
+          }
+          return (save as (...rest: unknown[]) => Promise<unknown>).apply(this, args);
+        } as never);
+
+      const response = await close(tenant);
+      expect(response.status).toBe(500);
+
+      jest.restoreAllMocks();
+
+      expect(await documentOf(tenant)).toBeNull();
+      expect(await financialClosingEntryRepository.count(scopeOf(tenant))).toBe(0);
+
+      // E o mes volta a ler exatamente como estava: aberto.
+      const statement = await tenant.agent.get(
+        `/financial/closings/${previous}?condominiumId=${tenant.condominiumId}`,
+      );
+      expect(statement.status).toBe(200);
+      expect((statement.body.data as StatementBody).status).toBe('OPEN');
+
+      // Contraprova, no mesmo caso porque so junto ela significa alguma coisa:
+      // o mesmo fechamento, sem o espiao, grava documento e lancamentos. Sem
+      // ela, um `close` quebrado por qualquer outra razao satisfaria tudo o que
+      // foi afirmado acima.
+      expect((await close(tenant)).status).toBe(200);
+      expect(await documentOf(tenant)).toBeTruthy();
+      expect(await storedEntries(tenant)).toHaveLength(3);
     });
   });
 });
