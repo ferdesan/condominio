@@ -1,6 +1,6 @@
 import { Ban, CheckCircle2, Pencil, Play, RotateCcw, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Maintenance } from '@/types/maintenance';
 import type { MaintenanceFlowAction } from '../maintenance-hooks';
 
@@ -54,11 +54,13 @@ export function MaintenanceRowActions({
   if (maintenance.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${label}`}
-        onClick={() => onRestore(maintenance)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${label}`}
+          onClick={() => onRestore(maintenance)}
+        />
+      </RowActions>
     );
   }
 
@@ -68,11 +70,11 @@ export function MaintenanceRowActions({
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
+      <RowActions>
         {canUpdate ? (
           <>
             {isPending ? (
-              <IconButton
+              <RowAction
                 icon={Play}
                 label={`Iniciar ${label}`}
                 onClick={() => onFlow('start', maintenance)}
@@ -80,7 +82,7 @@ export function MaintenanceRowActions({
             ) : null}
 
             {isRunning ? (
-              <IconButton
+              <RowAction
                 icon={CheckCircle2}
                 label={`Concluir ${label}`}
                 onClick={() => onFlow('complete', maintenance)}
@@ -88,7 +90,7 @@ export function MaintenanceRowActions({
             ) : null}
 
             {isClosed ? null : (
-              <IconButton
+              <RowAction
                 icon={Ban}
                 tone="destructive"
                 label={`Cancelar ${label}`}
@@ -96,7 +98,7 @@ export function MaintenanceRowActions({
               />
             )}
 
-            <IconButton
+            <RowAction
               icon={Pencil}
               label={`Editar ${label}`}
               onClick={() => onEdit(maintenance)}
@@ -105,14 +107,14 @@ export function MaintenanceRowActions({
         ) : null}
 
         {canDelete ? (
-          <IconButton
+          <RowAction
             icon={Trash2}
             tone="destructive"
             label={`Excluir ${label}`}
             onClick={() => onDelete(maintenance)}
           />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre esta ordem, e a

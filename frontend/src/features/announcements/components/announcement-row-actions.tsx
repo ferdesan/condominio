@@ -1,6 +1,6 @@
 import { Archive, Megaphone, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Announcement } from '@/types/announcement';
 
 export type AnnouncementLifecycleAction = 'publish' | 'archive';
@@ -51,11 +51,13 @@ export function AnnouncementRowActions({
   if (announcement.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${label}`}
-        onClick={() => onRestore(announcement)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${label}`}
+          onClick={() => onRestore(announcement)}
+        />
+      </RowActions>
     );
   }
 
@@ -64,11 +66,11 @@ export function AnnouncementRowActions({
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
+      <RowActions>
         {canUpdate ? (
           <>
             {canPublish ? (
-              <IconButton
+              <RowAction
                 icon={Megaphone}
                 label={`Publicar ${label}`}
                 onClick={() => onLifecycle('publish', announcement)}
@@ -76,14 +78,14 @@ export function AnnouncementRowActions({
             ) : null}
 
             {canArchive ? (
-              <IconButton
+              <RowAction
                 icon={Archive}
                 label={`Arquivar ${label}`}
                 onClick={() => onLifecycle('archive', announcement)}
               />
             ) : null}
 
-            <IconButton
+            <RowAction
               icon={Pencil}
               label={`Editar ${label}`}
               onClick={() => onEdit(announcement)}
@@ -92,14 +94,14 @@ export function AnnouncementRowActions({
         ) : null}
 
         {canDelete ? (
-          <IconButton
+          <RowAction
             icon={Trash2}
             tone="destructive"
             label={`Excluir ${label}`}
             onClick={() => onDelete(announcement)}
           />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre este comunicado, e a

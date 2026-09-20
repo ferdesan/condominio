@@ -1,6 +1,6 @@
 import { LogIn, LogOut, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Visitor } from '@/types/visitor';
 
 export type VisitorFlowAction = 'check-in' | 'check-out';
@@ -44,30 +44,32 @@ export function VisitorRowActions({
   if (visitor.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${visitor.name}`}
-        onClick={() => onRestore(visitor)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${visitor.name}`}
+          onClick={() => onRestore(visitor)}
+        />
+      </RowActions>
     );
   }
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
+      <RowActions>
         {canUpdate ? (
           <>
-            <IconButton
+            <RowAction
               icon={LogIn}
               label={`Registrar entrada de ${visitor.name}`}
               onClick={() => onFlow('check-in', visitor)}
             />
-            <IconButton
+            <RowAction
               icon={LogOut}
               label={`Registrar saída de ${visitor.name}`}
               onClick={() => onFlow('check-out', visitor)}
             />
-            <IconButton
+            <RowAction
               icon={Pencil}
               label={`Editar ${visitor.name}`}
               onClick={() => onEdit(visitor)}
@@ -76,14 +78,14 @@ export function VisitorRowActions({
         ) : null}
 
         {canDelete ? (
-          <IconButton
+          <RowAction
             icon={Trash2}
             tone="destructive"
             label={`Excluir ${visitor.name}`}
             onClick={() => onDelete(visitor)}
           />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre este visitante, e a

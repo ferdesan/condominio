@@ -1,6 +1,6 @@
 import { KeyRound, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { User } from '@/types/user';
 
 export interface UserRowActionsProps {
@@ -48,15 +48,17 @@ export function UserRowActions({
   if (user.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton icon={RotateCcw} label={`Restaurar ${label}`} onClick={() => onRestore(user)} />
+      <RowActions>
+        <RowAction icon={RotateCcw} label={`Restaurar ${label}`} onClick={() => onRestore(user)} />
+      </RowActions>
     );
   }
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
+      <RowActions>
         {canManage ? (
-          <IconButton
+          <RowAction
             icon={KeyRound}
             label={`Resetar senha de ${label}`}
             onClick={() => onResetPassword(user)}
@@ -64,18 +66,18 @@ export function UserRowActions({
         ) : null}
 
         {canUpdate ? (
-          <IconButton icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(user)} />
+          <RowAction icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(user)} />
         ) : null}
 
         {canDelete ? (
-          <IconButton
+          <RowAction
             icon={Trash2}
             tone="destructive"
             label={`Excluir ${label}`}
             onClick={() => onDelete(user)}
           />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre este usuário, e a

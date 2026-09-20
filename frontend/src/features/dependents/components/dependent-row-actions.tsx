@@ -1,6 +1,6 @@
 import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Dependent } from '@/types/api';
 
 export interface DependentRowActionsProps {
@@ -28,18 +28,20 @@ export function DependentRowActions({
   if (dependent.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${dependent.name}`}
-        onClick={() => onRestore(dependent)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${dependent.name}`}
+          onClick={() => onRestore(dependent)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {canUpdate ? (
-        <IconButton
+        <RowAction
           icon={Pencil}
           label={`Editar ${dependent.name}`}
           onClick={() => onEdit(dependent)}
@@ -47,13 +49,13 @@ export function DependentRowActions({
       ) : null}
 
       {canDelete ? (
-        <IconButton
+        <RowAction
           icon={Trash2}
           tone="destructive"
           label={`Excluir ${dependent.name}`}
           onClick={() => onDelete(dependent)}
         />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

@@ -1,6 +1,6 @@
 import { Copy, Pencil, RotateCcw, ShieldCheck, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Role } from '@/types/role';
 
 export interface RoleRowActionsProps {
@@ -50,21 +50,23 @@ export function RoleRowActions({
   if (role.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton icon={RotateCcw} label={`Restaurar ${label}`} onClick={() => onRestore(role)} />
+      <RowActions>
+        <RowAction icon={RotateCcw} label={`Restaurar ${label}`} onClick={() => onRestore(role)} />
+      </RowActions>
     );
   }
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
-        <IconButton
+      <RowActions>
+        <RowAction
           icon={ShieldCheck}
           label={`Ver permissões de ${label}`}
           onClick={() => onViewPermissions(role)}
         />
 
         {canUpdate ? (
-          <IconButton icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(role)} />
+          <RowAction icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(role)} />
         ) : null}
 
         {/*
@@ -74,18 +76,18 @@ export function RoleRowActions({
           quarenta e cinco caixas.
         */}
         {canCreate ? (
-          <IconButton icon={Copy} label={`Duplicar ${label}`} onClick={() => onDuplicate(role)} />
+          <RowAction icon={Copy} label={`Duplicar ${label}`} onClick={() => onDuplicate(role)} />
         ) : null}
 
         {canDelete && !role.isSystem ? (
-          <IconButton
+          <RowAction
             icon={Trash2}
             tone="destructive"
             label={`Excluir ${label}`}
             onClick={() => onDelete(role)}
           />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre este papel, e a

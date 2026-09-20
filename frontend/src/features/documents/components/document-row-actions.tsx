@@ -1,6 +1,6 @@
 import { Download, Pencil, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { DocumentFile } from '@/types/document';
 import { documentLabel } from '../document-labels';
 
@@ -43,26 +43,22 @@ export function DocumentRowActions({
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
-        <IconButton
-          icon={Download}
-          label={`Baixar ${label}`}
-          onClick={() => onDownload(document)}
-        />
+      <RowActions>
+        <RowAction icon={Download} label={`Baixar ${label}`} onClick={() => onDownload(document)} />
 
         {canUpdate ? (
-          <IconButton icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(document)} />
+          <RowAction icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(document)} />
         ) : null}
 
         {canDelete ? (
-          <IconButton
+          <RowAction
             icon={Trash2}
             tone="destructive"
             label={`Excluir ${label}`}
             onClick={() => onDelete(document)}
           />
         ) : null}
-      </div>
+      </RowActions>
 
       {error ? (
         <p role="alert" className="text-xs text-destructive">

@@ -1,6 +1,6 @@
 import { ArrowRightLeft, Pencil, RotateCcw, Trash2, UserPlus } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Incident } from '@/types/incident';
 
 export interface IncidentRowActionsProps {
@@ -50,18 +50,20 @@ export function IncidentRowActions({
   if (incident.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${label}`}
-        onClick={() => onRestore(incident)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${label}`}
+          onClick={() => onRestore(incident)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <RowActions>
       {canUpdate ? (
-        <IconButton
+        <RowAction
           icon={ArrowRightLeft}
           label={`Mudar status de ${label}`}
           onClick={() => onChangeStatus(incident)}
@@ -69,25 +71,21 @@ export function IncidentRowActions({
       ) : null}
 
       {canManage ? (
-        <IconButton
-          icon={UserPlus}
-          label={`Atribuir ${label}`}
-          onClick={() => onAssign(incident)}
-        />
+        <RowAction icon={UserPlus} label={`Atribuir ${label}`} onClick={() => onAssign(incident)} />
       ) : null}
 
       {canUpdate ? (
-        <IconButton icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(incident)} />
+        <RowAction icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(incident)} />
       ) : null}
 
       {canDelete ? (
-        <IconButton
+        <RowAction
           icon={Trash2}
           tone="destructive"
           label={`Excluir ${label}`}
           onClick={() => onDelete(incident)}
         />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

@@ -1,10 +1,6 @@
 import { Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
-import { IconButton } from '@/components/ui/icon-button';
-import { ICON_BUTTON_SIZE, ICON_BUTTON_TONE } from '@/components/ui/icon-button-variants';
-import { cn } from '@/lib/utils';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Condominium } from '@/types/api';
 
 export interface CondominiumRowActionsProps {
@@ -32,30 +28,28 @@ export function CondominiumRowActions({
   if (condominium.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${condominium.name}`}
-        onClick={() => onRestore(condominium)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${condominium.name}`}
+          onClick={() => onRestore(condominium)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
-      {/*
-        Navegacao, e nao acao: continua sendo `Link` dentro de `Button asChild`,
-        porque virar `IconButton` trocaria uma ancora por um `button` e levaria
-        junto o "abrir em nova aba" e o endereco na barra de status. So o rotulo
-        virou icone, com a mesma tarja do `IconButton` para nao destoar ao lado.
-      */}
-      <Button variant="ghost" asChild className={cn(ICON_BUTTON_SIZE, ICON_BUTTON_TONE.primary)}>
-        <Link to={`/condominios/${condominium.id}`} aria-label={`Ver ${condominium.name}`}>
-          <Eye aria-hidden="true" />
-        </Link>
-      </Button>
+    <RowActions>
+      {/* `to` e nao `onClick`: o `RowActions` desenha a ancora, e o detalhe
+          continua abrindo em nova aba e mostrando o endereco na barra. */}
+      <RowAction
+        icon={Eye}
+        label={`Ver ${condominium.name}`}
+        to={`/condominios/${condominium.id}`}
+      />
 
       {canUpdate ? (
-        <IconButton
+        <RowAction
           icon={Pencil}
           label={`Editar ${condominium.name}`}
           onClick={() => onEdit(condominium)}
@@ -63,13 +57,13 @@ export function CondominiumRowActions({
       ) : null}
 
       {canDelete ? (
-        <IconButton
+        <RowAction
           icon={Trash2}
           tone="destructive"
           label={`Excluir ${condominium.name}`}
           onClick={() => onDelete(condominium)}
         />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

@@ -1,6 +1,6 @@
 import { Pencil, RotateCcw, Trash2, UserCheck } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Resident } from '@/types/api';
 
 export interface ResidentRowActionsProps {
@@ -30,11 +30,13 @@ export function ResidentRowActions({
   if (resident.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${resident.name}`}
-        onClick={() => onRestore(resident)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${resident.name}`}
+          onClick={() => onRestore(resident)}
+        />
+      </RowActions>
     );
   }
 
@@ -44,9 +46,9 @@ export function ResidentRowActions({
   const primaryBlocked = resident.status !== 'ACTIVE';
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {canUpdate && !resident.isPrimary ? (
-        <IconButton
+        <RowAction
           icon={UserCheck}
           label={`Tornar ${resident.name} responsável pela unidade`}
           onClick={() => onDesignatePrimary(resident)}
@@ -55,7 +57,7 @@ export function ResidentRowActions({
       ) : null}
 
       {canUpdate ? (
-        <IconButton
+        <RowAction
           icon={Pencil}
           label={`Editar ${resident.name}`}
           onClick={() => onEdit(resident)}
@@ -63,13 +65,13 @@ export function ResidentRowActions({
       ) : null}
 
       {canDelete ? (
-        <IconButton
+        <RowAction
           icon={Trash2}
           tone="destructive"
           label={`Excluir ${resident.name}`}
           onClick={() => onDelete(resident)}
         />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

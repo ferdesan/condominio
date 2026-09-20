@@ -1,6 +1,6 @@
 import { PackageCheck, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Correspondence } from '@/types/correspondence';
 import { correspondenceLabel } from '../correspondence-labels';
 
@@ -41,24 +41,26 @@ export function CorrespondenceRowActions({
   if (correspondence.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${label}`}
-        onClick={() => onRestore(correspondence)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${label}`}
+          onClick={() => onRestore(correspondence)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <RowActions>
       {canUpdate ? (
         <>
-          <IconButton
+          <RowAction
             icon={PackageCheck}
             label={`Dar baixa em ${label}`}
             onClick={() => onDeliver(correspondence)}
           />
-          <IconButton
+          <RowAction
             icon={Pencil}
             label={`Editar ${label}`}
             onClick={() => onEdit(correspondence)}
@@ -67,13 +69,13 @@ export function CorrespondenceRowActions({
       ) : null}
 
       {canDelete ? (
-        <IconButton
+        <RowAction
           icon={Trash2}
           tone="destructive"
           label={`Excluir ${label}`}
           onClick={() => onDelete(correspondence)}
         />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

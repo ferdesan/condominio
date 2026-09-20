@@ -1,6 +1,6 @@
 import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { CommonArea } from '@/types/api';
 
 export interface CommonAreaRowActionsProps {
@@ -28,28 +28,30 @@ export function CommonAreaRowActions({
   if (area.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${area.name}`}
-        onClick={() => onRestore(area)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${area.name}`}
+          onClick={() => onRestore(area)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {canUpdate ? (
-        <IconButton icon={Pencil} label={`Editar ${area.name}`} onClick={() => onEdit(area)} />
+        <RowAction icon={Pencil} label={`Editar ${area.name}`} onClick={() => onEdit(area)} />
       ) : null}
 
       {canDelete ? (
-        <IconButton
+        <RowAction
           icon={Trash2}
           tone="destructive"
           label={`Excluir ${area.name}`}
           onClick={() => onDelete(area)}
         />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

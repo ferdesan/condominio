@@ -1,4 +1,4 @@
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import { Ban, CalendarCheck, CalendarX } from 'lucide-react';
 
 import { formatDateTime } from '@/lib/format';
@@ -40,15 +40,15 @@ export function ReservationRowActions({
   const label = `${formatDateTime(reservation.startsAt)}`;
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {isPending && canManage ? (
         <>
-          <IconButton
+          <RowAction
             icon={CalendarCheck}
             label={`Aprovar reserva de ${label}`}
             onClick={() => onAct('approve', reservation)}
           />
-          <IconButton
+          <RowAction
             icon={CalendarX}
             tone="destructive"
             label={`Recusar reserva de ${label}`}
@@ -58,13 +58,13 @@ export function ReservationRowActions({
       ) : null}
 
       {canUpdate ? (
-        <IconButton
+        <RowAction
           icon={Ban}
           tone="destructive"
           label={`Cancelar reserva de ${label}`}
           onClick={() => onAct('cancel', reservation)}
         />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

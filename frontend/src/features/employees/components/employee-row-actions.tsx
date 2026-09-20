@@ -1,6 +1,6 @@
 import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Employee } from '@/types/api';
 
 export interface EmployeeRowActionsProps {
@@ -28,18 +28,20 @@ export function EmployeeRowActions({
   if (employee.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${employee.name}`}
-        onClick={() => onRestore(employee)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${employee.name}`}
+          onClick={() => onRestore(employee)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {canUpdate ? (
-        <IconButton
+        <RowAction
           icon={Pencil}
           label={`Editar ${employee.name}`}
           onClick={() => onEdit(employee)}
@@ -47,13 +49,13 @@ export function EmployeeRowActions({
       ) : null}
 
       {canDelete ? (
-        <IconButton
+        <RowAction
           icon={Trash2}
           tone="destructive"
           label={`Excluir ${employee.name}`}
           onClick={() => onDelete(employee)}
         />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

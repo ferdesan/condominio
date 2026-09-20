@@ -1,6 +1,6 @@
 import { Ban, Pencil, Play, RotateCcw, Square, Trash2, Vote } from 'lucide-react';
 
-import { IconButton } from '@/components/ui/icon-button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Assembly } from '@/types/assembly';
 import { assemblyLabel } from '../assembly-labels';
 
@@ -57,19 +57,21 @@ export function AssemblyRowActions({
   if (assembly.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <IconButton
-        icon={RotateCcw}
-        label={`Restaurar ${label}`}
-        onClick={() => onRestore(assembly)}
-      />
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${label}`}
+          onClick={() => onRestore(assembly)}
+        />
+      </RowActions>
     );
   }
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
+      <RowActions>
         {canReadPolls ? (
-          <IconButton
+          <RowAction
             icon={Vote}
             label={`Deliberações de ${label}`}
             onClick={() => onPolls(assembly)}
@@ -78,31 +80,31 @@ export function AssemblyRowActions({
 
         {canUpdate ? (
           <>
-            <IconButton icon={Play} label={`Iniciar ${label}`} onClick={() => onStart(assembly)} />
-            <IconButton
+            <RowAction icon={Play} label={`Iniciar ${label}`} onClick={() => onStart(assembly)} />
+            <RowAction
               icon={Square}
               label={`Encerrar ${label}`}
               onClick={() => onFinish(assembly)}
             />
-            <IconButton
+            <RowAction
               icon={Ban}
               tone="destructive"
               label={`Cancelar ${label}`}
               onClick={() => onCancel(assembly)}
             />
-            <IconButton icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(assembly)} />
+            <RowAction icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(assembly)} />
           </>
         ) : null}
 
         {canDelete ? (
-          <IconButton
+          <RowAction
             icon={Trash2}
             tone="destructive"
             label={`Excluir ${label}`}
             onClick={() => onDelete(assembly)}
           />
         ) : null}
-      </div>
+      </RowActions>
 
       {error ? (
         <p role="alert" className="text-xs text-destructive">

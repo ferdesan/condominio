@@ -1,10 +1,6 @@
 import { ExternalLink, MailOpen } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
-import { IconButton } from '@/components/ui/icon-button';
-import { ICON_BUTTON_SIZE, ICON_BUTTON_TONE } from '@/components/ui/icon-button-variants';
-import { cn } from '@/lib/utils';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { AppNotification } from '@/types/notification';
 import { NO_DESTINATION, notificationLabel } from '../notification-labels';
 import { resolveActionUrl } from '../notification-links';
@@ -48,32 +44,27 @@ export function NotificationRowActions({
   return (
     <div className="space-y-1">
       <div className="flex flex-wrap items-center gap-2">
-        {/*
-          A origem continua ancora dentro de `Button asChild`: e navegacao, e
-          trocar por `IconButton` viraria um `button`, perdendo "abrir em nova
-          aba" e o endereco na barra de status. So o rotulo virou icone.
-        */}
-        {destination ? (
-          <Button
-            asChild
-            variant="ghost"
-            className={cn(ICON_BUTTON_SIZE, ICON_BUTTON_TONE.primary)}
-          >
-            <Link to={destination} aria-label={`Abrir origem de ${label}`}>
-              <ExternalLink aria-hidden="true" />
-            </Link>
-          </Button>
-        ) : (
+        <RowActions>
+          {/* `to` e nao `onClick`: o `RowActions` desenha a ancora, e a origem
+              continua abrindo em nova aba. */}
+          {destination ? (
+            <RowAction icon={ExternalLink} label={`Abrir origem de ${label}`} to={destination} />
+          ) : null}
+
+          {canUpdate && !notification.readAt ? (
+            <RowAction
+              icon={MailOpen}
+              label={`Marcar ${label} como lida`}
+              onClick={() => onMarkAsRead(notification)}
+            />
+          ) : null}
+        </RowActions>
+
+        {/* Fora do `RowActions`: e aviso, nao acao — la dentro seria descartado
+            por nao ser um `RowAction`. */}
+        {destination ? null : (
           <span className="text-xs text-muted-foreground">{NO_DESTINATION}</span>
         )}
-
-        {canUpdate && !notification.readAt ? (
-          <IconButton
-            icon={MailOpen}
-            label={`Marcar ${label} como lida`}
-            onClick={() => onMarkAsRead(notification)}
-          />
-        ) : null}
       </div>
 
       {error ? (
