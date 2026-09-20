@@ -130,11 +130,13 @@ export function CategoriesSection({ condominiumId }: CategoriesSectionProps) {
         if (row.deletedAt) {
           if (!canUpdate) return null;
           return (
-            <RowAction
-              icon={RotateCcw}
-              label={`Restaurar ${label}`}
-              onClick={() => restore.mutate(row.id, { onError: refreshOnRefusal })}
-            />
+            <RowActions>
+              <RowAction
+                icon={RotateCcw}
+                label={`Restaurar ${label}`}
+                onClick={() => restore.mutate(row.id, { onError: refreshOnRefusal })}
+              />
+            </RowActions>
           );
         }
 

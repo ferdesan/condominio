@@ -37,9 +37,19 @@ export type RowActionProps =
  * Descritor de uma acao de linha. **Nao renderiza nada sozinho** — existe para
  * que `RowActions` leia as acoes como dados e possa desenha-las de duas formas
  * sem que a tela precise declarar as duas.
+ *
+ * Por isso ele **falha alto** quando alguem o usa fora do `RowActions`: como
+ * `RowActions` le as props e desenha por conta propria, este corpo so executa
+ * quando o descritor ficou orfao. Devolver `null` ali seria o pior resultado
+ * possivel — a acao some da tela, sem erro, sem aviso e sem teste vermelho. Foi
+ * exatamente o que aconteceu com o ramo de "Restaurar" das tres secoes do
+ * Financeiro.
  */
-export function RowAction(_props: RowActionProps): null {
-  return null;
+export function RowAction(_props: RowActionProps): never {
+  throw new Error(
+    'RowAction e um descritor e precisa estar dentro de <RowActions>. ' +
+      'Sozinho ele nao desenha nada, e a acao sumiria da coluna em silencio.',
+  );
 }
 
 /**
