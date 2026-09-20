@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/ui/icon-button';
 import type { Unit } from '@/types/api';
 
 export interface UnitRowActionsProps {
@@ -26,40 +28,31 @@ export function UnitRowActions({
   if (unit.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar unidade ${unit.number}`}
+      <IconButton
+        icon={RotateCcw}
+        label={`Restaurar unidade ${unit.number}`}
         onClick={() => onRestore(unit)}
-      >
-        Restaurar
-      </Button>
+      />
     );
   }
 
   return (
     <div className="flex items-center gap-2">
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar unidade ${unit.number}`}
+        <IconButton
+          icon={Pencil}
+          label={`Editar unidade ${unit.number}`}
           onClick={() => onEdit(unit)}
-        >
-          Editar
-        </Button>
+        />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir unidade ${unit.number}`}
+        <IconButton
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir unidade ${unit.number}`}
           onClick={() => onDelete(unit)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
     </div>
   );

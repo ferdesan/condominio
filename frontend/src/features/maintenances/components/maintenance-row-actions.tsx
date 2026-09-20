@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Ban, CheckCircle2, Pencil, Play, RotateCcw, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/ui/icon-button';
 import type { Maintenance } from '@/types/maintenance';
 import type { MaintenanceFlowAction } from '../maintenance-hooks';
 
@@ -52,14 +54,11 @@ export function MaintenanceRowActions({
   if (maintenance.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
+      <IconButton
+        icon={RotateCcw}
+        label={`Restaurar ${label}`}
         onClick={() => onRestore(maintenance)}
-      >
-        Restaurar
-      </Button>
+      />
     );
   }
 
@@ -73,59 +72,45 @@ export function MaintenanceRowActions({
         {canUpdate ? (
           <>
             {isPending ? (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Iniciar ${label}`}
+              <IconButton
+                icon={Play}
+                label={`Iniciar ${label}`}
                 onClick={() => onFlow('start', maintenance)}
-              >
-                Iniciar
-              </Button>
+              />
             ) : null}
 
             {isRunning ? (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Concluir ${label}`}
+              <IconButton
+                icon={CheckCircle2}
+                label={`Concluir ${label}`}
                 onClick={() => onFlow('complete', maintenance)}
-              >
-                Concluir
-              </Button>
+              />
             ) : null}
 
             {isClosed ? null : (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Cancelar ${label}`}
+              <IconButton
+                icon={Ban}
+                tone="destructive"
+                label={`Cancelar ${label}`}
                 onClick={() => onFlow('cancel', maintenance)}
-              >
-                Cancelar
-              </Button>
+              />
             )}
 
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={`Editar ${label}`}
+            <IconButton
+              icon={Pencil}
+              label={`Editar ${label}`}
               onClick={() => onEdit(maintenance)}
-            >
-              Editar
-            </Button>
+            />
           </>
         ) : null}
 
         {canDelete ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            aria-label={`Excluir ${label}`}
+          <IconButton
+            icon={Trash2}
+            tone="destructive"
+            label={`Excluir ${label}`}
             onClick={() => onDelete(maintenance)}
-          >
-            Excluir
-          </Button>
+          />
         ) : null}
       </div>
 

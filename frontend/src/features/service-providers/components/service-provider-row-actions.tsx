@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/ui/icon-button';
 import type { ServiceProvider } from '@/types/api';
 
 export interface ServiceProviderRowActionsProps {
@@ -26,40 +28,31 @@ export function ServiceProviderRowActions({
   if (provider.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${provider.companyName}`}
+      <IconButton
+        icon={RotateCcw}
+        label={`Restaurar ${provider.companyName}`}
         onClick={() => onRestore(provider)}
-      >
-        Restaurar
-      </Button>
+      />
     );
   }
 
   return (
     <div className="flex items-center gap-2">
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${provider.companyName}`}
+        <IconButton
+          icon={Pencil}
+          label={`Editar ${provider.companyName}`}
           onClick={() => onEdit(provider)}
-        >
-          Editar
-        </Button>
+        />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${provider.companyName}`}
+        <IconButton
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${provider.companyName}`}
           onClick={() => onDelete(provider)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
     </div>
   );

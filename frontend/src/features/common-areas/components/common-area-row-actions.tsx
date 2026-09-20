@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/ui/icon-button';
 import type { CommonArea } from '@/types/api';
 
 export interface CommonAreaRowActionsProps {
@@ -26,40 +28,27 @@ export function CommonAreaRowActions({
   if (area.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${area.name}`}
+      <IconButton
+        icon={RotateCcw}
+        label={`Restaurar ${area.name}`}
         onClick={() => onRestore(area)}
-      >
-        Restaurar
-      </Button>
+      />
     );
   }
 
   return (
     <div className="flex items-center gap-2">
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${area.name}`}
-          onClick={() => onEdit(area)}
-        >
-          Editar
-        </Button>
+        <IconButton icon={Pencil} label={`Editar ${area.name}`} onClick={() => onEdit(area)} />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${area.name}`}
+        <IconButton
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${area.name}`}
           onClick={() => onDelete(area)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
     </div>
   );

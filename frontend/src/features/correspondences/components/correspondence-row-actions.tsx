@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { PackageCheck, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/ui/icon-button';
 import type { Correspondence } from '@/types/correspondence';
 import { correspondenceLabel } from '../correspondence-labels';
 
@@ -39,14 +41,11 @@ export function CorrespondenceRowActions({
   if (correspondence.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
+      <IconButton
+        icon={RotateCcw}
+        label={`Restaurar ${label}`}
         onClick={() => onRestore(correspondence)}
-      >
-        Restaurar
-      </Button>
+      />
     );
   }
 
@@ -54,35 +53,26 @@ export function CorrespondenceRowActions({
     <div className="flex flex-wrap items-center gap-2">
       {canUpdate ? (
         <>
-          <Button
-            variant="outline"
-            size="sm"
-            aria-label={`Dar baixa em ${label}`}
+          <IconButton
+            icon={PackageCheck}
+            label={`Dar baixa em ${label}`}
             onClick={() => onDeliver(correspondence)}
-          >
-            Dar baixa
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Editar ${label}`}
+          />
+          <IconButton
+            icon={Pencil}
+            label={`Editar ${label}`}
             onClick={() => onEdit(correspondence)}
-          >
-            Editar
-          </Button>
+          />
         </>
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${label}`}
+        <IconButton
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${label}`}
           onClick={() => onDelete(correspondence)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
     </div>
   );

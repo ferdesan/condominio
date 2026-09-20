@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { KeyRound, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/ui/icon-button';
 import type { User } from '@/types/user';
 
 export interface UserRowActionsProps {
@@ -46,14 +48,7 @@ export function UserRowActions({
   if (user.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
-        onClick={() => onRestore(user)}
-      >
-        Restaurar
-      </Button>
+      <IconButton icon={RotateCcw} label={`Restaurar ${label}`} onClick={() => onRestore(user)} />
     );
   }
 
@@ -61,37 +56,24 @@ export function UserRowActions({
     <div className="space-y-1">
       <div className="flex flex-wrap items-center gap-2">
         {canManage ? (
-          <Button
-            variant="outline"
-            size="sm"
-            aria-label={`Resetar senha de ${label}`}
+          <IconButton
+            icon={KeyRound}
+            label={`Resetar senha de ${label}`}
             onClick={() => onResetPassword(user)}
-          >
-            Resetar senha
-          </Button>
+          />
         ) : null}
 
         {canUpdate ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Editar ${label}`}
-            onClick={() => onEdit(user)}
-          >
-            Editar
-          </Button>
+          <IconButton icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(user)} />
         ) : null}
 
         {canDelete ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            aria-label={`Excluir ${label}`}
+          <IconButton
+            icon={Trash2}
+            tone="destructive"
+            label={`Excluir ${label}`}
             onClick={() => onDelete(user)}
-          >
-            Excluir
-          </Button>
+          />
         ) : null}
       </div>
 

@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/ui/icon-button';
 import type { Block } from '@/types/api';
 
 export interface BlockRowActionsProps {
@@ -26,40 +28,27 @@ export function BlockRowActions({
   if (block.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${block.name}`}
+      <IconButton
+        icon={RotateCcw}
+        label={`Restaurar ${block.name}`}
         onClick={() => onRestore(block)}
-      >
-        Restaurar
-      </Button>
+      />
     );
   }
 
   return (
     <div className="flex items-center gap-2">
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${block.name}`}
-          onClick={() => onEdit(block)}
-        >
-          Editar
-        </Button>
+        <IconButton icon={Pencil} label={`Editar ${block.name}`} onClick={() => onEdit(block)} />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${block.name}`}
+        <IconButton
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${block.name}`}
           onClick={() => onDelete(block)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
     </div>
   );

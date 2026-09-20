@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { ArrowRightLeft, Pencil, RotateCcw, Trash2, UserPlus } from 'lucide-react';
+
+import { IconButton } from '@/components/ui/icon-button';
 import type { Incident } from '@/types/incident';
 
 export interface IncidentRowActionsProps {
@@ -48,62 +50,43 @@ export function IncidentRowActions({
   if (incident.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
+      <IconButton
+        icon={RotateCcw}
+        label={`Restaurar ${label}`}
         onClick={() => onRestore(incident)}
-      >
-        Restaurar
-      </Button>
+      />
     );
   }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       {canUpdate ? (
-        <Button
-          variant="outline"
-          size="sm"
-          aria-label={`Mudar status de ${label}`}
+        <IconButton
+          icon={ArrowRightLeft}
+          label={`Mudar status de ${label}`}
           onClick={() => onChangeStatus(incident)}
-        >
-          Mudar status
-        </Button>
+        />
       ) : null}
 
       {canManage ? (
-        <Button
-          variant="outline"
-          size="sm"
-          aria-label={`Atribuir ${label}`}
+        <IconButton
+          icon={UserPlus}
+          label={`Atribuir ${label}`}
           onClick={() => onAssign(incident)}
-        >
-          Atribuir
-        </Button>
+        />
       ) : null}
 
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${label}`}
-          onClick={() => onEdit(incident)}
-        >
-          Editar
-        </Button>
+        <IconButton icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(incident)} />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${label}`}
+        <IconButton
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${label}`}
           onClick={() => onDelete(incident)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
     </div>
   );

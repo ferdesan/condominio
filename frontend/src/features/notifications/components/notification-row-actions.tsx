@@ -1,5 +1,10 @@
+import { ExternalLink, MailOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
+import { IconButton } from '@/components/ui/icon-button';
+import { ICON_BUTTON_SIZE, ICON_BUTTON_TONE } from '@/components/ui/icon-button-variants';
+import { cn } from '@/lib/utils';
 import type { AppNotification } from '@/types/notification';
 import { NO_DESTINATION, notificationLabel } from '../notification-labels';
 import { resolveActionUrl } from '../notification-links';
@@ -43,10 +48,19 @@ export function NotificationRowActions({
   return (
     <div className="space-y-1">
       <div className="flex flex-wrap items-center gap-2">
+        {/*
+          A origem continua ancora dentro de `Button asChild`: e navegacao, e
+          trocar por `IconButton` viraria um `button`, perdendo "abrir em nova
+          aba" e o endereco na barra de status. So o rotulo virou icone.
+        */}
         {destination ? (
-          <Button asChild variant="outline" size="sm">
+          <Button
+            asChild
+            variant="ghost"
+            className={cn(ICON_BUTTON_SIZE, ICON_BUTTON_TONE.primary)}
+          >
             <Link to={destination} aria-label={`Abrir origem de ${label}`}>
-              Abrir
+              <ExternalLink aria-hidden="true" />
             </Link>
           </Button>
         ) : (
@@ -54,14 +68,11 @@ export function NotificationRowActions({
         )}
 
         {canUpdate && !notification.readAt ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Marcar ${label} como lida`}
+          <IconButton
+            icon={MailOpen}
+            label={`Marcar ${label} como lida`}
             onClick={() => onMarkAsRead(notification)}
-          >
-            Marcar como lida
-          </Button>
+          />
         ) : null}
       </div>
 

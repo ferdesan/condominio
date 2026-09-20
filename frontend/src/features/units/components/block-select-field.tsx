@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tooltip } from '@/components/ui/tooltip';
+import { IconButton } from '@/components/ui/icon-button';
 import { FormField } from '@/components/ui/form-field';
 import {
   Select,
@@ -133,18 +133,12 @@ export function BlockSelectField({
               // dentro de uma coluna do formulario, e "Novo bloco" por extenso
               // transbordava sobre o campo vizinho. O `aria-label` mantem o nome
               // acessivel — a tarja e reforco visual, nao a fonte do significado.
-              <Tooltip label="Novo bloco">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0"
-                  aria-label="Novo bloco"
-                  onClick={() => setCreating(true)}
-                >
-                  <Plus aria-hidden="true" />
-                </Button>
-              </Tooltip>
+              <IconButton
+                icon={Plus}
+                label="Novo bloco"
+                className="shrink-0"
+                onClick={() => setCreating(true)}
+              />
             ) : null}
           </div>
         )}

@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Archive, Megaphone, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/ui/icon-button';
 import type { Announcement } from '@/types/announcement';
 
 export type AnnouncementLifecycleAction = 'publish' | 'archive';
@@ -49,14 +51,11 @@ export function AnnouncementRowActions({
   if (announcement.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
+      <IconButton
+        icon={RotateCcw}
+        label={`Restaurar ${label}`}
         onClick={() => onRestore(announcement)}
-      >
-        Restaurar
-      </Button>
+      />
     );
   }
 
@@ -69,48 +68,36 @@ export function AnnouncementRowActions({
         {canUpdate ? (
           <>
             {canPublish ? (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Publicar ${label}`}
+              <IconButton
+                icon={Megaphone}
+                label={`Publicar ${label}`}
                 onClick={() => onLifecycle('publish', announcement)}
-              >
-                Publicar
-              </Button>
+              />
             ) : null}
 
             {canArchive ? (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Arquivar ${label}`}
+              <IconButton
+                icon={Archive}
+                label={`Arquivar ${label}`}
                 onClick={() => onLifecycle('archive', announcement)}
-              >
-                Arquivar
-              </Button>
+              />
             ) : null}
 
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={`Editar ${label}`}
+            <IconButton
+              icon={Pencil}
+              label={`Editar ${label}`}
               onClick={() => onEdit(announcement)}
-            >
-              Editar
-            </Button>
+            />
           </>
         ) : null}
 
         {canDelete ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            aria-label={`Excluir ${label}`}
+          <IconButton
+            icon={Trash2}
+            tone="destructive"
+            label={`Excluir ${label}`}
             onClick={() => onDelete(announcement)}
-          >
-            Excluir
-          </Button>
+          />
         ) : null}
       </div>
 
