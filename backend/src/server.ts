@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import http from 'node:http';
 import { app } from './app';
-import { closeDatabase, initializeDatabase } from './config/data-source';
+import { AppDataSource, closeDatabase, initializeDatabase } from './config/data-source';
 import { env } from './config/env';
 import { logger } from './config/logger';
 import { closeRedis, getRedis } from './config/redis';
@@ -10,6 +10,13 @@ import { initSocketServer } from './realtime/socket-server';
 
 async function bootstrap(): Promise<void> {
   await initializeDatabase();
+
+  if (env.NODE_ENV === 'production') {
+    logger.info('Running pending migrations...');
+    await AppDataSource.runMigrations();
+    logger.info('Migrations applied successfully');
+  }
+
   getRedis();
 
   const server = http.createServer(app);
