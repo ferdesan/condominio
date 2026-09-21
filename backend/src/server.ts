@@ -6,6 +6,7 @@ import { env } from './config/env';
 import { logger } from './config/logger';
 import { closeRedis, getRedis } from './config/redis';
 import { startScheduledJobs, stopScheduledJobs } from './jobs';
+import { runSeeds } from './database/seeds/seed';
 import { initSocketServer } from './realtime/socket-server';
 
 async function bootstrap(): Promise<void> {
@@ -15,6 +16,10 @@ async function bootstrap(): Promise<void> {
     logger.info('Running pending migrations...');
     await AppDataSource.runMigrations();
     logger.info('Migrations applied successfully');
+
+    logger.info('Running seed...');
+    await runSeeds();
+    logger.info('Seed completed');
   }
 
   getRedis();
