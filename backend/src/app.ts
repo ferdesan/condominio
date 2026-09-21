@@ -4,6 +4,7 @@ import cors from 'cors';
 import express, { type Application, type Request, type Response } from 'express';
 import 'express-async-errors';
 import helmet from 'helmet';
+import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { corsOrigins, env } from '@/config/env';
 import { openApiDocument } from '@/config/swagger';
@@ -96,6 +97,15 @@ export function createApp(): Application {
       },
     });
   });
+
+  // --- Frontend estatico (producao) ----------------------------------------
+  if (env.NODE_ENV === 'production') {
+    const frontendDist = path.resolve(__dirname, '../../frontend/dist');
+    app.use(express.static(frontendDist));
+    app.get('*', (_req: Request, res: Response) => {
+      res.sendFile(path.join(frontendDist, 'index.html'));
+    });
+  }
 
   app.use(notFoundHandler);
   app.use(errorHandler);

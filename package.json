@@ -12,7 +12,7 @@
     "secrets:backend": "node scripts/generate-secrets.mjs --backend",
     "dev": "concurrently -n api,web -c cyan,magenta \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
     "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
-    "build": "npm --prefix backend install --omit=dev && npm --prefix backend run build && npm --prefix frontend install --omit=dev && npm --prefix frontend run build",
+    "build": "printf 'VITE_API_URL=/api/v1\nVITE_SOCKET_URL=\nVITE_APP_NAME=Condominio SaaS\n' > frontend/.env && npm --prefix backend install --omit=dev && npm --prefix backend run build && npm --prefix frontend install --omit=dev && npm --prefix frontend run build",
     "build:deploy": "npm --prefix frontend install && npm --prefix frontend run build",
     "test": "npm --prefix backend run test && npm --prefix frontend run test",
     "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
