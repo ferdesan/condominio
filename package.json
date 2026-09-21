@@ -13,6 +13,7 @@
     "dev": "concurrently -n api,web -c cyan,magenta \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
     "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
     "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "build:deploy": "npm --prefix frontend install && npm --prefix frontend run build",
     "test": "npm --prefix backend run test && npm --prefix frontend run test",
     "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yml,yaml}\"",
