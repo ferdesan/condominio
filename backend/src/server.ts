@@ -7,6 +7,7 @@ import { logger } from './config/logger';
 import { closeRedis, getRedis } from './config/redis';
 import { startScheduledJobs, stopScheduledJobs } from './jobs';
 import { runSeeds } from './database/seeds/seed';
+import { ROLE_DEFINITIONS } from './shared/constants/roles';
 import { initSocketServer } from './realtime/socket-server';
 
 async function bootstrap(): Promise<void> {
@@ -20,6 +21,22 @@ async function bootstrap(): Promise<void> {
     logger.info('Running seed...');
     await runSeeds();
     logger.info('Seed completed');
+
+    logger.info('Syncing system role permissions...');
+    const roleRepo = AppDataSource.getRepository('Role');
+    let patched = 0;
+    for (const def of ROLE_DEFINITIONS) {
+      const roles = await roleRepo.find({ where: { name: def.name, isSystem: true } });
+      for (const role of roles) {
+        const current = JSON.stringify([...role.permissions].sort());
+        const expected = JSON.stringify([...def.permissions].sort());
+        if (current !== expected) {
+          await roleRepo.update(role.id, { permissions: def.permissions });
+          patched++;
+        }
+      }
+    }
+    logger.info(`Role permissions synced (${patched} updated)`);
   }
 
   getRedis();
