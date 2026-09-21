@@ -2,6 +2,10 @@
 # Dependências
 # ===========================
 node_modules/
+# Lockfiles fora do versionamento: gerados numa maquina cujo registry e um
+# Artifactory corporativo, eles gravavam URLs que so aquela rede resolve, e
+# qualquer outra maquina — o deploy, o CI — levava E401 no `npm install`.
+package-lock.json
 .pnp/
 .pnp.js
 .pnp.cjs

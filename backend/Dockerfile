@@ -6,7 +6,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY tsconfig*.json ./
 COPY src ./src
@@ -17,7 +17,7 @@ FROM node:22-alpine AS deps
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev && npm cache clean --force
 
 # ---------- Etapa 3: runtime ----------
 FROM node:22-alpine AS runner
