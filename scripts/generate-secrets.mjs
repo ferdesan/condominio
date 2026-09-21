@@ -1,14 +1,24 @@
 #!/usr/bin/env node
 /**
- * Gera um .env com secrets aleatorios a partir do .env.example.
+ * Gera ou rotaciona os secrets de um arquivo .env.
  *
- * O .env.example nao guarda valor de secret nenhum: o que ele traz sao as
- * chaves vazias, e quem as preenche e este script. Assim o repositorio nunca
- * carrega uma senha que funcione, e cada maquina roda com as suas.
+ * Sao dois alvos, porque sao dois jeitos de rodar o projeto:
  *
- *   node scripts/generate-secrets.mjs           cria o .env (falha se ja existir)
- *   node scripts/generate-secrets.mjs --force   sobrescreve o .env existente
- *   node scripts/generate-secrets.mjs --print   imprime um conjunto novo, sem escrever
+ *   npm run secrets           .env da raiz      stack em container
+ *   npm run secrets:backend   backend/.env      API fora do container
+ *
+ * Nenhum dos dois `.env.example` guarda secret que funcione: o que eles trazem
+ * sao as chaves vazias, e quem as preenche e este script. Assim o repositorio
+ * nunca carrega um segredo que assina token de verdade.
+ *
+ * Sem o arquivo, ele e criado a partir do template. Com o arquivo e `--force`,
+ * os secrets sao trocados **no lugar**: todo o resto da linha por linha
+ * permanece, porque um .env em uso guarda escolha de quem o escreveu — host do
+ * banco, porta, nivel de log — e sobrescrever com o template apagaria tudo.
+ *
+ *   --backend   opera sobre backend/.env (o padrao e o .env da raiz)
+ *   --force     troca os secrets de um arquivo que ja existe
+ *   --print     imprime um conjunto novo, sem escrever em lugar nenhum
  */
 import { randomBytes, randomInt } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -16,8 +26,6 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const TEMPLATE = join(ROOT, '.env.example');
-const TARGET = join(ROOT, '.env');
 
 // Sem $ # ' " \ e afins: o valor atravessa dotenv, a interpolacao do docker
 // compose e a linha de comando do mysql sem precisar de aspas nem de escape.
@@ -27,12 +35,28 @@ const token = (bytes) => randomBytes(bytes).toString('base64url');
 const password = (length) =>
   Array.from({ length }, () => PASSWORD_ALPHABET[randomInt(PASSWORD_ALPHABET.length)]).join('');
 
-// O que nao estiver aqui vem do template intacto.
 const GENERATORS = {
   JWT_SECRET: () => token(48),
   JWT_REFRESH_SECRET: () => token(48),
   DB_PASSWORD: () => password(32),
   DB_ROOT_PASSWORD: () => password(32),
+};
+
+const TARGETS = {
+  root: {
+    template: '.env.example',
+    file: '.env',
+    // O compose cria o MySQL a partir deste mesmo arquivo, entao sortear a
+    // senha do banco aqui e o certo: nao ha instancia previa a contrariar.
+    keys: ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'DB_PASSWORD', 'DB_ROOT_PASSWORD'],
+  },
+  backend: {
+    template: 'backend/.env.example',
+    file: 'backend/.env',
+    // `DB_PASSWORD` fica de fora de proposito: fora do container o MySQL ja
+    // existe e a senha e a dele. Sortear uma aqui so quebraria a conexao.
+    keys: ['JWT_SECRET', 'JWT_REFRESH_SECRET'],
+  },
 };
 
 function fail(message) {
@@ -41,45 +65,62 @@ function fail(message) {
 }
 
 const args = new Set(process.argv.slice(2));
-const unknown = [...args].filter((arg) => !['--force', '--print'].includes(arg));
-if (unknown.length > 0) fail(`opcao desconhecida: ${unknown.join(', ')}`);
+const conhecidas = ['--backend', '--force', '--print'];
+const desconhecidas = [...args].filter((arg) => !conhecidas.includes(arg));
+if (desconhecidas.length > 0) {
+  fail(`opcao desconhecida: ${desconhecidas.join(', ')}. Use ${conhecidas.join(', ')}.`);
+}
 
-const secrets = Object.fromEntries(
-  Object.entries(GENERATORS).map(([key, generate]) => [key, generate()])
-);
+const target = args.has('--backend') ? TARGETS.backend : TARGETS.root;
+const templatePath = join(ROOT, target.template);
+const filePath = join(ROOT, target.file);
+
+const secrets = Object.fromEntries(target.keys.map((key) => [key, GENERATORS[key]()]));
 
 if (args.has('--print')) {
-  // Conjunto novo em folha — nao le o .env. Serve para colar num gerenciador
-  // de secrets ou nas variaveis do CI.
+  // Conjunto novo em folha — nao le nem escreve arquivo. Serve para colar num
+  // gerenciador de secrets ou nas variaveis do CI.
   for (const [key, value] of Object.entries(secrets)) console.log(`${key}=${value}`);
   process.exit(0);
 }
 
-if (!existsSync(TEMPLATE)) fail(`.env.example nao encontrado em ${TEMPLATE}`);
+const existe = existsSync(filePath);
 
-if (existsSync(TARGET) && !args.has('--force')) {
+if (existe && !args.has('--force')) {
   fail(
-    '.env ja existe. Use --force para sobrescrever — isso troca a senha do banco,\n' +
-      '       que os volumes do MySQL ja criados nao aceitam, e invalida as sessoes ativas.'
+    `${target.file} ja existe. Use --force para trocar os secrets — isso invalida\n` +
+      '       as sessoes ativas, e quem estiver logado precisa entrar de novo.'
   );
 }
 
-const template = readFileSync(TEMPLATE, 'utf8');
-const missing = Object.keys(secrets).filter((key) => !new RegExp(`^${key}=`, 'm').test(template));
-if (missing.length > 0) fail(`chave ausente no .env.example: ${missing.join(', ')}`);
+const origem = existe ? filePath : templatePath;
+if (!existsSync(origem)) fail(`${relative(ROOT, origem)} nao encontrado`);
 
-const filled = template
+const conteudo = readFileSync(origem, 'utf8');
+const ausentes = target.keys.filter((key) => !new RegExp(`^${key}=`, 'm').test(conteudo));
+if (ausentes.length > 0) {
+  fail(`chave ausente em ${relative(ROOT, origem)}: ${ausentes.join(', ')}`);
+}
+
+// Preserva a quebra de linha do arquivo: no Windows ele costuma estar em CRLF,
+// e trocar isso encheria o editor de diferenca que nao e do secret.
+const quebra = conteudo.includes('\r\n') ? '\r\n' : '\n';
+const resultado = conteudo
   .split(/\r?\n/)
-  .map((line) => {
-    const key = /^([A-Z0-9_]+)=/.exec(line)?.[1];
-    return key && key in secrets ? `${key}=${secrets[key]}` : line;
+  .map((linha) => {
+    const key = /^([A-Z0-9_]+)=/.exec(linha)?.[1];
+    return key && key in secrets ? `${key}=${secrets[key]}` : linha;
   })
-  .join('\n');
+  .join(quebra);
 
-writeFileSync(TARGET, filled, { encoding: 'utf8', mode: 0o600 });
+writeFileSync(filePath, resultado, { encoding: 'utf8', mode: 0o600 });
 
-console.log(`${relative(ROOT, TARGET)} criado com secrets novos:`);
+console.log(`${target.file} ${existe ? 'rotacionado' : 'criado'}:`);
 for (const [key, value] of Object.entries(secrets)) {
   console.log(`  ${key.padEnd(20)} ${value.length} caracteres`);
 }
-console.log('\nOs valores ficam so no arquivo, que e gitignored. O resto veio do .env.example.');
+console.log(
+  existe
+    ? '\nO resto do arquivo ficou como estava. Reinicie a API: o segredo antigo\nnao valida mais os tokens que ele proprio assinou.'
+    : '\nOs valores ficam so no arquivo, que e gitignored. O resto veio do template.'
+);

@@ -267,9 +267,18 @@ npm run docker:up
 # Editar variáveis para produção
 API_PORT=3333
 NODE_ENV=production
-JWT_SECRET=chave-muito-secreta
 VITE_API_URL=https://api.seu-dominio.com
 ```
+
+Os segredos não entram nesse arquivo em produção: gere um conjunto com
+
+```bash
+node scripts/generate-secrets.mjs --print
+```
+
+e cole o resultado no gerenciador de segredos do seu ambiente (Docker secrets,
+AWS Secrets Manager, Vault). A API recusa subir em produção com os valores de
+exemplo que já circularam por este repositório.
 
 ### Deploy com Docker Swarm
 ```bash

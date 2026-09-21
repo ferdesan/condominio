@@ -125,6 +125,8 @@ npm run secrets
 > O `.env.example` não traz secret preenchido: `npm run secrets` sorteia
 > `JWT_SECRET`, `JWT_REFRESH_SECRET`, `DB_PASSWORD` e `DB_ROOT_PASSWORD`. Copiar
 > o template com `cp` deixa os quatro vazios, e o `docker compose` recusa subir.
+> Para rodar a API fora do container, o comando é `npm run secrets:backend` —
+> veja [Desenvolvimento](#desenvolvimento).
 
 ### 3️⃣ Iniciar com Docker (Recomendado)
 
@@ -162,6 +164,17 @@ npm run docker:logs:all        # Todos os logs
 ```
 
 ### Desenvolvimento
+
+Rodando sem Docker, quem alimenta a API é o `backend/.env` — o `.env` da raiz
+serve só ao `docker compose`. São arquivos diferentes para runtimes diferentes,
+com os mesmos nomes de variável:
+
+```bash
+npm run secrets:backend        # Gera/rotaciona os segredos do backend/.env
+```
+
+O `DB_PASSWORD` do `backend/.env` fica por sua conta: fora do container o MySQL
+já existe e a senha é a dele.
 
 ```bash
 npm run dev                    # Inicia backend e frontend em paralelo (sem Docker)
@@ -297,7 +310,7 @@ condominio/
 │       └── ci-cd.yml       # GitHub Actions CI/CD
 │
 ├── scripts/
-│   └── generate-secrets.mjs # Gera o .env com secrets aleatórios
+│   └── generate-secrets.mjs # Gera/rotaciona os secrets de um .env
 │
 ├── docker-compose.yml      # Orquestração dos serviços
 ├── .env.example            # Template de variáveis (secrets em branco)
