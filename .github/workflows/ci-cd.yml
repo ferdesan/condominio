@@ -54,6 +54,9 @@ jobs:
     timeout-minutes: 30
 
     services:
+      # Credenciais descartaveis: este MySQL vive dentro do job, nao aceita
+      # conexao de fora do runner e morre com ele. Nao confundir com os secrets
+      # da aplicacao, que sao gerados por `npm run secrets`.
       mysql:
         image: mysql:8.0-alpine
         env:

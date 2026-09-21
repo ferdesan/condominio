@@ -51,12 +51,11 @@ setup_env() {
 
     if [ ! -f "$ENV_FILE" ]; then
         log_warning "Arquivo .env não encontrado"
-        if [ -f ".env.example" ]; then
-            log_info "Criando .env a partir do .env.example..."
-            cp .env.example .env
-            log_success ".env criado (verifique as credenciais padrão)"
+        log_info "Gerando .env com secrets aleatórios..."
+        if node scripts/generate-secrets.mjs; then
+            log_success ".env criado com secrets próprios desta máquina"
         else
-            log_error "Arquivo .env.example não encontrado"
+            log_error "Falha ao gerar o .env"
             exit 1
         fi
     else

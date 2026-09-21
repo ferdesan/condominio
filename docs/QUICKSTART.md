@@ -8,8 +8,8 @@
 git clone https://github.com/seu-usuario/condominio.git
 cd condominio
 
-# Copie o arquivo de variáveis
-cp .env.example .env
+# Gere o .env com secrets aleatórios
+npm run secrets
 ```
 
 ### 2️⃣ Inicie os Serviços
@@ -65,7 +65,7 @@ npm run docker:prune      # Limpeza do sistema Docker
 |---------|------|------|----------|
 | **Frontend** | localhost:3000 | - | - |
 | **API** | localhost:3333 | - | - |
-| **MySQL** | localhost:3306 | admin | admin123 |
+| **MySQL** | localhost:3306 | admin | o `DB_PASSWORD` do seu `.env` |
 | **Redis** | localhost:6379 | - | - |
 
 ⚠️ **Nunca use em produção!**
@@ -80,7 +80,7 @@ condominio/
 ├── backend/           # Node.js + Express
 ├── docs/              # Documentação
 ├── docker-compose.yml # Orquestração
-├── .env.example       # Template env
+├── .env.example       # Template env (secrets em branco)
 └── package.json       # Scripts root
 ```
 

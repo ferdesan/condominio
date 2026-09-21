@@ -6,17 +6,17 @@ services:
     image: mysql:8.0-alpine
     container_name: condominio-db
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?defina no .env (rode npm run secrets)}
       MYSQL_DATABASE: ${DB_NAME:-condominio_db}
       MYSQL_USER: ${DB_USER:-admin}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-admin123}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?defina no .env (rode npm run secrets)}
     ports:
       - "${DB_PORT:-3306}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ./backend/src/database/seeds:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USER:-admin}", "-p${DB_PASSWORD:-admin123}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USER:-admin}", "-p${DB_PASSWORD:?defina no .env (rode npm run secrets)}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -58,7 +58,7 @@ services:
       DB_HOST: db
       DB_PORT: 3306
       DB_USER: ${DB_USER:-admin}
-      DB_PASSWORD: ${DB_PASSWORD:-admin123}
+      DB_PASSWORD: ${DB_PASSWORD:?defina no .env (rode npm run secrets)}
       DB_NAME: ${DB_NAME:-condominio_db}
 
       # Redis
@@ -66,8 +66,8 @@ services:
       REDIS_PORT: 6379
 
       # JWT
-      JWT_SECRET: ${JWT_SECRET:-supersecretkey}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-refreshsecretkey}
+      JWT_SECRET: ${JWT_SECRET:?defina no .env (rode npm run secrets)}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?defina no .env (rode npm run secrets)}
 
       # AWS S3 (opcional)
       AWS_REGION: ${AWS_REGION:-us-east-1}
@@ -110,7 +110,7 @@ services:
     depends_on:
       - api
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:3333}
+      VITE_API_URL: ${VITE_API_URL:-/api/v1}
     healthcheck:
       test: ["CMD", "wget", "-q", "-O-", "http://localhost/"]
       interval: 30s

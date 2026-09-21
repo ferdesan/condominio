@@ -32,12 +32,17 @@ cd condominio
 
 ### 2. Configurar variáveis de ambiente
 ```bash
-# Copiar template
-cp .env.example .env
+# Gerar o .env com secrets aleatórios desta máquina
+npm run secrets
 
 # Editar conforme necessário
 nano .env  # ou seu editor preferido
 ```
+
+O `.env.example` é um template com os secrets em branco — `npm run secrets`
+preenche `JWT_SECRET`, `JWT_REFRESH_SECRET`, `DB_PASSWORD` e `DB_ROOT_PASSWORD`
+com valores aleatórios. Copiar o template com `cp` não serve: sem esses quatro
+valores o `docker compose` para com `defina no .env (rode npm run secrets)`.
 
 ### 3. Estrutura de volumes
 Os dados serão armazenados em volumes Docker gerenciados:
@@ -146,9 +151,9 @@ docker volume rm condominio-redis-data
 DB_HOST=db              # Nome do serviço Docker
 DB_PORT=3306
 DB_USER=admin
-DB_PASSWORD=admin123
 DB_NAME=condominio_db
-DB_ROOT_PASSWORD=rootpassword
+DB_PASSWORD=            # gerado por `npm run secrets`
+DB_ROOT_PASSWORD=       # gerado por `npm run secrets`
 ```
 
 ### Redis
@@ -162,8 +167,8 @@ REDIS_PORT=6379
 NODE_ENV=development
 API_PORT=3333
 API_URL=http://localhost:3333
-JWT_SECRET=supersecretkey
-JWT_REFRESH_SECRET=refreshsecretkey
+JWT_SECRET=             # gerado por `npm run secrets`
+JWT_REFRESH_SECRET=     # gerado por `npm run secrets`
 ```
 
 ### Frontend
@@ -214,7 +219,7 @@ DB_PORT=3307
 docker compose logs db
 
 # Conectar diretamente
-docker compose exec db mysql -uadmin -padmin123 condominio_db
+docker compose exec db mysql -uadmin -p"$DB_PASSWORD" condominio_db
 
 # Health check
 docker compose ps
@@ -298,10 +303,10 @@ services:
 ### Backup do banco de dados
 ```bash
 # Gerar dump
-docker compose exec db mysqldump -uadmin -padmin123 condominio_db > backup.sql
+docker compose exec db mysqldump -uadmin -p"$DB_PASSWORD" condominio_db > backup.sql
 
 # Restaurar dump
-docker compose exec -T db mysql -uadmin -padmin123 condominio_db < backup.sql
+docker compose exec -T db mysql -uadmin -p"$DB_PASSWORD" condominio_db < backup.sql
 ```
 
 ### Monitoramento em produção
