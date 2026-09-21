@@ -7,7 +7,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "prepare": "husky",
+    "prepare": "husky || echo 'husky ausente (instalacao sem devDependencies) - seguindo'",
     "secrets": "node scripts/generate-secrets.mjs",
     "secrets:backend": "node scripts/generate-secrets.mjs --backend",
     "dev": "concurrently -n api,web -c cyan,magenta \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
