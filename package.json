@@ -4,7 +4,7 @@
   "private": true,
   "description": "Plataforma SaaS multi-tenant para gestao de condominios",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "prepare": "husky || echo 'husky ausente (instalacao sem devDependencies) - seguindo'",
