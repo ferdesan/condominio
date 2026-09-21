@@ -86,24 +86,24 @@ export function createApp(): Application {
   // --- API -----------------------------------------------------------------
   app.use(env.API_PREFIX, apiRouter);
 
-  app.get('/', (_req: Request, res: Response) => {
-    res.json({
-      success: true,
-      data: {
-        name: env.APP_NAME,
-        version: '1.0.0',
-        docs: env.SWAGGER_ENABLED ? `${env.API_PREFIX}/docs` : null,
-        health: `${env.API_PREFIX}/health`,
-      },
-    });
-  });
-
   // --- Frontend estatico (producao) ----------------------------------------
   if (env.NODE_ENV === 'production') {
     const frontendDist = path.resolve(__dirname, '../../frontend/dist');
     app.use(express.static(frontendDist));
     app.get('*', (_req: Request, res: Response) => {
       res.sendFile(path.join(frontendDist, 'index.html'));
+    });
+  } else {
+    app.get('/', (_req: Request, res: Response) => {
+      res.json({
+        success: true,
+        data: {
+          name: env.APP_NAME,
+          version: '1.0.0',
+          docs: env.SWAGGER_ENABLED ? `${env.API_PREFIX}/docs` : null,
+          health: `${env.API_PREFIX}/health`,
+        },
+      });
     });
   }
 
