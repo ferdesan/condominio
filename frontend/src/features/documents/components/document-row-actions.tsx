@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Download, Pencil, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { DocumentFile } from '@/types/document';
 import { documentLabel } from '../document-labels';
 
@@ -41,39 +43,22 @@ export function DocumentRowActions({
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          aria-label={`Baixar ${label}`}
-          onClick={() => onDownload(document)}
-        >
-          Baixar
-        </Button>
+      <RowActions>
+        <RowAction icon={Download} label={`Baixar ${label}`} onClick={() => onDownload(document)} />
 
         {canUpdate ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Editar ${label}`}
-            onClick={() => onEdit(document)}
-          >
-            Editar
-          </Button>
+          <RowAction icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(document)} />
         ) : null}
 
         {canDelete ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            aria-label={`Excluir ${label}`}
+          <RowAction
+            icon={Trash2}
+            tone="destructive"
+            label={`Excluir ${label}`}
             onClick={() => onDelete(document)}
-          >
-            Excluir
-          </Button>
+          />
         ) : null}
-      </div>
+      </RowActions>
 
       {error ? (
         <p role="alert" className="text-xs text-destructive">

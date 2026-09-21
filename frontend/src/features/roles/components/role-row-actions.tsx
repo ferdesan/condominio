@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Copy, Pencil, RotateCcw, ShieldCheck, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Role } from '@/types/role';
 
 export interface RoleRowActionsProps {
@@ -48,38 +50,23 @@ export function RoleRowActions({
   if (role.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
-        onClick={() => onRestore(role)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction icon={RotateCcw} label={`Restaurar ${label}`} onClick={() => onRestore(role)} />
+      </RowActions>
     );
   }
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          aria-label={`Ver permissões de ${label}`}
+      <RowActions>
+        <RowAction
+          icon={ShieldCheck}
+          label={`Ver permissões de ${label}`}
           onClick={() => onViewPermissions(role)}
-        >
-          Permissões
-        </Button>
+        />
 
         {canUpdate ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Editar ${label}`}
-            onClick={() => onEdit(role)}
-          >
-            Editar
-          </Button>
+          <RowAction icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(role)} />
         ) : null}
 
         {/*
@@ -89,28 +76,18 @@ export function RoleRowActions({
           quarenta e cinco caixas.
         */}
         {canCreate ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Duplicar ${label}`}
-            onClick={() => onDuplicate(role)}
-          >
-            Duplicar
-          </Button>
+          <RowAction icon={Copy} label={`Duplicar ${label}`} onClick={() => onDuplicate(role)} />
         ) : null}
 
         {canDelete && !role.isSystem ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            aria-label={`Excluir ${label}`}
+          <RowAction
+            icon={Trash2}
+            tone="destructive"
+            label={`Excluir ${label}`}
             onClick={() => onDelete(role)}
-          >
-            Excluir
-          </Button>
+          />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre este papel, e a

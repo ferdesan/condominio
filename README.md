@@ -115,12 +115,18 @@ cd condominio
 ### 2️⃣ Configurar Ambiente
 
 ```bash
-# Copiar variáveis de exemplo
-cp .env.example .env
+# Gerar o .env com secrets aleatórios desta máquina
+npm run secrets
 
 # Opcionalmente, editar .env conforme necessário
 # nano .env
 ```
+
+> O `.env.example` não traz secret preenchido: `npm run secrets` sorteia
+> `JWT_SECRET`, `JWT_REFRESH_SECRET`, `DB_PASSWORD` e `DB_ROOT_PASSWORD`. Copiar
+> o template com `cp` deixa os quatro vazios, e o `docker compose` recusa subir.
+> Para rodar a API fora do container, o comando é `npm run secrets:backend` —
+> veja [Desenvolvimento](#desenvolvimento).
 
 ### 3️⃣ Iniciar com Docker (Recomendado)
 
@@ -159,6 +165,17 @@ npm run docker:logs:all        # Todos os logs
 
 ### Desenvolvimento
 
+Rodando sem Docker, quem alimenta a API é o `backend/.env` — o `.env` da raiz
+serve só ao `docker compose`. São arquivos diferentes para runtimes diferentes,
+com os mesmos nomes de variável:
+
+```bash
+npm run secrets:backend        # Gera/rotaciona os segredos do backend/.env
+```
+
+O `DB_PASSWORD` do `backend/.env` fica por sua conta: fora do container o MySQL
+já existe e a senha é a dele.
+
 ```bash
 npm run dev                    # Inicia backend e frontend em paralelo (sem Docker)
 npm run install:all            # Instala dependências (root, backend, frontend)
@@ -187,7 +204,7 @@ npm run docker:prune           # Limpeza de volumes e imagens
 |---------|------|---------|-------|
 | Frontend | localhost:3000 | - | - |
 | API | localhost:3333 | - | - |
-| MySQL | localhost:3306 | admin | admin123 |
+| MySQL | localhost:3306 | admin | o `DB_PASSWORD` do seu `.env` |
 | Redis | localhost:6379 | - | - |
 
 ### Entrar na aplicação
@@ -213,21 +230,29 @@ Veja `.env.example` para lista completa de variáveis. Principais:
 DB_HOST=db
 DB_PORT=3306
 DB_USER=admin
-DB_PASSWORD=admin123
 DB_NAME=condominio_db
 
 # Redis
 REDIS_HOST=redis
 REDIS_PORT=6379
 
-# JWT
-JWT_SECRET=seu-secret-key-aqui
-JWT_REFRESH_SECRET=seu-refresh-secret-aqui
-
 # URLs
 API_URL=http://localhost:3333
 VITE_API_URL=http://localhost:3333
 ```
+
+Quatro variáveis não aparecem acima porque não têm valor de exemplo:
+`JWT_SECRET`, `JWT_REFRESH_SECRET`, `DB_PASSWORD` e `DB_ROOT_PASSWORD` são
+sorteadas por `npm run secrets`. Para gerar um conjunto novo sem tocar no
+`.env` — para colar no CI ou num gerenciador de secrets:
+
+```bash
+node scripts/generate-secrets.mjs --print
+```
+
+Trocar os secrets de um ambiente que já rodou tem dois efeitos: as sessões
+ativas caem (os tokens deixam de validar) e o MySQL continua exigindo a senha
+com que o volume foi criado. Para recriar o banco junto: `npm run docker:down:all`.
 
 ## 📁 Estrutura do Projeto
 
@@ -284,8 +309,11 @@ condominio/
 │   └── workflows/
 │       └── ci-cd.yml       # GitHub Actions CI/CD
 │
+├── scripts/
+│   └── generate-secrets.mjs # Gera/rotaciona os secrets de um .env
+│
 ├── docker-compose.yml      # Orquestração dos serviços
-├── .env.example            # Variáveis de exemplo
+├── .env.example            # Template de variáveis (secrets em branco)
 ├── .dockerignore            # Arquivos ignorados no Docker
 ├── .gitignore              # Arquivos ignorados no Git
 ├── package.json            # Scripts root
@@ -373,7 +401,7 @@ DB_PORT=3307
 docker compose logs db
 
 # Conectar diretamente
-docker compose exec db mysql -uadmin -padmin123 condominio_db
+docker compose exec db mysql -uadmin -p"$DB_PASSWORD" condominio_db
 ```
 
 ### "Frontend não conecta ao API"

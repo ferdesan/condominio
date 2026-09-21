@@ -10,14 +10,14 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3333),
   API_PREFIX: z.string().default('/api/v1'),
   APP_NAME: z.string().default('Condominio SaaS'),
-  APP_URL: z.string().default('http://localhost:3333'),
+  API_URL: z.string().default('http://localhost:3333'),
 
   // Database
   DB_HOST: z.string().default('localhost'),
   DB_PORT: z.coerce.number().int().positive().default(3306),
-  DB_USERNAME: z.string().default('condominio'),
+  DB_USER: z.string().default('condominio'),
   DB_PASSWORD: z.string().default('condominio'),
-  DB_DATABASE: z.string().default('condominio'),
+  DB_NAME: z.string().default('condominio'),
   DB_LOGGING: booleanFromString.default(false),
   DB_SYNCHRONIZE: booleanFromString.default(false),
   DB_POOL_SIZE: z.coerce.number().int().positive().default(10),
@@ -56,7 +56,28 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
+/**
+ * Nomes antigos, que o docker-compose e o `.env` da raiz nunca usaram.
+ *
+ * O backend lia `DB_USERNAME`/`DB_DATABASE` enquanto o compose exportava
+ * `DB_USER`/`DB_NAME`: as duas variaveis chegavam ao container e nenhuma era
+ * lida, entao a API caia nos defaults do schema sem reclamar. Renomear resolve
+ * a divergencia, mas deixa um `.env` antigo com a mesma falha silenciosa — por
+ * isso o nome velho agora e um erro, e nao um valor ignorado.
+ */
+const RENAMED_ENV_VARS: Record<string, string> = {
+  DB_USERNAME: 'DB_USER',
+  DB_DATABASE: 'DB_NAME',
+  APP_URL: 'API_URL',
+};
+
 function loadEnv(): Env {
+  const renamed = Object.entries(RENAMED_ENV_VARS).filter(([old]) => process.env[old]);
+  if (renamed.length > 0) {
+    const lines = renamed.map(([old, current]) => `  - ${old} virou ${current}`).join('\n');
+    throw new Error(`Variaveis de ambiente renomeadas — atualize o seu .env:\n${lines}`);
+  }
+
   const parsed = envSchema.safeParse(process.env);
 
   if (!parsed.success) {
@@ -67,7 +88,16 @@ function loadEnv(): Env {
   }
 
   if (parsed.data.NODE_ENV === 'production') {
-    const insecureDefaults = ['change-me-in-production-please-32-chars', 'change-me-refresh-in-production-32ch'];
+    const insecureDefaults = [
+      'change-me-in-production-please-32-chars',
+      'change-me-refresh-in-production-32ch',
+      // Valores que circularam no .env.example e no docker-compose antes de
+      // `npm run secrets` existir, e que ainda estao em .env antigos por ai.
+      // O primeiro tem 14 caracteres e ja morre no min(16) acima; esta na
+      // lista para o dia em que alguem afrouxar o tamanho minimo.
+      'supersecretkey',
+      'refreshsecretkey',
+    ];
     if (insecureDefaults.includes(parsed.data.JWT_SECRET) || insecureDefaults.includes(parsed.data.JWT_REFRESH_SECRET)) {
       throw new Error('JWT_SECRET and JWT_REFRESH_SECRET must be overridden in production.');
     }

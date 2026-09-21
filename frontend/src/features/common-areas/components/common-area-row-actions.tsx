@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { CommonArea } from '@/types/api';
 
 export interface CommonAreaRowActionsProps {
@@ -26,41 +28,30 @@ export function CommonAreaRowActions({
   if (area.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${area.name}`}
-        onClick={() => onRestore(area)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${area.name}`}
+          onClick={() => onRestore(area)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${area.name}`}
-          onClick={() => onEdit(area)}
-        >
-          Editar
-        </Button>
+        <RowAction icon={Pencil} label={`Editar ${area.name}`} onClick={() => onEdit(area)} />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${area.name}`}
+        <RowAction
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${area.name}`}
           onClick={() => onDelete(area)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

@@ -481,7 +481,7 @@ export function buildOpenApiDocument(): OpenApiObject {
       contact: { name: 'Suporte', email: 'suporte@condominio.app' },
       license: { name: 'MIT' },
     },
-    servers: [{ url: `${env.APP_URL}${env.API_PREFIX}`, description: env.NODE_ENV }],
+    servers: [{ url: `${env.API_URL}${env.API_PREFIX}`, description: env.NODE_ENV }],
     security: [{ bearerAuth: [] }],
     tags: [
       { name: 'Autenticacao' },

@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Vehicle } from '@/types/api';
 import { formatPlate } from '../vehicle-schema';
 
@@ -30,41 +32,30 @@ export function VehicleRowActions({
   if (vehicle.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${plate}`}
-        onClick={() => onRestore(vehicle)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${plate}`}
+          onClick={() => onRestore(vehicle)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${plate}`}
-          onClick={() => onEdit(vehicle)}
-        >
-          Editar
-        </Button>
+        <RowAction icon={Pencil} label={`Editar ${plate}`} onClick={() => onEdit(vehicle)} />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${plate}`}
+        <RowAction
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${plate}`}
           onClick={() => onDelete(vehicle)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

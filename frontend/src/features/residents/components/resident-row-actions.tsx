@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Pencil, RotateCcw, Trash2, UserCheck } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Resident } from '@/types/api';
 
 export interface ResidentRowActionsProps {
@@ -28,14 +30,13 @@ export function ResidentRowActions({
   if (resident.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${resident.name}`}
-        onClick={() => onRestore(resident)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${resident.name}`}
+          onClick={() => onRestore(resident)}
+        />
+      </RowActions>
     );
   }
 
@@ -45,46 +46,32 @@ export function ResidentRowActions({
   const primaryBlocked = resident.status !== 'ACTIVE';
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {canUpdate && !resident.isPrimary ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={primaryBlocked}
-          title={
-            primaryBlocked
-              ? 'Apenas um morador ativo pode ser o responsável pela unidade.'
-              : undefined
-          }
-          aria-label={`Tornar ${resident.name} responsável pela unidade`}
+        <RowAction
+          icon={UserCheck}
+          label={`Tornar ${resident.name} responsável pela unidade`}
           onClick={() => onDesignatePrimary(resident)}
-        >
-          Tornar responsável
-        </Button>
+          disabled={primaryBlocked}
+        />
       ) : null}
 
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${resident.name}`}
+        <RowAction
+          icon={Pencil}
+          label={`Editar ${resident.name}`}
           onClick={() => onEdit(resident)}
-        >
-          Editar
-        </Button>
+        />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${resident.name}`}
+        <RowAction
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${resident.name}`}
           onClick={() => onDelete(resident)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

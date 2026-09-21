@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Ban, CheckCircle2, Pencil, Play, RotateCcw, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Maintenance } from '@/types/maintenance';
 import type { MaintenanceFlowAction } from '../maintenance-hooks';
 
@@ -52,14 +54,13 @@ export function MaintenanceRowActions({
   if (maintenance.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
-        onClick={() => onRestore(maintenance)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${label}`}
+          onClick={() => onRestore(maintenance)}
+        />
+      </RowActions>
     );
   }
 
@@ -69,65 +70,51 @@ export function MaintenanceRowActions({
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
+      <RowActions>
         {canUpdate ? (
           <>
             {isPending ? (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Iniciar ${label}`}
+              <RowAction
+                icon={Play}
+                label={`Iniciar ${label}`}
                 onClick={() => onFlow('start', maintenance)}
-              >
-                Iniciar
-              </Button>
+              />
             ) : null}
 
             {isRunning ? (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Concluir ${label}`}
+              <RowAction
+                icon={CheckCircle2}
+                label={`Concluir ${label}`}
                 onClick={() => onFlow('complete', maintenance)}
-              >
-                Concluir
-              </Button>
+              />
             ) : null}
 
             {isClosed ? null : (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Cancelar ${label}`}
+              <RowAction
+                icon={Ban}
+                tone="destructive"
+                label={`Cancelar ${label}`}
                 onClick={() => onFlow('cancel', maintenance)}
-              >
-                Cancelar
-              </Button>
+              />
             )}
 
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={`Editar ${label}`}
+            <RowAction
+              icon={Pencil}
+              label={`Editar ${label}`}
               onClick={() => onEdit(maintenance)}
-            >
-              Editar
-            </Button>
+            />
           </>
         ) : null}
 
         {canDelete ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            aria-label={`Excluir ${label}`}
+          <RowAction
+            icon={Trash2}
+            tone="destructive"
+            label={`Excluir ${label}`}
             onClick={() => onDelete(maintenance)}
-          >
-            Excluir
-          </Button>
+          />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre esta ordem, e a

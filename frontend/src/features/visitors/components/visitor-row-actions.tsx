@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { LogIn, LogOut, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Visitor } from '@/types/visitor';
 
 export type VisitorFlowAction = 'check-in' | 'check-out';
@@ -42,61 +44,48 @@ export function VisitorRowActions({
   if (visitor.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${visitor.name}`}
-        onClick={() => onRestore(visitor)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${visitor.name}`}
+          onClick={() => onRestore(visitor)}
+        />
+      </RowActions>
     );
   }
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
+      <RowActions>
         {canUpdate ? (
           <>
-            <Button
-              variant="outline"
-              size="sm"
-              aria-label={`Registrar entrada de ${visitor.name}`}
+            <RowAction
+              icon={LogIn}
+              label={`Registrar entrada de ${visitor.name}`}
               onClick={() => onFlow('check-in', visitor)}
-            >
-              Entrada
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              aria-label={`Registrar saída de ${visitor.name}`}
+            />
+            <RowAction
+              icon={LogOut}
+              label={`Registrar saída de ${visitor.name}`}
               onClick={() => onFlow('check-out', visitor)}
-            >
-              Saída
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={`Editar ${visitor.name}`}
+            />
+            <RowAction
+              icon={Pencil}
+              label={`Editar ${visitor.name}`}
               onClick={() => onEdit(visitor)}
-            >
-              Editar
-            </Button>
+            />
           </>
         ) : null}
 
         {canDelete ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            aria-label={`Excluir ${visitor.name}`}
+          <RowAction
+            icon={Trash2}
+            tone="destructive"
+            label={`Excluir ${visitor.name}`}
             onClick={() => onDelete(visitor)}
-          >
-            Excluir
-          </Button>
+          />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre este visitante, e a

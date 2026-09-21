@@ -26,6 +26,7 @@ export {
   DropdownMenuTrigger,
 } from './dropdown-menu';
 export { FormField } from './form-field';
+export { IconButton } from './icon-button';
 export { Input } from './input';
 export { Label } from './label';
 export { PhoneInput } from './phone-input';
@@ -38,6 +39,7 @@ export type { CurrencyInputProps } from './currency-input';
 export type { DatePickerProps } from './date-picker';
 export type { DateTimeInputProps } from './date-time-input';
 export type { FormFieldControlProps, FormFieldProps } from './form-field';
+export type { IconButtonProps } from './icon-button';
 export type { InputProps } from './input';
 export type { PhoneInputProps } from './phone-input';
 export type { TextareaProps } from './textarea';

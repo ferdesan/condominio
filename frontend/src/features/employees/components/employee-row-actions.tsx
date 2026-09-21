@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Employee } from '@/types/api';
 
 export interface EmployeeRowActionsProps {
@@ -26,41 +28,34 @@ export function EmployeeRowActions({
   if (employee.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${employee.name}`}
-        onClick={() => onRestore(employee)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${employee.name}`}
+          onClick={() => onRestore(employee)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${employee.name}`}
+        <RowAction
+          icon={Pencil}
+          label={`Editar ${employee.name}`}
           onClick={() => onEdit(employee)}
-        >
-          Editar
-        </Button>
+        />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${employee.name}`}
+        <RowAction
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${employee.name}`}
           onClick={() => onDelete(employee)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

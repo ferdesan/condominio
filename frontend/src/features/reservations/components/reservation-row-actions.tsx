@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
+import { Ban, CalendarCheck, CalendarX } from 'lucide-react';
+
 import { formatDateTime } from '@/lib/format';
 import type { Reservation } from '@/types/api';
 
@@ -38,39 +40,31 @@ export function ReservationRowActions({
   const label = `${formatDateTime(reservation.startsAt)}`;
 
   return (
-    <div className="flex items-center gap-2">
+    <RowActions>
       {isPending && canManage ? (
         <>
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Aprovar reserva de ${label}`}
+          <RowAction
+            icon={CalendarCheck}
+            label={`Aprovar reserva de ${label}`}
             onClick={() => onAct('approve', reservation)}
-          >
-            Aprovar
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Recusar reserva de ${label}`}
+          />
+          <RowAction
+            icon={CalendarX}
+            tone="destructive"
+            label={`Recusar reserva de ${label}`}
             onClick={() => onAct('reject', reservation)}
-          >
-            Recusar
-          </Button>
+          />
         </>
       ) : null}
 
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Cancelar reserva de ${label}`}
+        <RowAction
+          icon={Ban}
+          tone="destructive"
+          label={`Cancelar reserva de ${label}`}
           onClick={() => onAct('cancel', reservation)}
-        >
-          Cancelar
-        </Button>
+        />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

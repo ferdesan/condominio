@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { ArrowRightLeft, Pencil, RotateCcw, Trash2, UserPlus } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Incident } from '@/types/incident';
 
 export interface IncidentRowActionsProps {
@@ -48,63 +50,42 @@ export function IncidentRowActions({
   if (incident.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
-        onClick={() => onRestore(incident)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${label}`}
+          onClick={() => onRestore(incident)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <RowActions>
       {canUpdate ? (
-        <Button
-          variant="outline"
-          size="sm"
-          aria-label={`Mudar status de ${label}`}
+        <RowAction
+          icon={ArrowRightLeft}
+          label={`Mudar status de ${label}`}
           onClick={() => onChangeStatus(incident)}
-        >
-          Mudar status
-        </Button>
+        />
       ) : null}
 
       {canManage ? (
-        <Button
-          variant="outline"
-          size="sm"
-          aria-label={`Atribuir ${label}`}
-          onClick={() => onAssign(incident)}
-        >
-          Atribuir
-        </Button>
+        <RowAction icon={UserPlus} label={`Atribuir ${label}`} onClick={() => onAssign(incident)} />
       ) : null}
 
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${label}`}
-          onClick={() => onEdit(incident)}
-        >
-          Editar
-        </Button>
+        <RowAction icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(incident)} />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${label}`}
+        <RowAction
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${label}`}
           onClick={() => onDelete(incident)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
-    </div>
+    </RowActions>
   );
 }

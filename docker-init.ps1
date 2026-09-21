@@ -57,14 +57,13 @@ function Setup-Env {
 
     if (-not (Test-Path '.env')) {
         Write-Warning-Custom "Arquivo .env não encontrado"
-        if (Test-Path '.env.example') {
-            Write-Info "Criando .env a partir do .env.example..."
-            Copy-Item '.env.example' '.env'
-            Write-Success ".env criado (verifique as credenciais padrão)"
-        } else {
-            Write-Error-Custom "Arquivo .env.example não encontrado"
+        Write-Info "Gerando .env com secrets aleatórios..."
+        node scripts/generate-secrets.mjs
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error-Custom "Falha ao gerar o .env"
             exit 1
         }
+        Write-Success ".env criado com secrets próprios desta máquina"
     } else {
         Write-Success ".env já existe"
     }

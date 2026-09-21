@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Receipt, Search, SearchX } from 'lucide-react';
+import { Ban, CreditCard, Pencil, Receipt, RotateCcw, Search, SearchX, Trash2 } from 'lucide-react';
 import { DataTable, type Column } from '@/components/common/data-table';
 import { EmptyState } from '@/components/common/empty-state';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { FilterPanel, type Filter } from '@/components/common/filter-panel';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -231,29 +232,25 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
         if (row.deletedAt) {
           if (!canUpdate) return null;
           return (
-            <Button
-              variant="outline"
-              size="sm"
-              aria-label={`Restaurar ${label}`}
-              onClick={() => restore.mutate(row.id, { onError: refreshOnRefusal })}
-            >
-              Restaurar
-            </Button>
+            <RowActions>
+              <RowAction
+                icon={RotateCcw}
+                label={`Restaurar ${label}`}
+                onClick={() => restore.mutate(row.id, { onError: refreshOnRefusal })}
+              />
+            </RowActions>
           );
         }
 
         return (
           <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
+            <RowActions>
               {canRegisterPayment ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  aria-label={`Registrar pagamento de ${label}`}
+                <RowAction
+                  icon={CreditCard}
+                  label={`Registrar pagamento de ${label}`}
                   onClick={() => setPaying(row)}
-                >
-                  Registrar pagamento
-                </Button>
+                />
               ) : null}
 
               {/*
@@ -262,49 +259,38 @@ export function ChargesSection({ condominiumId, units, categories }: ChargesSect
                 que a compuseram.
               */}
               {canReadPayments ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-label={`Ver pagamentos de ${label}`}
+                <RowAction
+                  icon={Receipt}
+                  label={`Ver pagamentos de ${label}`}
                   onClick={() => setViewingPayments(row)}
-                >
-                  Pagamentos
-                </Button>
+                />
               ) : null}
 
               {canUpdate ? (
                 <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={`Cancelar ${label}`}
+                  <RowAction
+                    icon={Ban}
+                    tone="destructive"
+                    label={`Cancelar ${label}`}
                     onClick={() => setCanceling(row)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={`Editar ${label}`}
+                  />
+                  <RowAction
+                    icon={Pencil}
+                    label={`Editar ${label}`}
                     onClick={() => setFormTarget(row)}
-                  >
-                    Editar
-                  </Button>
+                  />
                 </>
               ) : null}
 
               {canDelete ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive"
-                  aria-label={`Excluir ${label}`}
+                <RowAction
+                  icon={Trash2}
+                  tone="destructive"
+                  label={`Excluir ${label}`}
                   onClick={() => setDeleting(row)}
-                >
-                  Excluir
-                </Button>
+                />
               ) : null}
-            </div>
+            </RowActions>
 
             {rowError?.id === row.id ? (
               <p role="alert" className="text-xs text-destructive">

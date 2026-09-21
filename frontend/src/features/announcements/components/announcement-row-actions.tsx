@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Archive, Megaphone, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Announcement } from '@/types/announcement';
 
 export type AnnouncementLifecycleAction = 'publish' | 'archive';
@@ -49,14 +51,13 @@ export function AnnouncementRowActions({
   if (announcement.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
-        onClick={() => onRestore(announcement)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${label}`}
+          onClick={() => onRestore(announcement)}
+        />
+      </RowActions>
     );
   }
 
@@ -65,54 +66,42 @@ export function AnnouncementRowActions({
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
+      <RowActions>
         {canUpdate ? (
           <>
             {canPublish ? (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Publicar ${label}`}
+              <RowAction
+                icon={Megaphone}
+                label={`Publicar ${label}`}
                 onClick={() => onLifecycle('publish', announcement)}
-              >
-                Publicar
-              </Button>
+              />
             ) : null}
 
             {canArchive ? (
-              <Button
-                variant="outline"
-                size="sm"
-                aria-label={`Arquivar ${label}`}
+              <RowAction
+                icon={Archive}
+                label={`Arquivar ${label}`}
                 onClick={() => onLifecycle('archive', announcement)}
-              >
-                Arquivar
-              </Button>
+              />
             ) : null}
 
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={`Editar ${label}`}
+            <RowAction
+              icon={Pencil}
+              label={`Editar ${label}`}
               onClick={() => onEdit(announcement)}
-            >
-              Editar
-            </Button>
+            />
           </>
         ) : null}
 
         {canDelete ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            aria-label={`Excluir ${label}`}
+          <RowAction
+            icon={Trash2}
+            tone="destructive"
+            label={`Excluir ${label}`}
             onClick={() => onDelete(announcement)}
-          >
-            Excluir
-          </Button>
+          />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre este comunicado, e a

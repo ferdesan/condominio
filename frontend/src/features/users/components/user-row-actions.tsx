@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { KeyRound, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { User } from '@/types/user';
 
 export interface UserRowActionsProps {
@@ -46,54 +48,36 @@ export function UserRowActions({
   if (user.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${label}`}
-        onClick={() => onRestore(user)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction icon={RotateCcw} label={`Restaurar ${label}`} onClick={() => onRestore(user)} />
+      </RowActions>
     );
   }
 
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap items-center gap-2">
+      <RowActions>
         {canManage ? (
-          <Button
-            variant="outline"
-            size="sm"
-            aria-label={`Resetar senha de ${label}`}
+          <RowAction
+            icon={KeyRound}
+            label={`Resetar senha de ${label}`}
             onClick={() => onResetPassword(user)}
-          >
-            Resetar senha
-          </Button>
+          />
         ) : null}
 
         {canUpdate ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Editar ${label}`}
-            onClick={() => onEdit(user)}
-          >
-            Editar
-          </Button>
+          <RowAction icon={Pencil} label={`Editar ${label}`} onClick={() => onEdit(user)} />
         ) : null}
 
         {canDelete ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive"
-            aria-label={`Excluir ${label}`}
+          <RowAction
+            icon={Trash2}
+            tone="destructive"
+            label={`Excluir ${label}`}
             onClick={() => onDelete(user)}
-          >
-            Excluir
-          </Button>
+          />
         ) : null}
-      </div>
+      </RowActions>
 
       {/*
         A recusa aparece na linha, e não em toast: e sobre este usuário, e a

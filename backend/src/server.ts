@@ -17,8 +17,8 @@ async function bootstrap(): Promise<void> {
 
   server.listen(env.PORT, () => {
     logger.info(`${env.APP_NAME} running on port ${env.PORT} [${env.NODE_ENV}]`);
-    logger.info(`API:     ${env.APP_URL}${env.API_PREFIX}`);
-    if (env.SWAGGER_ENABLED) logger.info(`Swagger: ${env.APP_URL}${env.API_PREFIX}/docs`);
+    logger.info(`API:     ${env.API_URL}${env.API_PREFIX}`);
+    if (env.SWAGGER_ENABLED) logger.info(`Swagger: ${env.API_URL}${env.API_PREFIX}/docs`);
   });
 
   startScheduledJobs();

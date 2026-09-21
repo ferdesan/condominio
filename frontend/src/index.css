@@ -23,7 +23,23 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 221 83% 53%;
+    /**
+     * O verde do `--success` (120 86% 34%), mais fundo. Matiz e saturacao sao os
+     * mesmos; so a luminosidade cai, e ela cai por dois usos, nao um.
+     *
+     * Como **preenchimento**, sob `--primary-foreground` (210 40% 98%, que e
+     * quase-branco e nao branco puro): 34% da 3.27:1 e reprova no AA.
+     *
+     * Como **texto**, que e o uso dominante — `text-primary` aparece em badge,
+     * StatCard, chips de filtro e link ativo da sidebar, quase sempre sobre
+     * `bg-primary/10`: a 28% isso da 4.20:1 e tambem reprova.
+     *
+     * A 25% os dois passam: 5.52:1 no preenchimento e 5.02:1 no texto sobre a
+     * tarja. Os numeros sao contra `--primary-foreground` e contra a tarja
+     * composta, nao contra branco puro — medir contra branco superestima em
+     * cerca de 0.2 e ja me levou a aprovar um valor que reprovava.
+     */
+    --primary: 120 86% 25%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96%;
@@ -33,7 +49,9 @@
     --muted-foreground: 215 16% 47%;
 
     --accent: 214 95% 96%;
-    --accent-foreground: 221 83% 40%;
+    /* Acompanha o `--primary`: `ghost` e `outline` usam esta cor no hover, e ela
+       azul deixava todo botao de texto virar azul ao lado de um icone verde. */
+    --accent-foreground: 120 86% 22%;
 
     --destructive: 0 61% 52%;
     --destructive-foreground: 210 40% 98%;
@@ -46,7 +64,8 @@
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    /* O anel de foco segue a cor de acao: azul num botao verde parecia defeito. */
+    --ring: 120 86% 25%;
 
     --sidebar: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
@@ -73,7 +92,20 @@
     --popover: 221 39% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%;
+    /**
+     * **Claro, e nao o verde do tema claro** — a relacao que o azul anterior
+     * tinha aqui se mantem: cor clara no fundo, texto escuro em cima.
+     *
+     * Reusar o verde escuro foi o erro da primeira versao. No escuro
+     * `text-primary` cai sobre `--card` e `--sidebar-accent`, que sao escuros:
+     * o verde a 25% dava 3.00:1 no link ativo da sidebar. A 55% da 8.86:1 sobre
+     * o card, e 9.12:1 como preenchimento sob `--primary-foreground`, que por
+     * isso volta a ser quase-preto como sempre foi neste tema.
+     *
+     * A saturacao cai de 86% para 60% porque verde muito saturado e claro vibra
+     * sobre fundo escuro.
+     */
+    --primary: 120 60% 55%;
     --primary-foreground: 222 47% 11%;
 
     --secondary: 217 33% 17%;
@@ -96,7 +128,7 @@
 
     --border: 217 33% 20%;
     --input: 217 33% 22%;
-    --ring: 217 91% 60%;
+    --ring: 120 60% 55%;
 
     --sidebar: 222 47% 10%;
     --sidebar-foreground: 210 40% 98%;

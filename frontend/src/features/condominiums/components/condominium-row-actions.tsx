@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Eye, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { Condominium } from '@/types/api';
 
 export interface CondominiumRowActionsProps {
@@ -27,47 +28,42 @@ export function CondominiumRowActions({
   if (condominium.deletedAt) {
     if (!canUpdate) return null;
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        aria-label={`Restaurar ${condominium.name}`}
-        onClick={() => onRestore(condominium)}
-      >
-        Restaurar
-      </Button>
+      <RowActions>
+        <RowAction
+          icon={RotateCcw}
+          label={`Restaurar ${condominium.name}`}
+          onClick={() => onRestore(condominium)}
+        />
+      </RowActions>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Button variant="ghost" size="sm" asChild>
-        <Link to={`/condominios/${condominium.id}`} aria-label={`Ver ${condominium.name}`}>
-          Ver
-        </Link>
-      </Button>
+    <RowActions>
+      {/* `to` e nao `onClick`: o `RowActions` desenha a ancora, e o detalhe
+          continua abrindo em nova aba e mostrando o endereco na barra. */}
+      <RowAction
+        icon={Eye}
+        label={`Ver ${condominium.name}`}
+        to={`/condominios/${condominium.id}`}
+      />
 
       {canUpdate ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={`Editar ${condominium.name}`}
+        <RowAction
+          icon={Pencil}
+          label={`Editar ${condominium.name}`}
           onClick={() => onEdit(condominium)}
-        >
-          Editar
-        </Button>
+        />
       ) : null}
 
       {canDelete ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          aria-label={`Excluir ${condominium.name}`}
+        <RowAction
+          icon={Trash2}
+          tone="destructive"
+          label={`Excluir ${condominium.name}`}
           onClick={() => onDelete(condominium)}
-        >
-          Excluir
-        </Button>
+        />
       ) : null}
-    </div>
+    </RowActions>
   );
 }
