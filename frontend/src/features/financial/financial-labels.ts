@@ -7,6 +7,7 @@
  * `react-refresh/only-export-components`.
  */
 
+import { BookOpen, Receipt, Scale, Wallet } from 'lucide-react';
 import { formatDate, formatReferenceMonth } from '@/lib/format';
 import type {
   CategoryKind,
@@ -89,12 +90,19 @@ export const CATEGORY_KIND_LABELS: Record<CategoryKind, string> = {
   EXPENSE: 'Despesa',
 };
 
-/** As quatro secoes da tela. */
+/**
+ * As quatro secoes da tela.
+ *
+ * O `icon` existe para o mobile: abaixo de `sm` o rotulo inteiro estoura a
+ * largura da viewport, entao a aba vira so o glifo e o nome volta na tarja
+ * (`Tooltip`). Em `sm` e acima o rotulo continua o texto visivel — o icone la
+ * fica oculto.
+ */
 export const SECTIONS = [
-  { id: 'charges', label: 'Cobranças' },
-  { id: 'expenses', label: 'Despesas' },
-  { id: 'categories', label: 'Plano de contas' },
-  { id: 'closing', label: 'Balancete' },
+  { id: 'charges', label: 'Cobranças', icon: Receipt },
+  { id: 'expenses', label: 'Despesas', icon: Wallet },
+  { id: 'categories', label: 'Plano de contas', icon: BookOpen },
+  { id: 'closing', label: 'Balancete', icon: Scale },
 ] as const;
 
 export type SectionId = (typeof SECTIONS)[number]['id'];

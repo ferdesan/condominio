@@ -25,7 +25,7 @@ export function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onOpenMenu={() => setMenuOpen(true)} />
 
-        <main className="flex-1 px-4 py-5 safe-bottom sm:px-6 sm:py-6 lg:pb-6 pb-24">
+        <main className="flex-1 px-4 py-5 pb-[calc(7rem_+_env(safe-area-inset-bottom))] sm:px-6 sm:py-6 lg:pb-6">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
