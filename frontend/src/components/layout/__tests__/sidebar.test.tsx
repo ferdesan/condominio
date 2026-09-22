@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthContext, type AuthContextValue } from '@/providers/auth-context';
 import { makeAuthUser } from '@/test/fixtures';
-import { Sidebar, MobileNav } from '../sidebar';
+import { Sidebar, MobileNav, MobileBottomBar } from '../sidebar';
 
 vi.mock('lucide-react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('lucide-react')>();
@@ -20,11 +21,11 @@ const authValue: AuthContextValue = {
   can: () => true,
 };
 
-function renderSidebar(props: Partial<React.ComponentProps<typeof Sidebar>> = {}) {
+function renderSidebar() {
   return render(
     <MemoryRouter>
       <AuthContext.Provider value={authValue}>
-        <Sidebar collapsed={false} {...props} />
+        <Sidebar />
       </AuthContext.Provider>
     </MemoryRouter>,
   );
@@ -40,8 +41,14 @@ function renderMobileNav(props: Partial<React.ComponentProps<typeof MobileNav>> 
   );
 }
 
-function getDesktopAside(): HTMLElement {
-  return document.querySelector('aside[aria-label="Navegação principal"]') as HTMLElement;
+function renderBottomBar() {
+  return render(
+    <MemoryRouter>
+      <AuthContext.Provider value={authValue}>
+        <MobileBottomBar onOpenMenu={vi.fn()} />
+      </AuthContext.Provider>
+    </MemoryRouter>,
+  );
 }
 
 beforeEach(() => {
@@ -49,34 +56,30 @@ beforeEach(() => {
 });
 
 describe('Sidebar — Desktop', () => {
-  it('renderiza expanded por padrao (w-72)', () => {
-    renderSidebar({ collapsed: false });
-    expect(getDesktopAside().className).toContain('w-72');
+  it('renderiza w-72', () => {
+    renderSidebar();
+    const aside = document.querySelector('aside[aria-label="Navegação principal"]');
+    expect(aside?.className).toContain('w-72');
   });
 
-  it('renderiza collapsed quando collapsed=true (w-16)', () => {
-    renderSidebar({ collapsed: true });
-    expect(getDesktopAside().className).toContain('w-16');
-  });
-
-  it('labels visiveis no modo expanded', () => {
-    renderSidebar({ collapsed: false });
-    expect(screen.queryByText('Financeiro')).toBeInTheDocument();
-  });
-
-  it('labels ocultos no modo collapsed', () => {
-    renderSidebar({ collapsed: true });
-    expect(screen.queryByText('Financeiro')).not.toBeInTheDocument();
-  });
-
-  it('mostra CS no header quando collapsed', () => {
-    renderSidebar({ collapsed: true });
-    expect(screen.getByText('CS')).toBeInTheDocument();
-  });
-
-  it('mostra nome completo quando expanded', () => {
-    renderSidebar({ collapsed: false });
+  it('mostra nome Condomínio', () => {
+    renderSidebar();
     expect(screen.getByText('Condomínio')).toBeInTheDocument();
+  });
+
+  it('seções com botão de recolher', () => {
+    renderSidebar();
+    const buttons = screen.getAllByRole('button');
+    expect(buttons.length).toBeGreaterThan(0);
+  });
+
+  it('clicar na seção alterna visibilidade', async () => {
+    renderSidebar();
+    const btn = screen.getAllByRole('button')[0];
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    await userEvent.click(btn);
+    // Após clicar, some (primeira seção é "Visão geral" com Dashboard)
+    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
   });
 });
 
@@ -86,25 +89,21 @@ describe('MobileNav — Bottom sheet', () => {
     expect(screen.getByText('Navegação')).toBeInTheDocument();
   });
 
-  it('tem titulo e botao fechar', () => {
+  it('tem botao fechar', () => {
     renderMobileNav({ open: true });
-    expect(screen.getByText('Navegação')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /fechar menu/i })).toBeInTheDocument();
   });
+});
 
-  it('mostra grid de navegacao', () => {
-    renderMobileNav({ open: true });
-    const grid = document.querySelector('.grid.grid-cols-4');
-    expect(grid).toBeInTheDocument();
+describe('MobileBottomBar', () => {
+  it('renderiza itens de navegacao', () => {
+    renderBottomBar();
+    expect(screen.getByText('Início')).toBeInTheDocument();
+    expect(screen.getByText('Financeiro')).toBeInTheDocument();
   });
 
-  it('chama onClose ao clicar no backdrop', () => {
-    const onClose = vi.fn();
-    renderMobileNav({ open: true, onClose });
-
-    const backdrop = document.querySelector('.fixed.inset-0.lg\\:hidden > div:first-child');
-    backdrop?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-
-    expect(onClose).toHaveBeenCalled();
+  it('tem botao central para abrir menu', () => {
+    renderBottomBar();
+    expect(screen.getByRole('button', { name: /abrir menu completo/i })).toBeInTheDocument();
   });
 });
