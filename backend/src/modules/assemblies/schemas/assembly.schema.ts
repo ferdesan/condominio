@@ -63,9 +63,15 @@ export const castVoteSchema = z.object({
   optionId: uuidSchema,
 });
 
+export const castProxyVoteSchema = z.object({
+  unitId: uuidSchema,
+  optionId: uuidSchema,
+});
+
 export type CreateAssemblyDTO = z.infer<typeof createAssemblySchema>;
 export type UpdateAssemblyDTO = z.infer<typeof updateAssemblySchema>;
 export type FinishAssemblyDTO = z.infer<typeof finishAssemblySchema>;
 export type CreatePollDTO = z.infer<typeof createPollSchema>;
 export type UpdatePollDTO = z.infer<typeof updatePollSchema>;
 export type CastVoteDTO = z.infer<typeof castVoteSchema>;
+export type CastProxyVoteDTO = z.infer<typeof castProxyVoteSchema>;

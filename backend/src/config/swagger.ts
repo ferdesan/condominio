@@ -351,6 +351,23 @@ function customPaths(): OpenApiObject {
     '/polls/{id}/open': action('Votacoes', 'Abre a votacao', false),
     '/polls/{id}/close': action('Votacoes', 'Encerra e publica o resultado', false),
     '/polls/{id}/vote': action('Votacoes', 'Registra o voto da unidade'),
+    '/polls/{id}/votes': action('Votacoes', 'Registra voto de uma unidade (gestao manual)'),
+    '/polls/{id}/my-vote': {
+      get: {
+        tags: ['Votacoes'],
+        summary: 'Voto da unidade do usuario autenticado',
+        parameters: [ID_PARAM],
+        responses: { 200: { $ref: '#/components/responses/Entity' }, ...ERROR_RESPONSES },
+      },
+    },
+    '/polls/{id}/vote-status': {
+      get: {
+        tags: ['Votacoes'],
+        summary: 'Situacao de voto por unidade (sem revelar a opcao)',
+        parameters: [ID_PARAM],
+        responses: { 200: { $ref: '#/components/responses/Entity' }, ...ERROR_RESPONSES },
+      },
+    },
     '/polls/{id}/results': {
       get: {
         tags: ['Votacoes'],

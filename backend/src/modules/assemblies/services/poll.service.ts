@@ -17,7 +17,12 @@ import { Poll } from '../entities/poll.entity';
 import { PollOption } from '../entities/poll-option.entity';
 import { Vote } from '../entities/vote.entity';
 import { pollRepository, type PollRepository } from '../repositories/poll.repository';
-import type { CastVoteDTO, CreatePollDTO, UpdatePollDTO } from '../schemas/assembly.schema';
+import type {
+  CastProxyVoteDTO,
+  CastVoteDTO,
+  CreatePollDTO,
+  UpdatePollDTO,
+} from '../schemas/assembly.schema';
 
 export type PollResults = {
   pollId: string;
@@ -37,6 +42,33 @@ export type PollResults = {
     percent: number;
   }>;
 };
+
+export type UnitVoteStatusValue = 'VOTED' | 'PENDING' | 'NOT_ELIGIBLE';
+
+export type UnitVoteStatus = {
+  unitId: string;
+  unitNumber: string;
+  status: UnitVoteStatusValue;
+};
+
+export function selectProxyVoterIdentity(
+  isSecret: boolean,
+  resident: { userId?: string | null; name: string } | null,
+): { voterId: string | null; voterName: string | null } {
+  if (isSecret || !resident) {
+    return { voterId: null, voterName: null };
+  }
+  return { voterId: resident.userId ?? null, voterName: resident.name };
+}
+
+export function unitIsEligible(
+  voterType: Poll['voterType'],
+  unitId: string,
+  ownerUnitIds: ReadonlySet<string>,
+): boolean {
+  if (voterType === 'ALL_RESIDENTS') return true;
+  return ownerUnitIds.has(unitId);
+}
 
 export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, UpdatePollDTO> {
   constructor(
@@ -179,16 +211,127 @@ export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, U
 
     const weight = poll.weightedByFraction ? (unit.idealFraction ?? 0) || 1 : 1;
 
+    await this.persistVote(ctx, poll, option, {
+      unitId,
+      voterId: poll.isSecret ? null : ctx.actor.userId,
+      voterName: poll.isSecret ? null : ctx.actor.name,
+      registeredByUserId: null,
+      weight,
+      auditDescription: poll.isSecret
+        ? 'Voto secreto registrado.'
+        : `Voto registrado para a opcao ${option.label}.`,
+      auditActor: poll.isSecret ? null : ctx.actor,
+    });
+
+    const results = await this.results(ctx, pollId);
+    this.realtime.emitToCondominium(poll.condominiumId, 'poll:updated', results);
+    return results;
+  }
+
+  /**
+   * Registra o voto de uma unidade em nome do morador (gestao manual do sindico/admin).
+   * O `unitId` vem do corpo; o operador e gravado em `registered_by_user_id`.
+   */
+  async castVoteOnBehalf(
+    ctx: RequestContext,
+    pollId: string,
+    dto: CastProxyVoteDTO,
+  ): Promise<PollResults> {
+    const poll = await this.findById(ctx, pollId);
+
+    if (poll.status !== 'OPEN') throw new BusinessRuleError('Esta votacao nao esta aberta.');
+    if (dayjs().isBefore(dayjs(poll.startsAt))) {
+      throw new BusinessRuleError('A votacao ainda nao foi iniciada.');
+    }
+    if (dayjs().isAfter(dayjs(poll.endsAt))) {
+      throw new BusinessRuleError('O prazo para votar ja encerrou.');
+    }
+
+    const unit = await this.units.findById(ctx.scope, dto.unitId);
+    if (!unit || unit.condominiumId !== poll.condominiumId) {
+      throw new ForbiddenError('A unidade informada nao participa desta votacao.');
+    }
+
+    const ownerUnitIds =
+      poll.voterType === 'OWNERS'
+        ? await this.loadOwnerUnitIds(ctx.scope, poll.condominiumId)
+        : new Set<string>();
+    if (!unitIsEligible(poll.voterType, dto.unitId, ownerUnitIds)) {
+      throw new ForbiddenError('Esta deliberacao e restrita aos proprietarios.');
+    }
+
+    if (await this.polls.hasVoted(ctx.scope, pollId, dto.unitId)) {
+      throw new ConflictError('Esta unidade ja registrou voto nesta deliberacao.');
+    }
+
+    const options = await this.polls.findOptions(ctx.scope, pollId);
+    const option = options.find((item) => item.id === dto.optionId);
+    if (!option) throw new NotFoundError('Opcao de votacao');
+
+    const weight = poll.weightedByFraction ? (unit.idealFraction ?? 0) || 1 : 1;
+
+    const resident = poll.isSecret
+      ? null
+      : await this.findActiveResidentForProxy(ctx.scope, dto.unitId);
+    const identity = selectProxyVoterIdentity(poll.isSecret, resident);
+
+    await this.persistVote(ctx, poll, option, {
+      unitId: dto.unitId,
+      voterId: identity.voterId,
+      voterName: identity.voterName,
+      registeredByUserId: ctx.actor.userId,
+      weight,
+      auditDescription: `Voto registrado pelo administrador para a unidade ${unit.number ?? unit.id} (opcao ${option.label}).`,
+      auditActor: ctx.actor,
+    });
+
+    const results = await this.results(ctx, pollId);
+    this.realtime.emitToCondominium(poll.condominiumId, 'poll:updated', results);
+    return results;
+  }
+
+  private async loadOwnerUnitIds(
+    scope: RequestContext['scope'],
+    condominiumId: string,
+  ): Promise<Set<string>> {
+    const owners = await this.residents.listActiveOwnersByCondominium(scope, condominiumId);
+    return new Set(owners.map((owner) => owner.unitId));
+  }
+
+  private async findActiveResidentForProxy(
+    scope: RequestContext['scope'],
+    unitId: string,
+  ): Promise<{ userId?: string | null; name: string } | null> {
+    const residents = await this.residents.listActiveByUnit(scope, unitId);
+    if (!residents.length) return null;
+    return residents.find((resident) => resident.isPrimary) ?? residents[0];
+  }
+
+  private async persistVote(
+    ctx: RequestContext,
+    poll: Poll,
+    option: PollOption,
+    data: {
+      unitId: string;
+      voterId: string | null;
+      voterName: string | null;
+      registeredByUserId: string | null;
+      weight: number;
+      auditDescription: string;
+      auditActor: typeof ctx.actor | null;
+    },
+  ): Promise<void> {
     await AppDataSource.transaction(async (manager) => {
       await manager.save(
         manager.create(Vote, {
           tenantId: ctx.scope.tenantId,
-          pollId,
+          pollId: poll.id,
           optionId: option.id,
-          unitId,
-          voterId: poll.isSecret ? null : ctx.actor.userId,
-          voterName: poll.isSecret ? null : ctx.actor.name,
-          weight,
+          unitId: data.unitId,
+          voterId: data.voterId,
+          voterName: data.voterName,
+          registeredByUserId: data.registeredByUserId,
+          weight: data.weight,
           votedAt: new Date(),
           ipAddress: ctx.ipAddress ?? null,
         }),
@@ -200,28 +343,41 @@ export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, U
         .update(PollOption)
         .set({ votesWeight: () => 'votes_weight + :weight' })
         .where('id = :id', { id: option.id })
-        .setParameter('weight', weight)
+        .setParameter('weight', data.weight)
         .execute();
-      await manager.increment(Poll, { id: pollId }, 'totalVotes', 1);
+      await manager.increment(Poll, { id: poll.id }, 'totalVotes', 1);
     });
 
     await this.audit.record({
       tenantId: ctx.scope.tenantId,
       action: 'CREATE',
       resource: 'vote',
-      resourceId: pollId,
-      description: poll.isSecret
-        ? 'Voto secreto registrado.'
-        : `Voto registrado para a opcao ${option.label}.`,
-      actor: poll.isSecret ? null : ctx.actor,
+      resourceId: poll.id,
+      description: data.auditDescription,
+      actor: data.auditActor,
       ipAddress: ctx.ipAddress,
       userAgent: ctx.userAgent,
       requestId: ctx.requestId,
     });
+  }
 
-    const results = await this.results(ctx, pollId);
-    this.realtime.emitToCondominium(poll.condominiumId, 'poll:updated', results);
-    return results;
+  /** Voto da unidade do usuario logado, ou null se ainda nao votou. */
+  async myVote(
+    ctx: RequestContext,
+    pollId: string,
+  ): Promise<{ voted: boolean; optionId?: string; votedAt?: string }> {
+    const poll = await this.findById(ctx, pollId);
+    const unitId = ctx.actor.unitId;
+    if (!unitId) return { voted: false };
+
+    const votes = await this.polls.listVotes(ctx.scope, pollId);
+    const mine = votes.find((vote) => vote.unitId === unitId);
+    if (!mine) return { voted: false };
+
+    // Em votacao secreta o voto do usuario e devolvido apenas como confirmacao.
+    if (poll.isSecret) return { voted: true };
+
+    return { voted: true, optionId: mine.optionId, votedAt: mine.votedAt.toISOString() };
   }
 
   async results(ctx: RequestContext, pollId: string): Promise<PollResults> {
@@ -265,6 +421,28 @@ export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, U
       throw new ForbiddenError('Votacao secreta: os votos individuais nao podem ser consultados.');
     }
     return this.polls.listVotes(ctx.scope, pollId);
+  }
+
+  /** Situacao de voto por unidade: VOTED, PENDING ou NOT_ELIGIBLE, sem opcao. */
+  async voteStatus(ctx: RequestContext, pollId: string): Promise<UnitVoteStatus[]> {
+    const poll = await this.findById(ctx, pollId);
+    const units = await this.units.listByCondominium(ctx.scope, poll.condominiumId);
+    const votes = await this.polls.listVotes(ctx.scope, pollId);
+    const votedUnitIds = new Set(votes.map((vote) => vote.unitId));
+    const ownerUnitIds =
+      poll.voterType === 'OWNERS'
+        ? await this.loadOwnerUnitIds(ctx.scope, poll.condominiumId)
+        : new Set<string>();
+
+    return units.map((unit) => {
+      if (votedUnitIds.has(unit.id)) {
+        return { unitId: unit.id, unitNumber: unit.number, status: 'VOTED' as const };
+      }
+      if (!unitIsEligible(poll.voterType, unit.id, ownerUnitIds)) {
+        return { unitId: unit.id, unitNumber: unit.number, status: 'NOT_ELIGIBLE' as const };
+      }
+      return { unitId: unit.id, unitNumber: unit.number, status: 'PENDING' as const };
+    });
   }
 }
 
