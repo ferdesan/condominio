@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Menu, Moon, Sun, User } from 'lucide-react';
+import { LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Sun, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +22,13 @@ import { useCondominium } from '@/hooks/use-condominium';
 import { useTheme } from '@/hooks/use-theme';
 import { initials } from '@/lib/utils';
 
-export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
+type TopbarProps = {
+  onOpenMenu: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+};
+
+export function Topbar({ onOpenMenu, collapsed, onToggleCollapse }: TopbarProps) {
   const { user, logout } = useAuth();
   const { condominiums, selectedId, select } = useCondominium();
   const { resolvedTheme, toggleTheme } = useTheme();
@@ -43,6 +49,17 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         aria-label="Abrir menu"
       >
         <Menu aria-hidden="true" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="hidden lg:flex"
+        onClick={onToggleCollapse}
+        aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
+        aria-expanded={!collapsed}
+      >
+        {collapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}
       </Button>
 
       {condominiums.length > 0 ? (

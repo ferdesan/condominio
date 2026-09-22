@@ -1,0 +1,14 @@
+# Config: ui-sidebar-tabs
+
+[workflow]
+name = "ui-sidebar-tabs"
+description = "Sidebar colapsável + ButtonTabs para o condominio-saas"
+created = "2026-09-21"
+status = "planning"
+
+[defaults]
+ide = "opencode"
+auto_commit = true
+
+[tasks]
+types = ["frontend", "test"]
