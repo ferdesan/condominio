@@ -293,7 +293,9 @@ describe('Cobertura do menu', () => {
   it('a navegação lateral mostra todos os itens para o administrador', async () => {
     renderRoute('/');
 
-    const menu = await screen.findByRole('navigation');
+    const menu = within(
+      await screen.findByRole('complementary', { name: 'Navegação principal' }),
+    ).getByRole('navigation');
     for (const item of NAV_ITEMS) {
       const link = within(menu).getByRole('link', { name: item.label });
       expect(link, item.label).toHaveAttribute('href', item.to);
@@ -325,7 +327,9 @@ describe('As rotas publicas de recuperação de senha', () => {
   it('não aparecem na navegação lateral', async () => {
     renderRoute('/');
 
-    const menu = await screen.findByRole('navigation');
+    const menu = within(
+      await screen.findByRole('complementary', { name: 'Navegação principal' }),
+    ).getByRole('navigation');
     for (const item of NAV_ITEMS) {
       expect(item.to).not.toBe('/esqueci-senha');
       expect(item.to).not.toBe('/redefinir-senha');
@@ -378,7 +382,9 @@ describe('O mecanismo de placeholder', () => {
       await screen.findByRole('heading', { level: 1, name: 'Meu perfil' }),
     ).toBeInTheDocument();
 
-    const menu = screen.getByRole('navigation');
+    const menu = within(
+      screen.getByRole('complementary', { name: 'Navegação principal' }),
+    ).getByRole('navigation');
     expect(within(menu).queryByRole('link', { name: 'Meu perfil' })).not.toBeInTheDocument();
   });
 
@@ -418,7 +424,9 @@ describe('A rota do balancete', () => {
     // Nem no menu: o documento se alcanca pela seção em `/financeiro` ou por um
     // link colado, e um item para uma tela aberta uma vez por mês foi recusado
     // junto com a decisao de dar rota a ela.
-    const menu = screen.getByRole('navigation');
+    const menu = within(
+      screen.getByRole('complementary', { name: 'Navegação principal' }),
+    ).getByRole('navigation');
     expect(within(menu).queryByRole('link', { name: /Balancete/ })).not.toBeInTheDocument();
     for (const item of NAV_ITEMS) {
       expect(item.to).not.toBe(ROUTE);

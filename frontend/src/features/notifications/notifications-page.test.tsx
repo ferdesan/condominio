@@ -338,6 +338,28 @@ describe('Tela de origem', () => {
     expect(await screen.findByText('Cheguei em /reservas')).toBeInTheDocument();
   });
 
+  it('IT-388: notificacao de votacao oferece link com href exato da rota de voto', async () => {
+    // DETAIL_PREFIXES (ADR-006) devolve o path inteiro: nem /votacoes truncado,
+    // nem null — o id da votacao e o que faz o destino ser a pagina de voto.
+    world = serveNotifications({
+      notifications: [
+        makeNotification({
+          title: 'Votação aberta',
+          type: 'ASSEMBLY',
+          resource: 'poll',
+          resourceId: 'poll-abc',
+          actionUrl: '/votacoes/poll-abc',
+        }),
+      ],
+      unread: 1,
+    });
+    renderWithProviders(<NotificationsPage />);
+
+    await findRows('Votação aberta');
+    const link = screen.getByRole('link', { name: 'Abrir origem de Votação aberta' });
+    expect(link).toHaveAttribute('href', '/votacoes/poll-abc');
+  });
+
   it('entrada sem actionUrl não oferece link', async () => {
     world = serveNotifications({
       notifications: [makeNotification({ title: 'Aviso geral', actionUrl: null })],

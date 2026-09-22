@@ -1,4 +1,12 @@
 [defaults]
-ide = 'claude'
-model = 'opus'
-reasoning_effort = 'max'
+ide = 'opencode'
+model = 'opencode/mimo-v2.6-flash-free'
+reasoning_effort = 'high'
+auto_commit = true
+timeout = '60m'
+max_retries = 3
+retry_backoff_multiplier = 2.0
+
+[defaults.stall]
+enabled = true
+timeout = '15m'

@@ -18,7 +18,13 @@ import {
 } from '@tanstack/react-query';
 import { apiGet, apiPost, type ApiError } from '@/lib/api';
 import { createResourceHooks } from '@/lib/crud';
-import type { Assembly, Poll, PollResults } from '@/types/assembly';
+import type {
+  Assembly,
+  MyVote,
+  Poll,
+  PollResults,
+  UnitVoteStatus,
+} from '@/types/assembly';
 import type { AssemblyPayload, FinishAssemblyPayload, PollPayload } from './assembly-schema';
 
 export const ASSEMBLIES_KEY = 'assemblies';
@@ -206,5 +212,96 @@ export function usePollResults(pollId: string | null): UseQueryResult<PollResult
     queryKey: [POLLS_KEY, 'results', pollId],
     queryFn: () => apiGet<PollResults>(`/polls/${pollId}/results`),
     enabled: Boolean(pollId),
+  });
+}
+
+/**
+ * O voto da pessoa na votacao, de `GET /polls/:id/my-vote`.
+ *
+ * Mesmo molde de `usePollResults`: desligada sem votacao escolhida, e a chave
+ * comeca com o recurso para que registrar o voto ja a alcance na invalidacao.
+ */
+export function useMyVote(pollId: string | null): UseQueryResult<MyVote, ApiError> {
+  return useQuery<MyVote, ApiError>({
+    queryKey: [POLLS_KEY, 'my-vote', pollId],
+    queryFn: () => apiGet<MyVote>(`/polls/${pollId}/my-vote`),
+    enabled: Boolean(pollId),
+  });
+}
+
+/**
+ * O status de todas as unidades da votacao, de `GET /polls/:id/vote-status`.
+ *
+ * Exige `vote:manage` no servidor; a chave fica sob o recurso para que um
+ * voto proxy registrado na sequencia ja atualize a lista.
+ */
+export function useVoteStatus(
+  pollId: string | null,
+): UseQueryResult<UnitVoteStatus[], ApiError> {
+  return useQuery<UnitVoteStatus[], ApiError>({
+    queryKey: [POLLS_KEY, 'vote-status', pollId],
+    queryFn: () => apiGet<UnitVoteStatus[]>(`/polls/${pollId}/vote-status`),
+    enabled: Boolean(pollId),
+  });
+}
+
+export type CastVoteVariables = { optionId: string };
+
+export type CastProxyVoteVariables = { unitId: string; optionId: string };
+
+/**
+ * Callbacks das mutacoes de voto.
+ *
+ * Mesmo molde das acoes de ciclo: `onError` so entra no objeto quando quem
+ * chamou informou um — escrever `onError: undefined` tambem substituiria o
+ * handler global do React Query v5, e o toast sumiria sem nada no lugar.
+ */
+export type PollVoteCallbacks<TVariables> = {
+  onError?: (error: ApiError, variables: TVariables) => void;
+  onSuccess?: (data: PollResults, variables: TVariables) => void;
+};
+
+/**
+ * Registra o voto da pessoa. Exige `vote:create`.
+ *
+ * Devolve a apuracao e invalida `[POLLS_KEY]`: lista, detalhe, my-vote e
+ * resultados mudam juntos a cada voto.
+ */
+export function useCastVote(
+  pollId: string,
+  callbacks: PollVoteCallbacks<CastVoteVariables> = {},
+): UseMutationResult<PollResults, ApiError, CastVoteVariables> {
+  const queryClient = useQueryClient();
+
+  return useMutation<PollResults, ApiError, CastVoteVariables>({
+    mutationFn: ({ optionId }) => apiPost<PollResults>(`/polls/${pollId}/vote`, { optionId }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [POLLS_KEY] });
+      callbacks.onSuccess?.(data, variables);
+    },
+    ...(callbacks.onError ? { onError: callbacks.onError } : {}),
+  });
+}
+
+/**
+ * Registra o voto de uma unidade pela gestao. Exige `vote:manage`.
+ *
+ * Mesma invalidacao de `useCastVote`: o voto proxy muda apuracao e status no
+ * mesmo passo.
+ */
+export function useCastProxyVote(
+  pollId: string,
+  callbacks: PollVoteCallbacks<CastProxyVoteVariables> = {},
+): UseMutationResult<PollResults, ApiError, CastProxyVoteVariables> {
+  const queryClient = useQueryClient();
+
+  return useMutation<PollResults, ApiError, CastProxyVoteVariables>({
+    mutationFn: ({ unitId, optionId }) =>
+      apiPost<PollResults>(`/polls/${pollId}/votes`, { unitId, optionId }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [POLLS_KEY] });
+      callbacks.onSuccess?.(data, variables);
+    },
+    ...(callbacks.onError ? { onError: callbacks.onError } : {}),
   });
 }

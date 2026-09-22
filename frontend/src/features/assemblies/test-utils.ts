@@ -10,9 +10,16 @@
  */
 
 import { vi } from 'vitest';
-import { apiGet, apiGetPaginated } from '@/lib/api';
+import { ApiError, apiGet, apiGetPaginated } from '@/lib/api';
 import { makeMeta } from '@/test/fixtures';
-import type { Assembly, Poll, PollOption, PollResults } from '@/types/assembly';
+import type {
+  Assembly,
+  MyVote,
+  Poll,
+  PollOption,
+  PollResults,
+  UnitVoteStatus,
+} from '@/types/assembly';
 
 const TIMESTAMPS = {
   createdAt: '2026-03-10T12:00:00.000Z',
@@ -110,12 +117,16 @@ export type AssemblyWorld = {
   upcoming: Assembly[];
   polls: Poll[];
   results: PollResults;
+  /** Corpo de `GET /polls/:id/my-vote` — o default e "ainda nao votou". */
+  myVote: MyVote;
+  /** Corpo de `GET /polls/:id/vote-status` — o default e lista vazia. */
+  voteStatus: UnitVoteStatus[];
   /** `meta.total` da listagem, para exercitar a paginacao sem servir 300 linhas. */
   total?: number;
 };
 
 /**
- * Responde as quatro rotas de leitura que a tela alcanca a partir de uma unica
+ * Responde as rotas de leitura que a tela alcanca a partir de uma unica
  * descricao do mundo. O objeto devolvido e o mesmo que os mocks leem, entao
  * mutar um campo dele muda o que a proxima requisicao ve.
  */
@@ -125,6 +136,8 @@ export function serveAssemblies(initial: Partial<AssemblyWorld> = {}): AssemblyW
     upcoming: [],
     polls: [],
     results: makePollResults(),
+    myVote: { voted: false },
+    voteStatus: [],
     ...initial,
   };
 
@@ -154,6 +167,16 @@ export function serveAssemblies(initial: Partial<AssemblyWorld> = {}): AssemblyW
   vi.mocked(apiGet).mockImplementation(async (url) => {
     if (url === '/assemblies/upcoming') return world.upcoming as never;
     if (/^\/polls\/[^/]+\/results$/.test(url)) return world.results as never;
+    if (/^\/polls\/[^/]+\/my-vote$/.test(url)) return world.myVote as never;
+    if (/^\/polls\/[^/]+\/vote-status$/.test(url)) return world.voteStatus as never;
+
+    const detail = /^\/polls\/([^/]+)$/.exec(url);
+    if (detail) {
+      const poll = world.polls.find((item) => item.id === detail[1]);
+      if (!poll) throw new ApiError('Votacao nao encontrada.', 404, 'NOT_FOUND');
+      return poll as never;
+    }
+
     throw new Error(`URL nao prevista no teste: ${url}`);
   });
 

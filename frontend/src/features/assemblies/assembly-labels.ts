@@ -15,6 +15,7 @@ import type {
   Poll,
   PollStatus,
   PollVoterType,
+  UnitVoteStatusValue,
 } from '@/types/assembly';
 
 /**
@@ -59,6 +60,28 @@ export const POLL_VOTER_LABELS: Record<PollVoterType, string> = {
   OWNERS: 'Somente proprietários',
   ALL_RESIDENTS: 'Todos os moradores',
 };
+
+/**
+ * Os tres status de uma unidade na lista de gestao (ADR-003 / ADR-005).
+ *
+ * Nenhum rotulo repete um valor de `POLL_STATUS_LABELS` nem o cabecalho de
+ * coluna/filtro "Situação": a colisao de vocabulario ja quebrou consulta por
+ * texto em telas anteriores, e aqui as duas colunas convivem no mesmo dialogo.
+ */
+export const UNIT_VOTE_STATUS_LABELS: Record<UnitVoteStatusValue, string> = {
+  VOTED: 'Já votou',
+  PENDING: 'Pendente',
+  NOT_ELIGIBLE: 'Não elegível',
+};
+
+/**
+ * Dito quando o voto e registrado com sucesso (ADR-004 / US-003).
+ *
+ * A confirmacao vem antes da apuracao e permanece mesmo quando os resultados
+ * nao sao legiveis — e por isso mora junto dos rotulos, nao dentro de um
+ * componente.
+ */
+export const VOTE_CONFIRMATION = 'Voto registrado';
 
 /** Dito quando a assembleia nao tem local — o que e normal numa online. */
 export const NO_LOCATION = 'Sem local definido';
