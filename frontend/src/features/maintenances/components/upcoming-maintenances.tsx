@@ -60,8 +60,11 @@ export function UpcomingMaintenances({ condominiumId }: UpcomingMaintenancesProp
       ) : (
         <ul className="grid gap-x-8 gap-y-1 text-sm sm:grid-cols-2">
           {rows.map((row) => (
-            <li key={row.id} className="flex items-baseline justify-between gap-3">
-              <span className="truncate">
+            <li
+              key={row.id}
+              className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1"
+            >
+              <span>
                 <span className="font-medium">{row.title}</span>
                 <span className="text-muted-foreground"> · {row.assetName ?? NO_ASSET}</span>
               </span>

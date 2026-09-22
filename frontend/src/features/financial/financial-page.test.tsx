@@ -4,6 +4,7 @@ import { ApiError, apiDelete, apiGetPaginated, apiPatch, apiPost } from '@/lib/a
 import {
   clickTrigger,
   createUser,
+  fireEvent,
   renderWithProviders,
   screen,
   waitFor,
@@ -72,9 +73,15 @@ function cellsOf(label: string): string[] {
   return dataRows().map((row) => within(row).getAllByRole('cell')[index].textContent?.trim() ?? '');
 }
 
-/** Troca a secao visivel. As tres vivem sob a mesma rota. */
+/**
+ * Troca a secao visivel. As quatro vivem sob a mesma rota.
+ *
+ * `role="tab"` porque o alternador e o Radix Tabs, nao botoes comuns; e
+ * `mousedown` porque e ali que o gatilho do Radix troca o valor — o `click`
+ * sozinho nao move nada.
+ */
 function openSection(label: string): void {
-  clickTrigger(screen.getByRole('button', { name: label }));
+  fireEvent.mouseDown(screen.getByRole('tab', { name: label }));
 }
 
 beforeEach(() => {

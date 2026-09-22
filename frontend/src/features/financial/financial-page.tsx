@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/common/empty-state';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { ButtonTabs, ButtonTabsList, ButtonTabsTrigger } from '@/components/ui/button-tabs';
+import { Tooltip } from '@/components/ui/tooltip';
 import { formatNumber } from '@/lib/format';
 import { useAuth } from '@/hooks/use-auth';
 import { useCondominium } from '@/hooks/use-condominium';
@@ -124,18 +125,25 @@ export function FinancialPage() {
               Navegação entre seções, e não abas de conteudo independente: o
               estado e local e não vai para a URL, pelo mesmo motivo que não ha
               rota de detalhe (ADR-004).
+
+              Abaixo de `sm` o rotulo inteiro estoura a viewport (360px nao
+              comporta quatro palavras lado a lado), entao a aba mostra so o
+              icone e o nome volta na tarja. O `aria-label` e o que o leitor de
+              tela anuncia — a tarja e reforco visual, nunca a unica fonte do
+              significado.
             */}
-            <div className="hidden sm:block">
-              <ButtonTabs value={section} onValueChange={(v) => setSection(v as SectionId)}>
-                <ButtonTabsList variant="buttons" aria-label="Seções do financeiro">
-                  {visibleSections.map((item) => (
-                    <ButtonTabsTrigger key={item.id} value={item.id}>
-                      {item.label}
+            <ButtonTabs value={section} onValueChange={(v) => setSection(v as SectionId)}>
+              <ButtonTabsList variant="buttons" aria-label="Seções do financeiro">
+                {visibleSections.map((item) => (
+                  <Tooltip key={item.id} label={item.label}>
+                    <ButtonTabsTrigger value={item.id} aria-label={item.label}>
+                      <item.icon className="size-4 sm:hidden" aria-hidden="true" />
+                      <span className="hidden sm:inline">{item.label}</span>
                     </ButtonTabsTrigger>
-                  ))}
-                </ButtonTabsList>
-              </ButtonTabs>
-            </div>
+                  </Tooltip>
+                ))}
+              </ButtonTabsList>
+            </ButtonTabs>
           </div>
         }
         content={

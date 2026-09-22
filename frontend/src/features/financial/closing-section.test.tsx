@@ -38,9 +38,12 @@ const currentMonth = new Date().toISOString().slice(0, 7);
  * Abre a secao e espera o titulo. O nome casa por trecho porque o titulo carrega
  * tambem o nome do condominio — a casca some na impressao, e o documento precisa
  * dizer de quem ele e.
+ *
+ * `role="tab"` e `mousedown`: o alternador e o Radix Tabs, que troca o valor no
+ * botao esquerdo do mouse, nao no `click`.
  */
 async function openClosing(): Promise<void> {
-  clickTrigger(screen.getByRole('button', { name: 'Balancete' }));
+  fireEvent.mouseDown(screen.getByRole('tab', { name: 'Balancete' }));
   await screen.findByRole('heading', { name: /^Balancete mensal/ });
 }
 
@@ -172,10 +175,10 @@ describe('Balancete na tela de Financeiro', () => {
     serveFinancial();
     render({ permissions: ['charge:read', 'expense:read', 'financial-category:read'] });
 
-    await screen.findByRole('button', { name: 'Cobranças' });
-    expect(screen.queryByRole('button', { name: 'Balancete' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Despesas' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Plano de contas' })).toBeInTheDocument();
+    await screen.findByRole('tab', { name: 'Cobranças' });
+    expect(screen.queryByRole('tab', { name: 'Balancete' })).not.toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Despesas' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Plano de contas' })).toBeInTheDocument();
   });
 
   it('IT-313: recusa do servidor aparece na seção, e o mês continua aberto na tela', async () => {
@@ -232,7 +235,7 @@ describe('Balancete na tela de Financeiro', () => {
   it('IT-315: abrir /financeiro não lê o balancete — a seção só monta quando escolhida', async () => {
     serveFinancial();
     render();
-    await screen.findByRole('button', { name: 'Cobranças' });
+    await screen.findByRole('tab', { name: 'Cobranças' });
 
     await waitFor(() => expect(allReadRequests().length).toBeGreaterThan(0));
     expect(allReadRequests().some((request) => request.url.includes('/financial/closings'))).toBe(

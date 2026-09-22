@@ -254,7 +254,7 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
                     onClick={onClose}
                     className={({ isActive }) =>
                       cn(
-                        'flex flex-col items-center gap-1.5 rounded-xl p-3 text-xs font-medium transition-colors',
+                        'flex min-h-16 flex-col items-center justify-center gap-1.5 rounded-xl p-2 text-xs font-medium transition-colors',
                         'active:scale-95',
                         isActive
                           ? 'bg-primary/10 text-primary'
@@ -262,8 +262,10 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
                       )
                     }
                   >
-                    <item.icon className="size-5" aria-hidden="true" />
-                    <span className="text-center leading-tight">{item.label}</span>
+                    <item.icon className="size-5 shrink-0" aria-hidden="true" />
+                    <span className="w-full break-words hyphens-auto text-center leading-tight">
+                      {item.label}
+                    </span>
                   </NavLink>
                 ))}
               </div>
