@@ -3,24 +3,16 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAccountTheme } from '@/hooks/use-account-theme';
 import { useRealtime } from '@/hooks/use-realtime';
-import { useSidebarCollapsed } from '@/hooks/use-sidebar-collapsed';
-import { Sidebar } from './sidebar';
+import { MobileBottomBar, MobileNav, Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { collapsed, toggle: toggleCollapse } = useSidebarCollapsed();
   const location = useLocation();
 
-  // Primeiro acesso neste dispositivo herda o tema guardado na conta; depois
-  // disso a escolha local manda.
   useAccountTheme();
-
-  // Canal de tempo real. E um acelerador: se nao conectar, nada muda — as telas
-  // continuam se atualizando pela invalidacao das proprias mutacoes.
   useRealtime();
 
-  // Trocar de rota no mobile fecha o drawer e devolve o topo da pagina.
   useEffect(() => {
     setMenuOpen(false);
     window.scrollTo({ top: 0 });
@@ -28,16 +20,12 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-svh bg-background">
-      <Sidebar open={menuOpen} collapsed={collapsed} onClose={() => setMenuOpen(false)} />
+      <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar
-          onOpenMenu={() => setMenuOpen(true)}
-          collapsed={collapsed}
-          onToggleCollapse={toggleCollapse}
-        />
+        <Topbar onOpenMenu={() => setMenuOpen(true)} />
 
-        <main className="flex-1 px-4 py-5 safe-bottom sm:px-6 sm:py-6">
+        <main className="flex-1 px-4 py-5 safe-bottom sm:px-6 sm:py-6 lg:pb-6 pb-24">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -51,6 +39,9 @@ export function AppShell() {
           </AnimatePresence>
         </main>
       </div>
+
+      <MobileBottomBar onOpenMenu={() => setMenuOpen(true)} />
+      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>
   );
 }
