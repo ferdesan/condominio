@@ -55,10 +55,10 @@ function renderTopbar(props: Partial<React.ComponentProps<typeof Topbar>> = {}) 
 }
 
 describe('Topbar Toggle', () => {
-  it('botao toggle visivel no desktop (lg:flex)', () => {
+  it('botao toggle sempre visivel', () => {
     renderTopbar();
     const toggle = screen.getByRole('button', { name: /recolher menu/i });
-    expect(toggle.className).toContain('lg:flex');
+    expect(toggle.className).toContain('flex');
   });
 
   it('chama onToggleCollapse ao clicar', async () => {

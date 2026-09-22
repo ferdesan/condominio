@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthContext, type AuthContextValue } from '@/providers/auth-context';
 import { makeAuthUser } from '@/test/fixtures';
-import { Sidebar } from '../sidebar';
+import { Sidebar, MobileNav } from '../sidebar';
 
 vi.mock('lucide-react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('lucide-react')>();
@@ -24,13 +24,23 @@ function renderSidebar(props: Partial<React.ComponentProps<typeof Sidebar>> = {}
   return render(
     <MemoryRouter>
       <AuthContext.Provider value={authValue}>
-        <Sidebar open={false} collapsed={false} onClose={vi.fn()} {...props} />
+        <Sidebar collapsed={false} {...props} />
       </AuthContext.Provider>
     </MemoryRouter>,
   );
 }
 
-function getAside(): HTMLElement {
+function renderMobileNav(props: Partial<React.ComponentProps<typeof MobileNav>> = {}) {
+  return render(
+    <MemoryRouter>
+      <AuthContext.Provider value={authValue}>
+        <MobileNav open={false} onClose={vi.fn()} {...props} />
+      </AuthContext.Provider>
+    </MemoryRouter>,
+  );
+}
+
+function getDesktopAside(): HTMLElement {
   return document.querySelector('aside[aria-label="Navegação principal"]') as HTMLElement;
 }
 
@@ -38,15 +48,15 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Sidebar', () => {
+describe('Sidebar — Desktop', () => {
   it('renderiza expanded por padrao (w-72)', () => {
     renderSidebar({ collapsed: false });
-    expect(getAside().className).toContain('w-72');
+    expect(getDesktopAside().className).toContain('w-72');
   });
 
   it('renderiza collapsed quando collapsed=true (w-16)', () => {
     renderSidebar({ collapsed: true });
-    expect(getAside().className).toContain('w-16');
+    expect(getDesktopAside().className).toContain('w-16');
   });
 
   it('labels visiveis no modo expanded', () => {
@@ -59,39 +69,42 @@ describe('Sidebar', () => {
     expect(screen.queryByText('Financeiro')).not.toBeInTheDocument();
   });
 
-  it('mostra texto CS no header quando collapsed', () => {
+  it('mostra CS no header quando collapsed', () => {
     renderSidebar({ collapsed: true });
     expect(screen.getByText('CS')).toBeInTheDocument();
   });
 
-  it('mostra nome completo no header quando expanded', () => {
+  it('mostra nome completo quando expanded', () => {
     renderSidebar({ collapsed: false });
     expect(screen.getByText('Condomínio')).toBeInTheDocument();
   });
+});
 
-  it('drawer abre com open=true no mobile', () => {
-    renderSidebar({ open: true, collapsed: false });
-    expect(getAside().className).toContain('translate-x-0');
+describe('MobileNav — Bottom sheet', () => {
+  it('aparece quando open=true', () => {
+    renderMobileNav({ open: true });
+    expect(screen.getByText('Navegação')).toBeInTheDocument();
   });
 
-  it('drawer fecha com open=false no mobile', () => {
-    renderSidebar({ open: false, collapsed: false });
-    expect(getAside().className).toContain('-translate-x-full');
+  it('tem titulo e botao fechar', () => {
+    renderMobileNav({ open: true });
+    expect(screen.getByText('Navegação')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /fechar menu/i })).toBeInTheDocument();
+  });
+
+  it('mostra grid de navegacao', () => {
+    renderMobileNav({ open: true });
+    const grid = document.querySelector('.grid.grid-cols-4');
+    expect(grid).toBeInTheDocument();
   });
 
   it('chama onClose ao clicar no backdrop', () => {
     const onClose = vi.fn();
-    renderSidebar({ open: true, onClose });
+    renderMobileNav({ open: true, onClose });
 
-    const backdrop = document.querySelector('.fixed.inset-0.z-40');
+    const backdrop = document.querySelector('.fixed.inset-0.lg\\:hidden > div:first-child');
     backdrop?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(onClose).toHaveBeenCalled();
-  });
-
-  it('botao fechar visivel no mobile', () => {
-    renderSidebar({ open: true, collapsed: false });
-    const closeBtn = screen.getByRole('button', { name: /fechar menu/i });
-    expect(closeBtn).toBeInTheDocument();
   });
 });

@@ -54,7 +54,7 @@ export function Topbar({ onOpenMenu, collapsed, onToggleCollapse }: TopbarProps)
       <Button
         variant="ghost"
         size="icon"
-        className="hidden lg:flex"
+        className="flex"
         onClick={onToggleCollapse}
         aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
         aria-expanded={!collapsed}

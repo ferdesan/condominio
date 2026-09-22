@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useAccountTheme } from '@/hooks/use-account-theme';
 import { useRealtime } from '@/hooks/use-realtime';
 import { useSidebarCollapsed } from '@/hooks/use-sidebar-collapsed';
-import { Sidebar } from './sidebar';
+import { MobileNav, Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 
 export function AppShell() {
@@ -12,29 +12,28 @@ export function AppShell() {
   const { collapsed, toggle: toggleCollapse } = useSidebarCollapsed();
   const location = useLocation();
 
-  // Primeiro acesso neste dispositivo herda o tema guardado na conta; depois
-  // disso a escolha local manda.
   useAccountTheme();
-
-  // Canal de tempo real. E um acelerador: se nao conectar, nada muda — as telas
-  // continuam se atualizando pela invalidacao das proprias mutacoes.
   useRealtime();
 
-  // Trocar de rota no mobile fecha o drawer e devolve o topo da pagina.
   useEffect(() => {
     setMenuOpen(false);
     window.scrollTo({ top: 0 });
   }, [location.pathname]);
 
+  const handleToggleCollapse = () => {
+    if (!menuOpen) setMenuOpen(true);
+    toggleCollapse();
+  };
+
   return (
     <div className="flex min-h-svh bg-background">
-      <Sidebar open={menuOpen} collapsed={collapsed} onClose={() => setMenuOpen(false)} />
+      <Sidebar collapsed={collapsed} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
           onOpenMenu={() => setMenuOpen(true)}
           collapsed={collapsed}
-          onToggleCollapse={toggleCollapse}
+          onToggleCollapse={handleToggleCollapse}
         />
 
         <main className="flex-1 px-4 py-5 safe-bottom sm:px-6 sm:py-6">
@@ -51,6 +50,8 @@ export function AppShell() {
           </AnimatePresence>
         </main>
       </div>
+
+      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>
   );
 }
