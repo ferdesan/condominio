@@ -125,19 +125,21 @@ export function FinancialPage() {
               estado e local e não vai para a URL, pelo mesmo motivo que não ha
               rota de detalhe (ADR-004).
             */}
-            <ButtonTabs value={section} onValueChange={(v) => setSection(v as SectionId)}>
-              <ButtonTabsList variant="buttons" aria-label="Seções do financeiro">
-                {visibleSections.map((item) => (
-                  <ButtonTabsTrigger key={item.id} value={item.id}>
-                    {item.label}
-                  </ButtonTabsTrigger>
-                ))}
-              </ButtonTabsList>
-            </ButtonTabs>
+            <div className="hidden sm:block">
+              <ButtonTabs value={section} onValueChange={(v) => setSection(v as SectionId)}>
+                <ButtonTabsList variant="buttons" aria-label="Seções do financeiro">
+                  {visibleSections.map((item) => (
+                    <ButtonTabsTrigger key={item.id} value={item.id}>
+                      {item.label}
+                    </ButtonTabsTrigger>
+                  ))}
+                </ButtonTabsList>
+              </ButtonTabs>
+            </div>
           </div>
         }
         content={
-          <div className="p-4">
+          <div className="p-4 pb-20 sm:pb-4">
             {section === 'charges' ? (
               <ChargesSection condominiumId={selectedId} units={units} categories={categories} />
             ) : section === 'expenses' ? (
@@ -154,6 +156,19 @@ export function FinancialPage() {
           </div>
         }
       />
+
+      {/* Bottom bar fixa no mobile */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background p-2 sm:hidden safe-bottom">
+        <ButtonTabs value={section} onValueChange={(v) => setSection(v as SectionId)}>
+          <ButtonTabsList variant="buttons" aria-label="Seções do financeiro" className="w-full justify-around">
+            {visibleSections.map((item) => (
+              <ButtonTabsTrigger key={item.id} value={item.id} className="flex-1">
+                {item.label}
+              </ButtonTabsTrigger>
+            ))}
+          </ButtonTabsList>
+        </ButtonTabs>
+      </div>
 
       {generating ? (
         <GenerateChargesDialog
