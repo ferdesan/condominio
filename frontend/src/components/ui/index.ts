@@ -2,6 +2,7 @@
 export { Avatar } from './avatar';
 export { Badge } from './badge';
 export { Button } from './button';
+export { ButtonTabs, ButtonTabsContent, ButtonTabsList, ButtonTabsTrigger } from './button-tabs';
 export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card';
 export { Checkbox } from './checkbox';
 export { CurrencyInput } from './currency-input';

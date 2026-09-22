@@ -56,7 +56,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     description: 'Sindico: gestao operacional e financeira do condominio.',
     permissions: [
       ...manageAll(...OPERATIONAL_RESOURCES),
-      ...readOnly('user', 'audit-log', 'tenant'),
+      ...readOnly('user', 'role', 'audit-log', 'tenant'),
       ...manageAll('lgpd-request'),
       'lgpd-consent:read',
     ],

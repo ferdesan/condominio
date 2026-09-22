@@ -3,11 +3,13 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAccountTheme } from '@/hooks/use-account-theme';
 import { useRealtime } from '@/hooks/use-realtime';
+import { useSidebarCollapsed } from '@/hooks/use-sidebar-collapsed';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { collapsed, toggle: toggleCollapse } = useSidebarCollapsed();
   const location = useLocation();
 
   // Primeiro acesso neste dispositivo herda o tema guardado na conta; depois
@@ -26,10 +28,14 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-svh bg-background">
-      <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Sidebar open={menuOpen} collapsed={collapsed} onClose={() => setMenuOpen(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar onOpenMenu={() => setMenuOpen(true)} />
+        <Topbar
+          onOpenMenu={() => setMenuOpen(true)}
+          collapsed={collapsed}
+          onToggleCollapse={toggleCollapse}
+        />
 
         <main className="flex-1 px-4 py-5 safe-bottom sm:px-6 sm:py-6">
           <AnimatePresence mode="wait">

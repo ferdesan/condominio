@@ -5,7 +5,7 @@ import { CrudLayout } from '@/components/common/crud-layout';
 import { EmptyState } from '@/components/common/empty-state';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { ButtonTabs, ButtonTabsList, ButtonTabsTrigger } from '@/components/ui/button-tabs';
 import { formatNumber } from '@/lib/format';
 import { useAuth } from '@/hooks/use-auth';
 import { useCondominium } from '@/hooks/use-condominium';
@@ -123,28 +123,17 @@ export function FinancialPage() {
             {/*
               Navegação entre seções, e não abas de conteudo independente: o
               estado e local e não vai para a URL, pelo mesmo motivo que não ha
-              rota de detalhe (ADR-004). `role="tablist"` daria a promessa de
-              navegação por setas que estes botões não cumprem, entao eles sao
-              botões comuns numa barra nomeada.
+              rota de detalhe (ADR-004).
             */}
-            <nav aria-label="Seções do financeiro" className="flex flex-wrap gap-2">
-              {visibleSections.map((item) => {
-                const isActive = section === item.id;
-                return (
-                  <Button
-                    key={item.id}
-                    type="button"
-                    variant={isActive ? 'default' : 'outline'}
-                    size="sm"
-                    aria-current={isActive ? 'page' : undefined}
-                    className={cn(isActive && 'pointer-events-none')}
-                    onClick={() => setSection(item.id)}
-                  >
+            <ButtonTabs value={section} onValueChange={(v) => setSection(v as SectionId)}>
+              <ButtonTabsList variant="buttons" aria-label="Seções do financeiro">
+                {visibleSections.map((item) => (
+                  <ButtonTabsTrigger key={item.id} value={item.id}>
                     {item.label}
-                  </Button>
-                );
-              })}
-            </nav>
+                  </ButtonTabsTrigger>
+                ))}
+              </ButtonTabsList>
+            </ButtonTabs>
           </div>
         }
         content={
