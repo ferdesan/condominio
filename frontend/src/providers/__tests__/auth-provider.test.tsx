@@ -77,8 +77,9 @@ describe('AuthProvider (IT-054)', () => {
   it('inicia desautenticado sem char por token guardado', async () => {
     view = renderProvider();
 
-    // Sem token, a revalidacao nem sai: nada de /auth/me.
-    expect(screen.getByTestId('initializing').textContent).toBe('false');
+    // Sem access e sem cookie util, o silent refresh falha rapido e /auth/me
+    // nem chega a ser pedida.
+    await waitFor(() => expect(screen.getByTestId('initializing').textContent).toBe('false'));
     expect(screen.getByTestId('authenticated').textContent).toBe('false');
     expect(mockGet).not.toHaveBeenCalled();
   });
@@ -129,8 +130,8 @@ describe('AuthProvider (IT-054)', () => {
 
     await waitFor(() => expect(screen.getByTestId('authenticated').textContent).toBe('false'));
     expect(tokenStorage.accessToken).toBeNull();
-    // O refresh e entregue ao servidor (rota de logout), mesmo no caminho feliz.
-    expect(mockPost).toHaveBeenCalledWith('/auth/logout', { refreshToken: 'r2' });
+    // O logout manda o corpo vazio: a sessao ja e identificada pelo cookie httpOnly.
+    expect(mockPost).toHaveBeenCalledWith('/auth/logout', {});
   });
 
   it('logout segue encerrando quando o servidor já não reconhece a sessão', async () => {

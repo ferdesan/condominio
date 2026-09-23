@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Building2, ChevronDown, LayoutGrid, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
+import { useSidebarCollapsed } from '@/hooks/use-sidebar-collapsed';
 import { cn } from '@/lib/utils';
 import { NAV_SECTIONS } from '@/routes/navigation';
 import type { NavItem } from '@/routes/navigation';
@@ -29,8 +30,44 @@ const BOTTOM_RIGHT = [
    Desktop sidebar — collapsible sections
    ────────────────────────────────────────────── */
 
-function SidebarSection({ section }: { section: { title: string; items: NavItem[] } }) {
+function SidebarSection({
+  section,
+  collapsed,
+}: {
+  section: { title: string; items: NavItem[] };
+  collapsed: boolean;
+}) {
   const [open, setOpen] = useState(true);
+
+  // Colapsado: so icones, sem titulo de secao. O `title` do link cobre o hover.
+  if (collapsed) {
+    return (
+      <li>
+        <ul className="space-y-0.5">
+          {section.items.map((item) => (
+            <li key={item.to}>
+              <NavLink
+                to={item.to}
+                end={item.to === '/'}
+                title={item.label}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center justify-center rounded-md py-2 transition-colors',
+                    isActive
+                      ? 'bg-sidebar-accent text-primary'
+                      : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground',
+                  )
+                }
+              >
+                <item.icon className="size-4 shrink-0" aria-hidden="true" />
+                <span className="sr-only">{item.label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </li>
+    );
+  }
 
   return (
     <li>
@@ -75,25 +112,42 @@ function SidebarSection({ section }: { section: { title: string; items: NavItem[
 
 export function Sidebar() {
   const sections = useNavSections();
+  const { collapsed } = useSidebarCollapsed();
 
   return (
     <aside
-      className="sticky top-0 hidden h-svh w-72 flex-col border-r border-border bg-sidebar text-sidebar-foreground lg:flex"
+      className={cn(
+        'sticky top-0 hidden h-svh flex-col border-r border-border bg-sidebar text-sidebar-foreground lg:flex',
+        'transition-all duration-200 ease-out',
+        collapsed ? 'w-16' : 'w-72',
+      )}
       aria-label="Navegação principal"
+      aria-expanded={!collapsed}
     >
       {/* Header */}
-      <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-border px-4">
-        <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+      <div
+        className={cn(
+          'flex h-16 shrink-0 items-center gap-2.5 border-b border-border',
+          collapsed ? 'justify-center px-2' : 'px-4',
+        )}
+      >
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Building2 className="size-5" aria-hidden="true" />
         </span>
-        <span className="truncate text-sm font-semibold">Condomínio</span>
+        {!collapsed && <span className="truncate text-sm font-semibold">Condomínio</span>}
+        {collapsed && <span className="sr-only">Condomínio</span>}
       </div>
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4">
         <ul className="space-y-4">
-          {sections.map((section) => (
-            <SidebarSection key={section.title} section={section} />
+          {sections.map((section, index) => (
+            <Fragment key={section.title}>
+              {collapsed && index > 0 && (
+                <li aria-hidden="true" className="mx-1 border-t border-border" />
+              )}
+              <SidebarSection section={section} collapsed={collapsed} />
+            </Fragment>
           ))}
         </ul>
       </nav>

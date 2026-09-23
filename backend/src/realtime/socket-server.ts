@@ -60,7 +60,10 @@ export function initSocketServer(httpServer: HttpServer): SocketServer {
 
     /** Permite ao cliente acompanhar um condominio especifico que ja possua acesso. */
     socket.on('subscribe:condominium', (condominiumId: string) => {
-      const allowed = auth.isSuperAdmin || !auth.condominiumIds.length || auth.condominiumIds.includes(condominiumId);
+      // Super-admin entra em qualquer sala; os demais so nas que o auth ja
+      // carregou. O ramo `!condominiumIds.length` (wildcard) permitia join
+      // em qualquer UUID conhecido sem checar tenant — removido.
+      const allowed = auth.isSuperAdmin || auth.condominiumIds.includes(condominiumId);
       if (allowed) socket.join(ROOM.condominium(condominiumId));
     });
 

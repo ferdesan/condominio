@@ -3,7 +3,7 @@
 **Type:** frontend
 **Wave:** 2
 **Dependencies:** task_01
-**Status:** pending
+**Status:** completed
 
 ---
 

@@ -122,9 +122,11 @@ describe('Portao do pipeline', () => {
     const typecheck = step('Run frontend typecheck');
     expect(typecheck).not.toContain('continue-on-error');
 
-    // O lint e a excecao deliberada — e e o contraste que mostra que a ausencia
-    // acima e intencional, e nao um `continue-on-error` que ninguem escreveu.
-    expect(step('Run frontend lint')).toContain('continue-on-error: true');
+    // Lint tambem: o P1 do review removeu o `continue-on-error` deliberado que
+    // deixava falha de estilo passar em verde. Nenhum passo de qualidade pode
+    // mascarar resultado.
+    expect(step('Run frontend lint')).not.toContain('continue-on-error');
+    expect(step('Run backend lint')).not.toContain('continue-on-error');
 
     // O build so roda se lint/typecheck e teste passarem: e ai que o portao fecha.
     const build = workflow.slice(workflow.indexOf('  build:'));
