@@ -85,6 +85,7 @@ export function scopeAssignees(
  */
 export function useAssigneeOptions(
   condominiumId: string | null,
+  options?: { enabled?: boolean },
 ): UseQueryResult<Paginated<IncidentAssignee>, ApiError> {
   return useQuery<Paginated<IncidentAssignee>, ApiError>({
     queryKey: ['users', 'options'],
@@ -99,7 +100,7 @@ export function useAssigneeOptions(
           sortOrder: 'ASC',
         },
       }),
-    enabled: Boolean(condominiumId),
+    enabled: Boolean(condominiumId) && options?.enabled !== false,
   });
 }
 

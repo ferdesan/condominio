@@ -644,6 +644,27 @@ describe('Escopo e permissões de ocorrências', () => {
     expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
   });
 
+  it('sem user:read o seletor de responsavel some e /users nao e consultado', async () => {
+    world = serveIncidents({ incidents: [makeIncident()] });
+    // O morador entra em `/ocorrencias` com so `incident:read`/`create`:
+    // `GET /users` exige `user:read` e devolveria 403 com o toast global.
+    renderWithProviders(<IncidentsPage />, {
+      role: 'RESIDENT',
+      permissions: ['incident:read', 'incident:create', 'incident:update'],
+    });
+
+    await screen.findByText('Vazamento na garagem');
+
+    expect(screen.queryByLabelText('Responsável')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Status')).toBeInTheDocument();
+    expect(
+      mockGetPaginated.mock.calls.map(([url]) => url),
+    ).not.toContain('/users');
+    expect(mockToastError).not.toHaveBeenCalled();
+    // A celula continua dizendo "Sem responsável" no registro sem atribuicao.
+    expect(cellsOf('Responsável')).toEqual(['Sem responsável']);
+  });
+
   it('um operador não ve restaurar nas linhas removidas', async () => {
     world = serveIncidents({
       incidents: [makeIncident({ deletedAt: '2026-03-11T10:00:00.000Z' })],

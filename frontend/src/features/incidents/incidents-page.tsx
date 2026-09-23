@@ -66,8 +66,15 @@ export function IncidentsPage() {
   // Atribuir exige `manage`, e nao `update`: um papel que pode mudar o status
   // nao necessariamente pode escolher quem atende (ADR-002).
   const canManage = can('incident:manage');
+  /*
+    `GET /users` e de `user:read`. Quem entra em `/ocorrencias` com so
+    `incident:read` (o morador) nao tem essa permissao: sem o gate a consulta
+    sai, o servidor responde 403 e o toast global anuncia "Voce nao possui
+    permissao" sem que a tela tenha pedido nada que ela possa fazer.
+  */
+  const canReadUsers = can('user:read');
 
-  const assigneesQuery = useAssigneeOptions(selectedId);
+  const assigneesQuery = useAssigneeOptions(selectedId, { enabled: canReadUsers });
   // O recorte por condominio e do cliente: `/users` e por tenant e nao aceita
   // `condominiumId` como filtro, entao mandar a chave nao escoparia nada.
   const assignees = useMemo(
@@ -263,7 +270,9 @@ export function IncidentsPage() {
             <IncidentIndicators condominiumId={selectedId} />
           </div>
         }
-        filters={<IncidentFilters list={list} assignees={assignees} />}
+        filters={
+          <IncidentFilters list={list} assignees={assignees} showAssignee={canReadUsers} />
+        }
         content={
           <div className="p-4 space-y-4">
             {showEmpty ? (
