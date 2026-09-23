@@ -42,9 +42,15 @@ export interface IncidentFiltersProps {
   list: ListState;
   /** Ja recortados para o condominio selecionado por `scopeAssignees`. */
   assignees: IncidentAssignee[];
+  /**
+   * Mostra o filtro de responsavel. Some sem `user:read`: a opcao nasce de
+   * `GET /users`, que o servidor recusa para quem nao pode ler usuarios — e
+   * um select so com "Todos" nao filtra nada.
+   */
+  showAssignee?: boolean;
 }
 
-export function IncidentFilters({ list, assignees }: IncidentFiltersProps) {
+export function IncidentFilters({ list, assignees, showAssignee = true }: IncidentFiltersProps) {
   const assigneeOptions = assignees.map((user) => ({ value: user.id, label: user.name }));
 
   const chips: Filter[] = [];
@@ -165,27 +171,29 @@ export function IncidentFilters({ list, assignees }: IncidentFiltersProps) {
           </Select>
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="incident-assignee">Responsável</Label>
-          <Select
-            value={(list.filters.assignedToId as string) ?? ANY}
-            onValueChange={(value) =>
-              list.setFilter('assignedToId', value === ANY ? undefined : value)
-            }
-          >
-            <SelectTrigger id="incident-assignee">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ANY}>Todos</SelectItem>
-              {assigneeOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {showAssignee ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="incident-assignee">Responsável</Label>
+            <Select
+              value={(list.filters.assignedToId as string) ?? ANY}
+              onValueChange={(value) =>
+                list.setFilter('assignedToId', value === ANY ? undefined : value)
+              }
+            >
+              <SelectTrigger id="incident-assignee">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY}>Todos</SelectItem>
+                {assigneeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
       </div>
 
       {/*

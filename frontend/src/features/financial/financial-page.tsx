@@ -59,20 +59,46 @@ export function FinancialPage() {
     O balancete some do alternador de quem nao pode le-lo, como as demais secoes
     ja conferem a propria permissao por dentro. A guarda da rota e `charge:read`,
     e um papel pode ler cobrancas sem ler a prestacao de contas.
-  */
-  const canReadClosing = can('financial-closing:read');
-  const visibleSections = useMemo(
-    () => SECTIONS.filter((item) => item.id !== 'closing' || canReadClosing),
-    [canReadClosing],
-  );
 
+    As abas de despesas e plano de contas seguem a mesma regra: filtrar a aba e
+    a apresentacao certa de uma permissao de leitura ausente, porque a pagina e
+    um conjunto de tres recursos sob um unico item de menu (ADR-004). Sem o
+    filtro, quem abre `/financeiro` com so `charge:read` (o morador) veria abas
+    que nao pode consultar.
+  */
+  const canReadExpenses = can('expense:read');
+  const canReadCategories = can('financial-category:read');
+  const canReadClosing = can('financial-closing:read');
+  const visibleSections = useMemo(() => {
+    if (canReadExpenses && canReadCategories && canReadClosing) return SECTIONS;
+    return SECTIONS.filter((item) => {
+      if (item.id === 'expenses') return canReadExpenses;
+      if (item.id === 'categories') return canReadCategories;
+      if (item.id === 'closing') return canReadClosing;
+      return true;
+    });
+  }, [canReadExpenses, canReadCategories, canReadClosing]);
+
+  /*
+    A secao ativa pode ficar invisivel depois de uma troca de papel (ou de um
+    reload com papel novo): o estado local nao acompanha a permissao. Voltar
+    para a primeira visivel mantem a tela renderizavel.
+  */
+  const activeSection = visibleSections.some((item) => item.id === section)
+    ? section
+    : (visibleSections[0]?.id ?? 'charges');
+
+  // Prestadores so alimentam a secao de despesas: sem `expense:read` a busca
+  // sairia para um endpoint que vai devolver 403 e acionar o toast global.
   const unitsQuery = useUnitOptions(selectedId);
   const units = useMemo(() => unitsQuery.data?.data ?? [], [unitsQuery.data]);
 
-  const providersQuery = useProviderOptions(selectedId);
+  const providersQuery = useProviderOptions(selectedId, { enabled: canReadExpenses });
   const providers = useMemo(() => providersQuery.data?.data ?? [], [providersQuery.data]);
 
-  const categoriesQuery = useCategoryOptions(selectedId);
+  // Contas alimentam as tres secoes; sem `financial-category:read` a busca
+  // sairia para um 403 — as linhas de cobranca mostram "Categoria indisponivel".
+  const categoriesQuery = useCategoryOptions(selectedId, { enabled: canReadCategories });
   const categories = useMemo(() => categoriesQuery.data?.data ?? [], [categoriesQuery.data]);
 
   const applyLateFees = useApplyLateFees({
@@ -132,7 +158,10 @@ export function FinancialPage() {
               tela anuncia — a tarja e reforco visual, nunca a unica fonte do
               significado.
             */}
-            <ButtonTabs value={section} onValueChange={(v) => setSection(v as SectionId)}>
+            <ButtonTabs
+              value={activeSection}
+              onValueChange={(v) => setSection(v as SectionId)}
+            >
               <ButtonTabsList variant="buttons" aria-label="Seções do financeiro">
                 {visibleSections.map((item) => (
                   <Tooltip key={item.id} label={item.label}>
@@ -148,15 +177,15 @@ export function FinancialPage() {
         }
         content={
           <div className="p-4">
-            {section === 'charges' ? (
+            {activeSection === 'charges' ? (
               <ChargesSection condominiumId={selectedId} units={units} categories={categories} />
-            ) : section === 'expenses' ? (
+            ) : activeSection === 'expenses' ? (
               <ExpensesSection
                 condominiumId={selectedId}
                 categories={categories}
                 providers={providers}
               />
-            ) : section === 'categories' ? (
+            ) : activeSection === 'categories' ? (
               <CategoriesSection condominiumId={selectedId} />
             ) : (
               <ClosingSection condominiumId={selectedId} />

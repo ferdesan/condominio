@@ -113,6 +113,10 @@ describe('VotePage — estados de carregamento e acesso', () => {
     expect(await screen.findByRole('heading', { level: 1, name: POLL_TITLE })).toBeInTheDocument();
     expect(screen.getByLabelText('Aprovo')).toBeInTheDocument();
     expect(screen.getByLabelText('Rejeito')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Voltar para as assembleias' })).toHaveAttribute(
+      'href',
+      '/assembleias',
+    );
 
     await voteFirstOption();
 

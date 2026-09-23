@@ -205,6 +205,7 @@ export function useChargePayments(
  */
 export function useUnitOptions(
   condominiumId: string | null,
+  options?: { enabled?: boolean },
 ): UseQueryResult<Paginated<Unit>, ApiError> {
   return useQuery<Paginated<Unit>, ApiError>({
     queryKey: ['units', 'options', condominiumId],
@@ -217,13 +218,14 @@ export function useUnitOptions(
           sortOrder: 'ASC',
         },
       }),
-    enabled: Boolean(condominiumId),
+    enabled: Boolean(condominiumId) && options?.enabled !== false,
   });
 }
 
 /** Prestadores do condominio, pelo mesmo motivo e com a mesma forma. */
 export function useProviderOptions(
   condominiumId: string | null,
+  options?: { enabled?: boolean },
 ): UseQueryResult<Paginated<ServiceProvider>, ApiError> {
   return useQuery<Paginated<ServiceProvider>, ApiError>({
     queryKey: ['service-providers', 'options', condominiumId],
@@ -236,7 +238,7 @@ export function useProviderOptions(
           sortOrder: 'ASC',
         },
       }),
-    enabled: Boolean(condominiumId),
+    enabled: Boolean(condominiumId) && options?.enabled !== false,
   });
 }
 
@@ -249,6 +251,7 @@ export function useProviderOptions(
  */
 export function useCategoryOptions(
   condominiumId: string | null,
+  options?: { enabled?: boolean },
 ): UseQueryResult<Paginated<FinancialCategory>, ApiError> {
   return useQuery<Paginated<FinancialCategory>, ApiError>({
     queryKey: [CATEGORIES_KEY, 'options', condominiumId],
@@ -261,7 +264,7 @@ export function useCategoryOptions(
           sortOrder: 'ASC',
         },
       }),
-    enabled: Boolean(condominiumId),
+    enabled: Boolean(condominiumId) && options?.enabled !== false,
   });
 }
 

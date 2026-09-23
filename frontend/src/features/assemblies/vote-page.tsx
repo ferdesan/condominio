@@ -222,7 +222,14 @@ export function VotePage() {
       <PageHeader
         title={data.title}
         description={data.description ?? undefined}
-        actions={<Badge variant="outline">{POLL_STATUS_LABELS[data.status]}</Badge>}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">{POLL_STATUS_LABELS[data.status]}</Badge>
+            <Button asChild variant="outline">
+              <Link to="/assembleias">Voltar para as assembleias</Link>
+            </Button>
+          </div>
+        }
       />
       {body}
     </>

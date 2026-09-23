@@ -133,6 +133,47 @@ describe('Posição financeira', () => {
   });
 });
 
+describe('Permissões de seção e consultas auxiliares', () => {
+  it('sem expense:read e financial-category:read, so a aba de cobranças aparece', async () => {
+    serveFinancial({ charges: [makeCharge()] });
+    // O morador chega em `/financeiro` com `charge:read`; as demais abas pedem
+    // permissões de leitura que ele nao tem, e mostra-las só geraria 403.
+    renderWithProviders(<FinancialPage />, {
+      permissions: ['charge:read', 'payment:read', 'unit:read'],
+    });
+
+    await screen.findByText(CHARGE);
+    expect(screen.getByRole('tab', { name: 'Cobranças' })).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Despesas' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Plano de contas' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Balancete' })).not.toBeInTheDocument();
+
+    // As consultas que o servidor recusaria nem saem: `/service-providers` e
+    // `/financial/categories` exigem permissões que este papel nao tem.
+    const urls = mockGetPaginated.mock.calls.map(([url]) => url);
+    expect(urls).not.toContain('/service-providers');
+    expect(urls).not.toContain('/financial/categories');
+    expect(mockToastError).not.toHaveBeenCalled();
+  });
+
+  it('com as permissoes de leitura, as quatro abas seguem disponiveis', async () => {
+    serveFinancial({ charges: [makeCharge()] });
+    renderWithProviders(<FinancialPage />, {
+      permissions: [
+        'charge:read',
+        'expense:read',
+        'financial-category:read',
+        'financial-closing:read',
+      ],
+    });
+
+    await screen.findByText(CHARGE);
+    for (const label of ['Cobranças', 'Despesas', 'Plano de contas', 'Balancete']) {
+      expect(screen.getByRole('tab', { name: label })).toBeInTheDocument();
+    }
+  });
+});
+
 describe('Cobranças', () => {
   it('a listagem carrega escopada no condomínio do shell', async () => {
     world = serveFinancial({ charges: [makeCharge()] });
