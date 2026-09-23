@@ -63,6 +63,9 @@ export interface PollFormDialogProps {
  */
 export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: PollFormDialogProps) {
   const isEdit = Boolean(poll);
+  // Apos o rascunho o servidor recusa trocar publico/segredo (prepareUpdate);
+  // o form espelha a regra em vez de mandar um PATCH que volta 409.
+  const rulesLocked = isEdit && poll?.status !== 'DRAFT';
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
@@ -149,7 +152,12 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
                 render={({ field, fieldState }) => (
                   <FormField id="poll-startsAt" label="Abre em" error={fieldState.error?.message}>
                     {(aria) => (
-                      <DateTimeInput {...aria} value={field.value} onChange={field.onChange} />
+                      <DateTimeInput
+                        {...aria}
+                        value={field.value}
+                        onChange={field.onChange}
+                        disabled={rulesLocked}
+                      />
                     )}
                   </FormField>
                 )}
@@ -161,7 +169,12 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
                 render={({ field, fieldState }) => (
                   <FormField id="poll-endsAt" label="Encerra em" error={fieldState.error?.message}>
                     {(aria) => (
-                      <DateTimeInput {...aria} value={field.value} onChange={field.onChange} />
+                      <DateTimeInput
+                        {...aria}
+                        value={field.value}
+                        onChange={field.onChange}
+                        disabled={rulesLocked}
+                      />
                     )}
                   </FormField>
                 )}
@@ -179,7 +192,11 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
                     error={fieldState.error?.message}
                   >
                     {(aria) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={rulesLocked}
+                      >
                         <SelectTrigger {...aria}>
                           <SelectValue />
                         </SelectTrigger>
@@ -217,6 +234,7 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
                     <Checkbox
                       id="poll-weighted"
                       checked={field.value}
+                      disabled={rulesLocked}
                       onCheckedChange={(checked) => field.onChange(checked === true)}
                     />
                     <Label htmlFor="poll-weighted" className="font-normal">
@@ -234,6 +252,7 @@ export function PollFormDialog({ poll, condominiumId, assemblyId, onClose }: Pol
                     <Checkbox
                       id="poll-secret"
                       checked={field.value}
+                      disabled={rulesLocked}
                       onCheckedChange={(checked) => field.onChange(checked === true)}
                     />
                     <Label htmlFor="poll-secret" className="font-normal">

@@ -10,9 +10,16 @@
  */
 
 import { vi } from 'vitest';
-import { apiGet, apiGetPaginated } from '@/lib/api';
+import { ApiError, apiGet, apiGetPaginated, apiPost } from '@/lib/api';
 import { makeMeta } from '@/test/fixtures';
-import type { Assembly, Poll, PollOption, PollResults } from '@/types/assembly';
+import type {
+  Assembly,
+  MyVote,
+  Poll,
+  PollOption,
+  PollResults,
+  UnitVoteStatus,
+} from '@/types/assembly';
 
 const TIMESTAMPS = {
   createdAt: '2026-03-10T12:00:00.000Z',
@@ -82,6 +89,23 @@ export function makePoll(overrides: Partial<Poll> = {}): Poll {
   };
 }
 
+/**
+ * Uma votacao aberta, com a janela cobrindo o relogio da suite.
+ *
+ * A fixture base usa abril de 2026, que ja passou: um poll `OPEN` com aquelas
+ * datas estaria fora da janela e a tela mostraria o estado de "nao aberta".
+ * Nao se muda o default — os testes de listagem contam com ele —, entao quem
+ * precisa de votacao votavel monta por aqui.
+ */
+export function makeOpenPoll(overrides: Partial<Poll> = {}): Poll {
+  return makePoll({
+    status: 'OPEN',
+    startsAt: '2020-01-01T00:00:00.000Z',
+    endsAt: '2035-01-01T00:00:00.000Z',
+    ...overrides,
+  });
+}
+
 export function makePollResults(overrides: Partial<PollResults> = {}): PollResults {
   return {
     pollId: 'poll-1',
@@ -110,12 +134,16 @@ export type AssemblyWorld = {
   upcoming: Assembly[];
   polls: Poll[];
   results: PollResults;
+  /** Corpo de `GET /polls/:id/my-vote` — o default e "ainda nao votou". */
+  myVote: MyVote;
+  /** Corpo de `GET /polls/:id/vote-status` — o default e lista vazia. */
+  voteStatus: UnitVoteStatus[];
   /** `meta.total` da listagem, para exercitar a paginacao sem servir 300 linhas. */
   total?: number;
 };
 
 /**
- * Responde as quatro rotas de leitura que a tela alcanca a partir de uma unica
+ * Responde as rotas de leitura que a tela alcanca a partir de uma unica
  * descricao do mundo. O objeto devolvido e o mesmo que os mocks leem, entao
  * mutar um campo dele muda o que a proxima requisicao ve.
  */
@@ -125,6 +153,8 @@ export function serveAssemblies(initial: Partial<AssemblyWorld> = {}): AssemblyW
     upcoming: [],
     polls: [],
     results: makePollResults(),
+    myVote: { voted: false },
+    voteStatus: [],
     ...initial,
   };
 
@@ -154,7 +184,44 @@ export function serveAssemblies(initial: Partial<AssemblyWorld> = {}): AssemblyW
   vi.mocked(apiGet).mockImplementation(async (url) => {
     if (url === '/assemblies/upcoming') return world.upcoming as never;
     if (/^\/polls\/[^/]+\/results$/.test(url)) return world.results as never;
+    if (/^\/polls\/[^/]+\/my-vote$/.test(url)) return world.myVote as never;
+    if (/^\/polls\/[^/]+\/vote-status$/.test(url)) return world.voteStatus as never;
+
+    const detail = /^\/polls\/([^/]+)$/.exec(url);
+    if (detail) {
+      const poll = world.polls.find((item) => item.id === detail[1]);
+      if (!poll) throw new ApiError('Votacao nao encontrada.', 404, 'NOT_FOUND');
+      return poll as never;
+    }
+
     throw new Error(`URL nao prevista no teste: ${url}`);
+  });
+
+  /*
+    O POST do voto proxy e servido aqui junto das leituras: o dialogo de gestao
+    precisa de um caminho feliz que reconcilie status e apuracao sem cada teste
+    refazer a mesma mutacao do mundo. URL desconhecida nao lanca — o vi.fn sem
+    implementacao devolvia undefined, e manter isso evita quebrar casos que
+    montam o mundo e depois sobrescrevem o `apiPost` com o proprio cenario.
+  */
+  vi.mocked(apiPost).mockImplementation(async (url, body) => {
+    const proxy = /^\/polls\/[^/]+\/votes$/.exec(url);
+    if (proxy) {
+      const { unitId } = (body ?? {}) as { unitId?: string };
+      world.voteStatus = world.voteStatus.map((row) =>
+        row.unitId === unitId ? { ...row, status: 'VOTED' as const } : row,
+      );
+      world.results = {
+        ...world.results,
+        totalVotes: world.results.totalVotes + 1,
+        options: world.results.options.map((option, index) =>
+          index === 0 ? { ...option, votesCount: option.votesCount + 1 } : option,
+        ),
+      };
+      return world.results as never;
+    }
+
+    return undefined as never;
   });
 
   return world;

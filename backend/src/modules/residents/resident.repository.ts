@@ -43,6 +43,25 @@ export class ResidentRepository extends BaseRepository<Resident> {
   async findByUser(scope: TenantScope, userId: string): Promise<Resident | null> {
     return this.findOneBy(scope, { userId } as Partial<Record<keyof Resident, unknown>>);
   }
+
+  async listActiveOwnersByCondominium(
+    scope: TenantScope,
+    condominiumId: string,
+  ): Promise<Resident[]> {
+    return this.query(scope)
+      .andWhere('resident.condominiumId = :condominiumId', { condominiumId })
+      .andWhere('resident.type = :type', { type: 'OWNER' })
+      .andWhere('resident.status = :status', { status: 'ACTIVE' })
+      .getMany();
+  }
+
+  async listActiveByUnit(scope: TenantScope, unitId: string): Promise<Resident[]> {
+    return this.query(scope)
+      .andWhere('resident.unitId = :unitId', { unitId })
+      .andWhere('resident.status = :status', { status: 'ACTIVE' })
+      .orderBy('resident.isPrimary', 'DESC')
+      .getMany();
+  }
 }
 
 export const residentRepository = new ResidentRepository();

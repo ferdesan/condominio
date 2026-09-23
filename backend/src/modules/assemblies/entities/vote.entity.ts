@@ -34,6 +34,10 @@ export class Vote extends TenantScopedEntity {
   @Column({ name: 'voter_name', type: 'varchar', length: 150, nullable: true })
   voterName?: string | null;
 
+  /** Usuario (sindico/admin) que registrou o voto em nome da unidade. */
+  @Column({ name: 'registered_by_user_id', type: 'varchar', length: 36, nullable: true })
+  registeredByUserId?: string | null;
+
   @Column({
     type: 'decimal',
     precision: 12,

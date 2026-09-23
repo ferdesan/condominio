@@ -27,6 +27,7 @@ import { NotificationsPage } from '@/features/notifications/notifications-page';
 import { FinancialPage } from '@/features/financial/financial-page';
 import { BalancetePage } from '@/features/financial/balancete-page';
 import { AssembliesPage } from '@/features/assemblies/assemblies-page';
+import { VotePage } from '@/features/assemblies/vote-page';
 import { DocumentsPage } from '@/features/documents/documents-page';
 import { RolesPage } from '@/features/roles/roles-page';
 import { TenantPage } from '@/features/tenant/tenant-page';
@@ -210,6 +211,20 @@ export function AppRouter() {
           <Route element={<ProtectedRoute permission="assembly:read" />}>
             {/* As votacoes vivem em dialogo sobre a assembleia (ADR-004). */}
             <Route path="/assembleias" element={<AssembliesPage />} />
+          </Route>
+
+          {/*
+            A votacao do morador em rota propria (ADR-001). Segundo caso de
+            rota de detalhe fora do menu, depois de `/perfil` e como o
+            balancete: chega-se por notificacao ou pela acao Votar, nao por um
+            item lateral — e `IMPLEMENTED` so serve para caminhos de menu.
+
+            A guarda e `vote:read`, e nao `assembly:read`: quem le assembleias
+            sem voto nao alcance a tela digitando o endereco, e `vote:read` e a
+            mesma permissao que o backend exige de `GET /my-vote`.
+          */}
+          <Route element={<ProtectedRoute permission="vote:read" />}>
+            <Route path="/votacoes/:pollId" element={<VotePage />} />
           </Route>
 
           <Route element={<ProtectedRoute permission="document:read" />}>

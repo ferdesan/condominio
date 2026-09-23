@@ -120,3 +120,30 @@ export type PollResults = {
     percent: number;
   }>;
 };
+
+/**
+ * O voto da pessoa na sessao, corpo de `GET /polls/:id/my-vote`.
+ *
+ * Em votacao secreta o servidor devolve so `{ voted: true }`, sem `optionId`
+ * nem `votedAt` (ADR-002 / US-006): a escolha nao circula nem para quem votou
+ * quando a urna e fechada.
+ */
+export type MyVote = {
+  voted: boolean;
+  optionId?: string;
+  votedAt?: string;
+};
+
+export const UNIT_VOTE_STATUS_VALUES = ['VOTED', 'PENDING', 'NOT_ELIGIBLE'] as const;
+export type UnitVoteStatusValue = (typeof UNIT_VOTE_STATUS_VALUES)[number];
+
+/**
+ * Linha de `GET /polls/:id/vote-status` (ADR-005): uma unidade, um status,
+ * nunca a opcao escolhida nem a identidade de quem votou — seguro para
+ * votacao secreta e legivel para qualquer estado da consulta.
+ */
+export type UnitVoteStatus = {
+  unitId: string;
+  unitNumber: string;
+  status: UnitVoteStatusValue;
+};

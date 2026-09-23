@@ -57,9 +57,19 @@ export const createPollSchema = z
     path: ['endsAt'],
   });
 
-export const updatePollSchema = createPollSchema.innerType().partial().omit({ options: true });
+// `status` fica de fora: transicoes so via open()/close() (lado esquerdo do
+// ciclo DRAFT -> OPEN -> CLOSED), nunca via PATCH generico.
+export const updatePollSchema = createPollSchema
+  .innerType()
+  .partial()
+  .omit({ options: true, status: true });
 
 export const castVoteSchema = z.object({
+  optionId: uuidSchema,
+});
+
+export const castProxyVoteSchema = z.object({
+  unitId: uuidSchema,
   optionId: uuidSchema,
 });
 
@@ -69,3 +79,4 @@ export type FinishAssemblyDTO = z.infer<typeof finishAssemblySchema>;
 export type CreatePollDTO = z.infer<typeof createPollSchema>;
 export type UpdatePollDTO = z.infer<typeof updatePollSchema>;
 export type CastVoteDTO = z.infer<typeof castVoteSchema>;
+export type CastProxyVoteDTO = z.infer<typeof castProxyVoteSchema>;

@@ -9,12 +9,14 @@ import { buildRequestContext } from '@/shared/services/request-context';
 import type { Assembly } from './entities/assembly.entity';
 import type { Poll } from './entities/poll.entity';
 import {
+  castProxyVoteSchema,
   castVoteSchema,
   createAssemblySchema,
   createPollSchema,
   finishAssemblySchema,
   updateAssemblySchema,
   updatePollSchema,
+  type CastProxyVoteDTO,
   type CastVoteDTO,
   type CreateAssemblyDTO,
   type CreatePollDTO,
@@ -130,6 +132,30 @@ export const pollRouter = createCrudRouter({
       authorize('vote:read'),
       validate({ params: idParamSchema }),
       handle((req) => pollService.listVotes(buildRequestContext(req), req.params.id)),
+    );
+    router.post(
+      '/:id/votes',
+      authorize('vote:manage'),
+      validate({ params: idParamSchema, body: castProxyVoteSchema }),
+      handle((req) =>
+        pollService.castVoteOnBehalf(
+          buildRequestContext(req),
+          req.params.id,
+          req.body as CastProxyVoteDTO,
+        ),
+      ),
+    );
+    router.get(
+      '/:id/my-vote',
+      authorize('vote:read'),
+      validate({ params: idParamSchema }),
+      handle((req) => pollService.myVote(buildRequestContext(req), req.params.id)),
+    );
+    router.get(
+      '/:id/vote-status',
+      authorize('vote:manage'),
+      validate({ params: idParamSchema }),
+      handle((req) => pollService.voteStatus(buildRequestContext(req), req.params.id)),
     );
   },
 });

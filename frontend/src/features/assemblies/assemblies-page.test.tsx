@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ApiError, apiDelete, apiGetPaginated, apiPatch, apiPost } from '@/lib/api';
 import {
@@ -17,6 +18,7 @@ import {
   lastListParams,
   lastPollParams,
   makeAssembly,
+  makeOpenPoll,
   makePoll,
   makePollResults,
   serveAssemblies,
@@ -52,9 +54,15 @@ const mockToastError = vi.mocked(toast.error);
 let world: AssemblyWorld;
 
 const TITLE = 'AGO 2026';
+const POLL_TITLE = 'Aprovação das contas de 2025';
 
 /** Permissoes de quem le assembleias e deliberacoes, e nao conduz nenhuma. */
 const READ_ONLY = ['assembly:read', 'poll:read'];
+
+/** Quantas listagens de deliberacoes o painel ja pediu. */
+function pollListFetches(): number {
+  return mockGetPaginated.mock.calls.filter(([url]) => url === '/polls').length;
+}
 
 /** Linhas de dados, sem o cabecalho. */
 function dataRows(): HTMLElement[] {
@@ -493,6 +501,126 @@ describe('Deliberações', () => {
   });
 });
 
+describe('Deliberações — Votar e Gestão', () => {
+  /** Sonda da rota de voto: prova a navegacao sem montar a VotePage. */
+  function VoteRouteProbe() {
+    const location = useLocation();
+    return <p>Rota de voto {location.pathname}</p>;
+  }
+
+  /** Monta a pagina com a rota de voto ao lado, como na producao. */
+  function renderWithVoteRoute() {
+    return renderWithProviders(
+      <Routes>
+        <Route path="/" element={<AssembliesPage />} />
+        <Route path="/votacoes/:pollId" element={<VoteRouteProbe />} />
+      </Routes>,
+    );
+  }
+
+  it('IT-358: votar navega para a rota de voto da deliberacao', async () => {
+    world = serveAssemblies({ assemblies: [makeAssembly()], polls: [makeOpenPoll()] });
+    renderWithVoteRoute();
+
+    await findRows();
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
+
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByText(POLL_TITLE);
+    clickTrigger(within(dialog).getByRole('button', { name: `Votar ${POLL_TITLE}` }));
+
+    expect(await screen.findByText('Rota de voto /votacoes/poll-1')).toBeInTheDocument();
+  });
+
+  it('IT-359: em deliberacao nao-OPEN o votar fica desabilitado com o motivo no title', async () => {
+    world = serveAssemblies({
+      assemblies: [makeAssembly()],
+      polls: [
+        makePoll(),
+        makePoll({ id: 'poll-2', title: 'Eleição do conselho', status: 'CLOSED' }),
+      ],
+    });
+    renderWithProviders(<AssembliesPage />);
+
+    await findRows();
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
+
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByText(POLL_TITLE);
+
+    const draft = within(dialog).getByRole('button', { name: `Votar ${POLL_TITLE}` });
+    expect(draft).toBeDisabled();
+    expect(draft).toHaveAttribute('title', 'Votação não está aberta');
+
+    const closed = within(dialog).getByRole('button', { name: 'Votar Eleição do conselho' });
+    expect(closed).toBeDisabled();
+    expect(closed).toHaveAttribute('title', 'Votação não está aberta');
+  });
+
+  it('IT-360: sem vote:create o votar nao e renderizado, e a gestao continua', async () => {
+    world = serveAssemblies({ assemblies: [makeAssembly()], polls: [makeOpenPoll()] });
+    // `vote:manage` implicaria `vote:create` pelo curinga de recurso; o caso
+    // pede a ausencia do proprio `vote:create`.
+    renderWithProviders(<AssembliesPage />, {
+      permissions: ['assembly:read', 'poll:read', 'poll:update', 'poll:delete'],
+    });
+
+    await findRows();
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
+
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByText(POLL_TITLE);
+
+    expect(within(dialog).queryByRole('button', { name: `Votar ${POLL_TITLE}` })).not.toBeInTheDocument();
+    // As acoes de gestao do painel seguem: so o voto e que falta permissao.
+    expect(within(dialog).getByRole('button', { name: `Editar ${POLL_TITLE}` })).toBeInTheDocument();
+  });
+
+  it('IT-361: reabrir o painel refaz a listagem e espelha o estado fresco', async () => {
+    world = serveAssemblies({ assemblies: [makeAssembly()], polls: [makeOpenPoll()] });
+    renderWithProviders(<AssembliesPage />);
+
+    await findRows();
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
+
+    const first = await screen.findByRole('dialog');
+    await within(first).findByText(POLL_TITLE);
+    expect(within(first).getByRole('button', { name: `Votar ${POLL_TITLE}` })).not.toBeDisabled();
+    const before = pollListFetches();
+
+    // O rodape e o X do portal compartilham o rotulo "Fechar"; o do rodape vem primeiro.
+    clickTrigger(within(first).getAllByRole('button', { name: 'Fechar' })[0]);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    // A votacao foi concluida em outra superficie enquanto o painel estava fechado.
+    world.polls = [makeOpenPoll({ status: 'CLOSED' })];
+
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
+    const second = await screen.findByRole('dialog');
+    await within(second).findByText(POLL_TITLE);
+
+    expect(within(second).getByText('Apurada')).toBeInTheDocument();
+    expect(within(second).getByRole('button', { name: `Votar ${POLL_TITLE}` })).toBeDisabled();
+    expect(pollListFetches()).toBeGreaterThan(before);
+  });
+
+  it('IT-376: sem vote:manage a gestao nao e oferecida, e o votar continua', async () => {
+    world = serveAssemblies({ assemblies: [makeAssembly()], polls: [makeOpenPoll()] });
+    renderWithProviders(<AssembliesPage />, {
+      permissions: ['assembly:read', 'poll:read', 'vote:create'],
+    });
+
+    await findRows();
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
+
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByText(POLL_TITLE);
+
+    expect(within(dialog).queryByRole('button', { name: `Gestão ${POLL_TITLE}` })).not.toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: `Votar ${POLL_TITLE}` })).toBeInTheDocument();
+  });
+});
+
 describe('Exclusao, restauração e permissões', () => {
   it('excluir pede confirmação antes de remover', async () => {
     world = serveAssemblies({ assemblies: [makeAssembly()] });
@@ -508,6 +636,23 @@ describe('Exclusao, restauração e permissões', () => {
     clickTrigger(await screen.findByRole('button', { name: 'Excluir' }));
 
     await waitFor(() => expect(mockDelete).toHaveBeenCalledWith('/assemblies/assembly-1'));
+  });
+
+  it('deliberacao com votos nao oferece excluir (servidor bloqueia)', async () => {
+    world = serveAssemblies({
+      assemblies: [makeAssembly()],
+      polls: [makeOpenPoll({ totalVotes: 3 })],
+    });
+    renderWithProviders(<AssembliesPage />, {
+      permissions: ['assembly:read', 'poll:read', 'poll:update', 'poll:delete'],
+    });
+
+    await findRows();
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
+
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByText(POLL_TITLE);
+    expect(within(dialog).queryByRole('button', { name: `Excluir ${POLL_TITLE}` })).not.toBeInTheDocument();
   });
 
   it('assembleia removida aparece marcada e so oferece restaurar', async () => {
