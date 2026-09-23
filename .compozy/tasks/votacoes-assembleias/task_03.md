@@ -1,5 +1,5 @@
 ---
-status: complete
+status: completed
 title: "VotePage + rota /votacoes/:pollId"
 type: frontend
 complexity: high
