@@ -110,11 +110,39 @@ export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, U
     current: Poll,
     dto: UpdatePollDTO,
   ): Promise<DeepPartial<Poll>> {
-    if (current.status !== 'DRAFT' && (dto.startsAt || dto.endsAt || dto.weightedByFraction)) {
-      throw new BusinessRuleError(
-        'Votacoes abertas ou encerradas nao podem ter periodo ou regra de peso alterados.',
-      );
+    // `status` nao vem do schema de update; open()/close() enviam via cast.
+    const status = (dto as { status?: Poll['status'] }).status;
+    if (status !== undefined && status !== current.status) {
+      const canOpen = current.status === 'DRAFT' && status === 'OPEN';
+      const canClose = current.status === 'OPEN' && status === 'CLOSED';
+      if (!canOpen && !canClose) {
+        throw new BusinessRuleError('Transicao de status nao permitida.');
+      }
     }
+
+    if (current.status !== 'DRAFT') {
+      const periodChanged =
+        (dto.startsAt && dto.startsAt.getTime() !== current.startsAt.getTime()) ||
+        (dto.endsAt && dto.endsAt.getTime() !== current.endsAt.getTime()) ||
+        (dto.weightedByFraction !== undefined &&
+          dto.weightedByFraction !== current.weightedByFraction);
+      if (periodChanged) {
+        throw new BusinessRuleError(
+          'Votacoes abertas ou encerradas nao podem ter periodo ou regra de peso alterados.',
+        );
+      }
+    }
+
+    const rulesLocked = current.status !== 'DRAFT' || current.totalVotes > 0;
+    if (rulesLocked) {
+      if (dto.voterType !== undefined && dto.voterType !== current.voterType) {
+        throw new BusinessRuleError('Publico da votacao nao pode ser alterado apos o rascunho.');
+      }
+      if (dto.isSecret !== undefined && dto.isSecret !== current.isSecret) {
+        throw new BusinessRuleError('Segredo do voto nao pode ser alterado apos o rascunho.');
+      }
+    }
+
     return dto as DeepPartial<Poll>;
   }
 
@@ -133,10 +161,7 @@ export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, U
 
     const opened = await this.update(ctx, id, { status: 'OPEN' } as UpdatePollDTO);
 
-    const userIds = await this.recipients.usersOfCondominium(
-      ctx.scope.tenantId,
-      poll.condominiumId,
-    );
+    const userIds = await this.openPollRecipients(ctx, poll);
     await this.notifications.notify({
       tenantId: ctx.scope.tenantId,
       condominiumId: poll.condominiumId,
@@ -155,6 +180,9 @@ export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, U
   async close(ctx: RequestContext, id: string): Promise<PollResults> {
     const poll = await this.findById(ctx, id);
     if (poll.status === 'CLOSED') throw new BusinessRuleError('Votacao ja esta encerrada.');
+    if (poll.status !== 'OPEN') {
+      throw new BusinessRuleError('Somente votacoes abertas podem ser encerradas.');
+    }
 
     await this.update(ctx, id, {
       status: 'CLOSED',
@@ -195,8 +223,8 @@ export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, U
     }
 
     if (poll.voterType === 'OWNERS') {
-      const resident = await this.residents.findByUser(ctx.scope, ctx.actor.userId);
-      if (!resident || resident.type !== 'OWNER') {
+      const ownerUnitIds = await this.loadOwnerUnitIds(ctx.scope, poll.condominiumId);
+      if (!unitIsEligible(poll.voterType, unitId, ownerUnitIds)) {
         throw new ForbiddenError('Esta deliberacao e restrita aos proprietarios.');
       }
     }
@@ -298,6 +326,20 @@ export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, U
     return new Set(owners.map((owner) => owner.unitId));
   }
 
+  /** Destinatarios de "votacao aberta": elegiveis quando OWNERS; senao o condominio. */
+  private async openPollRecipients(ctx: RequestContext, poll: Poll): Promise<string[]> {
+    const tenantId = ctx.scope.tenantId;
+    if (poll.voterType !== 'OWNERS') {
+      return this.recipients.usersOfCondominium(tenantId, poll.condominiumId);
+    }
+
+    const ownerUnitIds = await this.loadOwnerUnitIds(ctx.scope, poll.condominiumId);
+    const batches = await Promise.all(
+      [...ownerUnitIds].map((unitId) => this.recipients.usersOfUnit(tenantId, unitId)),
+    );
+    return [...new Set(batches.flat())];
+  }
+
   private async findActiveResidentForProxy(
     scope: RequestContext['scope'],
     unitId: string,
@@ -333,7 +375,7 @@ export class PollService extends CondominiumScopedService<Poll, CreatePollDTO, U
           registeredByUserId: data.registeredByUserId,
           weight: data.weight,
           votedAt: new Date(),
-          ipAddress: ctx.ipAddress ?? null,
+          ipAddress: poll.isSecret ? null : (ctx.ipAddress ?? null),
         }),
       );
 

@@ -60,9 +60,9 @@ export function VotePage() {
       setPhase('confirmation');
     },
     onError: (error) => {
-      if (error.status === 409) {
-        // 409 nunca tira a confirmacao: o duplo envio que ja la chegou
-        // permanece; o que vinha do formulario converge para ja-votou.
+      // So o conflito de unidade ja votada vira fase "ja votou"; outros 409
+      // (BusinessRuleError: nao aberta, fora do periodo) mostram a mensagem.
+      if (error.status === 409 && error.code === 'CONFLICT') {
         setVoteError(null);
         setPhase((current) => (current === 'confirmation' ? 'confirmation' : 'conflict'));
         return;

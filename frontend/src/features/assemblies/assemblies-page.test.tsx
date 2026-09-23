@@ -638,6 +638,23 @@ describe('Exclusao, restauração e permissões', () => {
     await waitFor(() => expect(mockDelete).toHaveBeenCalledWith('/assemblies/assembly-1'));
   });
 
+  it('deliberacao com votos nao oferece excluir (servidor bloqueia)', async () => {
+    world = serveAssemblies({
+      assemblies: [makeAssembly()],
+      polls: [makeOpenPoll({ totalVotes: 3 })],
+    });
+    renderWithProviders(<AssembliesPage />, {
+      permissions: ['assembly:read', 'poll:read', 'poll:update', 'poll:delete'],
+    });
+
+    await findRows();
+    clickTrigger(screen.getByRole('button', { name: `Deliberações de ${TITLE}` }));
+
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByText(POLL_TITLE);
+    expect(within(dialog).queryByRole('button', { name: `Excluir ${POLL_TITLE}` })).not.toBeInTheDocument();
+  });
+
   it('assembleia removida aparece marcada e so oferece restaurar', async () => {
     world = serveAssemblies({
       assemblies: [makeAssembly({ deletedAt: '2026-03-20T10:00:00.000Z' })],

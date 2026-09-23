@@ -235,7 +235,7 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
                         </>
                       ) : null}
 
-                      {canDelete ? (
+                      {canDelete && poll.totalVotes === 0 ? (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -286,7 +286,9 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
         title="Excluir deliberação?"
         description={
           deleting
-            ? `"${deleting.title}" deixara de aparecer, junto dos votos já registrados nela. A exclusao e logica e pode ser desfeita.`
+            ? deleting.totalVotes > 0
+              ? `"${deleting.title}" possui votos registrados e nao pode ser excluida. A exclusao so vale para votacoes ainda sem votos.`
+              : `"${deleting.title}" deixara de aparecer na listagem. A exclusao e logica e pode ser desfeita.`
             : undefined
         }
         actionLabel="Excluir"

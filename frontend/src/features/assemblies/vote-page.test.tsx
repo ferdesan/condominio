@@ -420,6 +420,20 @@ describe('VotePage — ja votou, conflito e sumiamento', () => {
     expect(mockToastError).not.toHaveBeenCalled();
   });
 
+  it('409 de regra de negocio mostra a mensagem e nao vira ja-votou', async () => {
+    serveOpenVotable();
+    mockPost.mockRejectedValue(
+      new ApiError('Esta votacao nao esta aberta.', 409, 'BUSINESS_RULE_VIOLATION'),
+    );
+    renderVote();
+
+    await voteFirstOption();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Esta votacao nao esta aberta.');
+    expect(screen.queryByText('Você já votou nesta votação')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Enviar voto' })).toBeInTheDocument();
+  });
+
   it('IT-372: votacao some depois do voto — nao-encontrado, sem crash', async () => {
     world = serveOpenVotable();
     mockPost.mockImplementation(async () => {

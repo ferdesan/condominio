@@ -248,4 +248,74 @@ describe('vote-status, elegibilidade e identidade de voto', () => {
       await residents.update(resident!.id, { type: 'TENANT' });
     }
   });
+
+  it('self-vote OWNERS recusa unidade sem OWNER ativo (mesma regra do proxy)', async () => {
+    const { pollId, optionIds } = await createOpenPoll({
+      title: 'Self-vote owners',
+      voterType: 'OWNERS',
+    });
+    const residents = AppDataSource.getRepository(Resident);
+    const resident = await residents.findOne({
+      where: { tenantId: ctx.seed.tenantId, userId: ctx.seed.users.morador.id },
+    });
+    expect(resident).toBeTruthy();
+
+    await residents.update(resident!.id, { type: 'TENANT' });
+    try {
+      const denied = await morador.post(`/polls/${pollId}/vote`).send({ optionId: optionIds[0] });
+      expect(denied.status).toBe(403);
+      expect(denied.body.error.message).toMatch(/proprietarios/i);
+    } finally {
+      await residents.update(resident!.id, { type: 'OWNER' });
+    }
+  });
+
+  it('PATCH nao troca status e recusa regra apos abrir', async () => {
+    const { pollId } = await createOpenPoll({ title: 'Patch bloqueado' });
+
+    const statusPatch = await admin.patch(`/polls/${pollId}`).send({ status: 'DRAFT' });
+    expect(statusPatch.status).toBe(200);
+    expect(statusPatch.body.data.status).toBe('OPEN');
+
+    const rulePatch = await admin.patch(`/polls/${pollId}`).send({ voterType: 'OWNERS' });
+    expect(rulePatch.status).toBe(409);
+    expect(rulePatch.body.error.message).toMatch(/publico/i);
+
+    const secretPatch = await admin.patch(`/polls/${pollId}`).send({ isSecret: true });
+    expect(secretPatch.status).toBe(409);
+    expect(secretPatch.body.error.message).toMatch(/segredo/i);
+  });
+
+  it('close em rascunho e recusado (so OPEN pode fechar)', async () => {
+    const created = await admin.post('/polls').send({
+      condominiumId: ctx.seed.condominiumId,
+      title: 'Rascunho nao fecha',
+      voterType: 'ALL_RESIDENTS',
+      startsAt: dayjs().subtract(1, 'hour').toISOString(),
+      endsAt: dayjs().add(1, 'day').toISOString(),
+      options: [{ label: 'Sim' }, { label: 'Nao' }],
+    });
+    expect(created.status).toBe(201);
+
+    const closed = await admin.post(`/polls/${created.body.data.id}/close`).send({});
+    expect(closed.status).toBe(409);
+    expect(closed.body.error.message).toMatch(/abertas/i);
+  });
+
+  it('voto secreto nao grava ipAddress no registro', async () => {
+    const { pollId, optionIds } = await createOpenPoll({
+      title: 'Ip secreto',
+      isSecret: true,
+    });
+
+    const vote = await morador.post(`/polls/${pollId}/vote`).send({ optionId: optionIds[0] });
+    expect(vote.status).toBe(200);
+
+    const row = await AppDataSource.getRepository(Vote).findOne({
+      where: { pollId, unitId: ctx.seed.unitIds[0] },
+    });
+    expect(row).toBeTruthy();
+    expect(row!.ipAddress).toBeNull();
+    expect(row!.voterId).toBeNull();
+  });
 });

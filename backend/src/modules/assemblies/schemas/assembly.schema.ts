@@ -57,7 +57,12 @@ export const createPollSchema = z
     path: ['endsAt'],
   });
 
-export const updatePollSchema = createPollSchema.innerType().partial().omit({ options: true });
+// `status` fica de fora: transicoes so via open()/close() (lado esquerdo do
+// ciclo DRAFT -> OPEN -> CLOSED), nunca via PATCH generico.
+export const updatePollSchema = createPollSchema
+  .innerType()
+  .partial()
+  .omit({ options: true, status: true });
 
 export const castVoteSchema = z.object({
   optionId: uuidSchema,
