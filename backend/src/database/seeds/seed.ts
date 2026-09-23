@@ -93,11 +93,11 @@ export async function runSeeds(): Promise<SeedResult | null> {
   // --- Tenant + papeis -----------------------------------------------------
   const tenant = await manager.save(
     manager.create(Tenant, {
-      name: 'Administradora Horizonte',
+      name: 'Ferdesan System',
       slug: 'demo',
-      document: '12345678000199',
-      email: 'contato@horizonte.com.br',
-      phone: '(11) 4002-8922',
+      document: '66503760515',
+      email: 'contato@ferdesan.com.br',
+      phone: '(22) 99700-0345',
       plan: 'PROFESSIONAL',
       status: 'ACTIVE',
       maxCondominiums: 10,
