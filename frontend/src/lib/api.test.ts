@@ -61,12 +61,15 @@ function onRefresh(handler: Handler): void {
 }
 
 beforeEach(() => {
+  // O access vive em memoria de modulo; o setup so limpa o storage do navegador.
+  tokenStorage.clear();
   localStorage.clear();
 });
 
 afterEach(() => {
   api.defaults.adapter = realApiAdapter;
   axios.defaults.adapter = realAxiosAdapter;
+  tokenStorage.clear();
   localStorage.clear();
   vi.restoreAllMocks();
 });

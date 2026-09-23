@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Telas de Dependentes e Funcionários
 type: frontend
 complexity: medium

@@ -52,6 +52,13 @@ const envSchema = z.object({
   // Observability
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
   SWAGGER_ENABLED: booleanFromString.default(true),
+
+  /**
+   * Permite o bootstrap de producao rodar o seed de demo. Default `false` de
+   * proposito: o seed cria super-admin com senha publica e nunca pode entrar
+   * sozinho num deploy. Semente real e comando manual.
+   */
+  SEED_ON_BOOT: booleanFromString.default(false),
 });
 
 export type Env = z.infer<typeof envSchema>;

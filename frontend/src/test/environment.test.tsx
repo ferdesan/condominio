@@ -29,7 +29,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { clickTrigger, openSelect, render, screen, within } from '@/test/render';
 
-const LEAK_KEY = 'condomínio.accessToken';
+/** Marca de sessao e rascunho: o que pode sobreviver de um caso para o outro. */
+const LEAK_KEY = 'condomínio.session';
 const SESSION_KEY = 'condomínio.rascunho';
 
 function SelectHarness() {
@@ -98,10 +99,10 @@ describe('Capacidades de navegador ausentes do jsdom', () => {
  */
 describe('Estado guardado entre casos', () => {
   it('IT-193: um caso escreve estado de sessão no armazenamento', () => {
-    localStorage.setItem(LEAK_KEY, 'token-do-caso-anterior');
+    localStorage.setItem(LEAK_KEY, '1');
     sessionStorage.setItem(SESSION_KEY, 'rascunho-do-caso-anterior');
 
-    expect(localStorage.getItem(LEAK_KEY)).toBe('token-do-caso-anterior');
+    expect(localStorage.getItem(LEAK_KEY)).toBe('1');
     expect(sessionStorage.getItem(SESSION_KEY)).toBe('rascunho-do-caso-anterior');
   });
 

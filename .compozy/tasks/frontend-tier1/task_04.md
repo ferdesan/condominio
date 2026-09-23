@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Registro das seis rotas e verificação
 type: frontend
 complexity: low

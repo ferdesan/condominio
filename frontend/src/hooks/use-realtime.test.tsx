@@ -7,6 +7,7 @@ import { CondominiumContext, type CondominiumContextValue } from '@/providers/co
 import { makeAuthUser, makeCondominium } from '@/test/fixtures';
 import { EVENT_INVALIDATIONS, invalidationsFor } from '@/lib/realtime-events';
 import { realtimeOrigin, REALTIME_EVENTS, SOCKET_PATH } from '@/lib/realtime';
+import { tokenStorage } from '@/lib/api';
 import { useRealtime } from './use-realtime';
 
 /**
@@ -150,7 +151,8 @@ describe('Ciclo de vida da conexao', () => {
   });
 
   it('o token e lido a cada tentativa, e não fixado na montagem', () => {
-    localStorage.setItem('condomínio.accessToken', 'token-inicial');
+    // O access vive em memoria (tokenStorage), nao em localStorage.
+    tokenStorage.set('token-inicial', '');
     mount();
 
     const [, options] = mockIo.mock.calls[0] ?? [];
@@ -160,7 +162,7 @@ describe('Ciclo de vida da conexao', () => {
 
     // Chamada de novo depois de o interceptor renovar o token: e assim que a
     // reconexao sobrevive a expiracao do access token.
-    localStorage.setItem('condomínio.accessToken', 'token-renovado');
+    tokenStorage.set('token-renovado', '');
     let sent: Record<string, unknown> = {};
     auth?.((data) => {
       sent = data;

@@ -3,7 +3,7 @@
 **Type:** frontend
 **Wave:** 1
 **Dependencies:** nenhuma
-**Status:** pending
+**Status:** completed
 
 ---
 

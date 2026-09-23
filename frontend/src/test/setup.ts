@@ -135,10 +135,12 @@ if (typeof window !== 'undefined') {
   //
   // O vitest isola o ambiente por arquivo, mas nao entre os casos de um mesmo
   // arquivo: `localStorage` escrito por um teste continua la no proximo. Como o
-  // que mora nele e a sessao (`condominio.accessToken`) e o condominio escolhido,
-  // um vazamento faz um caso passar por causa do anterior — ou falhar por causa
-  // dele. Limpar aqui torna a garantia estrutural, em vez de depender de cada
-  // arquivo lembrar do proprio `beforeEach` (US-028.EC-5).
+  // que mora nele e a marca de sessao (`condomínio.session`) e o condominio
+  // escolhido, um vazamento faz um caso passar por causa do anterior — ou
+  // falhar por causa dele. O access vive em memoria de modulo (`tokenStorage`),
+  // entao a limpeza do storage aqui nao zera a sessao: cada arquivo que usa
+  // tokens cuida do proprio `tokenStorage.clear()`. Limpar aqui torna a
+  // garantia estrutural (US-028.EC-5).
   // ---------------------------------------------------------------------------
   afterEach(() => {
     localStorage.clear();

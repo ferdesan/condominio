@@ -18,9 +18,16 @@ async function bootstrap(): Promise<void> {
     await AppDataSource.runMigrations();
     logger.info('Migrations applied successfully');
 
-    logger.info('Running seed...');
-    await runSeeds();
-    logger.info('Seed completed');
+    /*
+      O seed NAO roda em producao: ele cria o super-admin de demo com senha
+      publica. Semente e dados iniciais sao comando manual (npm run seed) com
+      credencial vinda de env — nunca parte do bootstrap de deploy.
+    */
+    if (env.SEED_ON_BOOT) {
+      logger.warn('SEED_ON_BOOT enabled — running seed in production');
+      await runSeeds();
+      logger.info('Seed completed');
+    }
 
     logger.info('Syncing system role permissions...');
     const roleRepo = AppDataSource.getRepository('Role');

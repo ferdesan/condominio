@@ -45,8 +45,10 @@ export function createApp(): Application {
     cors({
       origin: (origin, callback) => {
         // Requisicoes sem Origin (curl, apps nativos, health checks) sao aceitas.
+        // Origem desconhecida e recusada sem Error: `callback(new Error(...))`
+        // virava HTTP 500 com stack no log em vez de uma recusa de CORS.
         if (!origin || corsOrigins.includes(origin)) return callback(null, true);
-        callback(new Error('Origem nao permitida pelo CORS.'));
+        callback(null, false);
       },
       credentials: true,
       exposedHeaders: ['X-Request-Id', 'RateLimit-Remaining'],
@@ -90,7 +92,11 @@ export function createApp(): Application {
   if (env.NODE_ENV === 'production') {
     const frontendDist = path.resolve(__dirname, '../../frontend/dist');
     app.use(express.static(frontendDist));
-    app.get('*', (_req: Request, res: Response) => {
+    // SPA em qualquer path que NAO seja a API: o catch-all anterior respondia
+    // index.html 200 para GET /api/v1/* desconhecidas e o notFoundHandler
+    // nunca alcançava esses casos.
+    app.get('*', (req: Request, res: Response, next) => {
+      if (req.path.startsWith(env.API_PREFIX)) return next();
       res.sendFile(path.join(frontendDist, 'index.html'));
     });
   } else {
