@@ -1,4 +1,6 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Dialog,
   DialogContent,
@@ -15,9 +17,10 @@ import { formatDateTime } from '@/lib/format';
 import type { ApiError } from '@/lib/api';
 import { useAuth } from '@/hooks/use-auth';
 import type { Assembly, Poll } from '@/types/assembly';
-import { pollFilters, pollHooks, useClosePoll, useOpenPoll } from '../assembly-hooks';
+import { POLLS_KEY, pollFilters, pollHooks, useClosePoll, useOpenPoll } from '../assembly-hooks';
 import { NO_POLLS, POLL_VOTER_LABELS, pollLabel, weightingLabel } from '../assembly-labels';
 import { PollFormDialog } from './poll-form-dialog';
+import { PollProxyVotesDialog } from './poll-proxy-votes-dialog';
 import { PollResultsPanel } from './poll-results-panel';
 import { PollStatusBadge } from './poll-status-badge';
 
@@ -40,11 +43,19 @@ type RowError = { id: string; message: string } | null;
  * Abrir e encerrar sao oferecidos por permissao, e nao por situacao: quem decide
  * se a transicao vale e o servidor — ele recusa abrir o que nao e rascunho e
  * encerrar o que ja esta apurado —, e a recusa aparece na propria deliberacao.
+ *
+ * **Votar** e **Gestao** seguem o mesmo portao de permissao (`vote:create` e
+ * `vote:manage`); a presenca nao depende do status. Votar so fica acionavel em
+ * OPEN — fora dele o botao permanece visivel, desabilitado e com o motivo no
+ * `title` (US-002 EC-1) —, porque quem decide a janela e o servidor.
  */
 export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogProps) {
   const { can } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [formTarget, setFormTarget] = useState<Poll | null | undefined>(undefined);
+  const [managing, setManaging] = useState<Poll | null>(null);
   const [deleting, setDeleting] = useState<Poll | null>(null);
   const [removing, setRemoving] = useState(false);
   const removingRef = useRef(false);
@@ -54,6 +65,8 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
   const canCreate = can('poll:create');
   const canUpdate = can('poll:update');
   const canDelete = can('poll:delete');
+  const canVoteCreate = can('vote:create');
+  const canVoteManage = can('vote:manage');
 
   const params = useMemo(
     () => ({
@@ -70,6 +83,17 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
   const query = pollHooks.useList(params);
   const remove = pollHooks.useRemove();
   const polls = query.data?.data ?? [];
+
+  /*
+    Fechar o painel invalida a listagem: o staleTime de 30s deixaria a
+    reabertura servindo o cache antigo, e a deliberacao precisa refletir o que
+    mudou enquanto esteve fechada (US-002 EC-3 / IT-361).
+  */
+  useEffect(() => {
+    return () => {
+      void queryClient.invalidateQueries({ queryKey: [POLLS_KEY, 'list'] });
+    };
+  }, [queryClient]);
 
   const lifecycleCallbacks = {
     onError: (error: ApiError, variables: { id: string }) =>
@@ -155,6 +179,33 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
                         {isExpanded ? 'Ocultar apuração' : 'Ver apuração'}
                       </Button>
 
+                      {canVoteCreate ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          aria-label={`Votar ${label}`}
+                          disabled={poll.status !== 'OPEN'}
+                          title={poll.status !== 'OPEN' ? 'Votação não está aberta' : undefined}
+                          onClick={() => {
+                            navigate(`/votacoes/${poll.id}`);
+                            onClose();
+                          }}
+                        >
+                          Votar
+                        </Button>
+                      ) : null}
+
+                      {canVoteManage ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          aria-label={`Gestão ${label}`}
+                          onClick={() => setManaging(poll)}
+                        >
+                          Gestão
+                        </Button>
+                      ) : null}
+
                       {canUpdate ? (
                         <>
                           <Button
@@ -227,6 +278,8 @@ export function AssemblyPollsDialog({ assembly, onClose }: AssemblyPollsDialogPr
           onClose={() => setFormTarget(undefined)}
         />
       ) : null}
+
+      {managing ? <PollProxyVotesDialog poll={managing} onClose={() => setManaging(null)} /> : null}
 
       <ConfirmDialog
         open={deleting !== null}

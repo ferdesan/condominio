@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "Deliberações: Votar e gestão por unidade"
 type: frontend
 complexity: high
@@ -35,15 +35,15 @@ Fecha as duas entradas de produto sobre a dialog de Deliberações: o botão **V
 
 ## Subtasks
 
-- [ ] 4.1 Adicionar botão **Votar** em `assembly-polls-dialog` com gate `vote:create` e navegação para a rota de voto
-- [ ] 4.2 Adicionar botão **Gestão** com gate `vote:manage` abrindo o diálogo de proxy
-- [ ] 4.3 Criar `poll-proxy-votes-dialog.tsx`: lista de status, filtro, estados de carga/erro
-- [ ] 4.4 Implementar mini-form por linha pendente: seleção de opção + submit proxy + refetch
-- [ ] 4.5 Tratar NOT_ELIGIBLE (bloqueio), poll não-OPEN (mensagem), 409 (conflito + refetch), option vazia
-- [ ] 4.6 Estender fixtures/transport para `vote-status` e POST `/votes`
-- [ ] 4.7 Escrever testes de entrada Deliberações (IT-358–IT-361, IT-376)
-- [ ] 4.8 Escrever testes do diálogo de gestão (IT-373–IT-375, IT-378, IT-379, IT-381–IT-384)
-- [ ] 4.9 Rodar `npm --prefix frontend run typecheck && npm run lint && npm test` e deixar verde
+- [x] 4.1 Adicionar botão **Votar** em `assembly-polls-dialog` com gate `vote:create` e navegação para a rota de voto
+- [x] 4.2 Adicionar botão **Gestão** com gate `vote:manage` abrindo o diálogo de proxy
+- [x] 4.3 Criar `poll-proxy-votes-dialog.tsx`: lista de status, filtro, estados de carga/erro
+- [x] 4.4 Implementar mini-form por linha pendente: seleção de opção + submit proxy + refetch
+- [x] 4.5 Tratar NOT_ELIGIBLE (bloqueio), poll não-OPEN (mensagem), 409 (conflito + refetch), option vazia
+- [x] 4.6 Estender fixtures/transport para `vote-status` e POST `/votes`
+- [x] 4.7 Escrever testes de entrada Deliberações (IT-358–IT-361, IT-376)
+- [x] 4.8 Escrever testes do diálogo de gestão (IT-373–IT-375, IT-378, IT-379, IT-381–IT-384)
+- [x] 4.9 Rodar `npm --prefix frontend run typecheck && npm run lint && npm test` e deixar verde
 
 ## Implementation Details
 
@@ -94,11 +94,11 @@ Ver "Data flow — manager registration" e "Build Order" 8–10 no [`_techspec.m
 
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's full definition there before writing tests.
 
-- [ ] IT-358–IT-361 — Votar navega; não-OPEN sem Votar ativo; sem `vote:create` oculto; refetch ao reabrir
-- [ ] IT-376 — sem `vote:manage`, Gestão oculto
-- [ ] IT-373–IT-375 — lista status sem opção; registrar pendente; 409 em já-votou
-- [ ] IT-378, IT-379 — poll não-OPEN; NOT_ELIGIBLE bloqueia submit
-- [ ] IT-381–IT-384 — option vazia; 409 reconcilia; filtro em lista grande; VOTED sem expor opção
+- [x] IT-358–IT-361 — Votar navega; não-OPEN sem Votar ativo; sem `vote:create` oculto; refetch ao reabrir
+- [x] IT-376 — sem `vote:manage`, Gestão oculto
+- [x] IT-373–IT-375 — lista status sem opção; registrar pendente; 409 em já-votou
+- [x] IT-378, IT-379 — poll não-OPEN; NOT_ELIGIBLE bloqueia submit
+- [x] IT-381–IT-384 — option vazia; 409 reconcilia; filtro em lista grande; VOTED sem expor opção
 
 ## Success Criteria
 

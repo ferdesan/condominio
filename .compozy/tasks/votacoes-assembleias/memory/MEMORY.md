@@ -7,6 +7,7 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 - task_01 (backend: cleanup, elegibilidade e vote-status) implemented and verified green (typecheck + lint + 395 tests).
 - task_02 (frontend base: tipos, hooks, labels, deep-link) implemented and verified green.
 - task_03 (VotePage + rota `/votacoes/:pollId`) implemented and verified green (typecheck 0, lint 0 errors / 5 pre-existing warnings, 99 files / 1161 tests).
+- task_04 (Votar/Gestão + `poll-proxy-votes-dialog` + fixtures/transport) implemented; full gate green (typecheck 0, lint 0 errors / 5 warnings, 100 files / 1175 tests).
 - Backend surface for `vote-status`, proxy OWNERS eligibility and ADR-002 identity is frozen in the TechSpec; frontend tasks 02–04 consume that contract.
 - Branch `feat/tema-verde-e-icones` carries pre-existing Fase-1 WIP (vote.entity, assembly.schema, swagger, assembly.routes, migration `VoteRegisteredBy`) built on top — do not revert.
 
@@ -22,6 +23,9 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 - VotePage state priority (task_03): loading → poll error (403 forbidden / else not-found) → myVote 403 → confirmation → already-voted → not-open → missing `vote:create` → votable. Confirmation/already-voted outrank not-open; poll 404 outranks confirmation.
 - 409 on vote POST converges to already-voted/conflict without toast (own `onError` replaces global handler); submit not disabled during pending so double-submit can 409.
 - Fixture `makeOpenPoll()` (OPEN + 2020–2035 window) for votable tests; base `makePoll` window Apr 2026 is past suite clock — do not change defaults.
+- `hasPermission` resource wildcard: `vote:manage` implies `vote:create` (and vice versa) — permission fixtures for one gate must not include a sibling action on the same resource.
+- Nested Radix Dialogs share accessible name `Fechar` (footer + X); footer is first via `getAllByRole(...)[0]`. `getByRole` honors aria-hidden; `getByText`/`getByLabelText` ignore it.
+- 409 proxy mocks must mutate the **same** `unitId` in `world.voteStatus` so the row `role=alert` key survives refetch.
 
 ## Shared Learnings
 
@@ -41,5 +45,5 @@ Keep only durable, cross-task context here. Do not duplicate facts that are obvi
 
 - task_02 can consume: `UnitVoteStatus`/`UnitVoteStatusValue` types, `GET /polls/:id/vote-status` (vote:manage), proxy 403 message `Esta deliberacao e restrita aos proprietarios.`
 - task_03 delivers: route `/votacoes/:pollId` guarded by `vote:read` outside menu; task_04 **Votar** navigates there; `makeOpenPoll` in assemblies `test-utils`.
-- task_04 must extend `serveAssemblies`/`AUXILIARY_READS` for `/vote-status` or dialog tests will throw on unknown transport URLs.
+- task_04 delivers: **Votar** on `/votacoes/{pollId}`, **Gestão** → `poll-proxy-votes-dialog` (status list, Exibir filter Todas/Pendente, per-unit proxy, unmount invalidate `[POLLS_KEY,'vote-status']`); `serveAssemblies` now also installs `apiPost` for `POST /polls/:id/votes`.
 - Contract sources: `.compozy/tasks/votacoes-assembleias/_techspec.md`, `_tests.md`, ADRs 001–007.

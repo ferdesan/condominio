@@ -10,7 +10,7 @@
  */
 
 import { vi } from 'vitest';
-import { ApiError, apiGet, apiGetPaginated } from '@/lib/api';
+import { ApiError, apiGet, apiGetPaginated, apiPost } from '@/lib/api';
 import { makeMeta } from '@/test/fixtures';
 import type {
   Assembly,
@@ -195,6 +195,33 @@ export function serveAssemblies(initial: Partial<AssemblyWorld> = {}): AssemblyW
     }
 
     throw new Error(`URL nao prevista no teste: ${url}`);
+  });
+
+  /*
+    O POST do voto proxy e servido aqui junto das leituras: o dialogo de gestao
+    precisa de um caminho feliz que reconcilie status e apuracao sem cada teste
+    refazer a mesma mutacao do mundo. URL desconhecida nao lanca — o vi.fn sem
+    implementacao devolvia undefined, e manter isso evita quebrar casos que
+    montam o mundo e depois sobrescrevem o `apiPost` com o proprio cenario.
+  */
+  vi.mocked(apiPost).mockImplementation(async (url, body) => {
+    const proxy = /^\/polls\/[^/]+\/votes$/.exec(url);
+    if (proxy) {
+      const { unitId } = (body ?? {}) as { unitId?: string };
+      world.voteStatus = world.voteStatus.map((row) =>
+        row.unitId === unitId ? { ...row, status: 'VOTED' as const } : row,
+      );
+      world.results = {
+        ...world.results,
+        totalVotes: world.results.totalVotes + 1,
+        options: world.results.options.map((option, index) =>
+          index === 0 ? { ...option, votesCount: option.votesCount + 1 } : option,
+        ),
+      };
+      return world.results as never;
+    }
+
+    return undefined as never;
   });
 
   return world;
