@@ -89,6 +89,23 @@ export function makePoll(overrides: Partial<Poll> = {}): Poll {
   };
 }
 
+/**
+ * Uma votacao aberta, com a janela cobrindo o relogio da suite.
+ *
+ * A fixture base usa abril de 2026, que ja passou: um poll `OPEN` com aquelas
+ * datas estaria fora da janela e a tela mostraria o estado de "nao aberta".
+ * Nao se muda o default — os testes de listagem contam com ele —, entao quem
+ * precisa de votacao votavel monta por aqui.
+ */
+export function makeOpenPoll(overrides: Partial<Poll> = {}): Poll {
+  return makePoll({
+    status: 'OPEN',
+    startsAt: '2020-01-01T00:00:00.000Z',
+    endsAt: '2035-01-01T00:00:00.000Z',
+    ...overrides,
+  });
+}
+
 export function makePollResults(overrides: Partial<PollResults> = {}): PollResults {
   return {
     pollId: 'poll-1',

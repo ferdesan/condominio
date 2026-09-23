@@ -19,6 +19,7 @@ import { ThemeProvider } from '@/providers/theme-provider';
 import { makeCondominium, makeMeta } from '@/test/fixtures';
 import { makeTenant } from '@/features/tenant/test-utils';
 import { makeStatement } from '@/features/financial/test-utils';
+import { makeOpenPoll } from '@/features/assemblies/test-utils';
 import { CATALOG } from '@/features/roles/test-utils';
 import { renderWithProviders, screen, within } from '@/test/render';
 import type { DashboardOverview } from '@/types/api';
@@ -46,6 +47,9 @@ const CONDOMINIUM = makeCondominium({ id: 'cond-1', name: 'Residencial Aurora' }
 
 /** A competencia da rota de balancete, usada na URL e nas leituras servidas. */
 const STATEMENT_MONTH = '2026-08';
+
+/** O titulo da fixture aberta de votacao, usado nos cabecalhos dos casos. */
+const POLL_TITLE = 'Aprovação das contas de 2025';
 
 const ZERO_OVERVIEW: DashboardOverview = {
   condominium: { id: CONDOMINIUM.id, name: CONDOMINIUM.name },
@@ -125,6 +129,16 @@ const AUXILIARY_READS: Record<string, unknown> = {
     referenceMonth: STATEMENT_MONTH,
   }),
   [`/financial/closings/${STATEMENT_MONTH}/entries`]: { entries: [], frozen: false },
+
+  /*
+    As duas leituras da rota de votacao, terceira familia de entrada desde que
+    o balancete abriu o precedente. Sem elas o `apiGet` do mundo vazio
+    responderia o 422 de URL nao prevista e o caso da rota mediria o estado de
+    erro da tela em vez da tela. A fixture aberta cobre a janela do relogio da
+    suite; my-vote "ainda nao votou" deixa a pagina no estado votavel.
+  */
+  '/polls/poll-1': makeOpenPoll(),
+  '/polls/poll-1/my-vote': { voted: false },
 };
 
 /**
@@ -436,13 +450,76 @@ describe('A rota do balancete', () => {
   it('IT-342: quem le cobranças sem ler a prestação de contas rende acesso negado', async () => {
     // `charge:read` de proposito, e nao uma lista vazia: e a permissao que
     // guarda `/financeiro`, e o caso so prova alguma coisa se quem a tem for
-    // barrado aqui. Herdar aquela guarda deixaria o documento alcancável
-    // digitando o endereço.
+    // barrado aqui. Herdar aquela guarda deixaria o documento alcancavel
+    // digitando o endereco.
     renderRoute(ROUTE, { permissions: ['charge:read'] });
 
     expect(await screen.findByText('Acesso negado')).toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { level: 1, name: /^Balancete de / }),
     ).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * A rota de votacao, terceira rota fora do menu (ADR-001), depois de
+ * `/perfil` e do balancete.
+ *
+ * Fora de `REGISTERED` pelo mesmo motivo das outras duas: nao e item de menu, e
+ * `REGISTERED` existe para casar com `NAV_ITEMS`. Os casos proprios provam a
+ * guarda `vote:read` e a ausencia na navegacao sem mexer na contagem que o
+ * primeiro caso deste arquivo compara.
+ */
+describe('A rota de votacao', () => {
+  const ROUTE = '/votacoes/poll-1';
+
+  it('UT-137: a rota nao e item de menu e a guarda e vote:read, nao assembly:read', async () => {
+    for (const item of NAV_ITEMS) {
+      expect(item.to).not.toMatch(/^\/votacoes/);
+    }
+
+    // Quem le assembleias sem voto nao alcance a tela digitando o endereco:
+    // a guarda e `vote:read` (ADR-001), e nao a `assembly:read` do modulo.
+    const denied = renderRoute(ROUTE, { permissions: ['assembly:read', 'poll:read'] });
+    expect(await screen.findByText('Acesso negado')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 1, name: POLL_TITLE })).not.toBeInTheDocument();
+    expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
+    denied.unmount();
+
+    // Com `vote:read` a pagina real monta — nunca o placeholder.
+    const allowed = renderRoute(ROUTE, { permissions: ['vote:read'] });
+    expect(
+      await screen.findByRole('heading', { level: 1, name: POLL_TITLE }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
+    allowed.unmount();
+  });
+
+  it('IT-391: AppRouter renderiza /votacoes/{id} para quem tem vote:read, fora da sidebar', async () => {
+    const view = renderRoute(ROUTE, { permissions: ['vote:read'] });
+
+    // O cabecalho da pagina prova que o VotePage montou; o placeholder nao.
+    expect(
+      await screen.findByRole('heading', { level: 1, name: POLL_TITLE }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
+
+    const menu = within(
+      screen.getByRole('complementary', { name: 'Navegação principal' }),
+    ).getByRole('navigation');
+    expect(within(menu).queryByRole('link', { name: /Votação|votar/i })).not.toBeInTheDocument();
+    for (const item of NAV_ITEMS) {
+      expect(item.to).not.toBe(ROUTE);
+    }
+
+    view.unmount();
+  });
+
+  it('IT-392: so assembly:read rende acesso negado — a guarda nao herda do modulo', async () => {
+    renderRoute(ROUTE, { permissions: ['assembly:read', 'poll:read'] });
+
+    expect(await screen.findByText('Acesso negado')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 1, name: POLL_TITLE })).not.toBeInTheDocument();
+    expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
   });
 });

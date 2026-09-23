@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 title: "VotePage + rota /votacoes/:pollId"
 type: frontend
 complexity: high
@@ -33,15 +33,15 @@ Entrega a superfície canônica de voto do morador: página em `/votacoes/:pollI
 
 ## Subtasks
 
-- [ ] 3.1 Criar `vote-page.tsx` com estados de carregamento, 404, proibida, não-aberta, votável e já-votou
-- [ ] 3.2 Ligar `useMyVote` + `useCastVote` + `pollHooks.useOne` e a transição para confirmação
-- [ ] 3.3 Exibir `PollResultsPanel` após confirmação quando `poll:read`; sem ela, só confirmação
-- [ ] 3.4 Tratar 409/erro de voto como já-votou/conflito sem quebrar a página
-- [ ] 3.5 Registrar a rota em `app-router.tsx` com guarda `vote:read`, fora de menu/IMPLEMENTED
-- [ ] 3.6 Estender `AUXILIARY_READS` / fixtures de rota para as leituras da VotePage
-- [ ] 3.7 Escrever testes da página (IT-347,349–357,362–368,371,372)
-- [ ] 3.8 Escrever casos de rota e notificação (UT-137, IT-389–IT-392)
-- [ ] 3.9 Rodar `npm --prefix frontend run typecheck && npm run lint && npm test` e deixar verde
+- [x] 3.1 Criar `vote-page.tsx` com estados de carregamento, 404, proibida, não-aberta, votável e já-votou
+- [x] 3.2 Ligar `useMyVote` + `useCastVote` + `pollHooks.useOne` e a transição para confirmação
+- [x] 3.3 Exibir `PollResultsPanel` após confirmação quando `poll:read`; sem ela, só confirmação
+- [x] 3.4 Tratar 409/erro de voto como já-votou/conflito sem quebrar a página
+- [x] 3.5 Registrar a rota em `app-router.tsx` com guarda `vote:read`, fora de menu/IMPLEMENTED
+- [x] 3.6 Estender `AUXILIARY_READS` / fixtures de rota para as leituras da VotePage
+- [x] 3.7 Escrever testes da página (IT-347,349–357,362–368,371,372)
+- [x] 3.8 Escrever casos de rota e notificação (UT-137, IT-389–IT-392)
+- [x] 3.9 Rodar `npm --prefix frontend run typecheck && npm run lint && npm test` e deixar verde
 
 ## Implementation Details
 
@@ -91,11 +91,11 @@ Ver "Data flow — resident vote", "Route / Permission Matrix" e "Build Order" 7
 
 Cases assigned from [`_tests.md`](_tests.md), the test contract — read each ID's full definition there before writing tests.
 
-- [ ] UT-137 — rota fora de `NAV_ITEMS`/`IMPLEMENTED` e guarda `vote:read`
-- [ ] IT-347, IT-349–IT-357 — VotePage: voto feliz, proibida, 404, fechada, janela, auth, já-votou, OWNERS 403, 409, controle acessível
-- [ ] IT-362–IT-368 — confirmação, apuração, secreto, falha de results, CLOSED, sem `poll:read`, retorno com optionId
-- [ ] IT-371, IT-372 — 409 com my-vote false → já-votou; poll sumiu → 404 sem crash
-- [ ] IT-389–IT-392 — login/retorno, clicar com poll fechado, rota no AppRouter real, negada só com `assembly:read`
+- [x] UT-137 — rota fora de `NAV_ITEMS`/`IMPLEMENTED` e guarda `vote:read`
+- [x] IT-347, IT-349–IT-357 — VotePage: voto feliz, proibida, 404, fechada, janela, auth, já-votou, OWNERS 403, 409, controle acessível
+- [x] IT-362–IT-368 — confirmação, apuração, secreto, falha de results, CLOSED, sem `poll:read`, retorno com optionId
+- [x] IT-371, IT-372 — 409 com my-vote false → já-votou; poll sumiu → 404 sem crash
+- [x] IT-389–IT-392 — login/retorno, clicar com poll fechado, rota no AppRouter real, negada só com `assembly:read`
 
 ## Success Criteria
 
