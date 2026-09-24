@@ -82,9 +82,18 @@ export function UsersPage() {
   // (ADR-002). E a mesma divisao que `user.routes.ts` faz.
   const canManage = can('user:manage');
 
-  const rolesQuery = useRoleOptions();
+  /*
+   * As duas colecoes auxiliares tem rota propria, e o servidor exige a permissao
+   * de leitura de cada uma. Sem o gate a consulta sai, o 403 vira o toast global
+   * "Voce nao possui permissao" — o mesmo motivo de `canReadUsers` em
+   * `incidents-page.tsx`. A listagem de usuarios segue util sem as duas: o papel
+   * ja vem aninhado na propria linha, e a unidade cai no placeholder neutro.
+   */
+  const canReadRoles = can('role:read');
+  const canReadUnits = can('unit:read');
+  const rolesQuery = useRoleOptions({ enabled: canReadRoles });
   const roles = useMemo(() => rolesQuery.data?.data ?? [], [rolesQuery.data]);
-  const unitsQuery = useUnitOptions();
+  const unitsQuery = useUnitOptions({ enabled: canReadUnits });
   const units = useMemo(() => unitsQuery.data?.data ?? [], [unitsQuery.data]);
   const unitsById = useMemo(() => new Map(units.map((unit) => [unit.id, unit])), [units]);
 
@@ -251,7 +260,15 @@ export function UsersPage() {
             }
           />
         }
-        filters={<UserFilters list={list} roles={roles} units={units} />}
+        filters={
+          <UserFilters
+            list={list}
+            roles={roles}
+            units={units}
+            showRoleFilter={canReadRoles}
+            showUnitFilter={canReadUnits}
+          />
+        }
         content={
           <div className="p-4 space-y-4">
             {showEmpty ? (
@@ -314,6 +331,8 @@ export function UsersPage() {
           roles={roles}
           units={units}
           condominiums={condominiums}
+          canReadRoles={canReadRoles}
+          canReadUnits={canReadUnits}
           onClose={() => setFormTarget(undefined)}
         />
       ) : null}

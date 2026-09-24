@@ -13,7 +13,7 @@ import {
   within,
 } from '@/test/render';
 import { UsersPage } from '../users-page';
-import { makeUser, serveUsers, type UserWorld } from '../test-utils';
+import { makeRole, makeUser, serveUsers, type UserWorld } from '../test-utils';
 
 vi.mock('@/lib/api', async () => {
   const actual = await vi.importActual<typeof import('@/lib/api')>('@/lib/api');
@@ -222,6 +222,20 @@ describe('Cadastro de usuário', () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
+  it('sem role:read a criação fica bloqueada, com o aviso do que falta', async () => {
+    world = serveUsers({ users: [] });
+    renderWithProviders(<UsersPage />, { permissions: ['user:read', 'user:create'] });
+
+    await screen.findByText('Nenhum usuário cadastrado');
+    await openCreateDialog();
+
+    // Sem a lista de papeis nao ha como escolher um, e `roleId` e obrigatorio:
+    // o seletor vazio so pareceria funcionavel e recusaria na validacao.
+    expect(within(dialog()).queryByLabelText('Papel')).not.toBeInTheDocument();
+    expect(within(dialog()).getByText('role:read')).toBeInTheDocument();
+    expect(within(dialog()).getByRole('button', { name: 'Cadastrar' })).toBeDisabled();
+  });
+
   it('dois cliques em cadastrar disparam uma requisição so', async () => {
     world = serveUsers({ users: [] });
     const user = createUser();
@@ -302,6 +316,54 @@ describe('Edição de usuário', () => {
     expect(lastUpdateBody().document).toBe('52998224725');
   });
 
+  it('troca o papel para um personalizado e envia o novo roleId', async () => {
+    world = serveUsers({ users: [makeUser()] });
+    const customRole = makeRole({ id: 'role-9', name: 'CONSELHO FISCAL', isSystem: false });
+    world.roles = [...world.roles, customRole];
+    mockPatch.mockImplementation(async () => {
+      world.users = [makeUser({ roleId: customRole.id, role: customRole })];
+      return world.users[0] as never;
+    });
+    renderWithProviders(<UsersPage />);
+
+    await screen.findByText(NAME);
+    await openEditDialog();
+
+    // O formulario abre com o papel ja gravado; trocar precisa mandar o novo id,
+    // e nao deixar o antigo no corpo.
+    selectOption(within(dialog()).getByLabelText('Papel'), 'CONSELHO FISCAL');
+    submitEdit();
+
+    await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(1));
+    expect(lastUpdateBody().roleId).toBe('role-9');
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(await screen.findByText('CONSELHO FISCAL')).toBeInTheDocument();
+  });
+
+  it('sem role:read a edição vira aviso e mantém o papel já gravado', async () => {
+    world = serveUsers({ users: [makeUser()] });
+    mockPatch.mockImplementation(async () => {
+      world.users = [makeUser()];
+      return world.users[0] as never;
+    });
+    renderWithProviders(<UsersPage />, {
+      permissions: ['user:read', 'user:update', 'unit:read'],
+    });
+
+    await screen.findByText(NAME);
+    await openEditDialog();
+
+    expect(within(dialog()).queryByLabelText('Papel')).not.toBeInTheDocument();
+    expect(within(dialog()).getByText('role:read')).toBeInTheDocument();
+
+    submitEdit();
+
+    await waitFor(() => expect(mockPatch).toHaveBeenCalledTimes(1));
+    // O valor inicial continua indo: o papel atual nao e trocado por acidente.
+    expect(lastUpdateBody().roleId).toBe('role-1');
+  });
+
   it('um CPF incompleto para no próprio campo', async () => {
     world = serveUsers({ users: [makeUser()] });
     renderWithProviders(<UsersPage />);
@@ -372,5 +434,41 @@ describe('Erros do servidor no formulário de usuário', () => {
     expect(within(dialog()).getByLabelText('Nome')).toHaveValue('Paulo Nunes');
     expect(within(dialog()).getByLabelText('E-mail')).toHaveValue('marina@exemplo.com');
     expect(within(dialog()).getByLabelText('Telefone')).toHaveValue('11977776666');
+  });
+
+  it('um 404 de papel recusado mantém o formulário aberto com a mensagem', async () => {
+    world = serveUsers({ users: [makeUser()] });
+    mockPatch.mockRejectedValue(new ApiError('Papel de acesso nao encontrado.', 404, 'NOT_FOUND'));
+    renderWithProviders(<UsersPage />);
+
+    await screen.findByText(NAME);
+    await openEditDialog();
+
+    selectOption(within(dialog()).getByLabelText('Papel'), 'STAFF');
+    submitEdit();
+
+    // So o 404 do proprio registro fecha em silencio: este e uma recusa do
+    // envio e precisa aparecer, senao o dialogo fecha fingindo que salvou.
+    const alert = await within(dialog()).findByRole('alert');
+    expect(alert).toHaveTextContent('Papel de acesso nao encontrado.');
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('um 404 do próprio registro fecha o formulário e revalida a lista', async () => {
+    world = serveUsers({ users: [makeUser()] });
+    const user = createUser();
+    mockPatch.mockRejectedValue(new ApiError('Usuario nao encontrado.', 404, 'NOT_FOUND'));
+    renderWithProviders(<UsersPage />);
+
+    await screen.findByText(NAME);
+    await openEditDialog();
+
+    const name = within(dialog()).getByLabelText('Nome');
+    await user.clear(name);
+    await user.type(name, 'Marina Alves');
+    submitEdit();
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(mockToastError).not.toHaveBeenCalled();
   });
 });
