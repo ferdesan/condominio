@@ -1,42 +1,129 @@
+import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AppShell } from '@/components/layout/app-shell';
 import { CondominiumProvider } from '@/providers/condominium-provider';
 import { LoginPage } from '@/features/auth/login-page';
 import { ForgotPasswordPage } from '@/features/auth/forgot-password-page';
 import { ResetPasswordPage } from '@/features/auth/reset-password-page';
-import { DashboardPage } from '@/features/dashboard/dashboard-page';
-import { CondominiumsPage } from '@/features/condominiums/condominiums-page';
-import { CondominiumDetailPage } from '@/features/condominiums/condominium-detail-page';
-import { UnitsPage } from '@/features/units/units-page';
-import { ResidentsPage } from '@/features/residents/residents-page';
-import { ReservationsPage } from '@/features/reservations/reservations-page';
-import { BlocksPage } from '@/features/blocks/blocks-page';
-import { DependentsPage } from '@/features/dependents/dependents-page';
-import { EmployeesPage } from '@/features/employees/employees-page';
-import { ServiceProvidersPage } from '@/features/service-providers/service-providers-page';
-import { VehiclesPage } from '@/features/vehicles/vehicles-page';
-import { CommonAreasPage } from '@/features/common-areas/common-areas-page';
-import { VisitorsPage } from '@/features/visitors/visitors-page';
-import { CorrespondencesPage } from '@/features/correspondences/correspondences-page';
-import { AnnouncementsPage } from '@/features/announcements/announcements-page';
-import { IncidentsPage } from '@/features/incidents/incidents-page';
-import { MaintenancesPage } from '@/features/maintenances/maintenances-page';
-import { UsersPage } from '@/features/users/users-page';
-import { AuditPage } from '@/features/audit/audit-page';
-import { NotificationsPage } from '@/features/notifications/notifications-page';
-import { FinancialPage } from '@/features/financial/financial-page';
-import { BalancetePage } from '@/features/financial/balancete-page';
-import { AssembliesPage } from '@/features/assemblies/assemblies-page';
-import { VotePage } from '@/features/assemblies/vote-page';
-import { DocumentsPage } from '@/features/documents/documents-page';
-import { RolesPage } from '@/features/roles/roles-page';
-import { TenantPage } from '@/features/tenant/tenant-page';
-import { LgpdPage } from '@/features/lgpd/lgpd-page';
-import { ProfilePage } from '@/features/profile/profile-page';
 import { NotFoundPage } from '@/features/misc/not-found-page';
 import { PlaceholderPage } from '@/features/misc/placeholder-page';
 import { NAV_ITEMS } from './navigation';
 import { ProtectedRoute } from './protected-route';
+
+/*
+  Code splitting por rota (A9 do review): o bundle monolitico carregava as ~30
+  paginas (incl. Recharts do financeiro) no boot. As tres publicas e o shell
+  ficam eager — login e guardas precisam na primeira pintura; o resto entra no
+  clique/navegacao.
+*/
+const DashboardPage = lazy(() =>
+  import('@/features/dashboard/dashboard-page').then((m) => ({ default: m.DashboardPage })),
+);
+const CondominiumsPage = lazy(() =>
+  import('@/features/condominiums/condominiums-page').then((m) => ({ default: m.CondominiumsPage })),
+);
+const CondominiumDetailPage = lazy(() =>
+  import('@/features/condominiums/condominium-detail-page').then((m) => ({
+    default: m.CondominiumDetailPage,
+  })),
+);
+const UnitsPage = lazy(() =>
+  import('@/features/units/units-page').then((m) => ({ default: m.UnitsPage })),
+);
+const ResidentsPage = lazy(() =>
+  import('@/features/residents/residents-page').then((m) => ({ default: m.ResidentsPage })),
+);
+const ReservationsPage = lazy(() =>
+  import('@/features/reservations/reservations-page').then((m) => ({
+    default: m.ReservationsPage,
+  })),
+);
+const BlocksPage = lazy(() =>
+  import('@/features/blocks/blocks-page').then((m) => ({ default: m.BlocksPage })),
+);
+const DependentsPage = lazy(() =>
+  import('@/features/dependents/dependents-page').then((m) => ({ default: m.DependentsPage })),
+);
+const EmployeesPage = lazy(() =>
+  import('@/features/employees/employees-page').then((m) => ({ default: m.EmployeesPage })),
+);
+const ServiceProvidersPage = lazy(() =>
+  import('@/features/service-providers/service-providers-page').then((m) => ({
+    default: m.ServiceProvidersPage,
+  })),
+);
+const VehiclesPage = lazy(() =>
+  import('@/features/vehicles/vehicles-page').then((m) => ({ default: m.VehiclesPage })),
+);
+const CommonAreasPage = lazy(() =>
+  import('@/features/common-areas/common-areas-page').then((m) => ({ default: m.CommonAreasPage })),
+);
+const VisitorsPage = lazy(() =>
+  import('@/features/visitors/visitors-page').then((m) => ({ default: m.VisitorsPage })),
+);
+const CorrespondencesPage = lazy(() =>
+  import('@/features/correspondences/correspondences-page').then((m) => ({
+    default: m.CorrespondencesPage,
+  })),
+);
+const AnnouncementsPage = lazy(() =>
+  import('@/features/announcements/announcements-page').then((m) => ({
+    default: m.AnnouncementsPage,
+  })),
+);
+const IncidentsPage = lazy(() =>
+  import('@/features/incidents/incidents-page').then((m) => ({ default: m.IncidentsPage })),
+);
+const MaintenancesPage = lazy(() =>
+  import('@/features/maintenances/maintenances-page').then((m) => ({ default: m.MaintenancesPage })),
+);
+const UsersPage = lazy(() =>
+  import('@/features/users/users-page').then((m) => ({ default: m.UsersPage })),
+);
+const AuditPage = lazy(() =>
+  import('@/features/audit/audit-page').then((m) => ({ default: m.AuditPage })),
+);
+const NotificationsPage = lazy(() =>
+  import('@/features/notifications/notifications-page').then((m) => ({
+    default: m.NotificationsPage,
+  })),
+);
+const FinancialPage = lazy(() =>
+  import('@/features/financial/financial-page').then((m) => ({ default: m.FinancialPage })),
+);
+const BalancetePage = lazy(() =>
+  import('@/features/financial/balancete-page').then((m) => ({ default: m.BalancetePage })),
+);
+const AssembliesPage = lazy(() =>
+  import('@/features/assemblies/assemblies-page').then((m) => ({ default: m.AssembliesPage })),
+);
+const VotePage = lazy(() =>
+  import('@/features/assemblies/vote-page').then((m) => ({ default: m.VotePage })),
+);
+const DocumentsPage = lazy(() =>
+  import('@/features/documents/documents-page').then((m) => ({ default: m.DocumentsPage })),
+);
+const RolesPage = lazy(() =>
+  import('@/features/roles/roles-page').then((m) => ({ default: m.RolesPage })),
+);
+const TenantPage = lazy(() =>
+  import('@/features/tenant/tenant-page').then((m) => ({ default: m.TenantPage })),
+);
+const LgpdPage = lazy(() =>
+  import('@/features/lgpd/lgpd-page').then((m) => ({ default: m.LgpdPage })),
+);
+const ProfilePage = lazy(() =>
+  import('@/features/profile/profile-page').then((m) => ({ default: m.ProfilePage })),
+);
+
+/** Fallback enxuto enquanto o chunk da rota baixa. */
+function RouteFallback() {
+  return (
+    <div className="flex min-h-[40vh] items-center justify-center" role="status">
+      <span className="text-sm text-muted-foreground">Carregando…</span>
+    </div>
+  );
+}
 
 /** Itens do menu que ja possuem tela propria. */
 const IMPLEMENTED = new Set([
@@ -69,18 +156,19 @@ const IMPLEMENTED = new Set([
 
 export function AppRouter() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
 
-      {/*
-        Publicas, como o login: quem precisa delas e justamente quem não
-        consegue entrar. Nenhuma das duas redireciona sessão existente — o link
-        de redefinição chega por e-mail e precisa funcionar independentemente do
-        que este navegador tenha guardado. Fora da navegação, também: não
-        pertencem ao menu de quem já entrou.
-      */}
-      <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
-      <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+        {/*
+          Publicas, como o login: quem precisa delas e justamente quem nao
+          consegue entrar. Nenhuma das duas redireciona sessao existente — o link
+          de redefinicao chega por e-mail e precisa funcionar independentemente do
+          que este navegador tenha guardado. Fora da navegacao, tambem: nao
+          pertencem ao menu de quem ja entrou.
+        */}
+        <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
+        <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route
@@ -278,6 +366,7 @@ export function AppRouter() {
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }

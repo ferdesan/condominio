@@ -176,6 +176,77 @@ describe('Dashboard executivo e administracao de acessos', () => {
       expect((await agent.post('/financial/charges').send({})).status).toBe(403);
     });
 
+    it('troca o papel de um usuario ja cadastrado e persiste a mudanca', async () => {
+      const customRole = await admin.post('/roles').send({
+        name: 'Apoio Administrativo',
+        description: 'Papel personalizado usado na troca de perfil.',
+        permissions: ['dashboard:read', 'condominium:read'],
+      });
+      expect(customRole.status).toBe(201);
+
+      const patched = await admin.patch(`/users/${createdUserId}`).send({
+        roleId: customRole.body.data.id,
+      });
+
+      expect(patched.status).toBe(200);
+      expect(patched.body.data.roleId).toBe(customRole.body.data.id);
+
+      const fetched = await admin.get(`/users/${createdUserId}`);
+      expect(fetched.status).toBe(200);
+      expect(fetched.body.data.roleId).toBe(customRole.body.data.id);
+      expect(fetched.body.data.role.id).toBe(customRole.body.data.id);
+    });
+
+    it('sessao ativa enxerga a troca de papel e o admin nao perde acesso a listagem', async () => {
+      const fullRole = await admin.post('/roles').send({
+        name: 'Cadastro Completo',
+        permissions: ['user:read', 'user:update', 'dashboard:read'],
+      });
+      const limitedRole = await admin.post('/roles').send({
+        name: 'Somente Painel',
+        permissions: ['dashboard:read'],
+      });
+      expect(fullRole.status).toBe(201);
+      expect(limitedRole.status).toBe(201);
+
+      const invited = await admin.post('/users').send({
+        name: 'Ana Cadastro',
+        email: 'ana.cadastro@parqueflores.com.br',
+        roleId: fullRole.body.data.id,
+        condominiumIds: [ctx.seed.condominiumId],
+      });
+      expect(invited.status).toBe(201);
+
+      const agent = await login(
+        ctx,
+        'ana.cadastro@parqueflores.com.br',
+        invited.body.data.temporaryPassword,
+      );
+      expect((await agent.get('/users')).status).toBe(200);
+
+      const denied = await admin.patch(`/users/${invited.body.data.id}`).send({
+        roleId: limitedRole.body.data.id,
+      });
+      expect(denied.status).toBe(200);
+      expect(denied.body.data.roleId).toBe(limitedRole.body.data.id);
+
+      // A sessao aberta antes da troca usa o cache de autorizacao: a
+      // invalidacao do afterUpdate tem que fazer a mudanca valer na hora.
+      const blocked = await agent.get('/users');
+      expect(blocked.status).toBe(403);
+      expect(blocked.body.error.message).toBe('Voce nao possui permissao para executar esta acao.');
+
+      // Quem fez a troca continua com o proprio papel.
+      expect((await admin.get('/users')).status).toBe(200);
+
+      // Devolvendo a permissao, a mesma sessao volta a enxergar a listagem.
+      const restored = await admin.patch(`/users/${invited.body.data.id}`).send({
+        roleId: fullRole.body.data.id,
+      });
+      expect(restored.status).toBe(200);
+      expect((await agent.get('/users')).status).toBe(200);
+    });
+
     it('nao permite alterar permissoes de papel do sistema', async () => {
       const roles = await admin.get('/roles?search=SINDICO');
       const sindicoRole = roles.body.data.find((role: { name: string }) => role.name === 'SINDICO');

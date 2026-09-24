@@ -3,7 +3,7 @@
 **Type:** test
 **Wave:** 3
 **Dependencies:** task_03
-**Status:** pending
+**Status:** completed
 
 ---
 

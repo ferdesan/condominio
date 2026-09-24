@@ -7,8 +7,54 @@ import axios, {
 
 export const API_URL = import.meta.env.VITE_API_URL ?? '/api/v1';
 
-const ACCESS_TOKEN_KEY = 'condomínio.accessToken';
-const REFRESH_TOKEN_KEY = 'condomínio.refreshToken';
+/**
+ * Access e refresh em **memoria de modulo**, nunca em `localStorage`.
+ *
+ * O refresh ja e emitido pelo backend em cookie `HttpOnly; SameSite` — o
+ * storage local so existia para o JS reenviar o corpo, e e exatamente o que um
+ * XSS aproveitava. Apos reload a memoria zera; o boot chama
+ * `trySilentLogin()` (refresh via cookie) para rehidratar o access.
+ *
+ * `refreshToken` em memoria e so o fallback de clientes que ainda mandam corpo;
+ * o caminho normal e o cookie. Sai no `clear()` junto com o access.
+ */
+let memoryAccessToken: string | null = null;
+let memoryRefreshToken: string | null = null;
+
+/**
+ * Marca de "ja houve login neste navegador", sem conteudo sensivel.
+ *
+ * Depois de reload a memoria zera e o cookie httpOnly nao e legivel do JS, entao
+ * sem esta marca o boot nao distinguiria "sessao para restaurar" de "visita
+ * anonima" — e chamaria o refresh de todo visitante. Nao e credencial: um XSS
+ * que leia a marca so descobre que vale tentar o cookie, que ele proprio ja
+ * manda no refresh.
+ */
+const SESSION_HINT_KEY = 'condomínio.session';
+
+function markSession(): void {
+  try {
+    localStorage.setItem(SESSION_HINT_KEY, '1');
+  } catch {
+    // Armazenamento indisponivel: o cookie ainda restaura a sessao no boot.
+  }
+}
+
+function clearSessionHint(): void {
+  try {
+    localStorage.removeItem(SESSION_HINT_KEY);
+  } catch {
+    // Irrelevante: sem storage, a marca nunca existiu.
+  }
+}
+
+export function hasSessionHint(): boolean {
+  try {
+    return localStorage.getItem(SESSION_HINT_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
 
 export type ApiEnvelope<T> = {
   success: true;
@@ -60,18 +106,20 @@ export class ApiError extends Error {
 
 export const tokenStorage = {
   get accessToken(): string | null {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
+    return memoryAccessToken;
   },
   get refreshToken(): string | null {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+    return memoryRefreshToken;
   },
   set(accessToken: string, refreshToken: string): void {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    memoryAccessToken = accessToken;
+    memoryRefreshToken = refreshToken;
+    markSession();
   },
   clear(): void {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    memoryAccessToken = null;
+    memoryRefreshToken = null;
+    clearSessionHint();
   },
 };
 
@@ -95,13 +143,17 @@ let refreshPromise: Promise<string | null> | null = null;
 /**
  * Renova o access token uma unica vez por rajada de 401: requisicoes
  * concorrentes compartilham a mesma promessa e sao reexecutadas depois.
+ *
+ * O corpo vai sem `refreshToken` de proposito: o backend ja aceita o cookie
+ * httpOnly (`withCredentials`) e e ele a fonte de verdade. O valor em memoria,
+ * quando existe, e so compatibilidade com clientes nativos.
  */
 async function refreshAccessToken(): Promise<string | null> {
   if (!refreshPromise) {
     refreshPromise = axios
       .post<ApiEnvelope<{ tokens: { accessToken: string; refreshToken: string } }>>(
         `${API_URL}/auth/refresh`,
-        { refreshToken: tokenStorage.refreshToken },
+        {},
         { withCredentials: true },
       )
       .then((response) => {
@@ -118,6 +170,19 @@ async function refreshAccessToken(): Promise<string | null> {
       });
   }
   return refreshPromise;
+}
+
+/**
+ * Boot de sessao apos reload: a memoria zera, o cookie httpOnly continua.
+ * Devolve o access novo, ou `null` quando nao ha sessao para restaurar.
+ *
+ * Sem marca de sessao nao tenta nada — evita um 401 de refresh em todo visitante
+ * anonimo que abre o app.
+ */
+export async function trySilentLogin(): Promise<string | null> {
+  if (memoryAccessToken) return memoryAccessToken;
+  if (!hasSessionHint()) return null;
+  return refreshAccessToken();
 }
 
 api.interceptors.response.use(

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Telas de Prestadores e Veículos
 type: frontend
 complexity: medium

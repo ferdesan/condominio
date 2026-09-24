@@ -49,14 +49,22 @@ export const userHooks = createResourceHooks<User, UserPayload, Partial<UserPayl
  * de uma vez, ordenada por nome, e nao uma pagina navegavel. Nao ha tela de
  * papeis nesta entrega, e a chave propria evita que uma eventual venha a
  * invalidar a listagem de usuarios sem querer.
+ *
+ * `enabled` existe porque a rota exige `role:read`: sem o gate a consulta sai
+ * mesmo assim, o servidor responde 403 e o toast global anuncia "Voce nao
+ * possui permissao" sem que a tela tenha pedido nada que ela possa fazer — o
+ * mesmo motivo de `canReadUsers` em `incidents-page.tsx`.
  */
-export function useRoleOptions(): UseQueryResult<Paginated<Role>, ApiError> {
+export function useRoleOptions(
+  options: { enabled?: boolean } = {},
+): UseQueryResult<Paginated<Role>, ApiError> {
   return useQuery<Paginated<Role>, ApiError>({
     queryKey: ['roles', 'options'],
     queryFn: () =>
       apiGetPaginated<Role>('/roles', {
         params: { perPage: MAX_PER_PAGE, sortBy: 'name', sortOrder: 'ASC' },
       }),
+    enabled: options.enabled ?? true,
   });
 }
 
@@ -72,14 +80,19 @@ export function useRoleOptions(): UseQueryResult<Paginated<Role>, ApiError> {
  * A unidade vem eager com bloco e condominio, o que permite rotular a opcao sem
  * uma segunda consulta — necessario porque numeros de unidade se repetem entre
  * predios.
+ *
+ * `enabled` cobre o mesmo 403 do seletor de papeis, para `unit:read`.
  */
-export function useUnitOptions(): UseQueryResult<Paginated<Unit>, ApiError> {
+export function useUnitOptions(
+  options: { enabled?: boolean } = {},
+): UseQueryResult<Paginated<Unit>, ApiError> {
   return useQuery<Paginated<Unit>, ApiError>({
     queryKey: ['units', 'tenant-options'],
     queryFn: () =>
       apiGetPaginated<Unit>('/units', {
         params: { perPage: MAX_PER_PAGE, sortBy: 'number', sortOrder: 'ASC' },
       }),
+    enabled: options.enabled ?? true,
   });
 }
 

@@ -94,6 +94,13 @@ export class UserService extends BaseCrudService<User, CreateUserDTO, UpdateUser
     }
 
     const { condominiumIds: _ignored, ...rest } = dto;
+    if (dto.roleId && dto.roleId !== current.roleId) {
+      // A relacao `role` e eager: o findById do repositorio sempre carrega o
+      // papel antigo, e o TypeORM le o valor da coluna `role_id` da relacao em
+      // vez do escalar `roleId` — sem mandar a relacao nova junto, o diff de
+      // colunas conclui "nada mudou" e o UPDATE sai sem `role_id`.
+      return { ...rest, role: { id: dto.roleId } } as DeepPartial<User>;
+    }
     return rest as DeepPartial<User>;
   }
 

@@ -50,6 +50,15 @@ export interface UserFormDialogProps {
   units: Unit[];
   /** Condominios do tenant, do proprio shell: a tela nao faz consulta para isto. */
   condominiums: Condominium[];
+  /**
+   * A sessao pode ler `GET /roles` e `GET /units`.
+   *
+   * Sem as permissoes as colecoes nem saem (ver `users-page.tsx`), e um seletor
+   * vazio so pareceria funcionavel: o campo vira um aviso, e a criacao fica
+   * bloqueada — sem a lista de papeis nao ha como escolher um.
+   */
+  canReadRoles?: boolean;
+  canReadUnits?: boolean;
   onClose: () => void;
 }
 
@@ -71,7 +80,15 @@ export interface UserFormDialogProps {
  * exige a troca no primeiro acesso; depois disso o reset administrativo — que
  * exige `user:manage` — e a unica via. `updateUserSchema` sequer aceita o campo.
  */
-export function UserFormDialog({ user, roles, units, condominiums, onClose }: UserFormDialogProps) {
+export function UserFormDialog({
+  user,
+  roles,
+  units,
+  condominiums,
+  canReadRoles = true,
+  canReadUnits = true,
+  onClose,
+}: UserFormDialogProps) {
   const isEdit = Boolean(user);
   const queryClient = useQueryClient();
 
@@ -103,7 +120,10 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
   function handleError(error: ApiError): void {
     // O registro sumiu enquanto o dialogo estava aberto: insistir no formulario
     // nao leva a lugar nenhum, entao fechamos e deixamos a lista contar o que ha.
-    if (error.status === 404) {
+    // So este 404 fecha em silencio — um 404 por outro motivo (papel recusado,
+    // por exemplo) e falha do envio e precisa aparecer, senao o dialogo fecha
+    // fingindo que salvou.
+    if (error.status === 404 && isMissingUser(error)) {
       queryClient.invalidateQueries({ queryKey: [USERS_KEY] });
       onClose();
       return;
@@ -190,33 +210,41 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
             </FormSection>
 
             <FormSection title="Acesso">
-              <Controller
-                control={control}
-                name="roleId"
-                render={({ field, fieldState }) => (
-                  <FormField
-                    id="roleId"
-                    label="Papel"
-                    error={fieldState.error?.message}
-                    description="Define o que a pessoa pode fazer no sistema."
-                  >
-                    {(aria) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger {...aria}>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roles.map((role) => (
-                            <SelectItem key={role.id} value={role.id}>
-                              {role.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </FormField>
-                )}
-              />
+              {canReadRoles ? (
+                <Controller
+                  control={control}
+                  name="roleId"
+                  render={({ field, fieldState }) => (
+                    <FormField
+                      id="roleId"
+                      label="Papel"
+                      error={fieldState.error?.message}
+                      description="Define o que a pessoa pode fazer no sistema."
+                    >
+                      {(aria) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger {...aria}>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {roles.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>
+                                {role.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </FormField>
+                  )}
+                />
+              ) : (
+                <UnavailableField
+                  label="Papel"
+                  permission="role:read"
+                  hint={isEdit ? 'O papel ja gravado na conta e mantido.' : undefined}
+                />
+              )}
 
               <Controller
                 control={control}
@@ -241,29 +269,39 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
                 )}
               />
 
-              <Controller
-                control={control}
-                name="unitId"
-                render={({ field, fieldState }) => (
-                  <FormField
-                    id="unitId"
-                    label="Unidade"
-                    error={fieldState.error?.message}
-                    description="Apenas para contas de morador."
-                  >
-                    {(aria) => (
-                      <Combobox
-                        {...aria}
-                        value={field.value === '' ? NONE : field.value}
-                        onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
-                        options={unitOptions}
-                        searchPlaceholder="Buscar unidade"
-                        emptyMessage="Nenhuma unidade corresponde à busca."
-                      />
-                    )}
-                  </FormField>
-                )}
-              />
+              {canReadUnits ? (
+                <Controller
+                  control={control}
+                  name="unitId"
+                  render={({ field, fieldState }) => (
+                    <FormField
+                      id="unitId"
+                      label="Unidade"
+                      error={fieldState.error?.message}
+                      description="Apenas para contas de morador."
+                    >
+                      {(aria) => (
+                        <Combobox
+                          {...aria}
+                          value={field.value === '' ? NONE : field.value}
+                          onValueChange={(value) => field.onChange(value === NONE ? '' : value)}
+                          options={unitOptions}
+                          searchPlaceholder="Buscar unidade"
+                          emptyMessage="Nenhuma unidade corresponde à busca."
+                        />
+                      )}
+                    </FormField>
+                  )}
+                />
+              ) : (
+                <UnavailableField
+                  label="Unidade"
+                  permission="unit:read"
+                  hint={
+                    isEdit ? 'A unidade ja gravada na conta e mantida.' : 'E opcional no cadastro.'
+                  }
+                />
+              )}
             </FormSection>
 
             <Controller
@@ -322,7 +360,13 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
               <Button type="button" variant="outline" onClick={requestClose} disabled={pending}>
                 Cancelar
               </Button>
-              <Button type="submit" loading={pending}>
+              <Button
+                type="submit"
+                loading={pending}
+                // Sem a lista de papeis nao ha como escolher um, e `roleId` e
+                // obrigatorio: bloquear e mais honesto que falhar na validacao.
+                disabled={!isEdit && !canReadRoles}
+              >
                 {isEdit ? 'Salvar' : 'Cadastrar'}
               </Button>
             </DialogFooter>
@@ -341,6 +385,42 @@ export function UserFormDialog({ user, roles, units, condominiums, onClose }: Us
         onCancel={() => setDiscardOpen(false)}
       />
     </>
+  );
+}
+
+/**
+ * 404 apontando para o proprio usuario (mensagem do `NotFoundError('Usuario')`
+ * do servidor). E o unico 404 que pode ser tratado em silencio: os demais —
+ * papel inexistente, por exemplo — sao recusas do envio e precisam aparecer.
+ */
+function isMissingUser(error: ApiError): boolean {
+  return /^usuario nao encontrado\.?$/i.test(error.message.trim());
+}
+
+/**
+ * Substitui um seletor quando a sessao nao pode ler a colecao que o alimenta.
+ *
+ * Um select vazio pareceria escolhivel e so recusaria no envio; o aviso nomeia
+ * a permissao que falta, que e o que a pessoa precisa pedir.
+ */
+function UnavailableField({
+  label,
+  permission,
+  hint,
+}: {
+  label: string;
+  permission: string;
+  hint?: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-sm font-medium text-foreground">{label}</p>
+      <p className="text-sm text-muted-foreground">
+        Sem a permissao <code className="font-mono">{permission}</code> a lista nao pode ser
+        carregada. Peca a um administrador para concede-la.
+        {hint ? ` ${hint}` : ''}
+      </p>
+    </div>
   );
 }
 

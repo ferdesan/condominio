@@ -483,3 +483,44 @@ describe('Exclusao e restauração de usuários', () => {
     expect(mockGetPaginated).toHaveBeenCalled();
   });
 });
+
+describe('Permissões das coleções auxiliares', () => {
+  it('sem role:read o filtro de papel some e /roles não é consultado', async () => {
+    world = serveUsers({ users: [makeUser()] });
+    /*
+     * `GET /roles` exige `role:read`. Sem o gate a consulta sai, o servidor
+     * responde 403 e o toast global anuncia "Voce nao possui permissao" — o
+     * sintoma relatado em `/usuarios`.
+     */
+    renderWithProviders(<UsersPage />, {
+      role: 'SINDICO',
+      permissions: ['user:read', 'user:update', 'unit:read'],
+    });
+
+    await findRows();
+
+    expect(screen.queryByLabelText('Papel')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Unidade')).toBeInTheDocument();
+    const requested = mockGetPaginated.mock.calls.map(([url]) => url);
+    expect(requested).not.toContain('/roles');
+    expect(requested).toContain('/units');
+    expect(mockToastError).not.toHaveBeenCalled();
+    // O papel continua nomeado na linha: ele vem aninhado no proprio registro.
+    expect(cellsOf('Papel')).toEqual(['SINDICO']);
+  });
+
+  it('sem unit:read o filtro de unidade some e /units não é consultado', async () => {
+    world = serveUsers({ users: [makeUser()] });
+    renderWithProviders(<UsersPage />, {
+      role: 'SINDICO',
+      permissions: ['user:read', 'role:read'],
+    });
+
+    await findRows();
+
+    expect(screen.getByLabelText('Papel')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Unidade')).not.toBeInTheDocument();
+    expect(mockGetPaginated.mock.calls.map(([url]) => url)).not.toContain('/units');
+    expect(mockToastError).not.toHaveBeenCalled();
+  });
+});

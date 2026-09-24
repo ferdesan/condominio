@@ -11,10 +11,11 @@ services:
       MYSQL_USER: ${DB_USER:-admin}
       MYSQL_PASSWORD: ${DB_PASSWORD:?defina no .env (rode npm run secrets)}
     ports:
-      - "${DB_PORT:-3306}:3306"
+      # Bind em loopback: MySQL nao precisa (e nao deve) ser alcançavel de
+      # fora do host em ambiente compartilhado/cloud.
+      - "127.0.0.1:${DB_PORT:-3306}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./backend/src/database/seeds:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USER:-admin}", "-p${DB_PASSWORD:?defina no .env (rode npm run secrets)}"]
       interval: 10s
@@ -29,8 +30,9 @@ services:
   redis:
     image: redis:7-alpine
     container_name: condominio-redis
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
+    # Sem porta publicada: so a rede interna alcanca o cache. Se precisar de
+    # inspecao local, use `docker compose exec redis redis-cli`.
+    command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis-data:/data
     healthcheck:
@@ -81,7 +83,7 @@ services:
       SMTP_PASS: ${SMTP_PASS}
 
     ports:
-      - "${API_PORT:-3333}:3333"
+      - "127.0.0.1:${API_PORT:-3333}:3333"
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
@@ -106,7 +108,7 @@ services:
       dockerfile: Dockerfile
     container_name: condominio-web
     ports:
-      - "${WEB_PORT:-3000}:80"
+      - "127.0.0.1:${WEB_PORT:-3000}:80"
     depends_on:
       - api
     environment:

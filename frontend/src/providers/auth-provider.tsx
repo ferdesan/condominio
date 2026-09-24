@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { apiGet, apiPost, tokenStorage } from '@/lib/api';
+import { apiGet, apiPost, tokenStorage, trySilentLogin } from '@/lib/api';
 import { hasPermission } from '@/lib/permissions';
 import type { AuthUser, LoginResponse } from '@/types/api';
 import { AuthContext, type AuthContextValue } from './auth-context';
@@ -8,16 +8,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [initializing, setInitializing] = useState(true);
 
-  // Boot: so revalida se houver token guardado, evitando um 401 desnecessario.
+  // Boot: access vive so em memoria, entao apos reload tenta o refresh via
+  // cookie httpOnly antes de desistir — e so chama /auth/me se isso funcionar
+  // (ou se o access ainda estiver na memoria da mesma sessao).
   useEffect(() => {
     let active = true;
 
     async function restoreSession(): Promise<void> {
-      if (!tokenStorage.accessToken) {
-        if (active) setInitializing(false);
-        return;
-      }
       try {
+        const restored = await trySilentLogin();
+        if (!restored) {
+          if (active) setInitializing(false);
+          return;
+        }
         const profile = await apiGet<AuthUser>('/auth/me');
         if (active) setUser(profile);
       } catch {
@@ -51,7 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await apiPost('/auth/logout', { refreshToken: tokenStorage.refreshToken });
+      // O cookie httpOnly ja identifica a sessao; o corpo e opcional.
+      await apiPost('/auth/logout', {});
     } catch {
       // Sessao ja invalida no servidor: encerrar localmente basta.
     } finally {

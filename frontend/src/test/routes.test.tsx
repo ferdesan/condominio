@@ -210,6 +210,28 @@ const REGISTERED = [
 const PLACEHOLDER_MARKER = 'Modulo em construção';
 
 /**
+ * Timeout generoso: as telas do menu agora entram por `React.lazy`, e o
+ * primeiro import dinamico de um chunk pesado (financeiro, dashboard) estoura
+ * o `findBy` padrao de 1s sob carga de suite inteira. Isolado basta 1s;
+ * paralelizado com os outros 99 arquivos, 30s cobre o pico.
+ */
+const FIND_TIMEOUT = { timeout: 30_000 };
+
+/**
+ * Espera o `Suspense` do lazy terminar e a tela de verdade aparecer.
+ *
+ * Sem isto o `findBy` competia com o proprio fallback "Carregando…" e, sob
+ * carga, perdia a janela mesmo com timeout alto — o heading so monta depois do
+ * chunk, e e o chunk que atrasa.
+ */
+async function settledHeading(
+  name: string | RegExp,
+): Promise<HTMLElement> {
+  const heading = await screen.findByRole('heading', { level: 1, name }, FIND_TIMEOUT);
+  return heading;
+}
+
+/**
  * Monta o roteador inteiro no caminho pedido.
  *
  * O `ThemeProvider` entra aqui, e nao no harness compartilhado, porque so quem
@@ -252,15 +274,12 @@ describe('Cobertura do menu', () => {
 
       // O titulo da pagina e um `h1`; o item de menu com o mesmo texto e um
       // link, entao o papel desambigua sem depender da ordem no documento.
-      expect(
-        await screen.findByRole('heading', { level: 1, name: title }),
-        path,
-      ).toBeInTheDocument();
+      expect(await settledHeading(title), path).toBeInTheDocument();
       expect(screen.queryByText(PLACEHOLDER_MARKER), path).not.toBeInTheDocument();
 
       view.unmount();
     }
-  });
+  }, 300_000);
 
   it('as rotas com permissao negam acesso a um papel que não a tem', async () => {
     for (const { path, title, permission } of REGISTERED) {
@@ -271,7 +290,7 @@ describe('Cobertura do menu', () => {
 
       const view = renderRoute(path, { permissions: ['dashboard:read'] });
 
-      expect(await screen.findByText('Acesso negado'), path).toBeInTheDocument();
+      expect(await screen.findByText('Acesso negado', {}, FIND_TIMEOUT), path).toBeInTheDocument();
       expect(
         screen.queryByRole('heading', { level: 1, name: title }),
         path,
@@ -279,7 +298,7 @@ describe('Cobertura do menu', () => {
 
       view.unmount();
     }
-  });
+  }, 300_000);
 
   it('notificações e alcancável por qualquer papel autenticado', async () => {
     // Sem nenhuma permissao: o predicado do frontend trata permissao ausente
@@ -287,7 +306,7 @@ describe('Cobertura do menu', () => {
     renderRoute('/notificacoes', { permissions: [] });
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Notificações' }),
+      await screen.findByRole('heading', { level: 1, name: 'Notificações' }, FIND_TIMEOUT),
     ).toBeInTheDocument();
   });
 
@@ -308,7 +327,7 @@ describe('Cobertura do menu', () => {
     renderRoute('/');
 
     const menu = within(
-      await screen.findByRole('complementary', { name: 'Navegação principal' }),
+      await screen.findByRole('complementary', { name: 'Navegação principal' }, FIND_TIMEOUT),
     ).getByRole('navigation');
     for (const item of NAV_ITEMS) {
       const link = within(menu).getByRole('link', { name: item.label });
@@ -365,14 +384,14 @@ describe('O mecanismo de placeholder', () => {
   it('nenhum item do menu leva mais ao placeholder', async () => {
     // Com todas as telas do menu registradas, o gerador de rotas de placeholder
     // nao produz nenhuma. Ele continua no roteador de proposito: um item de menu novo
-    // ganha uma rota que explica a ausencia em vez de um 404.
+    // ganha uma rota que expica a ausencia em vez de um 404.
     for (const item of NAV_ITEMS) {
       const view = renderRoute(item.to);
-      await screen.findByRole('heading', { level: 1 });
+      await settledHeading(/.+/);
       expect(screen.queryByText(PLACEHOLDER_MARKER), item.to).not.toBeInTheDocument();
       view.unmount();
     }
-  });
+  }, 300_000);
 
   it('não resta nenhuma rota servida pelo placeholder', async () => {
     // `/perfil` era a ultima, e ganhou tela propria. O componente continua no
@@ -430,7 +449,7 @@ describe('A rota do balancete', () => {
     // so a regiao com os dados prova que as duas leituras foram servidas — que e
     // justamente o que as entradas novas de `AUXILIARY_READS` garantem.
     expect(
-      await screen.findByRole('region', { name: 'Resumo da competência' }),
+      await screen.findByRole('region', { name: 'Resumo da competência' }, FIND_TIMEOUT),
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: /^Balancete de / })).toBeInTheDocument();
     expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();

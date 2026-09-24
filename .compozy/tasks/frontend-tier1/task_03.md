@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Telas de Áreas comuns e Blocos
 type: frontend
 complexity: medium

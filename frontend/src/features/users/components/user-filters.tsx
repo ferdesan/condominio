@@ -35,9 +35,24 @@ export interface UserFiltersProps {
   list: ListState;
   roles: Role[];
   units: Unit[];
+  /**
+   * A sessao pode ler `GET /roles` / `GET /units`.
+   *
+   * Sem as permissoes as colecoes nem saem (ver `users-page.tsx`), e um seletor
+   * vazio so pareceria funcionar: o chip de filtro tambem some, porque
+   * `labelOf` resolveria o id salvo sem nome nenhum.
+   */
+  showRoleFilter?: boolean;
+  showUnitFilter?: boolean;
 }
 
-export function UserFilters({ list, roles, units }: UserFiltersProps) {
+export function UserFilters({
+  list,
+  roles,
+  units,
+  showRoleFilter = true,
+  showUnitFilter = true,
+}: UserFiltersProps) {
   const roleOptions = roles.map((role) => ({ value: role.id, label: role.name }));
   const unitOptions = units.map((unit) => ({ value: unit.id, label: unitLabel(unit) }));
 
@@ -49,10 +64,10 @@ export function UserFilters({ list, roles, units }: UserFiltersProps) {
       value: labelOf(STATUS_OPTIONS, list.filters.status),
     });
   }
-  if (list.filters.roleId) {
+  if (showRoleFilter && list.filters.roleId) {
     chips.push({ id: 'roleId', label: 'Papel', value: labelOf(roleOptions, list.filters.roleId) });
   }
-  if (list.filters.unitId) {
+  if (showUnitFilter && list.filters.unitId) {
     chips.push({
       id: 'unitId',
       label: 'Unidade',
@@ -108,45 +123,49 @@ export function UserFilters({ list, roles, units }: UserFiltersProps) {
           </Select>
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="user-role">Papel</Label>
-          <Select
-            value={(list.filters.roleId as string) ?? ANY}
-            onValueChange={(value) => list.setFilter('roleId', value === ANY ? undefined : value)}
-          >
-            <SelectTrigger id="user-role">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ANY}>Todos</SelectItem>
-              {roleOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {showRoleFilter ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="user-role">Papel</Label>
+            <Select
+              value={(list.filters.roleId as string) ?? ANY}
+              onValueChange={(value) => list.setFilter('roleId', value === ANY ? undefined : value)}
+            >
+              <SelectTrigger id="user-role">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY}>Todos</SelectItem>
+                {roleOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
 
-        <div className="space-y-1.5 lg:col-span-2">
-          <Label htmlFor="user-unit">Unidade</Label>
-          <Select
-            value={(list.filters.unitId as string) ?? ANY}
-            onValueChange={(value) => list.setFilter('unitId', value === ANY ? undefined : value)}
-          >
-            <SelectTrigger id="user-unit">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ANY}>Todas</SelectItem>
-              {unitOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {showUnitFilter ? (
+          <div className="space-y-1.5 lg:col-span-2">
+            <Label htmlFor="user-unit">Unidade</Label>
+            <Select
+              value={(list.filters.unitId as string) ?? ANY}
+              onValueChange={(value) => list.setFilter('unitId', value === ANY ? undefined : value)}
+            >
+              <SelectTrigger id="user-unit">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY}>Todas</SelectItem>
+                {unitOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
       </div>
 
       {/*

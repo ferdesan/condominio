@@ -23,7 +23,12 @@ authRouter.post(
   validate({ body: registerTenantSchema }),
   authController.register,
 );
-authRouter.post('/refresh', validate({ body: refreshSchema }), authController.refresh);
+authRouter.post(
+  '/refresh',
+  authRateLimiter,
+  validate({ body: refreshSchema }),
+  authController.refresh,
+);
 authRouter.post(
   '/forgot-password',
   authRateLimiter,
@@ -36,7 +41,7 @@ authRouter.post(
   validate({ body: resetPasswordSchema }),
   authController.resetPassword,
 );
-authRouter.post('/logout', authController.logout);
+authRouter.post('/logout', authRateLimiter, authController.logout);
 
 // Rotas autenticadas.
 authRouter.get('/me', authenticate, authController.me);
