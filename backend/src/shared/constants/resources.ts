@@ -28,6 +28,9 @@ export const RESOURCES = [
   'maintenance',
   'document',
   'dashboard',
+  // Card "Atividade recente" do painel: le a trilha de auditoria do tenant, por
+  // isso fica separado de `dashboard` e cada papel decide se o ve.
+  'dashboard-activity',
   'audit-log',
   'notification',
   'lgpd-request',

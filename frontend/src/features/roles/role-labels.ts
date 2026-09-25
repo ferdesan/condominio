@@ -55,6 +55,7 @@ const RESOURCE_LABELS: Record<string, string> = {
   maintenance: 'Manutenções',
   document: 'Documentos',
   dashboard: 'Painel',
+  'dashboard-activity': 'Atividade recente do painel',
   'audit-log': 'Auditoria',
   notification: 'Notificações',
 };
@@ -89,7 +90,7 @@ export const PERMISSION_GROUPS: Array<{ title: string; resources: string[] }> = 
   },
   { title: 'Operação', resources: ['incident', 'maintenance', 'document'] },
   { title: 'Administração', resources: ['tenant', 'user', 'role', 'audit-log'] },
-  { title: 'Sistema', resources: ['dashboard', 'notification'] },
+  { title: 'Sistema', resources: ['dashboard', 'dashboard-activity', 'notification'] },
 ];
 
 /** Dito na tarja de um papel semeado pelo sistema. */

@@ -56,6 +56,7 @@ export const maintenanceHooks = createResourceHooks<
  */
 export function useServiceProviderOptions(
   condominiumId: string | null,
+  options: { enabled?: boolean } = {},
 ): UseQueryResult<Paginated<ServiceProvider>, ApiError> {
   return useQuery<Paginated<ServiceProvider>, ApiError>({
     queryKey: ['service-providers', 'options', condominiumId],
@@ -69,7 +70,7 @@ export function useServiceProviderOptions(
           sortOrder: 'ASC',
         },
       }),
-    enabled: Boolean(condominiumId),
+    enabled: Boolean(condominiumId) && (options.enabled ?? true),
   });
 }
 
@@ -83,6 +84,7 @@ export function useServiceProviderOptions(
  */
 export function useResponsibleOptions(
   condominiumId: string | null,
+  options: { enabled?: boolean } = {},
 ): UseQueryResult<Paginated<User>, ApiError> {
   return useQuery<Paginated<User>, ApiError>({
     queryKey: ['users', 'options'],
@@ -97,7 +99,7 @@ export function useResponsibleOptions(
           sortOrder: 'ASC',
         },
       }),
-    enabled: Boolean(condominiumId),
+    enabled: Boolean(condominiumId) && (options.enabled ?? true),
   });
 }
 

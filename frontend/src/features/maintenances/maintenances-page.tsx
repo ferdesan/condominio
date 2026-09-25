@@ -71,15 +71,25 @@ export function MaintenancesPage() {
   const canCreate = can('maintenance:create');
   const canUpdate = can('maintenance:update');
   const canDelete = can('maintenance:delete');
+  /*
+    `GET /users` e de `user:read`, e `GET /service-providers` de
+    `service-provider:read`. Quem entra em `/manutencoes` so com
+    `maintenance:read` (a portaria) nao tem a primeira: sem o gate a consulta
+    sai, o servidor responde 403 e o toast global anuncia "Voce nao possui
+    permissao" sem que a tela tenha pedido nada que ela possa fazer. Mesmo
+    motivo de `canReadUsers` em `incidents-page.tsx`.
+  */
+  const canReadUsers = can('user:read');
+  const canReadProviders = can('service-provider:read');
 
-  const providersQuery = useServiceProviderOptions(selectedId);
+  const providersQuery = useServiceProviderOptions(selectedId, { enabled: canReadProviders });
   const providers = useMemo(() => providersQuery.data?.data ?? [], [providersQuery.data]);
   const providersById = useMemo(
     () => new Map(providers.map((provider) => [provider.id, provider])),
     [providers],
   );
 
-  const responsiblesQuery = useResponsibleOptions(selectedId);
+  const responsiblesQuery = useResponsibleOptions(selectedId, { enabled: canReadUsers });
   // O recorte por condominio e do cliente: `/users` e por tenant e nao aceita
   // `condominiumId` como filtro, entao mandar a chave nao escoparia nada.
   const responsibles = useMemo(
@@ -329,7 +339,13 @@ export function MaintenancesPage() {
           </div>
         }
         filters={
-          <MaintenanceFilters list={list} providers={providers} responsibles={responsibles} />
+          <MaintenanceFilters
+            list={list}
+            providers={providers}
+            responsibles={responsibles}
+            showProvider={canReadProviders}
+            showResponsible={canReadUsers}
+          />
         }
         content={
           <div className="p-4 space-y-4">

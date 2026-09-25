@@ -42,9 +42,21 @@ export interface MaintenanceFiltersProps {
   providers: ServiceProvider[];
   /** Ja recortados para o condominio selecionado por `scopeToCondominium`. */
   responsibles: User[];
+  /**
+   * Sem `service-provider:read` / `user:read` a colecao nem e buscada — o
+   * servidor recusaria —, e um select so com "Todos" nao filtra nada.
+   */
+  showProvider?: boolean;
+  showResponsible?: boolean;
 }
 
-export function MaintenanceFilters({ list, providers, responsibles }: MaintenanceFiltersProps) {
+export function MaintenanceFilters({
+  list,
+  providers,
+  responsibles,
+  showProvider = true,
+  showResponsible = true,
+}: MaintenanceFiltersProps) {
   const providerOptions = providers.map((provider) => ({
     value: provider.id,
     label: provider.tradeName ?? provider.companyName,
@@ -174,49 +186,53 @@ export function MaintenanceFilters({ list, providers, responsibles }: Maintenanc
           </Select>
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="maintenance-provider">Prestador</Label>
-          <Select
-            value={(list.filters.serviceProviderId as string) ?? ANY}
-            onValueChange={(value) =>
-              list.setFilter('serviceProviderId', value === ANY ? undefined : value)
-            }
-          >
-            <SelectTrigger id="maintenance-provider">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ANY}>Todos</SelectItem>
-              {providerOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {showProvider ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="maintenance-provider">Prestador</Label>
+            <Select
+              value={(list.filters.serviceProviderId as string) ?? ANY}
+              onValueChange={(value) =>
+                list.setFilter('serviceProviderId', value === ANY ? undefined : value)
+              }
+            >
+              <SelectTrigger id="maintenance-provider">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY}>Todos</SelectItem>
+                {providerOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
 
-        <div className="space-y-1.5">
-          <Label htmlFor="maintenance-responsible">Responsável</Label>
-          <Select
-            value={(list.filters.responsibleId as string) ?? ANY}
-            onValueChange={(value) =>
-              list.setFilter('responsibleId', value === ANY ? undefined : value)
-            }
-          >
-            <SelectTrigger id="maintenance-responsible">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ANY}>Todos</SelectItem>
-              {responsibleOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {showResponsible ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="maintenance-responsible">Responsável</Label>
+            <Select
+              value={(list.filters.responsibleId as string) ?? ANY}
+              onValueChange={(value) =>
+                list.setFilter('responsibleId', value === ANY ? undefined : value)
+              }
+            >
+              <SelectTrigger id="maintenance-responsible">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY}>Todos</SelectItem>
+                {responsibleOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
       </div>
 
       {/*
