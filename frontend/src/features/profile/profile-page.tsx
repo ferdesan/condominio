@@ -69,7 +69,7 @@ export function ProfilePage() {
               <CardHeader>
                 <CardTitle>Seus dados pessoais</CardTitle>
                 <CardDescription>
-                  Exerca os seus direitos de titular de dados: exportar o que o condomínio guarda
+                  Exerça os seus direitos de titular de dados: exportar o que o condomínio guarda
                   sobre você ou solicitar a anonimização.
                 </CardDescription>
               </CardHeader>
@@ -77,7 +77,7 @@ export function ProfilePage() {
                 <Button asChild variant="outline">
                   <Link to="/lgpd?tab=export">
                     <ShieldAlert className="size-4" aria-hidden="true" />
-                    Solicitar exclusao de dados
+                    Solicitar exclusão de dados
                   </Link>
                 </Button>
               </CardContent>

@@ -62,7 +62,7 @@ describe('LGPD - gestao de consentimento (UT-022..023)', () => {
     });
 
     expect(result.granted).toBe(false);
-    expect(result.warnings.some((warning) => warning.toLowerCase().includes('cobranca'))).toBe(
+    expect(result.warnings.some((warning) => warning.toLowerCase().includes('cobrança'))).toBe(
       true,
     );
   });
