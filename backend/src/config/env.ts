@@ -38,6 +38,27 @@ const envSchema = z.object({
   BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(4).max(15).default(10),
   PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().positive().default(30),
 
+  // E-mail (SMTP). Sem SMTP_HOST o mailer cai para console: em desenvolvimento
+  // imprime o link, em producao so registra o erro — nunca o token.
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_SECURE: booleanFromString.default(false),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SMTP_FROM: z.string().default('noreply@example.com'),
+
+  /**
+   * Base publica do front, de onde sai o link de redefinicao de senha. E a URL
+   * que o navegador do usuario abre, nao a da API — por isso tem variavel
+   * propria em vez de reaproveitar `API_URL`. Valor vazio vira o default: o
+   * compose exporta a chave mesmo quando o `.env` nao a define.
+   */
+  FRONTEND_URL: z
+    .string()
+    .default('')
+    .transform((value) => value.trim() || 'http://localhost:5173')
+    .pipe(z.string().url()),
+
   // Security
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
@@ -107,6 +128,12 @@ function loadEnv(): Env {
     ];
     if (insecureDefaults.includes(parsed.data.JWT_SECRET) || insecureDefaults.includes(parsed.data.JWT_REFRESH_SECRET)) {
       throw new Error('JWT_SECRET and JWT_REFRESH_SECRET must be overridden in production.');
+    }
+
+    // Link de recuperacao de senha sai apontando para este endereco: se ficar
+    // no default local, todo e-mail de producao leva o usuario para localhost.
+    if (parsed.data.FRONTEND_URL.startsWith('http://localhost')) {
+      throw new Error('FRONTEND_URL must be overridden in production.');
     }
   }
 
