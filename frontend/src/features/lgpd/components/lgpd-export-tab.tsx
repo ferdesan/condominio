@@ -21,7 +21,7 @@ export function LgpdExportTab() {
   const { selectedId } = useCondominium();
   const [residentId, setResidentId] = useState<string | null>(null);
 
-  const canManage = can('lgpd:manage');
+  const canManage = can('lgpd-request:manage');
   const exportOwn = useExportOwnData();
   const exportResident = useExportResidentData();
 

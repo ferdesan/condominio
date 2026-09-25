@@ -140,7 +140,7 @@ export const NAV_SECTIONS: NavSection[] = [
     // nao de uma colecao de negocio — mistura-la com os modulos faria o item
     // sumir quando o papel nao le aquele recurso.
     title: 'Privacidade',
-    items: [{ to: '/lgpd', label: 'LGPD', icon: Shield, permission: 'lgpd:read' }],
+    items: [{ to: '/lgpd', label: 'LGPD', icon: Shield, permission: 'lgpd-request:create' }],
   },
 ];
 
