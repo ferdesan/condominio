@@ -29,14 +29,14 @@ import {
 /**
  * A aba padrao da pagina LGPD.
  *
- * Quem gerencia (`lgpd:manage`) ve a fila de pedidos e decide cada um; o
+ * Quem gerencia (`lgpd-request:manage`) ve a fila de pedidos e decide cada um; o
  * morador, que so tem `lgpd-request:create`, nao tem como listar pedidos — sem
  * `lgpd-request:read` o servidor recusa a listagem — e a aba para ele e a
  * superficie de criacao do proprio pedido (ADR-005).
  */
 export function LgpdRequestsTab() {
   const { can } = useAuth();
-  if (!can('lgpd:manage')) return <ResidentRequestsPanel />;
+  if (!can('lgpd-request:manage')) return <ResidentRequestsPanel />;
   return <AdminRequestsList />;
 }
 
