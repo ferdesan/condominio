@@ -211,7 +211,7 @@ describe('Pagina LGPD (IT-056)', () => {
     await screen.findByRole('button', { name: 'Exportar dados do morador' });
 
     fireEvent.mouseDown(screen.getByRole('tab', { name: 'Consentimento' }));
-    await screen.findByText(/o consentimento de tratamento de dados e registrado por morador/i);
+    await screen.findByText(/o consentimento de tratamento de dados é registrado por morador/i);
 
     fireEvent.mouseDown(screen.getByRole('tab', { name: 'Solicitações' }));
     await screen.findByText('Carlos Pereira');
@@ -263,7 +263,7 @@ describe('Pagina LGPD (IT-056)', () => {
     });
 
     const solicitBtn = await screen.findByRole('button', {
-      name: 'Solicitar exclusao de dados',
+      name: 'Solicitar exclusão de dados',
     });
     expect(solicitBtn).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /executar solicitação/i })).not.toBeInTheDocument();
@@ -279,7 +279,7 @@ describe('Pagina LGPD (IT-056)', () => {
       }),
     );
     await waitFor(() =>
-      expect(mockToastSuccess).toHaveBeenCalledWith('Solicitação de exclusao enviada.'),
+      expect(mockToastSuccess).toHaveBeenCalledWith('Solicitação de exclusão enviada.'),
     );
   });
 
@@ -369,7 +369,7 @@ describe('Pagina LGPD (IT-056)', () => {
     renderWithProviders(<LgpdPage />, { route: '/lgpd?tab=consent' });
 
     expect(
-      screen.getByText(/o consentimento de tratamento de dados e registrado por morador/i),
+      screen.getByText(/o consentimento de tratamento de dados é registrado por morador/i),
     ).toBeInTheDocument();
     expect(screen.queryByRole('switch')).not.toBeInTheDocument();
     expect(mockGet).not.toHaveBeenCalledWith('/lgpd/consent', expect.anything());
