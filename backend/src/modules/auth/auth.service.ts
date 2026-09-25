@@ -17,6 +17,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from '@/shared/errors';
+import { mailService, type MailService } from '@/shared/mail/mail.service';
 import { sha256, randomToken } from '@/shared/utils/crypto.util';
 import { dayjs } from '@/shared/utils/date.util';
 import { hashPassword, verifyPassword } from '@/shared/utils/password.util';
@@ -70,6 +71,7 @@ export class AuthService {
     private readonly tokens: TokenService = tokenService,
     private readonly contexts: AuthContextService = authContextService,
     private readonly audit: AuditService = auditService,
+    private readonly mail: MailService = mailService,
   ) {}
 
   // ---------------------------------------------------------------------------
@@ -257,9 +259,12 @@ export class AuthService {
   }
 
   /**
-   * Sempre responde com sucesso para nao permitir enumeracao de contas.
-   * O token e retornado apenas fora de producao (integracao de e-mail e
-   * responsabilidade do provedor configurado no deploy).
+   * Sempre responde com sucesso para nao permitir enumeracao de contas, tanto
+   * para e-mail inexistente quanto para falha de envio: status ou mensagem
+   * diferentes confirmariam a existencia da conta.
+   *
+   * O token em claro serve para o e-mail e, fora de producao, para desenvolver
+   * o fluxo sem provedor de SMTP — no banco so existe o hash.
    */
   async forgotPassword(dto: ForgotPasswordDTO, meta: RequestMeta): Promise<{ token?: string }> {
     const tenantId = dto.tenantSlug ? await this.resolveTenantId(dto.tenantSlug) : undefined;
@@ -284,6 +289,17 @@ export class AuthService {
       description: 'Solicitacao de recuperacao de senha.',
       ...meta,
     });
+
+    try {
+      await this.mail.sendPasswordResetEmail({
+        to: user.email,
+        name: user.name,
+        resetUrl: `${env.FRONTEND_URL}/redefinir-senha?token=${encodeURIComponent(token)}`,
+        expiresMinutes: env.PASSWORD_RESET_TTL_MINUTES,
+      });
+    } catch (error) {
+      logger.error(`Password reset e-mail failed for ${user.email}: ${(error as Error).message}`);
+    }
 
     logger.info(`Password reset requested for ${user.email}`);
     return env.NODE_ENV === 'production' ? {} : { token };
