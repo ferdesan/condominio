@@ -61,8 +61,8 @@ export function LgpdConsentTab() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            O consentimento de tratamento de dados e registrado por morador, no acesso de cada
-            unidade. Por aqui a consulta esta disponível apenas ao próprio titular.
+            O consentimento de tratamento de dados é registrado por morador, no acesso de cada
+            unidade. Por aqui a consulta está disponível apenas ao próprio titular.
           </p>
         </CardContent>
       </Card>
@@ -75,7 +75,7 @@ export function LgpdConsentTab() {
         <CardHeader>
           <CardTitle>Consentimento LGPD</CardTitle>
           <CardDescription>
-            Tratamento de dados pessoais para a gestao interna do condomínio.
+            Tratamento de dados pessoais para a gestão interna do condomínio.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -85,7 +85,7 @@ export function LgpdConsentTab() {
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1">
                 <p className="text-sm">
-                  Autorizo o tratamento dos meus dados pessoais para a gestao do condomínio.
+                  Autorizo o tratamento dos meus dados pessoais para a gestão do condomínio.
                 </p>
                 {consent?.grantedAt ? (
                   <p className="text-xs text-muted-foreground">
@@ -121,8 +121,8 @@ export function LgpdConsentTab() {
         title={confirming ? 'Autorizar tratamento de dados?' : 'Revogar consentimento?'}
         description={
           confirming
-            ? 'O condomínio podera continuar tratando os seus dados pessoais para a gestao interna.'
-            : 'Seus dados continuarao armazenados, mas deixarao de ser tratados para novas finalidades.'
+            ? 'O condomínio poderá continuar tratando os seus dados pessoais para a gestão interna.'
+            : 'Seus dados continuarão armazenados, mas deixarão de ser tratados para novas finalidades.'
         }
         actionLabel={confirming ? 'Autorizar' : 'Revogar'}
         variant={confirming ? 'info' : 'warning'}
