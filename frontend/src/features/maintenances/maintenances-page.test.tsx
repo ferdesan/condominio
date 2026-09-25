@@ -644,4 +644,26 @@ describe('Escopo e permissões de manutenções', () => {
     expect(await screen.findByText('Removido')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Restaurar/ })).not.toBeInTheDocument();
   });
+
+  it('a portaria, sem user:read, não busca usuarios nem recebe o toast de permissao', async () => {
+    world = serveMaintenances({ maintenances: [makeMaintenance({ status: 'SCHEDULED' })] });
+    renderWithProviders(<MaintenancesPage />, {
+      role: 'STAFF',
+      // A matriz do STAFF: le e atualiza manutencoes e prestadores, nao usuarios.
+      permissions: ['maintenance:read', 'maintenance:update', 'service-provider:read'],
+    });
+
+    await findRows();
+
+    // `GET /users` responderia 403 e o toast global diria "Voce nao possui
+    // permissao" ao abrir a tela.
+    const urls = mockGetPaginated.mock.calls.map(([url]) => url);
+    expect(urls).not.toContain('/users');
+    expect(urls).toContain('/service-providers');
+    expect(mockToastError).not.toHaveBeenCalled();
+
+    // Sem a colecao, o filtro de responsavel nao teria o que oferecer.
+    expect(screen.queryByLabelText('Responsável')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Prestador')).toBeInTheDocument();
+  });
 });
