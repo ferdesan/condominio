@@ -212,6 +212,86 @@ function customPaths(): OpenApiObject {
         responses: { 204: { description: 'Senha alterada.' }, ...ERROR_RESPONSES },
       },
     },
+    '/auth/forgot-password': {
+      post: {
+        tags: ['Autenticacao'],
+        summary: 'Envia por e-mail o link de redefinicao de senha',
+        description:
+          'Responde 202 com a mesma mensagem exista ou nao a conta, para impedir enumeracao de contas. O token e de uso unico e expira em PASSWORD_RESET_TTL_MINUTES.',
+        security: [],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email'],
+                properties: {
+                  email: { type: 'string', format: 'email' },
+                  tenantSlug: { type: 'string' },
+                },
+              },
+              example: { email: 'sindico@parqueflores.com.br' },
+            },
+          },
+        },
+        responses: {
+          202: {
+            description: 'Instrucoes enviadas (ou e-mail inexistente).',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        message: {
+                          type: 'string',
+                          example: 'Se o e-mail estiver cadastrado, enviaremos as instrucoes de recuperacao.',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          422: { $ref: '#/components/responses/ValidationError' },
+        },
+      },
+    },
+    '/auth/reset-password': {
+      post: {
+        tags: ['Autenticacao'],
+        summary: 'Define a nova senha a partir do token recebido por e-mail',
+        description:
+          'Token invalido, expirado ou ja utilizado respondem 400 com a mesma mensagem. A troca encerra todas as sessoes abertas do usuario.',
+        security: [],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['token', 'password'],
+                properties: {
+                  token: { type: 'string', minLength: 10 },
+                  password: { type: 'string', format: 'password', minLength: 8, maxLength: 72 },
+                },
+              },
+              example: { token: 'Q2Fyby1kZS1yZWZpbmljYXUtc2VuaGE', password: 'Nova@1234' },
+            },
+          },
+        },
+        responses: {
+          204: { description: 'Senha redefinida.' },
+          400: { $ref: '#/components/responses/BadRequest' },
+          422: { $ref: '#/components/responses/ValidationError' },
+        },
+      },
+    },
     '/auth/logout': {
       post: {
         tags: ['Autenticacao'],
