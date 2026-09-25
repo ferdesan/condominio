@@ -329,12 +329,13 @@ export function AppRouter() {
 
           {/*
             LGPD agrupa três recursos sob uma rota — pedidos, exportação e
-            consentimento. A guarda e a do item de menu (`lgpd:read`); cada aba
-            checa as próprias permissões por dentro, porque o morador tem so
-            `lgpd-request:create` e a consulta de consentimento so faz sentido
-            para quem tem morador vinculado.
+            consentimento. A guarda e a do item de menu (`lgpd-request:create`):
+            o morador a tem explicita e quem gerencia a recebe pelo
+            `lgpd-request:manage`. Cada aba checa as próprias permissões por
+            dentro, porque a consulta de consentimento so faz sentido para quem
+            tem morador vinculado.
           */}
-          <Route element={<ProtectedRoute permission="lgpd:read" />}>
+          <Route element={<ProtectedRoute permission="lgpd-request:create" />}>
             <Route path="/lgpd" element={<LgpdPage />} />
           </Route>
 

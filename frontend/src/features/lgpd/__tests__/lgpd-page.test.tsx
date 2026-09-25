@@ -169,7 +169,6 @@ function makeConsent(overrides: Partial<LgpdConsent> = {}): LgpdConsent {
 
 /** Permissoes equivalentes ao papel de morador para o modulo LGPD. */
 const RESIDENT_LGPD_PERMISSIONS = [
-  'lgpd:read',
   'lgpd-request:create',
   'lgpd-consent:read',
   'lgpd-consent:create',

@@ -14,7 +14,7 @@ type LgpdTab = (typeof TABS)[number];
 /**
  * Porta de entrada do modulo LGPD, fora dos modulos de negocio tradicionais:
  * aparece como a secao "Privacidade", porque trata de direitos, e nao de uma
- * colecao. As tres abas sao visiveis para qualquer papel com `lgpd:read`; o que
+ * colecao. As tres abas sao visiveis para qualquer papel com `lgpd-request:create`; o que
  * cada uma oferece por dentro segue a permissao do servidor (ADR-005).
  *
  * A aba abre pelo `?tab=export` quando o morador chega pelo perfil.
