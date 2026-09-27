@@ -39,10 +39,28 @@ A documentação viva desses componentes é a que está em
 | Arquivo | Data | O que é |
 |---|---|---|
 | [review-final.md](review-final.md) | 2026-09-12 | Revisão completa de frontend e backend |
+| [review-2026-09-22.md](review-2026-09-22.md) | 2026-09-22 | Segunda revisão, em 15 critérios, com plano de ação P0–P3 |
 
-**As contagens desta revisão estão vencidas** — ela fala em 42 componentes TSX e
-3.221 linhas de frontend, medidos antes de metade das telas existir. As
+**As contagens da primeira revisão estão vencidas** — ela fala em 42 componentes
+TSX e 3.221 linhas de frontend, medidos antes de metade das telas existir. As
 observações de arquitetura e segurança seguem valendo; os números, não.
+
+**Boa parte da segunda revisão já foi resolvida:** os quatro P0 (seed no boot,
+build quebrado, voto sem eleitor, portas do compose) e, entre os P1, tokens fora
+do `localStorage`, wildcard do Socket.IO, rate limit em `/refresh` e `/logout`,
+gate do Trivy, `ErrorBoundary` e rotas com `lazy()`. Na data da mudança para
+cá seguiam abertos os lockfiles fora do versionamento (A4) e as corridas sem
+constraint em cobranças e reservas (A8).
+
+## Votação em assembleias
+
+| Arquivo | Data | O que é |
+|---|---|---|
+| [PLANO_VOTACOES.md](PLANO_VOTACOES.md) | 2026-09-22 | Plano original, com as decisões aprovadas |
+
+Executado por inteiro. A execução e as decisões finais estão em
+[`.compozy/tasks/votacoes-assembleias/`](../../.compozy/tasks/votacoes-assembleias/);
+as "pendências" listadas no plano não valem mais.
 
 ## Onde mora o resto
 

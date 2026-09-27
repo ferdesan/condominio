@@ -4,7 +4,7 @@
 **Status:** accepted
 **Owner:** Product
 **Date:** 2026-09-22
-**Source plan:** `PLANO_VOTACOES.md` (approved decisions frozen)
+**Source plan:** `docs/historico/PLANO_VOTACOES.md` (approved decisions frozen)
 
 ---
 
