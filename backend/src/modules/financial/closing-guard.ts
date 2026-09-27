@@ -1,3 +1,5 @@
+import type { EntityManager } from 'typeorm';
+import { Condominium } from '@/modules/condominiums/condominium.entity';
 import { condominiumRepository } from '@/modules/condominiums/condominium.repository';
 import { BusinessRuleError, NotFoundError } from '@/shared/errors';
 import type { TenantScope } from '@/shared/repositories/types';
@@ -38,6 +40,36 @@ export async function assertMonthOpen(
       `A competencia ${referenceMonth} esta fechada. Reabra o mes para lancar.`,
     );
   }
+}
+
+/**
+ * Serializa, por condominio, quem fecha um mes e quem move dinheiro de mes.
+ *
+ * Sem isto, conferir "mes aberto" e gravar sao dois passos separados: um
+ * fechamento que acontece entre eles congela o balancete sem a correcao, e a
+ * correcao grava depois num mes ja fechado. Com a trava, quem chega segundo
+ * espera o primeiro terminar e so entao confere, vendo o que ele gravou.
+ *
+ * A trava e a linha do condominio (`SELECT ... FOR UPDATE`), e nao a do
+ * fechamento: um mes nunca fechado nao tem linha em `financial_closings` para
+ * travar. Vale ate o fim da transacao de `manager`, entao quem chama precisa
+ * conferir e gravar dentro dela.
+ *
+ * No sql.js dos testes nao ha o que travar: a conexao e unica e as operacoes ja
+ * rodam uma de cada vez.
+ */
+export async function lockCondominiumCash(
+  manager: EntityManager,
+  condominiumId: string,
+): Promise<void> {
+  if (manager.connection.options.type !== 'mysql') return;
+
+  await manager
+    .createQueryBuilder(Condominium, 'condominium')
+    .select('condominium.id')
+    .where('condominium.id = :condominiumId', { condominiumId })
+    .setLock('pessimistic_write')
+    .getOne();
 }
 
 /**

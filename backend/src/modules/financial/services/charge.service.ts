@@ -13,7 +13,12 @@ import { recipientsService, type RecipientsService } from '@/shared/services/rec
 import { assertReferenceExists, resolveUnitCondominium } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
 import { dayjs, isOverdue } from '@/shared/utils/date.util';
-import { assertCorrectableCashDate, assertMonthOpen, assertRangeOpen } from '../closing-guard';
+import {
+  assertCorrectableCashDate,
+  assertMonthOpen,
+  assertRangeOpen,
+  lockCondominiumCash,
+} from '../closing-guard';
 import { Charge } from '../entities/charge.entity';
 import { Payment } from '../entities/payment.entity';
 import { chargeRepository, type ChargeRepository } from '../repositories/charge.repository';
@@ -282,6 +287,10 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
    * ultima baixa sem isso deixaria a cobranca dizendo uma data que nenhum
    * pagamento tem. As duas escritas vao na mesma transacao pelo mesmo motivo.
    *
+   * As guardas rodam dentro da transacao, depois da trava do condominio
+   * (`lockCondominiumCash`): um fechamento de mes concorrente ou espera esta
+   * correcao terminar, ou termina antes e ela ve o mes fechado.
+   *
    * Sem notificacao ao morador: e ajuste interno, nao um pagamento novo.
    */
   async correctPaymentDate(
@@ -289,18 +298,25 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
     paymentId: string,
     dto: CorrectPaidAtDTO,
   ): Promise<Payment> {
-    const payment = await this.payments.findById(ctx.scope, paymentId);
-    if (!payment) throw new NotFoundError('Pagamento');
+    const found = await this.payments.findById(ctx.scope, paymentId);
+    if (!found) throw new NotFoundError('Pagamento');
+    // Acesso ao condominio e existencia da cobranca, antes de travar qualquer coisa.
+    await this.findById(ctx, found.chargeId);
 
-    const charge = await this.findById(ctx, payment.chargeId);
-    if (charge.status === 'CANCELED') {
-      throw new BusinessRuleError('Cobranca cancelada nao aceita correcao de pagamento.');
-    }
+    const { payment, charge } = await AppDataSource.transaction(async (manager) => {
+      await lockCondominiumCash(manager, found.condominiumId);
 
-    await assertCorrectableCashDate(ctx.scope, payment.condominiumId, dto.paidAt);
-    await assertRangeOpen(ctx.scope, payment.condominiumId, payment.paidAt, dto.paidAt);
+      // Relidos depois da trava: outra correcao do mesmo pagamento pode ter
+      // acabado de gravar, e a data "antiga" da guarda precisa ser a atual.
+      const payment = await manager.findOneOrFail(Payment, { where: { id: found.id } });
+      const charge = await manager.findOneOrFail(Charge, { where: { id: payment.chargeId } });
+      if (charge.status === 'CANCELED') {
+        throw new BusinessRuleError('Cobranca cancelada nao aceita correcao de pagamento.');
+      }
 
-    await AppDataSource.transaction(async (manager) => {
+      await assertCorrectableCashDate(ctx.scope, payment.condominiumId, dto.paidAt);
+      await assertRangeOpen(ctx.scope, payment.condominiumId, payment.paidAt, dto.paidAt);
+
       await manager.update(
         Payment,
         { id: payment.id, tenantId: payment.tenantId },
@@ -322,6 +338,8 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
           { paidAt: latest },
         );
       }
+
+      return { payment, charge };
     });
 
     await this.invalidateCache(ctx);
@@ -410,7 +428,11 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
       const penalty = Math.round(charge.amount * (penaltyPercent / 100) * 100) / 100;
       const interest = Math.round(charge.amount * (interestPercent / 100) * monthsLate * 100) / 100;
 
-      if (charge.penalty === penalty && charge.interest === interest && charge.status === 'OVERDUE') {
+      if (
+        charge.penalty === penalty &&
+        charge.interest === interest &&
+        charge.status === 'OVERDUE'
+      ) {
         continue;
       }
 
@@ -427,9 +449,7 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
 
   private totalDue(charge: Charge): number {
     return (
-      Math.round(
-        (charge.amount + charge.interest + charge.penalty - charge.discount) * 100,
-      ) / 100
+      Math.round((charge.amount + charge.interest + charge.penalty - charge.discount) * 100) / 100
     );
   }
 

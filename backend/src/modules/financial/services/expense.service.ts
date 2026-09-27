@@ -1,14 +1,20 @@
 import type { DeepPartial } from 'typeorm';
+import { AppDataSource } from '@/config/data-source';
 import {
   serviceProviderRepository,
   type ServiceProviderRepository,
 } from '@/modules/service-providers/service-provider.repository';
-import { BusinessRuleError, NotFoundError } from '@/shared/errors';
+import { BusinessRuleError } from '@/shared/errors';
 import { CondominiumScopedService } from '@/shared/services/condominium-scoped.service';
 import { assertReferenceExists } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
 import { addByRecurrence, dayjs, isOverdue } from '@/shared/utils/date.util';
-import { assertCorrectableCashDate, assertMonthOpen, assertRangeOpen } from '../closing-guard';
+import {
+  assertCorrectableCashDate,
+  assertMonthOpen,
+  assertRangeOpen,
+  lockCondominiumCash,
+} from '../closing-guard';
 import { Expense, type ExpenseStatus } from '../entities/expense.entity';
 import { expenseRepository, type ExpenseRepository } from '../repositories/expense.repository';
 import type {
@@ -167,18 +173,27 @@ export class ExpenseService extends CondominiumScopedService<
    * `update` generico recusa exatamente esta mudanca (ver `prepareUpdate`).
    */
   async correctPaidAt(ctx: RequestContext, id: string, dto: CorrectPaidAtDTO): Promise<Expense> {
-    const expense = await this.findById(ctx, id);
-    if (expense.status !== 'PAID' || !expense.paidAt) {
-      throw new BusinessRuleError('So e possivel corrigir a data de uma despesa paga.');
-    }
+    // Acesso ao condominio e existencia, antes de travar qualquer coisa.
+    const found = await this.findById(ctx, id);
 
-    await assertCorrectableCashDate(ctx.scope, expense.condominiumId, dto.paidAt);
-    await assertRangeOpen(ctx.scope, expense.condominiumId, expense.paidAt, dto.paidAt);
+    // Guardas e escrita dentro da mesma transacao, depois da trava do
+    // condominio: ver `lockCondominiumCash` e `ChargeService.correctPaymentDate`.
+    const expense = await AppDataSource.transaction(async (manager) => {
+      await lockCondominiumCash(manager, found.condominiumId);
 
-    const updated = await this.expenses.update(ctx.scope, id, {
-      paidAt: dto.paidAt,
-    } as DeepPartial<Expense>);
-    if (!updated) throw new NotFoundError('Despesa');
+      const current = await manager.findOneOrFail(Expense, { where: { id } });
+      if (current.status !== 'PAID' || !current.paidAt) {
+        throw new BusinessRuleError('So e possivel corrigir a data de uma despesa paga.');
+      }
+
+      await assertCorrectableCashDate(ctx.scope, current.condominiumId, dto.paidAt);
+      await assertRangeOpen(ctx.scope, current.condominiumId, current.paidAt, dto.paidAt);
+
+      await manager.update(Expense, { id, tenantId: current.tenantId }, { paidAt: dto.paidAt });
+      return current;
+    });
+
+    const updated = await this.findById(ctx, id);
 
     await this.invalidateCache(ctx);
     await this.audit.record({

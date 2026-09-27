@@ -22,6 +22,7 @@ import {
   type ResolvedOpeningBalance,
   type StatementEntry,
 } from '../closing-math';
+import { lockCondominiumCash } from '../closing-guard';
 import { FinancialClosingEntry } from '../entities/financial-closing-entry.entity';
 import type { ClosingStatus, StatementLine } from '../entities/financial-closing.entity';
 import { FinancialClosing } from '../entities/financial-closing.entity';
@@ -188,46 +189,53 @@ export class ClosingService {
       );
     }
 
-    const existing = await this.closings.findByMonth(ctx.scope, condominiumId, referenceMonth);
-    if (existing?.status === 'CLOSED') {
-      throw new BusinessRuleError(`A competencia ${referenceMonth} ja esta fechada.`);
-    }
+    // Leitura, calculo e gravacao dentro de uma transacao so, depois da trava do
+    // condominio (`lockCondominiumCash`). Uma correcao de data concorrente ou
+    // termina antes — e entra no calculo — ou espera o fechamento e ve o mes
+    // fechado. Sem a trava ela poderia gravar entre o calculo e o commit, e o
+    // documento congelado nao a conteria.
+    const { closingId, before, entryCount } = await AppDataSource.transaction(async (manager) => {
+      await lockCondominiumCash(manager, condominiumId);
 
-    const statement = await this.compute(ctx, condominiumId, referenceMonth, existing);
-    // Mesma janela e mesmo regime de caixa do resumo acima: e o que faz a soma
-    // dos lancamentos fechar com os totais gravados ao lado deles.
-    const entries = await this.computeEntries(ctx.scope, condominiumId, referenceMonth);
+      const existing = await this.closings.findByMonth(ctx.scope, condominiumId, referenceMonth);
+      if (existing?.status === 'CLOSED') {
+        throw new BusinessRuleError(`A competencia ${referenceMonth} ja esta fechada.`);
+      }
 
-    // Lido antes da transacao porque a gravacao mescla o documento novo sobre
-    // `existing`: consultado depois, o estado de chegada apareceria na
-    // auditoria como se fosse o de partida.
-    const before = existing
-      ? { status: existing.status, closingBalance: existing.closingBalance }
-      : null;
+      const statement = await this.compute(ctx, condominiumId, referenceMonth, existing);
+      // Mesma janela e mesmo regime de caixa do resumo acima: e o que faz a soma
+      // dos lancamentos fechar com os totais gravados ao lado deles.
+      const entries = await this.computeEntries(ctx.scope, condominiumId, referenceMonth);
 
-    const document = {
-      condominiumId,
-      referenceMonth,
-      status: 'CLOSED' as const,
-      openingBalance: statement.openingBalance.amount,
-      openingBalanceSource: statement.openingBalance.source,
-      openingBalanceFrom: statement.openingBalance.from,
-      totalIncome: statement.totalIncome,
-      totalExpense: statement.totalExpense,
-      closingBalance: statement.closingBalance,
-      overdueAmount: statement.delinquency.amount,
-      overdueCount: statement.delinquency.count,
-      breakdown: {
-        income: statement.income,
-        expense: statement.expense,
-        unresolvedPaidExpenses: statement.unresolvedPaidExpenses,
-      },
-      closedAt: new Date(),
-      closedById: ctx.actor.userId,
-      closedByName: ctx.actor.name ?? null,
-    };
+      // Lido antes da gravacao porque ela mescla o documento novo sobre
+      // `existing`: consultado depois, o estado de chegada apareceria na
+      // auditoria como se fosse o de partida.
+      const before = existing
+        ? { status: existing.status, closingBalance: existing.closingBalance }
+        : null;
 
-    const closingId = await AppDataSource.transaction(async (manager) => {
+      const document = {
+        condominiumId,
+        referenceMonth,
+        status: 'CLOSED' as const,
+        openingBalance: statement.openingBalance.amount,
+        openingBalanceSource: statement.openingBalance.source,
+        openingBalanceFrom: statement.openingBalance.from,
+        totalIncome: statement.totalIncome,
+        totalExpense: statement.totalExpense,
+        closingBalance: statement.closingBalance,
+        overdueAmount: statement.delinquency.amount,
+        overdueCount: statement.delinquency.count,
+        breakdown: {
+          income: statement.income,
+          expense: statement.expense,
+          unresolvedPaidExpenses: statement.unresolvedPaidExpenses,
+        },
+        closedAt: new Date(),
+        closedById: ctx.actor.userId,
+        closedByName: ctx.actor.name ?? null,
+      };
+
       // O documento vem primeiro, e nao na ordem em que a ADR-003 o lista, por
       // uma razao que a propria ADR-003 cria: o lancamento e filho do
       // fechamento, e numa competencia fechada pela primeira vez nao existe
@@ -261,7 +269,7 @@ export class ClosingService {
         { chunk: 100 },
       );
 
-      return closing.id;
+      return { closingId: closing.id, before, entryCount: entries.length };
     });
 
     // Relido pelo repositorio depois do commit, e nao devolvido de dentro da
@@ -283,7 +291,7 @@ export class ClosingService {
       before,
       // A contagem entra no rastro para que ele registre nao so que um mes foi
       // fechado, mas o tamanho do documento que o fechamento produziu.
-      after: { status: 'CLOSED', closingBalance: saved.closingBalance, entries: entries.length },
+      after: { status: 'CLOSED', closingBalance: saved.closingBalance, entries: entryCount },
       actor: ctx.actor,
       ipAddress: ctx.ipAddress,
       userAgent: ctx.userAgent,
