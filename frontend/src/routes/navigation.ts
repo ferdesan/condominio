@@ -145,3 +145,53 @@ export const NAV_SECTIONS: NavSection[] = [
 ];
 
 export const NAV_ITEMS: NavItem[] = NAV_SECTIONS.flatMap((section) => section.items);
+
+/**
+ * Candidatos a barra rapida do celular, em ordem de preferencia.
+ *
+ * Antes eram duas listas fixas de dois itens — Inicio/Financeiro a esquerda,
+ * Ocorrencias/Manutencoes a direita. Um papel sem `charge:read` (o STAFF e o
+ * caso mais comum) perdia o item da esquerda e ficava com um de um lado, dois do
+ * outro, com o botao central arrastado para fora do meio pela distribuicao
+ * espelhada. A desproporcao nao era do item faltante, era da lista fixa.
+ *
+ * Aqui a escolha e por papel, nao por posicao: o que decide o que entra na barra
+ * e a permissao, e todos estes itens sao de leitura em modulos que os cinco
+ * papeis do sistema enxergam. Nenhum papel esgota o pool, entao os quatro slots
+ * enchem sempre — e um papel sob medida, com menos leitura ainda assim recebe
+ * itens, em vez de uma barra meio vazia e torta.
+ */
+export const QUICK_NAV_POOL: NavItem[] = [
+  { to: '/', label: 'Início', icon: Gauge, permission: 'dashboard:read' },
+  { to: '/ocorrencias', label: 'Ocorrências', icon: TriangleAlert, permission: 'incident:read' },
+  { to: '/comunicados', label: 'Comunicados', icon: Megaphone, permission: 'announcement:read' },
+  { to: '/visitantes', label: 'Visitantes', icon: ClipboardList, permission: 'visitor:read' },
+  {
+    to: '/reservas',
+    label: 'Reservas',
+    icon: CalendarCheck,
+    permission: 'reservation:read',
+  },
+  { to: '/veiculos', label: 'Veículos', icon: Car, permission: 'vehicle:read' },
+  { to: '/moradores', label: 'Moradores', icon: Users, permission: 'resident:read' },
+  {
+    to: '/correspondencias',
+    label: 'Correspondências',
+    icon: Mail,
+    permission: 'correspondence:read',
+  },
+  { to: '/unidades', label: 'Unidades', icon: DoorOpen, permission: 'unit:read' },
+  { to: '/documentos', label: 'Documentos', icon: FileText, permission: 'document:read' },
+  { to: '/blocos', label: 'Blocos', icon: Home, permission: 'block:read' },
+  {
+    to: '/areas-comuns',
+    label: 'Áreas comuns',
+    icon: CalendarCheck,
+    permission: 'common-area:read',
+  },
+  { to: '/dependentes', label: 'Dependentes', icon: Contact, permission: 'dependent:read' },
+  { to: '/condominios', label: 'Condomínios', icon: Building2, permission: 'condominium:read' },
+];
+
+/** Quantos itens cabem de cada lado do botao central da barra rapida. */
+export const QUICK_NAV_SLOTS = 2;

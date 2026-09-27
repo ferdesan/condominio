@@ -60,6 +60,24 @@ export const userSchema = userFields;
 
 export type UserFormValues = z.infer<typeof userSchema>;
 
+/**
+ * Variante para quem administra apenas parte da administradora.
+ *
+ * Sem vinculo, a conta passa a atender o tenant inteiro — alcada que a
+ * administradora reserva para si, e que `UserService.assertCondominiums`
+ * recusa com 403. Exigir o vinculo aqui transforma um 403 em erro de campo,
+ * dito no lugar em que a escolha foi feita.
+ */
+export function userFormSchema(options: { requireCondominium?: boolean } = {}) {
+  if (!options.requireCondominium) return userSchema;
+
+  return userSchema.extend({
+    condominiumIds: z
+      .array(z.string())
+      .min(1, 'Vínculo obrigatório: escolha ao menos um condomínio.'),
+  });
+}
+
 /** Nomes que o formulario possui — `applyApiError` usa isto para decidir o destino da mensagem. */
 export const USER_FIELDS: ReadonlySet<string> = new Set(Object.keys(userFields.shape));
 

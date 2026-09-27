@@ -1,7 +1,8 @@
-import { KeyRound, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import { KeyRound, Lock, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 
 import { RowAction, RowActions } from '@/components/ui/row-actions';
 import type { User } from '@/types/user';
+import { GLOBAL_ACCOUNT_NOTICE } from '../user-scope';
 
 export interface UserRowActionsProps {
   user: User;
@@ -14,6 +15,12 @@ export interface UserRowActionsProps {
    */
   canManage: boolean;
   canDelete: boolean;
+  /**
+   * Linha que o ator atual pode ler mas nao alterar: conta global vista por um
+   * perfil com escopo. As acoes somem em vez de falhar — o servidor recusaria
+   * cada uma delas com 403, e um botao que so pode errar e pior que nenhum.
+   */
+  readOnly?: boolean;
   /** Recusa do servidor para esta linha. Fica onde a acao foi disparada. */
   error?: string;
   onResetPassword: (user: User) => void;
@@ -37,6 +44,7 @@ export function UserRowActions({
   canUpdate,
   canManage,
   canDelete,
+  readOnly = false,
   error,
   onResetPassword,
   onEdit,
@@ -44,6 +52,26 @@ export function UserRowActions({
   onRestore,
 }: UserRowActionsProps) {
   const label = user.name;
+
+  if (readOnly) {
+    return (
+      <div className="space-y-1">
+        <p
+          className="flex items-center gap-1.5 text-xs text-muted-foreground"
+          title={GLOBAL_ACCOUNT_NOTICE}
+        >
+          <Lock className="size-3 shrink-0" aria-hidden="true" />
+          <span className="sr-only">{GLOBAL_ACCOUNT_NOTICE}</span>
+          Somente leitura
+        </p>
+        {error ? (
+          <p role="alert" className="text-xs text-destructive">
+            {error}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
 
   if (user.deletedAt) {
     if (!canUpdate) return null;

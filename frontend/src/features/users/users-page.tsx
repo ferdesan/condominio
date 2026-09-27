@@ -32,6 +32,7 @@ import {
   USERS_KEY,
 } from './user-hooks';
 import { ALL_CONDOMINIUMS, NO_ROLE, NO_UNIT, UNIT_UNAVAILABLE } from './user-labels';
+import { hasTenantWideReach, isReadOnlyFor } from './user-scope';
 import { UserFilters } from './components/user-filters';
 import { UserFormDialog } from './components/user-form-dialog';
 import { UserRowActions } from './components/user-row-actions';
@@ -50,12 +51,16 @@ type ResetResult = { name: string; temporaryPassword?: string } | null;
  * Administracao de usuarios do tenant.
  *
  * **Esta e a unica tela deste tier que nao segue o condominio do shell.**
- * `/users` e por tenant: nem o repositorio o escopa por condominio, nem
- * `condominiumId` esta entre os filtros que ele aceita. Por isso nao ha estado
- * de "selecione um condominio" aqui, nenhuma requisicao carrega a chave, e o
- * `CondominiumScopeNotice` nao se aplica ao formulario — um usuario pertence a
- * administradora, e os predios que ele enxerga sao um vinculo que se escolhe, e
- * nao um escopo que se herda da tela.
+ * O vinculo de condominios na conta e uma escolha feita aqui — quem administra
+ * quais predios — e nao um escopo herdado da tela, entao nao ha estado de
+ * "selecione um condominio", nenhuma requisicao carrega a chave, e o
+ * `CondominiumScopeNotice` nao se aplica ao formulario.
+ *
+ * A leitura, essa, ja vem escopada: `UserRepository` devolve os usuarios
+ * vinculados aos condominios do ator e as contas globais, e esconde os demais.
+ * Um perfil com escopo ainda encontra as contas globais na lista — sao os
+ * administradores da administradora, uteis para suporte — mas so as le: por
+ * isso `readOnly` nas linhas, em vez de botoes que o servidor recusaria.
  */
 export function UsersPage() {
   const { can, user: currentUser } = useAuth();
@@ -233,6 +238,7 @@ export function UsersPage() {
           canUpdate={canUpdate}
           canManage={canManage}
           canDelete={canDelete}
+          readOnly={isReadOnlyFor(currentUser, row)}
           error={rowError?.id === row.id ? rowError.message : undefined}
           onResetPassword={setResetting}
           onEdit={setFormTarget}
@@ -333,6 +339,7 @@ export function UsersPage() {
           condominiums={condominiums}
           canReadRoles={canReadRoles}
           canReadUnits={canReadUnits}
+          requireCondominium={!hasTenantWideReach(currentUser)}
           onClose={() => setFormTarget(undefined)}
         />
       ) : null}

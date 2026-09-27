@@ -55,6 +55,13 @@ export type AuthUser = {
   avatarUrl: string | null;
   role: SystemRole | string;
   permissions: string[];
+  /**
+   * Condominios gerenciados por esta conta. Vazio = alcaca a administradora
+   * inteira, que e como os perfis administrativos sao cadastrados. Distingue
+   * "ve tudo" de "ve parte", e o que a tela de usuarios usa para saber se a
+   * conta pode alterar as contas globais que encountera na listagem.
+   */
+  condominiumIds: string[];
   /** Ausente em contas semeadas antes da coluna existir. */
   preferences?: UserPreferences | null;
 };

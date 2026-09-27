@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Condominio">
+  <!--
+    Fonte unica dos icones PWA. O desenho e o Building2 que a sidebar ja usa
+    (lucide-react 0.447), transposto do viewBox 24 para o 64 deste arquivo.
+
+    O fundo e a custom property "primary" do tema claro, `hsl(120 86% 25%)` =
+    #097709 — e nao o azul que o `theme-color` do index.html anunciava, que nao
+    era a cor de nenhuma tela do sistema.
+
+    O glifo mede 36 dos 64, centrados, porque e o que cabe na zona segura de 80%
+    que o Android exige de um `maskable`. O `scale(1.5)` tambem multiplica o
+    `stroke-width: 2` do lucide para 3px, que e a espessura certa nessa
+    escala — um `scale(23)` faria o traço de 2 virar 46 e o desenho virar um
+    borrao verde.
+
+    `RX` e o raio do canto, trocado por `scripts/generate-pwa-icons.mjs`:
+    arredondado no icone `any`, zero no `maskable`. O `maskable` nao pode ter
+    canto transparente, porque a mascara do launcher e a propria do aparelho —
+    um circulo recortando um retangulo arredondado mostraria o fundo do home
+    nos quatro cantos.
+  -->
+  <rect width="64" height="64" rx="RX" fill="#097709" />
+  <g
+    transform="translate(14 14) scale(1.5)"
+    fill="none"
+    stroke="#F8FAFC"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+    <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+    <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+    <path d="M10 6h4" />
+    <path d="M10 10h4" />
+    <path d="M10 14h4" />
+    <path d="M10 18h4" />
+  </g>
+</svg>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { useSidebarCollapsed } from '@/hooks/use-sidebar-collapsed';
 import { cn } from '@/lib/utils';
-import { NAV_SECTIONS } from '@/routes/navigation';
+import { NAV_SECTIONS, QUICK_NAV_POOL, QUICK_NAV_SLOTS } from '@/routes/navigation';
 import type { NavItem } from '@/routes/navigation';
 
 function useNavSections() {
@@ -15,16 +15,6 @@ function useNavSections() {
     items: section.items.filter((item) => can(item.permission)),
   })).filter((section) => section.items.length > 0);
 }
-
-/** Bottom bar: 2 itens esquerda, botão central, 2 itens direita */
-const BOTTOM_LEFT = [
-  { to: '/', label: 'Início' },
-  { to: '/financeiro', label: 'Financeiro' },
-];
-const BOTTOM_RIGHT = [
-  { to: '/ocorrencias', label: 'Ocorrências' },
-  { to: '/manutencoes', label: 'Manutenções' },
-];
 
 /* ──────────────────────────────────────────────
    Desktop sidebar — collapsible sections
@@ -162,59 +152,66 @@ export function Sidebar() {
 export function MobileBottomBar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const { can } = useAuth();
 
-  const findItem = (to: string) =>
-    NAV_SECTIONS.flatMap((s) => s.items).find((n) => n.to === to);
+  /**
+   * O pool e ordenado por preferencia e nao por posicao na barra: o que decide
+   * o que aparece e a permissao. Corta em `QUICK_NAV_SLOTS` para cada lado, de
+   * modo que os dois lados recebem a mesma quantidade sempre que o pool tenha
+   * itens suficientes — e, quando nao tem, cada lado recebe o que sobrou, num
+   * total unico que o grid abaixo distribui sem torto o botao central.
+   */
+  const allowed = QUICK_NAV_POOL.filter((item) => can(item.permission));
+  const left = allowed.slice(0, QUICK_NAV_SLOTS);
+  const right = allowed.slice(QUICK_NAV_SLOTS, QUICK_NAV_SLOTS * 2);
 
-  const isAllowed = (to: string) => {
-    const item = findItem(to);
-    return !item?.permission || can(item.permission);
-  };
-
-  const left = BOTTOM_LEFT.filter((i) => isAllowed(i.to));
-  const right = BOTTOM_RIGHT.filter((i) => isAllowed(i.to));
+  function quickLink(item: NavItem) {
+    return (
+      <NavLink
+        key={item.to}
+        to={item.to}
+        end={item.to === '/'}
+        className={({ isActive }) =>
+          cn(
+            'flex min-w-0 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium transition-colors',
+            isActive ? 'text-primary' : 'text-muted-foreground',
+          )
+        }
+      >
+        {({ isActive }) => (
+          <>
+            <span
+              className={cn(
+                'flex size-11 items-center justify-center rounded-full transition-colors',
+                isActive ? 'bg-primary/10' : 'bg-muted',
+              )}
+            >
+              <item.icon className="size-5" aria-hidden="true" />
+            </span>
+            <span className="max-w-full truncate">{item.label}</span>
+          </>
+        )}
+      </NavLink>
+    );
+  }
 
   return (
     <nav
       className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm lg:hidden safe-bottom"
       aria-label="Navegação rápida"
     >
-      <div className="flex items-end justify-around px-2 pb-2 pt-1">
-        {left.map((item) => {
-          const navItem = findItem(item.to)!;
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) =>
-                cn(
-                  'flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[11px] font-medium transition-colors min-w-[52px]',
-                  isActive ? 'text-primary' : 'text-muted-foreground',
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <span
-                    className={cn(
-                      'flex size-11 items-center justify-center rounded-full transition-colors',
-                      isActive ? 'bg-primary/10' : 'bg-muted',
-                    )}
-                  >
-                    <navItem.icon className="size-5" aria-hidden="true" />
-                  </span>
-                  <span className="truncate">{item.label}</span>
-                </>
-              )}
-            </NavLink>
-          );
-        })}
+      {/*
+        Grade de cinco colunas, e nao `justify-around`: as duas colunas da
+        esquerda e as duas da direita tem a mesma largura, entao o botao central
+        fica no meio da tela com qualquer combinacao de itens. Com espelhamento,
+        perder um item deslocava o botao e os icones restantes nao caiam mais
+        sob o dedo onde estavam.
+      */}
+      <div className="grid grid-cols-5 items-end px-2 pb-2 pt-1">
+        <div className="col-span-2 flex items-end justify-around">{left.map(quickLink)}</div>
 
-        {/* Botão central — abre menu completo */}
         <button
           type="button"
           onClick={onOpenMenu}
-          className="flex flex-col items-center gap-0.5 -mt-4"
+          className="col-span-1 flex flex-col items-center justify-end -mt-4"
           aria-label="Abrir menu completo"
         >
           <span className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-active active:scale-95">
@@ -222,36 +219,7 @@ export function MobileBottomBar({ onOpenMenu }: { onOpenMenu: () => void }) {
           </span>
         </button>
 
-        {right.map((item) => {
-          const navItem = findItem(item.to)!;
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) =>
-                cn(
-                  'flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[11px] font-medium transition-colors min-w-[52px]',
-                  isActive ? 'text-primary' : 'text-muted-foreground',
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <span
-                    className={cn(
-                      'flex size-11 items-center justify-center rounded-full transition-colors',
-                      isActive ? 'bg-primary/10' : 'bg-muted',
-                    )}
-                  >
-                    <navItem.icon className="size-5" aria-hidden="true" />
-                  </span>
-                  <span className="truncate">{item.label}</span>
-                </>
-              )}
-            </NavLink>
-          );
-        })}
+        <div className="col-span-2 flex items-end justify-around">{right.map(quickLink)}</div>
       </div>
     </nav>
   );
