@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { toast } from 'sonner';
 import { ApiError, apiDelete, apiGetPaginated, apiPost } from '@/lib/api';
 import {
@@ -10,6 +11,7 @@ import {
   waitFor,
   within,
 } from '@/test/render';
+import { makeCondominium } from '@/test/fixtures';
 import type { User } from '@/types/user';
 import { UsersPage } from './users-page';
 import {
@@ -20,6 +22,11 @@ import {
   serveUsers,
   type UserWorld,
 } from './test-utils';
+
+const TWO_CONDOMINIUMS = [
+  makeCondominium({ id: 'cond-1', name: 'Residencial Aurora' }),
+  makeCondominium({ id: 'cond-2', name: 'Residencial Boreal' }),
+];
 
 // O duble fica so na camada de transporte (ADR-010); `ApiError` continua real.
 vi.mock('@/lib/api', async () => {
@@ -274,6 +281,69 @@ describe('Escopo de tenant da tela de usuários', () => {
     expect(new Set(requests.map((request) => request.url))).toEqual(
       new Set(['/users', '/roles', '/units']),
     );
+  });
+});
+
+describe('Contas globais vistas por um perfil com escopo', () => {
+  /** Sindico: tem condominios, logo nao alcanca a conta da administradora. */
+  const SCOPED = { role: 'SINDICO' as const, condominiumIds: ['cond-1'] };
+
+  it('a conta global aparece na lista e vem sem acoes de linha', async () => {
+    world = serveUsers({
+      users: [
+        makeUser({ id: 'user-local', name: 'Porteiro do Predio' }),
+        makeUser({ id: 'user-global', name: 'Mariana Horizonte', condominiums: [] }),
+      ],
+    });
+    renderWithProviders(<UsersPage />, { user: SCOPED });
+
+    // Visivel: e a administradora da conta, uteis para suporte.
+    expect(await screen.findByText('Mariana Horizonte')).toBeInTheDocument();
+    expect(screen.getByText('Porteiro do Predio')).toBeInTheDocument();
+
+    const globalRow = screen.getByText('Mariana Horizonte').closest('tr') as HTMLElement;
+    const localRow = screen.getByText('Porteiro do Predio').closest('tr') as HTMLElement;
+
+    expect(within(globalRow).getByText('Somente leitura')).toBeInTheDocument();
+    expect(within(globalRow).queryByRole('button')).not.toBeInTheDocument();
+
+    // A conta do proprio condominio continua plenamente administravel.
+    expect(
+      within(localRow).getByRole('button', { name: /Editar Porteiro do Predio/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('a conta da administradora continua editavel por quem tem alcance sobre o tenant', async () => {
+    world = serveUsers({
+      users: [makeUser({ id: 'user-global', name: 'Mariana Horizonte', condominiums: [] })],
+    });
+    renderWithProviders(<UsersPage />, { user: { role: 'ADMIN', condominiumIds: [] } });
+
+    expect(await screen.findByText('Mariana Horizonte')).toBeInTheDocument();
+    const row = screen.getByText('Mariana Horizonte').closest('tr') as HTMLElement;
+    expect(within(row).queryByText('Somente leitura')).not.toBeInTheDocument();
+    expect(
+      within(row).getByRole('button', { name: /Editar Mariana Horizonte/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('o vinculo com condominio e obrigatorio para quem administra parte da administradora', async () => {
+    world = serveUsers({ users: [] });
+    renderWithProviders(<UsersPage />, { user: SCOPED, condominiums: TWO_CONDOMINIUMS });
+
+    await screen.findByText('Nenhum usuário cadastrado');
+    clickTrigger(await screen.findByRole('button', { name: /Novo usuário/i }));
+
+    const dialog = () => within(screen.getByRole('dialog'));
+    await userEvent.type(dialog().getByLabelText('Nome'), 'Paulo Nunes');
+    await userEvent.type(dialog().getByLabelText('E-mail'), 'paulo@exemplo.com');
+    selectOption(dialog().getByLabelText('Papel'), 'SINDICO');
+    clickTrigger(dialog().getByRole('button', { name: 'Cadastrar' }));
+
+    // A frase que valeria para o administrador nao vale aqui: sem vinculo a
+    // conta atenderia o tenant inteiro.
+    expect(await dialog().findByText(/Vínculo obrigatório/i)).toBeInTheDocument();
+    expect(mockPost).not.toHaveBeenCalled();
   });
 });
 

@@ -240,6 +240,10 @@ export function makeAuthUser(overrides: Partial<AuthUser> = {}): AuthUser {
     avatarUrl: null,
     role: 'ADMIN' satisfies SystemRole,
     permissions: ['*'],
+    // Vazio = alcance sobre a administradora inteira, que e como o perfil
+    // padrao deste fixture (ADMIN) e cadastrado. Passe `condominiumIds` para
+    // simular um perfil com escopo, como o sindico.
+    condominiumIds: [],
     ...overrides,
   };
 }
