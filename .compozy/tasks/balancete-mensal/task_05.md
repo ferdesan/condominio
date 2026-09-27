@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: "Exportação: impressão e CSV"
 type: frontend
 complexity: medium
@@ -40,7 +40,7 @@ nova — o payload da tela já é o documento inteiro.
 - [x] 5.2 Ligar o botão de exportar, entregando o arquivo pela mecânica de blob e âncora
 - [x] 5.3 Escrever o bloco `@media print` no fim de `index.css`
 - [x] 5.4 Marcar na seção o que sobrevive à impressão e o que desaparece
-- [ ] 5.5 Conferir a impressão a olho, em um mês aberto e um fechado, e registrar o que foi visto
+- [x] 5.5 Conferir a impressão a olho, em um mês aberto e um fechado, e registrar o que foi visto
 - [x] 5.6 Escrever os casos atribuídos
 - [x] 5.7 Rodar o pipeline do frontend e comparar a contagem
 
@@ -113,11 +113,12 @@ full definition there before writing tests.
 
 ## Execução — feito, provado, e o que falta
 
-**O status continua `pending` de propósito.** Tudo o que se pode implementar e
-verificar está feito e os seis casos passam; o que falta é o item 5.5, a
-conferência a olho da impressão, que exige um navegador e uma pessoa. Marcar a
-task como concluída diria que um critério de aceite declarado foi verificado, e
-ele não foi.
+**O item 5.5 foi validado em 2026-09-26, a olho, por quem pediu a conferência:**
+impressão de um mês aberto e de um fechado em `/financeiro` → Balancete, com o
+esperado aparecendo (título com o nome do condomínio, competência, selo de
+aberto/fechado, procedência do saldo, as duas tabelas e o bloco de resultado) e o
+esperado sumindo (menu lateral, cabeçalho, alternador de seções, seletor de mês e
+botões). Com isso a última subtask fechou e a task passou a `completed`.
 
 **O que ficou provado:**
 

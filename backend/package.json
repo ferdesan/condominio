@@ -1,6 +1,6 @@
 {
   "name": "@condominio/backend",
-  "version": "1.0.0",
+  "version": "1.8.0",
   "private": true,
   "description": "API REST multi-tenant para gestao de condominios",
   "main": "dist/server.js",

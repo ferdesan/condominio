@@ -1,4 +1,5 @@
 import { env } from './env';
+import { APP_VERSION } from '../version';
 
 type OpenApiObject = Record<string, unknown>;
 
@@ -577,7 +578,7 @@ export function buildOpenApiDocument(): OpenApiObject {
     openapi: '3.0.3',
     info: {
       title: `${env.APP_NAME} API`,
-      version: '1.0.0',
+      version: APP_VERSION,
       description: [
         'API REST multi-tenant para gestao de condominios.',
         '',

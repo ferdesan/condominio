@@ -166,6 +166,28 @@ export type RawMovement = {
   method: string | null;
 };
 
+/** Um datetime gravado pelo driver sem fuso marcado: `2026-08-13 00:10:00.000`. */
+const NAIVE_DATETIME = /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/;
+
+/**
+ * Resolve a data crua de um movimento como instante, nao como hora local.
+ *
+ * O QueryBuilder devolve `Date` no MySQL (coluna `datetime` lida em UTC, que e
+ * como e gravada) e **texto** no sql.js das suites — e aquele texto tambem e
+ * UTC gravado, sem fuso declarado. `new Date('2026-08-13 00:10:00')` le como
+ * hora local: em America/Sao_Paulo, um pagamento das 21h do dia 12 vira o dia
+ * 13 depois das 21h do horario da maquina, porque o texto ja e o dia seguinte em
+ * UTC. Dia errado em dia errado e o puro modo de um balancete sair com o
+ * lancamento fora do mes em que o caixa aconteceu.
+ *
+ * Texto com fuso declarado (ou um `Date` que o driver ja resolveu) passa direto.
+ */
+export function toOccurredAt(value: Date | string): Date {
+  if (value instanceof Date) return value;
+  const text = value.trim();
+  return new Date(NAIVE_DATETIME.test(text) ? `${text.replace(' ', 'T')}Z` : text);
+}
+
 /**
  * Monta um lancamento a partir de uma linha crua, resolvendo o nome da categoria
  * pelo mesmo par de rotulos que `toStatementLines` ja usa nas linhas por
@@ -181,7 +203,7 @@ export function toStatementEntry(
 ): StatementEntry {
   return {
     kind,
-    occurredAt: row.occurredAt instanceof Date ? row.occurredAt : new Date(row.occurredAt),
+    occurredAt: toOccurredAt(row.occurredAt),
     categoryId: row.categoryId ?? null,
     categoryName: row.categoryId
       ? (categoryNames.get(row.categoryId) ?? MISSING_CATEGORY_LABEL)
