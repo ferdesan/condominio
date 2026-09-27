@@ -94,7 +94,7 @@ function AdminRequestsList() {
       <EmptyState
         icon={Building2}
         title="Selecione um condomínio"
-        description="Os pedidos de anonimização sao listados por condomínio. Escolha um no topo da tela para continuar."
+        description="Os pedidos de anonimização são listados por condomínio. Escolha um no topo da tela para continuar."
       />
     );
   }
@@ -157,7 +157,7 @@ function AdminRequestsList() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Pedidos de anonimizacao de dados do {selected?.name ?? 'condomínio selecionado'}.
+        Pedidos de anonimização de dados do {selected?.name ?? 'condomínio selecionado'}.
       </p>
 
       <DataTable
@@ -174,7 +174,7 @@ function AdminRequestsList() {
         totalPages={totalPages ?? 1}
         onPageChange={setPage}
         emptyTitle="Nenhuma solicitação"
-        emptyDescription="Os pedidos de exclusao de dados aparecerao aqui."
+        emptyDescription="Os pedidos de exclusão de dados aparecerão aqui."
       />
 
       <ConfirmDialog
@@ -182,7 +182,7 @@ function AdminRequestsList() {
         title="Executar anonimização?"
         description={
           executing
-            ? `Os dados pessoais de ${executing.residentName} serão anonimizados e o seu acesso ao sistema, encerrado. Esta ação e irreversível e fica registrada na auditoria.`
+            ? `Os dados pessoais de ${executing.residentName} serão anonimizados e o seu acesso ao sistema, encerrado. Esta ação é irreversível e fica registrada na auditoria.`
             : undefined
         }
         actionLabel="Executar"
@@ -204,7 +204,7 @@ function AdminRequestsList() {
         title="Cancelar solicitação?"
         description={
           cancelling
-            ? `O pedido de ${cancelling.residentName} não será executado e o morador podera faze-lo novamente.`
+            ? `O pedido de ${cancelling.residentName} não será executado e o morador poderá fazê-lo novamente.`
             : undefined
         }
         actionLabel="Cancelar solicitação"
@@ -243,7 +243,7 @@ function ResidentRequestsPanel() {
         onSuccess: (result) => {
           setCreated(result);
           setOpen(false);
-          toast.success('Solicitação de exclusao enviada.');
+          toast.success('Solicitação de exclusão enviada.');
           // O servidor avisa o que sera preservado e o que deixa de funcionar.
           for (const warning of result.warnings) toast.message(warning);
         },
@@ -259,7 +259,7 @@ function ResidentRequestsPanel() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Exclusao dos seus dados</CardTitle>
+          <CardTitle>Exclusão dos seus dados</CardTitle>
           <CardDescription>
             Solicite a anonimização dos seus dados pessoais, conforme a LGPD (Art. 18, VI).
           </CardDescription>
@@ -275,16 +275,16 @@ function ResidentRequestsPanel() {
               </div>
             </div>
           ) : (
-            <Button onClick={() => setOpen(true)}>Solicitar exclusao de dados</Button>
+            <Button onClick={() => setOpen(true)}>Solicitar exclusão de dados</Button>
           )}
         </CardContent>
       </Card>
 
       <ConfirmDialog
         open={open}
-        title="Solicitar exclusao de dados?"
+        title="Solicitar exclusão de dados?"
         variant="danger"
-        description="Seus dados pessoais serão anonimizados e o acesso a plataforma, encerrado. Cobranças, reservas e documentos já emitidos sao preservados por obrigação legal."
+        description="Seus dados pessoais serão anonimizados e o acesso à plataforma, encerrado. Cobranças, reservas e documentos já emitidos são preservados por obrigação legal."
         actionLabel="Enviar solicitação"
         loading={sending}
         onCancel={() => setOpen(false)}

@@ -83,6 +83,28 @@ describe('Dashboard executivo e administracao de acessos', () => {
       expect(response.body.data.length).toBeGreaterThan(0);
       expect(response.body.data[0]).toHaveProperty('action');
     });
+
+    it('libera a atividade recente ao sindico', async () => {
+      const sindico = await login(ctx, seedUsers.sindico);
+
+      const response = await sindico.get('/dashboard/recent-activity');
+
+      expect(response.status).toBe(200);
+    });
+
+    it.each([
+      ['portaria', 'porteiro'],
+      ['morador', 'morador'],
+    ] as const)(
+      'nega a atividade recente a %s, que so tem dashboard:read',
+      async (_label, key) => {
+        const agent = await login(ctx, seedUsers[key]);
+
+        const response = await agent.get('/dashboard/recent-activity');
+
+        expect(response.status).toBe(403);
+      },
+    );
   });
 
   describe('usuarios e papeis', () => {

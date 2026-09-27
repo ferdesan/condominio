@@ -78,6 +78,8 @@ dashboardRouter.get(
 
 dashboardRouter.get(
   '/recent-activity',
-  authorize('dashboard:read'),
+  // Permissao propria, e nao `dashboard:read`: o feed expoe quem fez o que no
+  // tenant, e so ADMIN e SINDICO o recebem por padrao.
+  authorize('dashboard-activity:read'),
   handle((req) => dashboardService.recentActivity(buildRequestContext(req))),
 );

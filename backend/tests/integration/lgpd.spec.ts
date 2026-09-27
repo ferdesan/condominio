@@ -287,7 +287,7 @@ describe('LGPD - integracao (IT-001..048)', () => {
       expect(response.body.data.status).toBe('PENDING');
       expect(Array.isArray(response.body.data.warnings)).toBe(true);
       expect(
-        response.body.data.warnings.some((warning: string) => warning.includes('cobranca')),
+        response.body.data.warnings.some((warning: string) => warning.includes('cobrança')),
       ).toBe(true);
     });
 
@@ -650,7 +650,7 @@ describe('LGPD - integracao (IT-001..048)', () => {
 
       expect(response.status).toBe(200);
       expect(
-        response.body.data.warnings.some((warning: string) => warning.includes('cobranca')),
+        response.body.data.warnings.some((warning: string) => warning.includes('cobrança')),
       ).toBe(true);
     });
 

@@ -13,6 +13,7 @@ import { PageHeader } from '@/components/common/page-header';
 import { EmptyState } from '@/components/common/empty-state';
 import { apiGet } from '@/lib/api';
 import { formatCurrency, formatNumber, formatPercent, formatReferenceMonth } from '@/lib/format';
+import { useAuth } from '@/hooks/use-auth';
 import { useCondominium } from '@/hooks/use-condominium';
 import type {
   ActivityEntry,
@@ -28,6 +29,7 @@ import { FinancialChart } from './components/financial-chart';
 import { StatCard } from './components/stat-card';
 
 export function DashboardPage() {
+  const { can } = useAuth();
   const { selectedId, selected, isLoading: loadingCondominiums } = useCondominium();
   const params = { condominiumId: selectedId };
   const enabled = Boolean(selectedId);
@@ -63,9 +65,16 @@ export function DashboardPage() {
     enabled,
   });
 
+  /**
+   * O feed le a auditoria do tenant e tem permissao propria no servidor
+   * (`dashboard-activity:read`), que o papel concede ou nao. Sem ela o card nem
+   * aparece, e a consulta nao sai — sairia para um 403 e o toast global.
+   */
+  const canSeeActivity = can('dashboard-activity:read');
   const activity = useQuery({
     queryKey: ['dashboard', 'recent-activity'],
     queryFn: () => apiGet<ActivityEntry[]>('/dashboard/recent-activity'),
+    enabled: canSeeActivity,
   });
 
   if (!loadingCondominiums && !selectedId) {
@@ -176,9 +185,11 @@ export function DashboardPage() {
         <IncidentsChart data={incidents.data ?? []} loading={incidents.isPending} />
       </section>
 
-      <section className="mt-4">
-        <ActivityFeed data={activity.data ?? []} loading={activity.isPending} />
-      </section>
+      {canSeeActivity ? (
+        <section className="mt-4">
+          <ActivityFeed data={activity.data ?? []} loading={activity.isPending} />
+        </section>
+      ) : null}
     </>
   );
 }

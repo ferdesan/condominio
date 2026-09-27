@@ -134,7 +134,7 @@ export class LgpdService {
       ACTIVE_CHARGE_STATUSES.includes(charge.status),
     ).length;
     if (activeCharges > 0) {
-      warnings.push(`${activeCharges} cobranca(s) em aberto serao mantidas apos a anonimizacao.`);
+      warnings.push(`${activeCharges} cobrança(s) em aberto serão mantidas após a anonimização.`);
     }
 
     const reservations = await reservationRepository.findAllBy(scope, { unitId: resident.unitId });
@@ -142,7 +142,7 @@ export class LgpdService {
       UPCOMING_RESERVATION_STATUSES.includes(reservation.status),
     ).length;
     if (upcoming > 0) {
-      warnings.push(`${upcoming} reserva(s) futura(s) serao mantidas apos a anonimizacao.`);
+      warnings.push(`${upcoming} reserva(s) futura(s) serão mantidas após a anonimização.`);
     }
 
     return warnings;
