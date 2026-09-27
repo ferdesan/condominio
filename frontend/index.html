@@ -4,12 +4,16 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
-    <meta
-      name="description"
-      content="Plataforma completa para gestao de condominios: financeiro, reservas, assembleias, portaria e comunicacao."
-    />
+    <!--
+      Duas `theme-color`, uma por esquema. O valor precisa concordar com a shell
+      real: em claro e o fundo da app (`--background`, `hsl(210 40% 98%)`), em
+      escuro a sidebar (`--sidebar`, `hsl(222 47% 10%)`). O #2563eb que estava aqui
+      antes era azul e nao era a cor de nenhuma tela do sistema.
+    -->
+    <meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0E1525" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="description" content="Plataforma completa para gestao de condominios: financeiro, reservas, assembleias, portaria e comunicacao." />
     <title>Condominio SaaS</title>
   </head>
   <body class="h-full bg-background text-foreground antialiased">
