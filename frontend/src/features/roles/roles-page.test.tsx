@@ -8,6 +8,7 @@ import {
   waitFor,
   within,
 } from '@/test/render';
+import { IMPLIED_BY_MANAGE } from './role-labels';
 import { RolesPage } from './roles-page';
 import {
   CATALOG,
@@ -403,6 +404,112 @@ describe('Ver permissões', () => {
     expect(await within(dialog).findByLabelText('Ver Condomínios')).toBeChecked();
     expect(within(dialog).getByLabelText('Gerenciar Reservas')).toBeChecked();
     expect(within(dialog).getByLabelText('Excluir Condomínios')).not.toBeChecked();
+  });
+});
+
+/**
+ * O que a coluna "Gerenciar" resolve no servidor precisa aparecer na tela.
+ *
+ * These tests exist because of a QA report: a role with `manage` granted and
+ * `delete` not granted showed the "Exclude" checkbox empty, and the admin read
+ * the row as "this role cannot delete" — while the button appeared on the
+ * screen and the server would have accepted the call. The matrix now shows the
+ * four cells checked and locked.
+ */
+describe('A coluna Gerenciar na matriz', () => {
+  /**
+   * Abre um dialogo de papel e espera a matriz existir. O catalogo chega por
+   * rede, e enquanto isso a tela mostra um esqueleto — as assercoes feitas cedo
+   * seriam sobre um DOM que ainda nao e o da matriz.
+   */
+  async function openMatrix(name: string, mode: 'view' | 'edit' = 'view') {
+    render(MANAGE);
+    await screen.findByText(name);
+    const trigger =
+      mode === 'view'
+        ? screen.getByRole('button', { name: `Ver permissões de ${name}` })
+        : screen.getByRole('button', { name: `Editar ${name}` });
+    clickTrigger(trigger);
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByLabelText('Gerenciar Reservas');
+    return dialog;
+  }
+
+  /**
+   * Papel personalizado, e portanto editavel. `makeRole` nasce `isSystem`, e
+   * papel do sistema abre com a matriz inteira travada — ai `toBeDisabled` nao
+   * distinguiria a trava do `manage` da trava do papel.
+   */
+  function editableRole(permissions: string[]) {
+    world.roles = [
+      makeRole({ id: 'role-1', name: 'SINDICOS', description: null, isSystem: false, permissions }),
+    ];
+  }
+
+  it('mostra marcadas e travadas as quatro ações que o manage já resolvia', async () => {
+    editableRole(['reservation:manage']);
+    const dialog = await openMatrix('SINDICOS', 'edit');
+
+    for (const acao of ['Ver', 'Criar', 'Editar', 'Excluir']) {
+      // O rotulo da celula implicada ganha a procedencia no fim.
+      const cell = within(dialog).getByLabelText(`${acao} Reservas — ${IMPLIED_BY_MANAGE}`);
+      expect(cell).toBeChecked();
+      expect(cell).toBeDisabled();
+    }
+  });
+
+  it('a celula marcada por manage diz de onde vem o direito', async () => {
+    const dialog = await openMatrix('SINDICO');
+
+    // Sem isto, a caixa marcada nao se distingue de uma concessao direta, e quem
+    // le a linha volta a concluir o contrario do que acontece.
+    expect(
+      within(dialog).getByLabelText(`Excluir Reservas — ${IMPLIED_BY_MANAGE}`),
+    ).toBeInTheDocument();
+  });
+
+  it('um recurso sem manage não ganha marcação emprestada', async () => {
+    editableRole(['condominium:read', 'reservation:manage']);
+    const dialog = await openMatrix('SINDICOS', 'edit');
+
+    // `condominium` so tem `read` concedido: as quatro continuam vazias e
+    // editaveis. A implicacao e por recurso, nao global.
+    expect(within(dialog).getByLabelText('Excluir Condomínios')).not.toBeChecked();
+    expect(within(dialog).getByLabelText('Excluir Condomínios')).toBeEnabled();
+  });
+
+  it('desmarcar Gerenciar apaga as quatro de uma vez, sem sobra na gravação', async () => {
+    const user = createUser();
+    // `charge:read` fica de lastro: o schema recusa papel sem permissao, e o
+    // envio nem sairia se `manage` fosse a unica.
+    editableRole(['reservation:manage', 'charge:read']);
+    const dialog = await openMatrix('SINDICOS', 'edit');
+
+    await user.click(within(dialog).getByLabelText('Gerenciar Reservas'));
+    expect(within(dialog).getByLabelText('Excluir Reservas')).not.toBeChecked();
+    expect(within(dialog).getByLabelText('Excluir Reservas')).toBeEnabled();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Salvar' }));
+
+    await waitFor(() => expect(mockPatch).toHaveBeenCalled());
+    // O que vai para o servidor e a concessao crua: nenhuma das quatro foi
+    // gravada por causa de `manage`, e nenhuma sobrou quando ele saiu. E o que
+    // mantem a storage como o servidor espera.
+    expect(lastUpdateBody()).toMatchObject({ permissions: ['charge:read'] });
+  });
+
+  it('quem tem manage e a acao gravadas nao fica travado', async () => {
+    editableRole(['reservation:manage', 'reservation:delete']);
+    const dialog = await openMatrix('SINDICOS', 'edit');
+
+    // Concessao direta e concessao portada precisam se comportar diferente: a
+    // celula direta e editavel, mesmo com o `manage` ligado na mesma linha.
+    expect(within(dialog).getByLabelText('Excluir Reservas')).toBeChecked();
+    expect(within(dialog).getByLabelText('Excluir Reservas')).toBeEnabled();
+    // E a que nao tem concessao propria continua travada.
+    expect(
+      within(dialog).getByLabelText(`Editar Reservas — ${IMPLIED_BY_MANAGE}`),
+    ).toBeDisabled();
   });
 });
 
