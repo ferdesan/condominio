@@ -15,6 +15,13 @@ export type MailSender = {
 
 let transport: Transporter | undefined;
 
+/**
+ * Teto de cada etapa da conversa SMTP. Sem isso valem os defaults do nodemailer
+ * (30 s so para a saudacao, 10 min de socket), e um provedor mudo segura a
+ * promessa muito alem do que qualquer cliente espera.
+ */
+const SMTP_TIMEOUT_MS = 10_000;
+
 function smtpConfigured(): boolean {
   return Boolean(env.SMTP_HOST) && !isTest;
 }
@@ -28,13 +35,30 @@ function getTransport(): Transporter {
         ? {
             host: env.SMTP_HOST,
             port: env.SMTP_PORT,
-            secure: env.SMTP_SECURE,
+            // 465 e SSL implicito: sem `secure` o cliente espera a saudacao em
+            // texto puro, o servidor espera o TLS, e os dois ficam parados.
+            secure: env.SMTP_SECURE || env.SMTP_PORT === 465,
             auth: env.SMTP_USER ? { user: env.SMTP_USER, pass: env.SMTP_PASS } : undefined,
+            connectionTimeout: SMTP_TIMEOUT_MS,
+            greetingTimeout: SMTP_TIMEOUT_MS,
+            socketTimeout: SMTP_TIMEOUT_MS,
           }
         : { jsonTransport: true },
     );
   }
   return transport;
+}
+
+/**
+ * Remetente a partir de `SMTP_FROM`, aceitando `Nome <email>`, `Nome email` ou
+ * so `email`. Paineis de deploy e o proprio compose costumam comer aspas e `<>`;
+ * repassar o texto cru faz o SMTP ler "Nome email" como endereco e recusar com
+ * "553 Sender address rejected". Nome e endereco separados nao tem essa ambiguidade.
+ */
+export function parseSender(raw: string, fallbackName: string): { name: string; address: string } {
+  const address = raw.match(/[^\s<>"']+@[^\s<>"']+/)?.[0] ?? raw.trim();
+  const name = raw.replace(address, '').replace(/[<>"']/g, '').trim();
+  return { name: name || fallbackName, address };
 }
 
 /**
@@ -46,7 +70,14 @@ function getTransport(): Transporter {
 export const mailer: MailSender = {
   async send(mail: OutboundMail): Promise<void> {
     if (smtpConfigured()) {
-      await getTransport().sendMail({ from: env.SMTP_FROM, ...mail });
+      const from = parseSender(env.SMTP_FROM, env.APP_NAME);
+      const info = await getTransport().sendMail({ from, ...mail });
+      // Aceito pelo SMTP nao e entregue: se o e-mail nao chegar, o messageId e
+      // a resposta sao o que o provedor pede para rastrear a mensagem.
+      logger.info(
+        `E-mail "${mail.subject}" aceito para ${mail.to} (messageId=${info.messageId}, ` +
+          `rejected=${info.rejected?.length ?? 0}, response=${info.response})`,
+      );
       return;
     }
 
@@ -64,3 +95,23 @@ export const mailer: MailSender = {
     logger.info(`Corpo da mensagem (desenvolvimento):\n${mail.text}`);
   },
 };
+
+/** Codigo e resposta do servidor SMTP dizem mais que a mensagem generica. */
+export function describeMailError(error: unknown): string {
+  const err = error as { message?: string; code?: string; responseCode?: number; response?: string };
+  return [err.code, err.responseCode, err.response ?? err.message].filter(Boolean).join(' | ');
+}
+
+/**
+ * Confere conexao e credenciais do SMTP. Roda no boot so para registrar no log:
+ * configuracao errada aparece no deploy, e nao no primeiro "esqueci a senha".
+ */
+export async function verifyMailer(): Promise<void> {
+  if (!smtpConfigured()) return;
+  try {
+    await getTransport().verify();
+    logger.info(`SMTP pronto (${env.SMTP_HOST}:${env.SMTP_PORT})`);
+  } catch (error) {
+    logger.error(`SMTP indisponivel (${env.SMTP_HOST}:${env.SMTP_PORT}): ${describeMailError(error)}`);
+  }
+}
