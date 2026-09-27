@@ -6,6 +6,7 @@ import {
   isOverdue,
   monthRange,
   overlaps,
+  referenceMonthOf,
   toIsoDate,
 } from '@/shared/utils/date.util';
 
@@ -81,5 +82,16 @@ describe('monthRange', () => {
     expect(() => monthRange('2026-13')).toThrow(RangeError);
     expect(() => monthRange('2026-00')).toThrow(RangeError);
     expect(() => monthRange('2026-9')).toThrow(RangeError);
+  });
+
+  // O script de teste fixa TZ=America/Sao_Paulo, o mesmo fuso do container.
+  it('decide a competencia no fuso do negocio, e nao em UTC', () => {
+    // 31/08 as 22h em Brasilia ja e 01/09 em UTC.
+    expect(referenceMonthOf('2026-09-01T01:00:00.000Z')).toBe('2026-08');
+    expect(referenceMonthOf('2026-09-01T03:00:00.000Z')).toBe('2026-09');
+
+    const { start, endExclusive } = monthRange('2026-09');
+    expect(start.toISOString()).toBe('2026-09-01T03:00:00.000Z');
+    expect(endExclusive.toISOString()).toBe('2026-10-01T03:00:00.000Z');
   });
 });

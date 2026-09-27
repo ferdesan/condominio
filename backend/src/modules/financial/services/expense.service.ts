@@ -1,4 +1,5 @@
 import type { DeepPartial } from 'typeorm';
+import { AppDataSource } from '@/config/data-source';
 import {
   serviceProviderRepository,
   type ServiceProviderRepository,
@@ -8,14 +9,22 @@ import { CondominiumScopedService } from '@/shared/services/condominium-scoped.s
 import { assertReferenceExists } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
 import { addByRecurrence, dayjs, isOverdue } from '@/shared/utils/date.util';
-import { assertMonthOpen } from '../closing-guard';
+import { withCashLock } from '../cash-lock';
+import { assertCorrectableCashDate, assertMonthOpen, assertRangeOpen } from '../closing-guard';
 import { Expense, type ExpenseStatus } from '../entities/expense.entity';
 import { expenseRepository, type ExpenseRepository } from '../repositories/expense.repository';
 import type {
+  CorrectPaidAtDTO,
   CreateExpenseDTO,
   PayExpenseDTO,
   UpdateExpenseDTO,
 } from '../schemas/financial.schema';
+
+/** Reenviar a mesma data (inclusive em outro formato) nao e mudanca. */
+function sameInstant(a: Date | string | null, b: Date | string | null): boolean {
+  if (!a || !b) return a === b;
+  return dayjs(a).valueOf() === dayjs(b).valueOf();
+}
 
 export class ExpenseService extends CondominiumScopedService<
   Expense,
@@ -66,6 +75,20 @@ export class ExpenseService extends CondominiumScopedService<
       throw new BusinessRuleError('Despesas pagas nao podem ter o valor alterado.');
     }
 
+    // Mover a data de uma despesa paga tem caminho proprio, que exige motivo e
+    // confere todo mes entre as duas datas. Pelo PUT ela passaria so pelas
+    // pontas e sem registro de por que mudou.
+    if (
+      current.status === 'PAID' &&
+      nextStatus === 'PAID' &&
+      dto.paidAt !== undefined &&
+      !sameInstant(dto.paidAt, current.paidAt ?? null)
+    ) {
+      throw new BusinessRuleError(
+        'Para alterar a data de pagamento de uma despesa paga, use a correcao de data.',
+      );
+    }
+
     this.assertPaidHasDate(nextStatus, nextPaidAt);
 
     await this.assertReferences(ctx, dto.categoryId ?? null, dto.serviceProviderId ?? null);
@@ -89,16 +112,41 @@ export class ExpenseService extends CondominiumScopedService<
    * despesa paga a um mes fechado passaria sem recusa (ADR-003).
    */
   override async restore(ctx: RequestContext, id: string): Promise<Expense> {
-    const current = await this.expenses
-      .query(ctx.scope, true)
-      .andWhere('expense.id = :id', { id })
-      .getOne();
+    const readCurrent = () =>
+      this.expenses.query(ctx.scope, true).andWhere('expense.id = :id', { id }).getOne();
 
-    if (current?.status === 'PAID') {
-      await assertMonthOpen(ctx.scope, current.condominiumId, current.paidAt);
-    }
+    const located = await readCurrent();
+    return withCashLock(located?.condominiumId, async () => {
+      const current = await readCurrent();
+      if (current?.status === 'PAID') {
+        await assertMonthOpen(ctx.scope, current.condominiumId, current.paidAt);
+      }
+      return super.restore(ctx, id);
+    });
+  }
 
-    return super.restore(ctx, id);
+  /*
+   * Lancar, alterar e excluir passam pelas guardas de `prepareCreate`,
+   * `prepareUpdate` e `beforeRemove`, e gravam pelo `BaseCrudService`. Os tres
+   * rodam inteiros sob a trava de caixa (`withCashLock`), para que um fechamento
+   * concorrente nao congele o mes entre a guarda e a gravacao. `update` trava
+   * tambem o condominio de destino quando a despesa muda de condominio.
+   */
+
+  override async create(ctx: RequestContext, dto: CreateExpenseDTO): Promise<Expense> {
+    return withCashLock(dto.condominiumId, () => super.create(ctx, dto));
+  }
+
+  override async update(ctx: RequestContext, id: string, dto: UpdateExpenseDTO): Promise<Expense> {
+    const current = await this.findById(ctx, id);
+    return withCashLock([current.condominiumId, dto.condominiumId], () =>
+      super.update(ctx, id, dto),
+    );
+  }
+
+  override async remove(ctx: RequestContext, id: string): Promise<void> {
+    const current = await this.findById(ctx, id);
+    return withCashLock(current.condominiumId, () => super.remove(ctx, id));
   }
 
   /**
@@ -122,22 +170,76 @@ export class ExpenseService extends CondominiumScopedService<
    * evita que contas fixas (agua, energia, contratos) sejam esquecidas.
    */
   async pay(ctx: RequestContext, id: string, dto: PayExpenseDTO): Promise<Expense> {
-    const expense = await this.findById(ctx, id);
+    const found = await this.findById(ctx, id);
 
-    if (expense.status === 'PAID') throw new BusinessRuleError('Despesa ja esta paga.');
-    if (expense.status === 'CANCELED') throw new BusinessRuleError('Despesa cancelada.');
+    // Sob a trava, e com a despesa relida dentro dela: alem de um fechamento
+    // concorrente, duas liquidacoes simultaneas passariam ambas pelo "ainda nao
+    // paga" e agendariam a proxima recorrencia duas vezes. O `update` abaixo
+    // trava de novo, e a reentrada de `withCashLock` e o que o deixa passar.
+    return withCashLock(found.condominiumId, async () => {
+      const expense = await this.findById(ctx, id);
 
-    const paid = await this.update(ctx, id, {
-      status: 'PAID',
-      paidAt: dto.paidAt,
-      paymentMethod: dto.paymentMethod,
-      documentUrl: dto.documentUrl ?? expense.documentUrl,
-      notes: dto.notes ?? expense.notes,
-    } as UpdateExpenseDTO);
+      if (expense.status === 'PAID') throw new BusinessRuleError('Despesa ja esta paga.');
+      if (expense.status === 'CANCELED') throw new BusinessRuleError('Despesa cancelada.');
 
-    if (expense.isRecurring) await this.scheduleNextOccurrence(ctx, expense);
+      const paid = await this.update(ctx, id, {
+        status: 'PAID',
+        paidAt: dto.paidAt,
+        paymentMethod: dto.paymentMethod,
+        documentUrl: dto.documentUrl ?? expense.documentUrl,
+        notes: dto.notes ?? expense.notes,
+      } as UpdateExpenseDTO);
 
-    return paid;
+      if (expense.isRecurring) await this.scheduleNextOccurrence(ctx, expense);
+
+      return paid;
+    });
+  }
+
+  /**
+   * Corrige a data de liquidacao de uma despesa paga. So a data muda; valor,
+   * forma e status continuam os mesmos. Escreve direto no repositorio porque o
+   * `update` generico recusa exatamente esta mudanca (ver `prepareUpdate`).
+   */
+  async correctPaidAt(ctx: RequestContext, id: string, dto: CorrectPaidAtDTO): Promise<Expense> {
+    // Acesso ao condominio e existencia, antes de travar qualquer coisa.
+    const found = await this.findById(ctx, id);
+
+    // Guardas e escrita sob a trava de caixa do condominio: ver `withCashLock`
+    // e `ChargeService.correctPaymentDate`.
+    const expense = await withCashLock(found.condominiumId, () =>
+      AppDataSource.transaction(async (manager) => {
+        const current = await manager.findOneOrFail(Expense, { where: { id } });
+        if (current.status !== 'PAID' || !current.paidAt) {
+          throw new BusinessRuleError('So e possivel corrigir a data de uma despesa paga.');
+        }
+
+        await assertCorrectableCashDate(ctx.scope, current.condominiumId, dto.paidAt);
+        await assertRangeOpen(ctx.scope, current.condominiumId, current.paidAt, dto.paidAt);
+
+        await manager.update(Expense, { id, tenantId: current.tenantId }, { paidAt: dto.paidAt });
+        return current;
+      }),
+    );
+
+    const updated = await this.findById(ctx, id);
+
+    await this.invalidateCache(ctx);
+    await this.audit.record({
+      tenantId: ctx.scope.tenantId,
+      action: 'UPDATE',
+      resource: 'expense',
+      resourceId: id,
+      description: `Data de pagamento corrigida. Motivo: ${dto.reason}`,
+      before: { paidAt: expense.paidAt },
+      after: { paidAt: dto.paidAt },
+      actor: ctx.actor,
+      ipAddress: ctx.ipAddress,
+      userAgent: ctx.userAgent,
+      requestId: ctx.requestId,
+    });
+
+    return updated;
   }
 
   async summary(ctx: RequestContext, condominiumId: string, competence?: string) {

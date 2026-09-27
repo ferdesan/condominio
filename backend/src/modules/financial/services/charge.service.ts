@@ -13,12 +13,14 @@ import { recipientsService, type RecipientsService } from '@/shared/services/rec
 import { assertReferenceExists, resolveUnitCondominium } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
 import { dayjs, isOverdue } from '@/shared/utils/date.util';
-import { assertMonthOpen } from '../closing-guard';
+import { withCashLock } from '../cash-lock';
+import { assertCorrectableCashDate, assertMonthOpen, assertRangeOpen } from '../closing-guard';
 import { Charge } from '../entities/charge.entity';
 import { Payment } from '../entities/payment.entity';
 import { chargeRepository, type ChargeRepository } from '../repositories/charge.repository';
 import { paymentRepository, type PaymentRepository } from '../repositories/payment.repository';
 import type {
+  CorrectPaidAtDTO,
   CreateChargeDTO,
   GenerateChargesDTO,
   RegisterPaymentDTO,
@@ -200,42 +202,53 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
     // cobranca por `this.repository.update` (abaixo), sem passar por
     // `beforeUpdate`. Montada so como hook, ela deixaria aberta exatamente a
     // porta mais usada do modulo (ADR-003).
-    await assertMonthOpen(ctx.scope, charge.condominiumId, dto.paidAt);
+    //
+    // Guarda, saldo e gravacao sob a trava de caixa do condominio: um
+    // fechamento concorrente nao congela o mes entre a guarda e a gravacao, e
+    // duas baixas simultaneas da mesma cobranca nao passam ambas pelo saldo.
+    const { payment, paidAmount, isSettled, alreadyPaid, charged } = await withCashLock(
+      charge.condominiumId,
+      async () => {
+        await assertMonthOpen(ctx.scope, charge.condominiumId, dto.paidAt);
 
-    const total = this.totalDue(charge);
-    const alreadyPaid = await this.payments.sumByCharge(ctx.scope, charge.id);
-    const remaining = Math.round((total - alreadyPaid) * 100) / 100;
+        const total = this.totalDue(charge);
+        const alreadyPaid = await this.payments.sumByCharge(ctx.scope, charge.id);
+        const remaining = Math.round((total - alreadyPaid) * 100) / 100;
 
-    if (remaining <= 0) {
-      throw new BusinessRuleError('Cobranca ja esta quitada.');
-    }
-    if (dto.amount > remaining) {
-      throw new BusinessRuleError(
-        `Valor informado excede o saldo devedor de R$ ${remaining.toFixed(2)}.`,
-      );
-    }
+        if (remaining <= 0) {
+          throw new BusinessRuleError('Cobranca ja esta quitada.');
+        }
+        if (dto.amount > remaining) {
+          throw new BusinessRuleError(
+            `Valor informado excede o saldo devedor de R$ ${remaining.toFixed(2)}.`,
+          );
+        }
 
-    const payment = await this.payments.create(ctx.scope, {
-      condominiumId: charge.condominiumId,
-      chargeId: charge.id,
-      amount: dto.amount,
-      paidAt: dto.paidAt,
-      method: dto.method,
-      receiptUrl: dto.receiptUrl ?? null,
-      transactionId: dto.transactionId ?? null,
-      notes: dto.notes ?? null,
-      registeredById: ctx.actor.userId,
-    });
+        const payment = await this.payments.create(ctx.scope, {
+          condominiumId: charge.condominiumId,
+          chargeId: charge.id,
+          amount: dto.amount,
+          paidAt: dto.paidAt,
+          method: dto.method,
+          receiptUrl: dto.receiptUrl ?? null,
+          transactionId: dto.transactionId ?? null,
+          notes: dto.notes ?? null,
+          registeredById: ctx.actor.userId,
+        });
 
-    const paidAmount = Math.round((alreadyPaid + dto.amount) * 100) / 100;
-    const isSettled = paidAmount >= total;
+        const paidAmount = Math.round((alreadyPaid + dto.amount) * 100) / 100;
+        const isSettled = paidAmount >= total;
 
-    const charged = await this.repository.update(ctx.scope, charge.id, {
-      paidAmount,
-      status: isSettled ? 'PAID' : 'PARTIAL',
-      paidAt: isSettled ? dto.paidAt : null,
-      paymentMethod: dto.method,
-    } as DeepPartial<Charge>);
+        const charged = await this.repository.update(ctx.scope, charge.id, {
+          paidAmount,
+          status: isSettled ? 'PAID' : 'PARTIAL',
+          paidAt: isSettled ? dto.paidAt : null,
+          paymentMethod: dto.method,
+        } as DeepPartial<Charge>);
+
+        return { payment, paidAmount, isSettled, alreadyPaid, charged };
+      },
+    );
 
     await this.audit.record({
       tenantId: ctx.scope.tenantId,
@@ -270,6 +283,93 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
     });
 
     return { charge: charged ?? charge, payment };
+  }
+
+  /**
+   * Corrige a data de uma baixa ja registrada. So a data muda: valor, forma e
+   * status da cobranca continuam os mesmos.
+   *
+   * `charges.paid_at` repete a data da baixa que quitou a cobranca, entao numa
+   * cobranca quitada ele e recalculado como a baixa mais recente — corrigir a
+   * ultima baixa sem isso deixaria a cobranca dizendo uma data que nenhum
+   * pagamento tem. As duas escritas vao na mesma transacao pelo mesmo motivo.
+   *
+   * As guardas rodam sob a trava de caixa do condominio (`withCashLock`): um
+   * fechamento de mes concorrente ou espera esta correcao terminar, ou termina
+   * antes e ela ve o mes fechado.
+   *
+   * Sem notificacao ao morador: e ajuste interno, nao um pagamento novo.
+   */
+  async correctPaymentDate(
+    ctx: RequestContext,
+    paymentId: string,
+    dto: CorrectPaidAtDTO,
+  ): Promise<Payment> {
+    const found = await this.payments.findById(ctx.scope, paymentId);
+    if (!found) throw new NotFoundError('Pagamento');
+    // Acesso ao condominio e existencia da cobranca, antes de travar qualquer coisa.
+    await this.findById(ctx, found.chargeId);
+
+    const { payment, charge } = await withCashLock(found.condominiumId, () =>
+      AppDataSource.transaction(async (manager) => {
+        // Relidos depois da trava: outra correcao do mesmo pagamento pode ter
+        // acabado de gravar, e a data "antiga" da guarda precisa ser a atual.
+        const payment = await manager.findOneOrFail(Payment, { where: { id: found.id } });
+        const charge = await manager.findOneOrFail(Charge, { where: { id: payment.chargeId } });
+        if (charge.status === 'CANCELED') {
+          throw new BusinessRuleError('Cobranca cancelada nao aceita correcao de pagamento.');
+        }
+
+        await assertCorrectableCashDate(ctx.scope, payment.condominiumId, dto.paidAt);
+        await assertRangeOpen(ctx.scope, payment.condominiumId, payment.paidAt, dto.paidAt);
+
+        await manager.update(
+          Payment,
+          { id: payment.id, tenantId: payment.tenantId },
+          { paidAt: dto.paidAt },
+        );
+
+        if (charge.status === 'PAID') {
+          const siblings = await manager.find(Payment, {
+            where: { chargeId: charge.id, tenantId: charge.tenantId },
+            select: { id: true, paidAt: true },
+          });
+          const latest = siblings.reduce<Date | null>((max, row) => {
+            const when = new Date(row.paidAt);
+            return !max || when > max ? when : max;
+          }, null);
+          await manager.update(
+            Charge,
+            { id: charge.id, tenantId: charge.tenantId },
+            { paidAt: latest },
+          );
+        }
+
+        return { payment, charge };
+      }),
+    );
+
+    await this.invalidateCache(ctx);
+    await this.audit.record({
+      tenantId: ctx.scope.tenantId,
+      action: 'UPDATE',
+      resource: 'payment',
+      resourceId: payment.id,
+      description: `Data do recebimento corrigida. Motivo: ${dto.reason}`,
+      before: { paidAt: payment.paidAt, chargeId: charge.id },
+      after: { paidAt: dto.paidAt, chargeId: charge.id },
+      actor: ctx.actor,
+      ipAddress: ctx.ipAddress,
+      userAgent: ctx.userAgent,
+      requestId: ctx.requestId,
+    });
+
+    this.realtime.emitToCondominium(charge.condominiumId, 'charge:updated', {
+      id: charge.id,
+      status: charge.status,
+    });
+
+    return { ...payment, paidAt: dto.paidAt };
   }
 
   async cancel(ctx: RequestContext, id: string, reason?: string): Promise<Charge> {
@@ -335,7 +435,11 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
       const penalty = Math.round(charge.amount * (penaltyPercent / 100) * 100) / 100;
       const interest = Math.round(charge.amount * (interestPercent / 100) * monthsLate * 100) / 100;
 
-      if (charge.penalty === penalty && charge.interest === interest && charge.status === 'OVERDUE') {
+      if (
+        charge.penalty === penalty &&
+        charge.interest === interest &&
+        charge.status === 'OVERDUE'
+      ) {
         continue;
       }
 
@@ -352,9 +456,7 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
 
   private totalDue(charge: Charge): number {
     return (
-      Math.round(
-        (charge.amount + charge.interest + charge.penalty - charge.discount) * 100,
-      ) / 100
+      Math.round((charge.amount + charge.interest + charge.penalty - charge.discount) * 100) / 100
     );
   }
 
