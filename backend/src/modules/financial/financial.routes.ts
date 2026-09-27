@@ -14,6 +14,7 @@ import type { FinancialCategory } from './entities/financial-category.entity';
 import { closingRouter } from './closing.routes';
 import { paymentRepository } from './repositories/payment.repository';
 import {
+  correctPaidAtSchema,
   createChargeSchema,
   createExpenseSchema,
   createFinancialCategorySchema,
@@ -24,6 +25,7 @@ import {
   updateChargeSchema,
   updateExpenseSchema,
   updateFinancialCategorySchema,
+  type CorrectPaidAtDTO,
   type CreateChargeDTO,
   type CreateExpenseDTO,
   type CreateFinancialCategoryDTO,
@@ -186,8 +188,25 @@ financialRouter.use(
 );
 
 // ---------------------------------------------------------------------------
-// Pagamentos (somente leitura: a baixa e feita pela cobranca)
+// Pagamentos (a baixa e feita pela cobranca; aqui, leitura e correcao de data)
 // ---------------------------------------------------------------------------
+
+financialRouter.patch(
+  '/payments/:id/paid-at',
+  authorize('payment:update'),
+  validate({ params: idParamSchema, body: correctPaidAtSchema }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const context = buildRequestContext(req);
+      ok(
+        res,
+        await chargeService.correctPaymentDate(context, req.params.id, req.body as CorrectPaidAtDTO),
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 financialRouter.get(
   '/payments',
@@ -210,6 +229,22 @@ const payExpense = async (req: Request, res: Response, next: NextFunction): Prom
   try {
     const context = buildRequestContext(req);
     ok(res, await expenseService.pay(context, req.params.id, req.body as PayExpenseDTO));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const correctExpensePaidAt = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const context = buildRequestContext(req);
+    ok(
+      res,
+      await expenseService.correctPaidAt(context, req.params.id, req.body as CorrectPaidAtDTO),
+    );
   } catch (error) {
     next(error);
   }
@@ -244,6 +279,12 @@ financialRouter.use(
         authorize('expense:update'),
         validate({ params: idParamSchema, body: payExpenseSchema }),
         payExpense,
+      );
+      router.patch(
+        '/:id/paid-at',
+        authorize('expense:update'),
+        validate({ params: idParamSchema, body: correctPaidAtSchema }),
+        correctExpensePaidAt,
       );
     },
   }),

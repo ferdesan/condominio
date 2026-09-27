@@ -57,11 +57,15 @@ function currentMonth(): string {
   return new Date().toISOString().slice(0, 7);
 }
 
+/** Um instante no formato do input nativo de data e hora, no fuso local. */
+function toLocalInput(date: Date): string {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
+}
+
 /** Agora, no formato do input nativo de data e hora. */
 function localNow(): string {
-  const now = new Date();
-  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 16);
+  return toLocalInput(new Date());
 }
 
 /** Horario local do formulario -> ISO para o servidor. */
@@ -461,4 +465,60 @@ export function toPayExpensePayload(values: PayExpenseFormValues): PayExpensePay
     paymentMethod: values.paymentMethod,
     notes: values.notes || null,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Correcao da data de uma baixa (recebimento ou liquidacao)
+// ---------------------------------------------------------------------------
+
+const correctPaidAtFields = z.object({
+  paidAt: z.string().min(1, 'Informe a data correta.'),
+  reason: z
+    .string()
+    .trim()
+    .min(10, 'Descreva o motivo da correção (mínimo de 10 caracteres).')
+    .max(200, 'Use no máximo 200 caracteres.'),
+});
+
+export const correctPaidAtSchema = correctPaidAtFields;
+export type CorrectPaidAtFormValues = z.infer<typeof correctPaidAtFields>;
+export const CORRECT_PAID_AT_FIELDS: ReadonlySet<string> = new Set(
+  Object.keys(correctPaidAtFields.shape),
+);
+
+/** O campo abre com a data atual: quem corrige quase sempre ajusta poucos dias. */
+export function correctPaidAtFormDefaults(currentPaidAt: string): CorrectPaidAtFormValues {
+  return { paidAt: toLocalInput(new Date(currentPaidAt)), reason: '' };
+}
+
+/**
+ * Fuso em que o servidor decide a competencia (o `TZ` do container da API).
+ * O aviso de troca de mes precisa usar o mesmo, e nao o do navegador: fora dele,
+ * perto da meia-noite do ultimo dia, a tela diria um mes e o servidor outro.
+ */
+export const BUSINESS_TIME_ZONE = 'America/Sao_Paulo';
+
+const competenceFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: BUSINESS_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+});
+
+/** Competencia (`YYYY-MM`) de um instante, no fuso do negocio. */
+export function competenceOf(iso: string): string {
+  const parts = competenceFormatter.formatToParts(new Date(iso));
+  const year = parts.find((part) => part.type === 'year')?.value;
+  const month = parts.find((part) => part.type === 'month')?.value;
+  return `${year}-${month}`;
+}
+
+/** Competencia de um valor do input `datetime-local` (hora local do navegador). */
+export function competenceOfLocalInput(value: string): string {
+  return competenceOf(toIso(value));
+}
+
+export type CorrectPaidAtPayload = { paidAt: string; reason: string };
+
+export function toCorrectPaidAtPayload(values: CorrectPaidAtFormValues): CorrectPaidAtPayload {
+  return { paidAt: toIso(values.paidAt), reason: values.reason };
 }

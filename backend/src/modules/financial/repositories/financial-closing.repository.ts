@@ -30,6 +30,26 @@ export class FinancialClosingRepository extends BaseRepository<FinancialClosing>
       .andWhere('closing.referenceMonth = :referenceMonth', { referenceMonth })
       .getOne();
   }
+
+  /**
+   * Competencias `CLOSED` entre `fromMonth` e `toMonth`, inclusive, em ordem.
+   * `YYYY-MM` ordena como texto na mesma ordem do calendario, entao o BETWEEN
+   * sobre a coluna `varchar` e exato.
+   */
+  async findClosedBetween(
+    scope: TenantScope,
+    condominiumId: string,
+    fromMonth: string,
+    toMonth: string,
+  ): Promise<string[]> {
+    const rows = await this.query(scope)
+      .andWhere('closing.condominiumId = :condominiumId', { condominiumId })
+      .andWhere('closing.status = :status', { status: 'CLOSED' })
+      .andWhere('closing.referenceMonth BETWEEN :fromMonth AND :toMonth', { fromMonth, toMonth })
+      .orderBy('closing.referenceMonth', 'ASC')
+      .getMany();
+    return rows.map((row) => row.referenceMonth);
+  }
 }
 
 export const financialClosingRepository = new FinancialClosingRepository();

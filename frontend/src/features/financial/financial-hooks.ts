@@ -18,7 +18,14 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from '@tanstack/react-query';
-import { apiGet, apiGetPaginated, apiPost, type ApiError, type Paginated } from '@/lib/api';
+import {
+  apiGet,
+  apiGetPaginated,
+  apiPatch,
+  apiPost,
+  type ApiError,
+  type Paginated,
+} from '@/lib/api';
 import { createResourceHooks, MAX_PER_PAGE } from '@/lib/crud';
 import type { ServiceProvider, Unit } from '@/types/api';
 import type {
@@ -37,6 +44,7 @@ import type {
 import type {
   CategoryPayload,
   ChargePayload,
+  CorrectPaidAtPayload,
   ExpensePayload,
   GeneratePayload,
   PaymentPayload,
@@ -376,6 +384,37 @@ export function usePayExpense(
     mutationFn: ({ id, data }) => apiPost<Expense>(`/financial/expenses/${id}/pay`, data),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: [EXPENSES_KEY] });
+      callbacks.onSuccess?.(data, variables);
+    },
+    ...(callbacks.onError ? { onError: callbacks.onError } : {}),
+  });
+}
+
+export type PaidAtCorrectionKind = 'payment' | 'expense';
+export type CorrectPaidAtVariables = { id: string; data: CorrectPaidAtPayload };
+
+/**
+ * Correcao da data de uma baixa ja feita: recebimento (`payment:update`) ou
+ * liquidacao de despesa (`expense:update`). O servidor recusa quando qualquer
+ * competencia entre a data antiga e a nova esta fechada.
+ *
+ * Invalida tambem o balancete: a correcao move dinheiro entre competencias, e um
+ * mes que ja estava em cache mostraria o total de antes.
+ */
+export function useCorrectPaidAt(
+  kind: PaidAtCorrectionKind,
+  callbacks: MutationCallbacks<unknown, CorrectPaidAtVariables> = {},
+): UseMutationResult<unknown, ApiError, CorrectPaidAtVariables> {
+  const queryClient = useQueryClient();
+  const base = kind === 'payment' ? '/financial/payments' : '/financial/expenses';
+
+  return useMutation<unknown, ApiError, CorrectPaidAtVariables>({
+    mutationFn: ({ id, data }) => apiPatch<unknown>(`${base}/${id}/paid-at`, data),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [kind === 'payment' ? CHARGES_KEY : EXPENSES_KEY],
+      });
+      queryClient.invalidateQueries({ queryKey: [CLOSINGS_KEY] });
       callbacks.onSuccess?.(data, variables);
     },
     ...(callbacks.onError ? { onError: callbacks.onError } : {}),

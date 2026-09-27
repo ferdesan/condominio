@@ -357,6 +357,24 @@ function customPaths(): OpenApiObject {
       },
     },
     '/financial/expenses/{id}/pay': action('Financeiro', 'Quita a despesa'),
+    '/financial/expenses/{id}/paid-at': {
+      patch: {
+        tags: ['Financeiro'],
+        summary: 'Corrige a data de pagamento de uma despesa paga (meses abertos, motivo obrigatorio)',
+        parameters: [ID_PARAM],
+        requestBody: { $ref: '#/components/requestBodies/GenericPayload' },
+        responses: { 200: { $ref: '#/components/responses/Entity' }, ...ERROR_RESPONSES },
+      },
+    },
+    '/financial/payments/{id}/paid-at': {
+      patch: {
+        tags: ['Financeiro'],
+        summary: 'Corrige a data de um recebimento (meses abertos, motivo obrigatorio)',
+        parameters: [ID_PARAM],
+        requestBody: { $ref: '#/components/requestBodies/GenericPayload' },
+        responses: { 200: { $ref: '#/components/responses/Entity' }, ...ERROR_RESPONSES },
+      },
+    },
     '/financial/closings': {
       get: {
         tags: ['Financeiro'],

@@ -23,10 +23,15 @@ RUN npm install --omit=dev && npm cache clean --force
 FROM node:22-alpine AS runner
 
 ENV NODE_ENV=production
+# Fuso do negocio. Sem isto o container roda em UTC e toda conta de mes
+# (competencia, balancete, guarda de mes fechado, vencimento) vira tres horas
+# antes: um recebimento de 31/08 as 22h entraria em setembro.
+ENV TZ=America/Sao_Paulo
 WORKDIR /app
 
 # dumb-init garante o encaminhamento correto de SIGTERM (shutdown gracioso).
-RUN apk add --no-cache dumb-init curl && \
+# tzdata fornece a tabela de fusos que o TZ acima consulta.
+RUN apk add --no-cache dumb-init curl tzdata && \
     addgroup -g 1001 -S nodejs && \
     adduser -S api -u 1001 -G nodejs
 

@@ -56,6 +56,15 @@ async function bootstrap(): Promise<void> {
     logger.info(`${env.APP_NAME} running on port ${env.PORT} [${env.NODE_ENV}]`);
     logger.info(`API:     ${env.API_URL}${env.API_PREFIX}`);
     if (env.SWAGGER_ENABLED) logger.info(`Swagger: ${env.API_URL}${env.API_PREFIX}/docs`);
+
+    // As contas de mes do financeiro usam o fuso do processo. Em UTC, tudo que
+    // acontece depois das 21h do ultimo dia do mes cai no mes seguinte.
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timeZone === 'UTC' || timeZone === 'Etc/UTC') {
+      logger.warn(`Fuso do processo e ${timeZone}: defina TZ=America/Sao_Paulo`);
+    } else {
+      logger.info(`Fuso:    ${timeZone}`);
+    }
   });
 
   startScheduledJobs();
