@@ -12,6 +12,7 @@ import { errorHandler, notFoundHandler } from '@/middlewares/error.middleware';
 import { globalRateLimiter } from '@/middlewares/rate-limit.middleware';
 import { httpLogger, requestId } from '@/middlewares/request-context.middleware';
 import { apiRouter } from '@/routes';
+import { APP_VERSION } from '@/version';
 
 /**
  * Monta a aplicacao Express sem abrir sockets: o `server.ts` cuida do ciclo de
@@ -105,7 +106,7 @@ export function createApp(): Application {
         success: true,
         data: {
           name: env.APP_NAME,
-          version: '1.0.0',
+          version: APP_VERSION,
           docs: env.SWAGGER_ENABLED ? `${env.API_PREFIX}/docs` : null,
           health: `${env.API_PREFIX}/health`,
         },

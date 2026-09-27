@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import { AppDataSource } from '@/config/data-source';
 import { env } from '@/config/env';
 import { getRedis } from '@/config/redis';
+import { APP_VERSION } from '@/version';
 
 export const healthRouter = Router();
 
@@ -32,7 +33,7 @@ healthRouter.get('/ready', async (_req: Request, res: Response) => {
     data: {
       status: healthy ? 'ready' : 'unavailable',
       environment: env.NODE_ENV,
-      version: process.env.npm_package_version ?? '1.0.0',
+      version: APP_VERSION,
       checks,
     },
   });
