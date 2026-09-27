@@ -25,7 +25,16 @@ export const ACTION_LABELS: Record<PermissionAction, string> = {
 };
 
 /** Dito sob a coluna "Gerenciar", que resolve as quatro anteriores. */
-export const MANAGE_NOTE = 'Gerenciar já inclui ver, criar, editar e excluir daquele recurso.';
+export const MANAGE_NOTE =
+  'Gerenciar já inclui ver, criar, editar e excluir daquele recurso. As ações resultantes aparecem marcadas e travadas, e somem quando Gerenciar é desmarcado.';
+
+/**
+ * Tarja da célula cujo direito vem de `<recurso>:manage` e não da própria
+ * concessão. Diz também como retirar, porque a caixa está travada: sem esta
+ * segunda frase a única forma de desligar a ação seria adivinhar que o
+ * caminho é desmarcar "Gerenciar".
+ */
+export const IMPLIED_BY_MANAGE = 'Concedido por Gerenciar. Desmarque Gerenciar para retirar.';
 
 const RESOURCE_LABELS: Record<string, string> = {
   tenant: 'Administradora',

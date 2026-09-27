@@ -99,6 +99,13 @@ async function findRows(name: string = NAME): Promise<HTMLElement> {
 /** Permissoes de quem pode tudo em usuarios **menos** `manage`. */
 const UPDATE_WITHOUT_MANAGE = ['user:read', 'user:create', 'user:update', 'user:delete'];
 
+/**
+ * O caso do QA: `manage` concedido, `delete` nao. `manage` e curinga do recurso
+ * no servidor, entao este papel exclui usuarios — apesar de a matriz mostrar a
+ * coluna "Excluir" desmarcada.
+ */
+const MANAGE_WITHOUT_DELETE = ['user:read', 'user:create', 'user:update', 'user:manage'];
+
 beforeEach(() => {
   vi.clearAllMocks();
   localStorage.clear();
@@ -438,6 +445,41 @@ describe('Reset de senha', () => {
     expect(screen.queryByRole('button', { name: /^Resetar senha/ })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: `Editar ${NAME}` })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: `Excluir ${NAME}` })).toBeInTheDocument();
+  });
+
+  /**
+   * Relato de QA: papel personalizado com a coluna "Excluir" desmarcada na matriz
+   * e, ainda assim, o botao Excluir aparecendo na linha do usuario vinculado.
+   *
+   * Nao e divergencia de permissao: e `user:manage` no papel. O servidor trata
+   * `<recurso>:manage` como curinga do recurso, e `authorize('user:delete')` na
+   * rota de remocao passa igual — o botao esta correto e a exclusao seria aceita.
+   * O que engana e a matriz mostrar "Excluir" desmarcado num papel que exclui.
+   *
+   * Este teste existe para travar essa leitura: se um dia `manage` deixar de
+   * implicar as outras acoes, a linha muda e aqui avisa.
+   */
+  it('com manage e sem delete, o botão excluir aparece mesmo assim', async () => {
+    world = serveUsers({ users: [makeUser()] });
+    renderWithProviders(<UsersPage />, { permissions: MANAGE_WITHOUT_DELETE });
+
+    await findRows();
+
+    expect(screen.getByRole('button', { name: `Excluir ${NAME}` })).toBeInTheDocument();
+    // E o inverso tambem: sem `manage` e sem `delete`, nada aparece.
+    screen.getByRole('button', { name: `Editar ${NAME}` });
+  });
+
+  it('sem delete e sem manage, o botão excluir nao aparece', async () => {
+    world = serveUsers({ users: [makeUser()] });
+    renderWithProviders(<UsersPage />, {
+      permissions: ['user:read', 'user:create', 'user:update'],
+    });
+
+    await findRows();
+
+    expect(screen.queryByRole('button', { name: /^Excluir/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: `Editar ${NAME}` })).toBeInTheDocument();
   });
 
   it('a recusa do servidor aparece na linha, sem toast em dobro', async () => {

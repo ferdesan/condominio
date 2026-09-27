@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import {
   ACTION_LABELS,
   ACTION_ORDER,
+  IMPLIED_BY_MANAGE,
   MANAGE_NOTE,
   PERMISSION_GROUPS,
   resourceLabel,
@@ -32,12 +34,23 @@ export interface PermissionMatrixProps {
  * linhas e cinco colunas, e a pergunta que se faz aqui — "o que este papel pode
  * fazer com reservas?" — vira uma linha, e nao uma busca.
  *
- * **`manage` nao marca as outras quatro, e isso e proposital.** No servidor ele
- * *resolve* as outras (`hasPermission` trata `<recurso>:manage` como curinga do
- * recurso), mas nao as *contem*: o papel guarda exatamente o que foi concedido.
- * Marcar as quatro junto gravaria cinco permissoes onde o servidor esperava uma,
- * e desmarcar `manage` depois deixaria quatro para tras sem que ninguem pedisse.
- * A coluna e destacada e a nota explica a implicacao.
+ * **`manage` e a coluna que mente se a matriz so mostrar o que foi gravado.**
+ * No servidor ele *resolve* as outras quatro (`hasPermission` trata
+ * `<recurso>:manage` como curinga do recurso), mas nao as *contem*: o papel
+ * guarda exatamente o que foi concedido, e marcar as quatro junto gravaria cinco
+ * permissoes onde o servidor esperava uma. Desmarcar `manage` depois deixaria
+ * quatro para tras sem que ninguem pedisse.
+ *
+ * Entao a separacao e entre **o que e gravado** e **o que vale**. A gravacao
+ * continua crua, e a tela mostra as quatro celulas marcadas e travadas quando o
+ * `manage` esta ligado, com a tarja dizendo de onde vem o direito. Uma caixa
+ * desmarcada que significa "pode" e o pior tipo de checkbox: o administrador le
+ * a linha, conclui que nao pode excluir, e o papel exclui mesmo assim.
+ *
+ * Um papel so com `*` cai no mesmo buraco — e todas as caixas podem estar vazias
+ * enquanto o papel alcanca tudo. Quem trata esse caso e
+ * `role-permissions-dialog.tsx`, com um banner; o `manage` e tratado aqui, na
+ * propria celula, porque tem recurso e acao e cabe numa linha da tabela.
  *
  * **Somente leitura e o mesmo componente.** Sem `onChange`, as caixas ficam
  * desabilitadas — o que se ve na visualizacao e exatamente o que se veria na
@@ -120,6 +133,13 @@ export function PermissionMatrix({ catalog, value, onChange, idPrefix }: Permiss
               <tbody>
                 {section.resources.map((resource) => {
                   const available = byResource.get(resource) ?? new Set<string>();
+                  /*
+                   * `manage` concedido e o que da sentido as outras quatro. A
+                   * linha toda se resolve de uma vez, entao a conta e feita por
+                   * recurso e repassada as celulas.
+                   */
+                  const managed = granted.has(`${resource}:manage`);
+
                   return (
                     <tr key={resource} className="border-t">
                       <th scope="row" className="px-3 py-2 text-left font-normal">
@@ -133,6 +153,14 @@ export function PermissionMatrix({ catalog, value, onChange, idPrefix }: Permiss
                           action={action}
                           available={available.has(action)}
                           granted={granted.has(`${resource}:${action}`)}
+                          /*
+                           * Tendo o
+                           * `manage` e a `delete` gravadas, a celula e uma
+                           * concessao direta e se comporta como tal.
+                           */
+                          implied={
+                            managed && action !== 'manage' && !granted.has(`${resource}:${action}`)
+                          }
                           readOnly={readOnly}
                           onToggle={toggle}
                         />
@@ -155,6 +183,7 @@ function ActionCell({
   action,
   available,
   granted,
+  implied,
   readOnly,
   onToggle,
 }: {
@@ -163,6 +192,8 @@ function ActionCell({
   action: PermissionAction;
   available: boolean;
   granted: boolean;
+  /** O direito vem de `<recurso>:manage`, e nao de concessao direta nesta celula. */
+  implied: boolean;
   readOnly: boolean;
   onToggle: (entry: string, checked: boolean) => void;
 }) {
@@ -180,23 +211,48 @@ function ActionCell({
 
   const entry = `${resource}:${action}`;
   const id = `${idPrefix}-${resource}-${action}`;
+  const label = `${ACTION_LABELS[action]} ${resourceLabel(resource)}`;
+
+  const box = (
+    <Checkbox
+      id={id}
+      checked={granted || implied}
+      disabled={readOnly || implied}
+      onCheckedChange={(checked) => onToggle(entry, checked === true)}
+      /*
+       * A celula implicada e marcada, porem com preenchimento de menor peso que
+       * a concessao direta: a linha precisa dizer "vale" e "de onde veio" ao
+       * mesmo tempo. `disabled:opacity-100` neutraliza o opacidade do `disabled`
+       * da `Checkbox` — sem ele, o `disabled` implicado apagaria justamente a
+       * informacao que o desabilitado existe para esconder.
+       */
+      className={cn(
+        implied &&
+          'border-primary/50 bg-primary/20 text-primary-foreground/80 disabled:opacity-100',
+      )}
+    />
+  );
 
   return (
     <td className="px-3 py-2 text-center">
-      <Checkbox
-        id={id}
-        checked={granted}
-        disabled={readOnly}
-        onCheckedChange={(checked) => onToggle(entry, checked === true)}
-      />
+      {implied ? (
+        <Tooltip label={IMPLIED_BY_MANAGE} side="top">
+          {box}
+        </Tooltip>
+      ) : (
+        box
+      )}
       {/*
         O rotulo carrega recurso e ação por extenso e fica so para leitores de
         tela: numa grade de cento e quarenta e cinco caixas, "Ver" sozinho nao
         diz de quê. O cabecalho da coluna nao resolve isso — `Checkbox` do Radix
         e um botao, e nao uma celula que herde `headers`.
+
+        No caso implicado o texto dirá a procedencia, porque ali a caixa esta
+        marcada sem que ninguem a tenha marcado.
       */}
       <Label htmlFor={id} className="sr-only">
-        {`${ACTION_LABELS[action]} ${resourceLabel(resource)}`}
+        {implied ? `${label} — ${IMPLIED_BY_MANAGE}` : label}
       </Label>
     </td>
   );
