@@ -3,19 +3,26 @@ import {
   serviceProviderRepository,
   type ServiceProviderRepository,
 } from '@/modules/service-providers/service-provider.repository';
-import { BusinessRuleError } from '@/shared/errors';
+import { BusinessRuleError, NotFoundError } from '@/shared/errors';
 import { CondominiumScopedService } from '@/shared/services/condominium-scoped.service';
 import { assertReferenceExists } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
 import { addByRecurrence, dayjs, isOverdue } from '@/shared/utils/date.util';
-import { assertMonthOpen } from '../closing-guard';
+import { assertCorrectableCashDate, assertMonthOpen, assertRangeOpen } from '../closing-guard';
 import { Expense, type ExpenseStatus } from '../entities/expense.entity';
 import { expenseRepository, type ExpenseRepository } from '../repositories/expense.repository';
 import type {
+  CorrectPaidAtDTO,
   CreateExpenseDTO,
   PayExpenseDTO,
   UpdateExpenseDTO,
 } from '../schemas/financial.schema';
+
+/** Reenviar a mesma data (inclusive em outro formato) nao e mudanca. */
+function sameInstant(a: Date | string | null, b: Date | string | null): boolean {
+  if (!a || !b) return a === b;
+  return dayjs(a).valueOf() === dayjs(b).valueOf();
+}
 
 export class ExpenseService extends CondominiumScopedService<
   Expense,
@@ -64,6 +71,20 @@ export class ExpenseService extends CondominiumScopedService<
 
     if (current.status === 'PAID' && dto.amount !== undefined && dto.amount !== current.amount) {
       throw new BusinessRuleError('Despesas pagas nao podem ter o valor alterado.');
+    }
+
+    // Mover a data de uma despesa paga tem caminho proprio, que exige motivo e
+    // confere todo mes entre as duas datas. Pelo PUT ela passaria so pelas
+    // pontas e sem registro de por que mudou.
+    if (
+      current.status === 'PAID' &&
+      nextStatus === 'PAID' &&
+      dto.paidAt !== undefined &&
+      !sameInstant(dto.paidAt, current.paidAt ?? null)
+    ) {
+      throw new BusinessRuleError(
+        'Para alterar a data de pagamento de uma despesa paga, use a correcao de data.',
+      );
     }
 
     this.assertPaidHasDate(nextStatus, nextPaidAt);
@@ -138,6 +159,43 @@ export class ExpenseService extends CondominiumScopedService<
     if (expense.isRecurring) await this.scheduleNextOccurrence(ctx, expense);
 
     return paid;
+  }
+
+  /**
+   * Corrige a data de liquidacao de uma despesa paga. So a data muda; valor,
+   * forma e status continuam os mesmos. Escreve direto no repositorio porque o
+   * `update` generico recusa exatamente esta mudanca (ver `prepareUpdate`).
+   */
+  async correctPaidAt(ctx: RequestContext, id: string, dto: CorrectPaidAtDTO): Promise<Expense> {
+    const expense = await this.findById(ctx, id);
+    if (expense.status !== 'PAID' || !expense.paidAt) {
+      throw new BusinessRuleError('So e possivel corrigir a data de uma despesa paga.');
+    }
+
+    await assertCorrectableCashDate(ctx.scope, expense.condominiumId, dto.paidAt);
+    await assertRangeOpen(ctx.scope, expense.condominiumId, expense.paidAt, dto.paidAt);
+
+    const updated = await this.expenses.update(ctx.scope, id, {
+      paidAt: dto.paidAt,
+    } as DeepPartial<Expense>);
+    if (!updated) throw new NotFoundError('Despesa');
+
+    await this.invalidateCache(ctx);
+    await this.audit.record({
+      tenantId: ctx.scope.tenantId,
+      action: 'UPDATE',
+      resource: 'expense',
+      resourceId: id,
+      description: `Data de pagamento corrigida. Motivo: ${dto.reason}`,
+      before: { paidAt: expense.paidAt },
+      after: { paidAt: dto.paidAt },
+      actor: ctx.actor,
+      ipAddress: ctx.ipAddress,
+      userAgent: ctx.userAgent,
+      requestId: ctx.requestId,
+    });
+
+    return updated;
   }
 
   async summary(ctx: RequestContext, condominiumId: string, competence?: string) {

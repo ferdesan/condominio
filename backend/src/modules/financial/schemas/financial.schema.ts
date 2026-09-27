@@ -107,6 +107,21 @@ export const payExpenseSchema = z.object({
   notes: z.string().max(1000).optional().nullable(),
 });
 
+/**
+ * Correcao da data de caixa de uma baixa ja feita (recebimento ou liquidacao).
+ * So a data muda; o motivo e obrigatorio porque a correcao move dinheiro entre
+ * competencias e a auditoria precisa dizer por que.
+ */
+export const correctPaidAtSchema = z.object({
+  paidAt: z.coerce.date(),
+  reason: z
+    .string()
+    .trim()
+    .min(10, 'Descreva o motivo da correcao (minimo de 10 caracteres).')
+    // Vai para `audit_logs.description` (255) junto do prefixo da acao.
+    .max(200, 'Use no maximo 200 caracteres.'),
+});
+
 export const financialSummaryQuerySchema = z.object({
   condominiumId: uuidSchema,
   referenceMonth: referenceMonthSchema.optional(),
@@ -121,6 +136,7 @@ export type RegisterPaymentDTO = z.infer<typeof registerPaymentSchema>;
 export type CreateExpenseDTO = z.infer<typeof createExpenseSchema>;
 export type UpdateExpenseDTO = z.infer<typeof updateExpenseSchema>;
 export type PayExpenseDTO = z.infer<typeof payExpenseSchema>;
+export type CorrectPaidAtDTO = z.infer<typeof correctPaidAtSchema>;
 export type FinancialSummaryQuery = z.infer<typeof financialSummaryQuerySchema>;
 
 // ---------------------------------------------------------------------------

@@ -1,4 +1,5 @@
-import { Receipt } from 'lucide-react';
+import { useState } from 'react';
+import { CalendarClock, Receipt } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -8,13 +9,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { RowAction, RowActions } from '@/components/ui/row-actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataTable, type Column } from '@/components/common/data-table';
 import { EmptyState } from '@/components/common/empty-state';
 import { formatCurrency, formatDateTime } from '@/lib/format';
+import { useAuth } from '@/hooks/use-auth';
 import type { Charge, Payment } from '@/types/financial';
 import { useChargePayments } from '../financial-hooks';
 import { PAYMENT_METHOD_LABELS } from '../financial-labels';
+import { CorrectPaidAtDialog } from './correct-paid-at-dialog';
 
 export interface ChargePaymentsDialogProps {
   charge: Charge;
@@ -24,10 +28,11 @@ export interface ChargePaymentsDialogProps {
 /**
  * O historico de baixas de uma cobranca.
  *
- * **So le.** `/financial/payments` nao tem criacao, edicao nem exclusao — a
- * baixa acontece por `POST /financial/charges/:id/payments`, que e o
- * `RegisterPaymentDialog`. Oferecer um botao de lancar aqui duplicaria aquele
- * caminho e faria esta tela parecer um segundo lugar de registro, que ela nao e.
+ * **Nao registra baixa.** A baixa acontece por
+ * `POST /financial/charges/:id/payments`, que e o `RegisterPaymentDialog`.
+ * Oferecer um botao de lancar aqui duplicaria aquele caminho e faria esta tela
+ * parecer um segundo lugar de registro, que ela nao e. A unica escrita daqui e a
+ * correcao da data de uma baixa existente (`payment:update`).
  *
  * **Existe porque uma cobranca aceita baixa parcial.** A listagem mostra o valor
  * e a situacao; o que ela nao consegue mostrar e que "R$ 420 de R$ 600" veio de
@@ -42,6 +47,11 @@ export interface ChargePaymentsDialogProps {
 export function ChargePaymentsDialog({ charge, onClose }: ChargePaymentsDialogProps) {
   const query = useChargePayments(charge.id);
   const payments = query.data?.data ?? [];
+  const { can } = useAuth();
+  const [correcting, setCorrecting] = useState<Payment | null>(null);
+
+  // Cobranca cancelada nao aceita correcao: o servidor recusaria.
+  const canCorrect = can('payment:update') && charge.status !== 'CANCELED';
 
   const total = payments.reduce((sum, payment) => sum + payment.amount, 0);
 
@@ -80,6 +90,23 @@ export function ChargePaymentsDialog({ charge, onClose }: ChargePaymentsDialogPr
           <span className="text-muted-foreground">—</span>
         ),
     },
+    ...(canCorrect
+      ? [
+          {
+            key: 'actions',
+            label: 'Ações',
+            render: (_value: unknown, row: Payment) => (
+              <RowActions>
+                <RowAction
+                  icon={CalendarClock}
+                  label={`Corrigir data do recebimento de ${formatDateTime(row.paidAt)}`}
+                  onClick={() => setCorrecting(row)}
+                />
+              </RowActions>
+            ),
+          } satisfies Column<Payment>,
+        ]
+      : []),
   ];
 
   return (
@@ -140,6 +167,19 @@ export function ChargePaymentsDialog({ charge, onClose }: ChargePaymentsDialogPr
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {correcting ? (
+        <CorrectPaidAtDialog
+          target={{
+            kind: 'payment',
+            id: correcting.id,
+            paidAt: correcting.paidAt,
+            amount: correcting.amount,
+            description: `${charge.description} (${charge.referenceMonth})`,
+          }}
+          onClose={() => setCorrecting(null)}
+        />
+      ) : null}
     </Dialog>
   );
 }

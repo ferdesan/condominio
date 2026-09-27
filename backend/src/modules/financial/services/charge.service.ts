@@ -13,12 +13,13 @@ import { recipientsService, type RecipientsService } from '@/shared/services/rec
 import { assertReferenceExists, resolveUnitCondominium } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
 import { dayjs, isOverdue } from '@/shared/utils/date.util';
-import { assertMonthOpen } from '../closing-guard';
+import { assertCorrectableCashDate, assertMonthOpen, assertRangeOpen } from '../closing-guard';
 import { Charge } from '../entities/charge.entity';
 import { Payment } from '../entities/payment.entity';
 import { chargeRepository, type ChargeRepository } from '../repositories/charge.repository';
 import { paymentRepository, type PaymentRepository } from '../repositories/payment.repository';
 import type {
+  CorrectPaidAtDTO,
   CreateChargeDTO,
   GenerateChargesDTO,
   RegisterPaymentDTO,
@@ -270,6 +271,80 @@ export class ChargeService extends CondominiumScopedService<Charge, CreateCharge
     });
 
     return { charge: charged ?? charge, payment };
+  }
+
+  /**
+   * Corrige a data de uma baixa ja registrada. So a data muda: valor, forma e
+   * status da cobranca continuam os mesmos.
+   *
+   * `charges.paid_at` repete a data da baixa que quitou a cobranca, entao numa
+   * cobranca quitada ele e recalculado como a baixa mais recente — corrigir a
+   * ultima baixa sem isso deixaria a cobranca dizendo uma data que nenhum
+   * pagamento tem. As duas escritas vao na mesma transacao pelo mesmo motivo.
+   *
+   * Sem notificacao ao morador: e ajuste interno, nao um pagamento novo.
+   */
+  async correctPaymentDate(
+    ctx: RequestContext,
+    paymentId: string,
+    dto: CorrectPaidAtDTO,
+  ): Promise<Payment> {
+    const payment = await this.payments.findById(ctx.scope, paymentId);
+    if (!payment) throw new NotFoundError('Pagamento');
+
+    const charge = await this.findById(ctx, payment.chargeId);
+    if (charge.status === 'CANCELED') {
+      throw new BusinessRuleError('Cobranca cancelada nao aceita correcao de pagamento.');
+    }
+
+    await assertCorrectableCashDate(ctx.scope, payment.condominiumId, dto.paidAt);
+    await assertRangeOpen(ctx.scope, payment.condominiumId, payment.paidAt, dto.paidAt);
+
+    await AppDataSource.transaction(async (manager) => {
+      await manager.update(
+        Payment,
+        { id: payment.id, tenantId: payment.tenantId },
+        { paidAt: dto.paidAt },
+      );
+
+      if (charge.status === 'PAID') {
+        const siblings = await manager.find(Payment, {
+          where: { chargeId: charge.id, tenantId: charge.tenantId },
+          select: { id: true, paidAt: true },
+        });
+        const latest = siblings.reduce<Date | null>((max, row) => {
+          const when = new Date(row.paidAt);
+          return !max || when > max ? when : max;
+        }, null);
+        await manager.update(
+          Charge,
+          { id: charge.id, tenantId: charge.tenantId },
+          { paidAt: latest },
+        );
+      }
+    });
+
+    await this.invalidateCache(ctx);
+    await this.audit.record({
+      tenantId: ctx.scope.tenantId,
+      action: 'UPDATE',
+      resource: 'payment',
+      resourceId: payment.id,
+      description: `Data do recebimento corrigida. Motivo: ${dto.reason}`,
+      before: { paidAt: payment.paidAt, chargeId: charge.id },
+      after: { paidAt: dto.paidAt, chargeId: charge.id },
+      actor: ctx.actor,
+      ipAddress: ctx.ipAddress,
+      userAgent: ctx.userAgent,
+      requestId: ctx.requestId,
+    });
+
+    this.realtime.emitToCondominium(charge.condominiumId, 'charge:updated', {
+      id: charge.id,
+      status: charge.status,
+    });
+
+    return { ...payment, paidAt: dto.paidAt };
   }
 
   async cancel(ctx: RequestContext, id: string, reason?: string): Promise<Charge> {

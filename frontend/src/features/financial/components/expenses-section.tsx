@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Banknote, Pencil, RotateCcw, Search, SearchX, Trash2, Wallet } from 'lucide-react';
+import { Banknote, CalendarClock, Pencil, RotateCcw, Search, SearchX, Trash2, Wallet } from 'lucide-react';
 import { DataTable, type Column } from '@/components/common/data-table';
 import { EmptyState } from '@/components/common/empty-state';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
@@ -32,6 +32,7 @@ import {
   NO_PROVIDER,
 } from '../financial-labels';
 import { ExpenseFormDialog } from './expense-form-dialog';
+import { CorrectPaidAtDialog } from './correct-paid-at-dialog';
 import { ExpenseStatusBadge } from './expense-status-badge';
 import { PayExpenseDialog } from './pay-expense-dialog';
 
@@ -66,6 +67,7 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
   const list = useListState();
   const [formTarget, setFormTarget] = useState<Expense | null | undefined>(undefined);
   const [paying, setPaying] = useState<Expense | null>(null);
+  const [correcting, setCorrecting] = useState<Expense | null>(null);
   const [deleting, setDeleting] = useState<Expense | null>(null);
   const [removing, setRemoving] = useState(false);
   const removingRef = useRef(false);
@@ -218,6 +220,13 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
                   label={`Liquidar ${label}`}
                   onClick={() => setPaying(row)}
                 />
+                {row.status === 'PAID' && row.paidAt ? (
+                  <RowAction
+                    icon={CalendarClock}
+                    label={`Corrigir data de pagamento de ${label}`}
+                    onClick={() => setCorrecting(row)}
+                  />
+                ) : null}
                 <RowAction
                   icon={Pencil}
                   label={`Editar ${label}`}
@@ -391,6 +400,19 @@ export function ExpensesSection({ condominiumId, categories, providers }: Expens
       ) : null}
 
       {paying ? <PayExpenseDialog expense={paying} onClose={() => setPaying(null)} /> : null}
+
+      {correcting?.paidAt ? (
+        <CorrectPaidAtDialog
+          target={{
+            kind: 'expense',
+            id: correcting.id,
+            paidAt: correcting.paidAt,
+            amount: correcting.amount,
+            description: correcting.description,
+          }}
+          onClose={() => setCorrecting(null)}
+        />
+      ) : null}
 
       <ConfirmDialog
         open={deleting !== null}
