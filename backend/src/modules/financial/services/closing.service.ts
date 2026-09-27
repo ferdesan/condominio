@@ -22,6 +22,7 @@ import {
   type ResolvedOpeningBalance,
   type StatementEntry,
 } from '../closing-math';
+import { withCashLock } from '../cash-lock';
 import { FinancialClosingEntry } from '../entities/financial-closing-entry.entity';
 import type { ClosingStatus, StatementLine } from '../entities/financial-closing.entity';
 import { FinancialClosing } from '../entities/financial-closing.entity';
@@ -188,81 +189,88 @@ export class ClosingService {
       );
     }
 
-    const existing = await this.closings.findByMonth(ctx.scope, condominiumId, referenceMonth);
-    if (existing?.status === 'CLOSED') {
-      throw new BusinessRuleError(`A competencia ${referenceMonth} ja esta fechada.`);
-    }
+    // Leitura, calculo e gravacao sob a trava de caixa do condominio
+    // (`withCashLock`). Uma baixa ou correcao concorrente ou termina antes — e
+    // entra no calculo — ou espera o fechamento e ve o mes fechado. Sem a trava
+    // ela poderia gravar entre o calculo e o commit, e o documento congelado nao
+    // a conteria.
+    const { closingId, before, entryCount } = await withCashLock(condominiumId, () =>
+      AppDataSource.transaction(async (manager) => {
+        const existing = await this.closings.findByMonth(ctx.scope, condominiumId, referenceMonth);
+        if (existing?.status === 'CLOSED') {
+          throw new BusinessRuleError(`A competencia ${referenceMonth} ja esta fechada.`);
+        }
 
-    const statement = await this.compute(ctx, condominiumId, referenceMonth, existing);
-    // Mesma janela e mesmo regime de caixa do resumo acima: e o que faz a soma
-    // dos lancamentos fechar com os totais gravados ao lado deles.
-    const entries = await this.computeEntries(ctx.scope, condominiumId, referenceMonth);
+        const statement = await this.compute(ctx, condominiumId, referenceMonth, existing);
+        // Mesma janela e mesmo regime de caixa do resumo acima: e o que faz a soma
+        // dos lancamentos fechar com os totais gravados ao lado deles.
+        const entries = await this.computeEntries(ctx.scope, condominiumId, referenceMonth);
 
-    // Lido antes da transacao porque a gravacao mescla o documento novo sobre
-    // `existing`: consultado depois, o estado de chegada apareceria na
-    // auditoria como se fosse o de partida.
-    const before = existing
-      ? { status: existing.status, closingBalance: existing.closingBalance }
-      : null;
+        // Lido antes da gravacao porque ela mescla o documento novo sobre
+        // `existing`: consultado depois, o estado de chegada apareceria na
+        // auditoria como se fosse o de partida.
+        const before = existing
+          ? { status: existing.status, closingBalance: existing.closingBalance }
+          : null;
 
-    const document = {
-      condominiumId,
-      referenceMonth,
-      status: 'CLOSED' as const,
-      openingBalance: statement.openingBalance.amount,
-      openingBalanceSource: statement.openingBalance.source,
-      openingBalanceFrom: statement.openingBalance.from,
-      totalIncome: statement.totalIncome,
-      totalExpense: statement.totalExpense,
-      closingBalance: statement.closingBalance,
-      overdueAmount: statement.delinquency.amount,
-      overdueCount: statement.delinquency.count,
-      breakdown: {
-        income: statement.income,
-        expense: statement.expense,
-        unresolvedPaidExpenses: statement.unresolvedPaidExpenses,
-      },
-      closedAt: new Date(),
-      closedById: ctx.actor.userId,
-      closedByName: ctx.actor.name ?? null,
-    };
+        const document = {
+          condominiumId,
+          referenceMonth,
+          status: 'CLOSED' as const,
+          openingBalance: statement.openingBalance.amount,
+          openingBalanceSource: statement.openingBalance.source,
+          openingBalanceFrom: statement.openingBalance.from,
+          totalIncome: statement.totalIncome,
+          totalExpense: statement.totalExpense,
+          closingBalance: statement.closingBalance,
+          overdueAmount: statement.delinquency.amount,
+          overdueCount: statement.delinquency.count,
+          breakdown: {
+            income: statement.income,
+            expense: statement.expense,
+            unresolvedPaidExpenses: statement.unresolvedPaidExpenses,
+          },
+          closedAt: new Date(),
+          closedById: ctx.actor.userId,
+          closedByName: ctx.actor.name ?? null,
+        };
 
-    const closingId = await AppDataSource.transaction(async (manager) => {
-      // O documento vem primeiro, e nao na ordem em que a ADR-003 o lista, por
-      // uma razao que a propria ADR-003 cria: o lancamento e filho do
-      // fechamento, e numa competencia fechada pela primeira vez nao existe
-      // `closing_id` nem para apagar por ele nem para apontar para ele. Inverter
-      // isso exigiria limpar so "quando ja havia fechamento" — exatamente a
-      // guarda condicional que a decisao proibe. O indice unico por competencia
-      // torna o refechamento uma atualizacao da mesma linha, e nao uma segunda.
-      const row = existing
-        ? manager.merge(FinancialClosing, existing, document)
-        : manager.create(FinancialClosing, { ...document, tenantId: ctx.scope.tenantId });
-      const closing = await manager.save(row);
+        // O documento vem primeiro, e nao na ordem em que a ADR-003 o lista, por
+        // uma razao que a propria ADR-003 cria: o lancamento e filho do
+        // fechamento, e numa competencia fechada pela primeira vez nao existe
+        // `closing_id` nem para apagar por ele nem para apontar para ele. Inverter
+        // isso exigiria limpar so "quando ja havia fechamento" — exatamente a
+        // guarda condicional que a decisao proibe. O indice unico por competencia
+        // torna o refechamento uma atualizacao da mesma linha, e nao uma segunda.
+        const row = existing
+          ? manager.merge(FinancialClosing, existing, document)
+          : manager.create(FinancialClosing, { ...document, tenantId: ctx.scope.tenantId });
+        const closing = await manager.save(row);
 
-      // Incondicional, sem perguntar se havia fechamento anterior. Uma guarda
-      // que so limpa "quando devia haver" confia na propria contabilidade;
-      // apagar o que nao deveria estar la custa uma declaracao e elimina a
-      // classe inteira de duplicata.
-      await this.closingEntries.deleteByClosing(manager, ctx.scope, closing.id);
+        // Incondicional, sem perguntar se havia fechamento anterior. Uma guarda
+        // que so limpa "quando devia haver" confia na propria contabilidade;
+        // apagar o que nao deveria estar la custa uma declaracao e elimina a
+        // classe inteira de duplicata.
+        await this.closingEntries.deleteByClosing(manager, ctx.scope, closing.id);
 
-      // `tenantId` explicito em cada linha: quem normalmente o injeta e o
-      // repositorio, a partir do escopo, e ele nao esta neste caminho. Esquecer
-      // nao da erro de tipo — da linha sem tenant, invisivel para todo o resto
-      // do sistema.
-      await manager.save(
-        entries.map((entry) =>
-          manager.create(FinancialClosingEntry, {
-            ...entry,
-            tenantId: ctx.scope.tenantId,
-            closingId: closing.id,
-          }),
-        ),
-        { chunk: 100 },
-      );
+        // `tenantId` explicito em cada linha: quem normalmente o injeta e o
+        // repositorio, a partir do escopo, e ele nao esta neste caminho. Esquecer
+        // nao da erro de tipo — da linha sem tenant, invisivel para todo o resto
+        // do sistema.
+        await manager.save(
+          entries.map((entry) =>
+            manager.create(FinancialClosingEntry, {
+              ...entry,
+              tenantId: ctx.scope.tenantId,
+              closingId: closing.id,
+            }),
+          ),
+          { chunk: 100 },
+        );
 
-      return closing.id;
-    });
+        return { closingId: closing.id, before, entryCount: entries.length };
+      }),
+    );
 
     // Relido pelo repositorio depois do commit, e nao devolvido de dentro da
     // transacao: e o que garante que o documento servido a quem fechou seja o
@@ -283,7 +291,7 @@ export class ClosingService {
       before,
       // A contagem entra no rastro para que ele registre nao so que um mes foi
       // fechado, mas o tamanho do documento que o fechamento produziu.
-      after: { status: 'CLOSED', closingBalance: saved.closingBalance, entries: entries.length },
+      after: { status: 'CLOSED', closingBalance: saved.closingBalance, entries: entryCount },
       actor: ctx.actor,
       ipAddress: ctx.ipAddress,
       userAgent: ctx.userAgent,
