@@ -32,6 +32,9 @@ vi.mock('sonner', () => ({
   toast: { error: vi.fn(), success: vi.fn(), message: vi.fn() },
 }));
 
+/** Mesmo custo de portal do Radix medido nas demais telas. */
+vi.setConfig({ testTimeout: 120_000, hookTimeout: 120_000 });
+
 const mockGetPaginated = vi.mocked(apiGetPaginated);
 const mockPost = vi.mocked(apiPost);
 const mockToastError = vi.mocked(toast.error);
