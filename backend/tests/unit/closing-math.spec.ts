@@ -256,6 +256,29 @@ describe('toStatementEntry', () => {
     expect(entry.categoryName).toBe('Manutencao predial');
     expect(entry.description).toBe('Reparo do portao');
   });
+
+  it('UT-146: texto UTC sem fuso vira o instante gravado, e nao a hora local da maquina', () => {
+    // O QueryBuilder do sql.js devolve o datetime como texto em UTC, sem fuso
+    // declarado: 21h do dia 12 em America/Sao_Paulo gravado como dia 13 00:10Z.
+    // Lido como hora local o dia andava para a frente sempre que o fuso local ja
+    // passou da meia-noite UTC, e o lancamento saia do mes em que o caixa
+    // aconteceu.
+    const entry = toStatementEntry(
+      'INCOME',
+      { ...incomeRow, occurredAt: '2026-08-13 00:10:00.000' },
+      names,
+    );
+
+    expect(entry.occurredAt.toISOString()).toBe('2026-08-13T00:10:00.000Z');
+
+    // Texto com fuso declarado passa direto, sem ser relido.
+    const comFuso = toStatementEntry(
+      'INCOME',
+      { ...incomeRow, occurredAt: '2026-08-13T00:10:00.000-03:00' },
+      names,
+    );
+    expect(comFuso.occurredAt.toISOString()).toBe('2026-08-13T03:10:00.000Z');
+  });
 });
 
 describe('sortStatementEntries', () => {
