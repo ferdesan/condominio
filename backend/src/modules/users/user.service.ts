@@ -76,6 +76,8 @@ export class UserService extends BaseCrudService<User, CreateUserDTO, UpdateUser
     current: User,
     dto: UpdateUserDTO,
   ): Promise<DeepPartial<User>> {
+    this.assertManagesUser(ctx, current);
+
     if (dto.email && dto.email !== current.email) {
       await this.assertEmailAvailable(ctx, dto.email, current.id);
     }
@@ -121,11 +123,15 @@ export class UserService extends BaseCrudService<User, CreateUserDTO, UpdateUser
   }
 
   protected override async beforeRemove(ctx: RequestContext, entity: User): Promise<void> {
+    this.assertManagesUser(ctx, entity);
+
     if (entity.id === ctx.actor.userId) {
       throw new BusinessRuleError('Voce nao pode remover o proprio usuario.');
     }
     if (entity.role?.name === ROLE_SUPER_ADMIN && !ctx.scope.superAdmin) {
-      throw new ForbiddenError('Apenas operadores da plataforma podem remover super administradores.');
+      throw new ForbiddenError(
+        'Apenas operadores da plataforma podem remover super administradores.',
+      );
     }
     await this.assertNotLastAdmin(ctx, entity);
   }
@@ -142,6 +148,8 @@ export class UserService extends BaseCrudService<User, CreateUserDTO, UpdateUser
     dto: AdminResetPasswordDTO,
   ): Promise<{ temporaryPassword?: string }> {
     const user = await this.findById(ctx, id);
+    this.assertManagesUser(ctx, user);
+
     const password = dto.password ?? generateTemporaryPassword();
 
     await this.users.updatePassword(user.id, await hashPassword(password));
@@ -184,9 +192,40 @@ export class UserService extends BaseCrudService<User, CreateUserDTO, UpdateUser
   }
 
   private async assertCondominiums(ctx: RequestContext, condominiumIds: string[]): Promise<void> {
+    // Lista vazia significa "conta global", que enxerga o tenant inteiro. Criar
+    // ou esvaziar uma conta global e alcada da administradora: um sindico que
+    //podesse faze-lo promoveria um usuario a enxergar condominios que ele
+    //mesmo nao administra.
+    if (!condominiumIds.length) {
+      if (this.hasTenantWideReach(ctx)) return;
+      throw new ForbiddenError(
+        'Vincule o usuario a pelo menos um condominio. Contas sem vinculo sao da administradora.',
+      );
+    }
+
     for (const condominiumId of condominiumIds) {
       await assertCondominiumAccess(ctx.scope, condominiumId);
     }
+  }
+
+  /** Quem enxerga o tenant inteiro administra tambem as contas globais. */
+  private hasTenantWideReach(ctx: RequestContext): boolean {
+    return ctx.scope.superAdmin || !ctx.actor.condominiumIds.length;
+  }
+
+  /**
+   * Contas globais aparecem na listacao do sindico — sao os administradores da
+   * administradora, uteis para suporte — mas sao somente leitura para ele. Sem
+   * isto, editar o vinculo de uma delas devolveria o usuario ao estado global,
+   * invertendo a restricao que o filtro de leitura acabou de aplicar.
+   */
+  private assertManagesUser(ctx: RequestContext, user: User): void {
+    if (this.hasTenantWideReach(ctx)) return;
+    if ((user.condominiums ?? []).length) return;
+
+    throw new ForbiddenError(
+      'Esta conta atende a administradora inteira. Ajuste o vinculo de condominio dela em outro perfil de acesso.',
+    );
   }
 
   private async assertUserLimit(ctx: RequestContext): Promise<void> {
@@ -195,7 +234,9 @@ export class UserService extends BaseCrudService<User, CreateUserDTO, UpdateUser
     const tenant = await this.tenants.findById(ctx.scope.tenantId);
     if (!tenant) return;
 
-    const current = await this.users.count(ctx.scope);
+    // O plano limita o tenant, nao o condominio: contar com o escopo do ator
+    // permitiria que cada condominio estourasse o limite individualmente.
+    const current = await this.users.countAllOfTenant(ctx.scope);
     if (current >= tenant.maxUsers) {
       throw new BusinessRuleError(
         `O plano ${tenant.plan} permite ate ${tenant.maxUsers} usuarios. Faca upgrade para adicionar mais.`,
@@ -208,13 +249,10 @@ export class UserService extends BaseCrudService<User, CreateUserDTO, UpdateUser
     const role = user.role ?? (await this.roles.findById(ctx.scope, user.roleId));
     if (role?.name !== ROLE_ADMIN) return;
 
-    // `role` ja e o alias da relacao carregada pelo repositorio base.
-    const admins = await this.users
-      .query(ctx.scope)
-      .andWhere('role.name = :roleName', { roleName: ROLE_ADMIN })
-      .andWhere('user.status = :status', { status: 'ACTIVE' })
-      .andWhere('user.id != :userId', { userId: user.id })
-      .getCount();
+    // A regra e do tenant inteiro, nao do escopo do ator: um sindico que remove
+    // o unico admin dos seus condominios ainda deixa os admins de fora
+    // segurando a administradora, entao nao e ele quem decide promote-lo.
+    const admins = await this.users.countActiveAdminsOfTenant(ctx.scope, user.id, ROLE_ADMIN);
 
     if (admins === 0) {
       throw new BusinessRuleError(

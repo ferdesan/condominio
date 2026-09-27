@@ -35,7 +35,7 @@ import {
   toUserPayload,
   USER_FIELDS,
   userFormDefaults,
-  userSchema,
+  userFormSchema,
   type UserFormValues,
 } from '../user-schema';
 import { ALL_CONDOMINIUMS, NO_UNIT, STATUS_LABELS } from '../user-labels';
@@ -59,6 +59,12 @@ export interface UserFormDialogProps {
    */
   canReadRoles?: boolean;
   canReadUnits?: boolean;
+  /**
+   * O ator administra apenas parte da administradora, entao o vinculo deixa de
+   * ser opcional: conta sem condominio atenderia o tenant inteiro, alcada que o
+   * servidor recusa. O campo passa a ser obrigatorio e o rotulo muda de sentido.
+   */
+  requireCondominium?: boolean;
   onClose: () => void;
 }
 
@@ -87,6 +93,7 @@ export function UserFormDialog({
   condominiums,
   canReadRoles = true,
   canReadUnits = true,
+  requireCondominium = false,
   onClose,
 }: UserFormDialogProps) {
   const isEdit = Boolean(user);
@@ -106,6 +113,10 @@ export function UserFormDialog({
   const [formError, setFormError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
 
+  // O schema muda com o alcance do ator; `isEdit` nao entra porque o servidor
+  // valida o vinculo igualmente nas duas operacoes.
+  const schema = useMemo(() => userFormSchema({ requireCondominium }), [requireCondominium]);
+
   const {
     register,
     control,
@@ -113,7 +124,7 @@ export function UserFormDialog({
     setError,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(schema),
     defaultValues: user ? toUserFormValues(user) : userFormDefaults(),
   });
 
@@ -314,8 +325,14 @@ export function UserFormDialog({
                   error={fieldState.error?.message}
                   // Vazio nao e ausencia de acesso: e acesso a tudo. O servidor
                   // le o vinculo ausente como "todos do tenant", e um rotulo que
-                  // dissesse "nenhum" inverteria o sentido do registro.
-                  description={`Nenhum marcado significa ${ALL_CONDOMINIUMS.toLowerCase()}.`}
+                  // dissesse "nenhum" inverteria o sentido do registro. Para quem
+                  // administra parte da administradora, o vazio nem chega a ser
+                  // enviado — o campo e obrigatorio e a frase seria mentira.
+                  description={
+                    requireCondominium
+                      ? 'Vínculo obrigatório: a conta atende apenas aos condomínios marcados.'
+                      : `Nenhum marcado significa ${ALL_CONDOMINIUMS.toLowerCase()}.`
+                  }
                 >
                   <div className="grid gap-2 sm:grid-cols-2">
                     {condominiums.map((condominium) => {
