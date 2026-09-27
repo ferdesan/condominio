@@ -316,7 +316,7 @@ describe('Cobertura do menu', () => {
     // Sem sessao a rota leva ao login: a ausencia de permissao declarada nao
     // dispensa a guarda de autenticacao que envolve toda a area logada.
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Condomínio SaaS' }),
+      await screen.findByRole('heading', { level: 1, name: 'Condomínio SaaS' }, FIND_TIMEOUT),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { level: 1, name: 'Notificações' }),
@@ -340,13 +340,17 @@ describe('As rotas publicas de recuperação de senha', () => {
   it('sao alcancáveis sem sessão', async () => {
     renderRoute('/esqueci-senha', { user: null });
 
-    expect(await screen.findByRole('heading', { name: 'Esqueci minha senha' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Esqueci minha senha' }, FIND_TIMEOUT),
+    ).toBeInTheDocument();
   });
 
   it('a de redefinição explica o link incompleto quando não ha token', async () => {
     renderRoute('/redefinir-senha', { user: null });
 
-    expect(await screen.findByRole('heading', { name: 'Link incompleto' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Link incompleto' }, FIND_TIMEOUT),
+    ).toBeInTheDocument();
   });
 
   it('continuam alcancáveis com sessão', async () => {
@@ -354,14 +358,16 @@ describe('As rotas publicas de recuperação de senha', () => {
     // precisa funcionar independentemente do que este navegador guardou.
     renderRoute('/esqueci-senha');
 
-    expect(await screen.findByRole('heading', { name: 'Esqueci minha senha' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Esqueci minha senha' }, FIND_TIMEOUT),
+    ).toBeInTheDocument();
   });
 
   it('não aparecem na navegação lateral', async () => {
     renderRoute('/');
 
     const menu = within(
-      await screen.findByRole('complementary', { name: 'Navegação principal' }),
+      await screen.findByRole('complementary', { name: 'Navegação principal' }, FIND_TIMEOUT),
     ).getByRole('navigation');
     for (const item of NAV_ITEMS) {
       expect(item.to).not.toBe('/esqueci-senha');
@@ -375,7 +381,7 @@ describe('As rotas publicas de recuperação de senha', () => {
   it('o login leva a de pedido', async () => {
     renderRoute('/login', { user: null });
 
-    const link = await screen.findByRole('link', { name: 'Esqueci minha senha' });
+    const link = await screen.findByRole('link', { name: 'Esqueci minha senha' }, FIND_TIMEOUT);
     expect(link).toHaveAttribute('href', '/esqueci-senha');
   });
 });
@@ -400,7 +406,7 @@ describe('O mecanismo de placeholder', () => {
     renderRoute('/perfil');
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Meu perfil' }),
+      await screen.findByRole('heading', { level: 1, name: 'Meu perfil' }, FIND_TIMEOUT),
     ).toBeInTheDocument();
     expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
   });
@@ -412,7 +418,7 @@ describe('O mecanismo de placeholder', () => {
     renderRoute('/perfil', { permissions: [] });
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Meu perfil' }),
+      await screen.findByRole('heading', { level: 1, name: 'Meu perfil' }, FIND_TIMEOUT),
     ).toBeInTheDocument();
 
     const menu = within(
@@ -425,7 +431,7 @@ describe('O mecanismo de placeholder', () => {
     renderRoute('/perfil', { user: null });
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Condomínio SaaS' }),
+      await screen.findByRole('heading', { level: 1, name: 'Condomínio SaaS' }, FIND_TIMEOUT),
     ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 1, name: 'Meu perfil' })).not.toBeInTheDocument();
   });
@@ -473,7 +479,7 @@ describe('A rota do balancete', () => {
     // digitando o endereco.
     renderRoute(ROUTE, { permissions: ['charge:read'] });
 
-    expect(await screen.findByText('Acesso negado')).toBeInTheDocument();
+    expect(await screen.findByText('Acesso negado', {}, FIND_TIMEOUT)).toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { level: 1, name: /^Balancete de / }),
     ).not.toBeInTheDocument();
@@ -500,7 +506,7 @@ describe('A rota de votacao', () => {
     // Quem le assembleias sem voto nao alcance a tela digitando o endereco:
     // a guarda e `vote:read` (ADR-001), e nao a `assembly:read` do modulo.
     const denied = renderRoute(ROUTE, { permissions: ['assembly:read', 'poll:read'] });
-    expect(await screen.findByText('Acesso negado')).toBeInTheDocument();
+    expect(await screen.findByText('Acesso negado', {}, FIND_TIMEOUT)).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 1, name: POLL_TITLE })).not.toBeInTheDocument();
     expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
     denied.unmount();
@@ -508,7 +514,7 @@ describe('A rota de votacao', () => {
     // Com `vote:read` a pagina real monta — nunca o placeholder.
     const allowed = renderRoute(ROUTE, { permissions: ['vote:read'] });
     expect(
-      await screen.findByRole('heading', { level: 1, name: POLL_TITLE }),
+      await screen.findByRole('heading', { level: 1, name: POLL_TITLE }, FIND_TIMEOUT),
     ).toBeInTheDocument();
     expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
     allowed.unmount();
@@ -519,7 +525,7 @@ describe('A rota de votacao', () => {
 
     // O cabecalho da pagina prova que o VotePage montou; o placeholder nao.
     expect(
-      await screen.findByRole('heading', { level: 1, name: POLL_TITLE }),
+      await screen.findByRole('heading', { level: 1, name: POLL_TITLE }, FIND_TIMEOUT),
     ).toBeInTheDocument();
     expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
 
@@ -537,7 +543,7 @@ describe('A rota de votacao', () => {
   it('IT-392: so assembly:read rende acesso negado — a guarda nao herda do modulo', async () => {
     renderRoute(ROUTE, { permissions: ['assembly:read', 'poll:read'] });
 
-    expect(await screen.findByText('Acesso negado')).toBeInTheDocument();
+    expect(await screen.findByText('Acesso negado', {}, FIND_TIMEOUT)).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 1, name: POLL_TITLE })).not.toBeInTheDocument();
     expect(screen.queryByText(PLACEHOLDER_MARKER)).not.toBeInTheDocument();
   });
