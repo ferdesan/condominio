@@ -9,6 +9,7 @@ import { startScheduledJobs, stopScheduledJobs } from './jobs';
 import { runSeeds } from './database/seeds/seed';
 import { ROLE_DEFINITIONS } from './shared/constants/roles';
 import { initSocketServer } from './realtime/socket-server';
+import { verifyMailer } from './shared/mail/mailer';
 
 async function bootstrap(): Promise<void> {
   await initializeDatabase();
@@ -58,6 +59,7 @@ async function bootstrap(): Promise<void> {
   });
 
   startScheduledJobs();
+  void verifyMailer();
 
   /** Encerramento gracioso: para de aceitar conexoes e fecha os recursos. */
   const shutdown = async (signal: string): Promise<void> => {

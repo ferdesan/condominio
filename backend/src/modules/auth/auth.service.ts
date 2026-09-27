@@ -18,6 +18,7 @@ import {
   UnauthorizedError,
 } from '@/shared/errors';
 import { mailService, type MailService } from '@/shared/mail/mail.service';
+import { describeMailError } from '@/shared/mail/mailer';
 import { sha256, randomToken } from '@/shared/utils/crypto.util';
 import { dayjs } from '@/shared/utils/date.util';
 import { hashPassword, verifyPassword } from '@/shared/utils/password.util';
@@ -290,16 +291,19 @@ export class AuthService {
       ...meta,
     });
 
-    try {
-      await this.mail.sendPasswordResetEmail({
+    // Sem await: o SMTP fica fora do tempo da requisicao. Provedor lento nao
+    // derruba a tela por timeout, e a resposta leva o mesmo tempo com ou sem
+    // conta cadastrada (a latencia nao revela quais e-mails existem).
+    void this.mail
+      .sendPasswordResetEmail({
         to: user.email,
         name: user.name,
         resetUrl: `${env.FRONTEND_URL}/redefinir-senha?token=${encodeURIComponent(token)}`,
         expiresMinutes: env.PASSWORD_RESET_TTL_MINUTES,
-      });
-    } catch (error) {
-      logger.error(`Password reset e-mail failed for ${user.email}: ${(error as Error).message}`);
-    }
+      })
+      .catch((error: unknown) =>
+        logger.error(`Password reset e-mail failed for ${user.email}: ${describeMailError(error)}`),
+      );
 
     logger.info(`Password reset requested for ${user.email}`);
     return env.NODE_ENV === 'production' ? {} : { token };
