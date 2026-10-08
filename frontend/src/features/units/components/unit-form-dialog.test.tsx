@@ -238,7 +238,8 @@ describe('Edição de unidade', () => {
     await user.clear(screen.getByLabelText('Número'));
     await user.type(screen.getByLabelText('Número'), '102');
     await user.clear(screen.getByLabelText('Taxa mensal'));
-    await user.type(screen.getByLabelText('Taxa mensal'), '900');
+    // A virgula e o corte para reais: sem ela os digitos sao centavos.
+    await user.type(screen.getByLabelText('Taxa mensal'), '900,00');
     serve([updated], [TOWER_A]);
     submit('Salvar');
 

@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { MoneyInput } from '@/components/ui/money-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import {
   Select,
@@ -219,22 +220,32 @@ export function CondominiumFormDialog({ condominium, onClose }: CondominiumFormD
               </FormField>
 
               {/*
-                Dinheiro em `inputMode="decimal"`, e nunca `type="number"`: o
-                controle numerico descarta a virgula sem avisar, e `1500,50`
+                Saldo na mascara de centavos implicitos, e nunca `type="number"`:
+                o controle numerico descarta a virgula sem avisar, e `1500,50`
                 vira `150050`. Num saldo de abertura o erro se propaga por todos
-                os meses seguintes do balancete. O schema converte virgula em
-                ponto, como `unit-schema.ts` ja faz para a taxa mensal.
+                os meses seguintes do balancete.
               */}
-              <FormField
-                id="openingBalance"
-                label="Saldo de abertura"
-                error={errors.openingBalance?.message}
-                description="Saldo em caixa na data de corte. Use vírgula para os centavos."
-              >
-                {(aria) => (
-                  <Input inputMode="decimal" {...aria} {...register('openingBalance')} />
+              <Controller
+                control={control}
+                name="openingBalance"
+                render={({ field, fieldState }) => (
+                  <FormField
+                    id="openingBalance"
+                    label="Saldo de abertura"
+                    error={fieldState.error?.message}
+                    description="Saldo em caixa na data de corte. Sem virgula, o que se digita sao centavos."
+                  >
+                    {(aria) => (
+                      <MoneyInput
+                        {...aria}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                    )}
+                  </FormField>
                 )}
-              </FormField>
+              />
 
               <FormField
                 id="openingBalanceDate"

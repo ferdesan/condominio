@@ -3,8 +3,9 @@
  *
  * Mesma convencao dos demais schemas: inteiros entram e saem como texto, e a
  * conversao para o corpo da requisicao mora em `toCommonAreaPayload`. A taxa e a
- * excecao — `CurrencyInput` fala em numero — e por isso e a unica que ja chega
- * numerica ao formulario.
+ * excecao: o `MoneyInput` do campo emite o decimal canonico, que o `onChange`
+ * converte para numero na hora, entao ela chega numerica ao formulario e ja sai
+ * pronta no corpo.
  *
  * As duas validacoes cruzadas sao as mesmas do servidor, com o mesmo caminho de
  * campo: ele tambem as aplica, e a copia local existe para responder antes do

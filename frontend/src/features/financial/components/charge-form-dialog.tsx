@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { MoneyInput } from '@/components/ui/money-input';
 import { Textarea } from '@/components/ui/textarea';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
@@ -219,41 +220,97 @@ export function ChargeFormDialog({
               </FormField>
 
               {/*
-                Dinheiro entra como número decimal, e não pelo controle de moeda:
-                ele guarda `number` e formata no proprio estado, o que quebraria a
-                convenção de valores em texto deste projeto.
+                Dinheiro entra pela mascara de centavos implicitos: sem virgula
+                o que se digita sao centavos (`4999` = `R$ 49,99`), e o que sai
+                e um decimal canonico que o payload converte com `Number()`.
               */}
-              <FormField id="charge-amount" label="Valor (R$)" error={errors.amount?.message}>
-                {(aria) => (
-                  <Input type="number" min={0} step="0.01" {...aria} {...register('amount')} />
+              <Controller
+                control={control}
+                name="amount"
+                render={({ field, fieldState }) => (
+                  <FormField
+                    id="charge-amount"
+                    label="Valor (R$)"
+                    error={fieldState.error?.message}
+                  >
+                    {(aria) => (
+                      <MoneyInput
+                        {...aria}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                    )}
+                  </FormField>
                 )}
-              </FormField>
+              />
             </div>
 
             <fieldset className="grid gap-4 rounded-md border border-border p-4 sm:grid-cols-3">
               <legend className="px-1 text-sm font-medium">Ajustes do valor</legend>
 
-              <FormField
-                id="charge-discount"
-                label="Desconto (R$)"
-                error={errors.discount?.message}
-              >
-                {(aria) => (
-                  <Input type="number" min={0} step="0.01" {...aria} {...register('discount')} />
+              <Controller
+                control={control}
+                name="discount"
+                render={({ field, fieldState }) => (
+                  <FormField
+                    id="charge-discount"
+                    label="Desconto (R$)"
+                    error={fieldState.error?.message}
+                  >
+                    {(aria) => (
+                      <MoneyInput
+                        {...aria}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                    )}
+                  </FormField>
                 )}
-              </FormField>
+              />
 
-              <FormField id="charge-interest" label="Juros (R$)" error={errors.interest?.message}>
-                {(aria) => (
-                  <Input type="number" min={0} step="0.01" {...aria} {...register('interest')} />
+              <Controller
+                control={control}
+                name="interest"
+                render={({ field, fieldState }) => (
+                  <FormField
+                    id="charge-interest"
+                    label="Juros (R$)"
+                    error={fieldState.error?.message}
+                  >
+                    {(aria) => (
+                      <MoneyInput
+                        {...aria}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                    )}
+                  </FormField>
                 )}
-              </FormField>
+              />
 
-              <FormField id="charge-penalty" label="Multa (R$)" error={errors.penalty?.message}>
-                {(aria) => (
-                  <Input type="number" min={0} step="0.01" {...aria} {...register('penalty')} />
+              <Controller
+                control={control}
+                name="penalty"
+                render={({ field, fieldState }) => (
+                  <FormField
+                    id="charge-penalty"
+                    label="Multa (R$)"
+                    error={fieldState.error?.message}
+                  >
+                    {(aria) => (
+                      <MoneyInput
+                        {...aria}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                    )}
+                  </FormField>
                 )}
-              </FormField>
+              />
             </fieldset>
 
             <FormField

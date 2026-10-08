@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { MoneyInput } from '@/components/ui/money-input';
 import { Textarea } from '@/components/ui/textarea';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
@@ -224,11 +225,26 @@ export function ExpenseFormDialog({
                 {(aria) => <Input type="date" {...aria} {...register('dueDate')} />}
               </FormField>
 
-              <FormField id="expense-amount" label="Valor (R$)" error={errors.amount?.message}>
-                {(aria) => (
-                  <Input type="number" min={0} step="0.01" {...aria} {...register('amount')} />
+              <Controller
+                control={control}
+                name="amount"
+                render={({ field, fieldState }) => (
+                  <FormField
+                    id="expense-amount"
+                    label="Valor (R$)"
+                    error={fieldState.error?.message}
+                  >
+                    {(aria) => (
+                      <MoneyInput
+                        {...aria}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                    )}
+                  </FormField>
                 )}
-              </FormField>
+              />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

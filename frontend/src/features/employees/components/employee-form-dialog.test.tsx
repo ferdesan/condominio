@@ -101,10 +101,9 @@ function salaryField(): HTMLInputElement {
 /**
  * Escreve o salario de uma vez.
  *
- * O `CurrencyInput` reformata o proprio conteudo a cada mudanca do valor
- * guardado, entao digitar caractere a caractere reintroduz a pontuacao da moeda
- * no meio do numero. Um unico evento de mudanca e o que um colar produz — e o
- * que exercita o contrato que interessa aqui: o que sai no corpo da requisicao.
+ * Um unico evento de mudanca e o que um colar produz — e o que exercita o
+ * contrato que interessa aqui: o que sai no corpo da requisicao. A virgula e o
+ * corte para reais: sem ela os digitos sao centavos (`3200` = `R$ 32,00`).
  */
 function typeSalary(value: string): void {
   fireEvent.change(within(dialog()).getByLabelText('Salário'), { target: { value } });
@@ -180,7 +179,7 @@ describe('Cadastro de funcionário', () => {
 
     await user.type(within(dialog()).getByLabelText('Nome'), 'Marcos Lima');
     await user.type(within(dialog()).getByLabelText('Cargo'), 'Zelador');
-    typeSalary('3200');
+    typeSalary('3200,00');
 
     // O campo mostra moeda; o separador entre simbolo e numero e nao separavel.
     await waitFor(() => expect(salaryField().value).toMatch(CURRENCY_3200));
@@ -318,7 +317,7 @@ describe('Falhas do servidor no formulário de funcionário', () => {
     await user.type(within(dialog()).getByLabelText('Nome'), 'Marcos Lima');
     await user.type(within(dialog()).getByLabelText('Cargo'), 'Zelador');
     await user.type(within(dialog()).getByLabelText('CPF'), '12345678900');
-    typeSalary('3200');
+    typeSalary('3200,00');
     clickTrigger(within(dialog()).getByRole('button', { name: 'Cadastrar' }));
 
     expect(await screen.findByText('CPF informado e inválido.')).toBeInTheDocument();

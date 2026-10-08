@@ -145,33 +145,52 @@ export function BirthdayForm() {
 
 ---
 
-### CurrencyInput
+### MoneyInput
 
-Campo de entrada para valores monetários.
+Campo de entrada para valores monetários com máscara de centavos implícitos em pt-BR.
+
+Sem vírgula o que você digita são centavos (`4999` exibe `R$ 49,99`); com vírgula ou ponto, são reais (`1500,50` exibe `R$ 1.500,50`). O prefixo `R$` fica no mesmo campo, e o `onChange` sempre emite um decimal canônico com ponto (`'49.99'`), vazio (`''`) quando não há valor. Nas telas de leitura, a formatação continua sendo `formatCurrency`.
 
 **Props:**
-- `value`: number | string - Valor em número
-- `onChange`: (value: number) => void - Callback com valor parseado
-- `currency`: string - Código da moeda (padrão: BRL)
-- `locale`: string - Localização para formato (padrão: pt-BR)
-- `placeholder`: string - Placeholder
+- `value`: string | number | null | undefined - Valor canônico (sem máscara)
+- `onChange`: (value: string) => void - Decimal canônico, ou `''`
+- `onBlur`, `autoFocus`, `id`, `placeholder`, `disabled` - Repassados ao `input`
+- `ref` - Encaminhado ao `input` (compatível com `FormField`)
 
 **Exemplo:**
 
 ```tsx
-import { CurrencyInput } from '@/components/ui';
+import { MoneyInput } from '@/components/ui';
 import { useState } from 'react';
 
 export function PriceForm() {
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState('');
 
   return (
     <div>
-      <CurrencyInput value={price} onChange={setPrice} placeholder="R$ 0,00" />
-      <p className="text-sm text-muted-foreground">Valor: R$ {price.toFixed(2)}</p>
+      <MoneyInput value={price} onChange={setPrice} placeholder="0,00" />
+      <p className="text-sm text-muted-foreground">
+        Valor: {price ? `R$ ${price}` : '—'}
+      </p>
     </div>
   );
 }
+```
+
+Nos formulários de `react-hook-form`, ligue o campo com `Controller`, porque a máscara precisa controlar o que aparece no `input` enquanto o formulário guarda o decimal canônico:
+
+```tsx
+<Controller
+  control={control}
+  name="amount"
+  render={({ field, fieldState }) => (
+    <FormField id="amount" label="Valor (R$)" error={fieldState.error?.message}>
+      {(aria) => (
+        <MoneyInput {...aria} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
+      )}
+    </FormField>
+  )}
+/>
 ```
 
 ---
@@ -897,7 +916,7 @@ import {
   DateTimeInput,
   Textarea,
   FormField,
-  CurrencyInput,
+  MoneyInput,
   PhoneInput,
   Dialog,
   DialogContent,

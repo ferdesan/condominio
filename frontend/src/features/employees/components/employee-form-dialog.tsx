@@ -11,9 +11,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CurrencyInput } from '@/components/ui/currency-input';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { MoneyInput } from '@/components/ui/money-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import {
   Select,
@@ -254,9 +254,9 @@ export function EmployeeFormDialog({ employee, condominiumId, onClose }: Employe
               </FormField>
 
               {/*
-                Dinheiro tem campo proprio: o `CurrencyInput` guarda numero e
-                apresenta a moeda formatada, entao o corpo da requisição sai
-                numerico sem ninguem converter texto no caminho.
+                Salario e o unico dinheiro opcional daqui: a mascara devolve o
+                decimal canonico, e a conversao para numero fica no campo — sem
+                salario informado o valor e ausencia, e nao zero.
               */}
               <Controller
                 control={control}
@@ -269,7 +269,12 @@ export function EmployeeFormDialog({ employee, condominiumId, onClose }: Employe
                     description="Opcional. Dado sensível: informe apenas se for necessário."
                   >
                     {(aria) => (
-                      <CurrencyInput value={field.value} onChange={field.onChange} {...aria} />
+                      <MoneyInput
+                        {...aria}
+                        value={field.value == null ? '' : String(field.value)}
+                        onChange={(next) => field.onChange(next === '' ? undefined : Number(next))}
+                        onBlur={field.onBlur}
+                      />
                     )}
                   </FormField>
                 )}

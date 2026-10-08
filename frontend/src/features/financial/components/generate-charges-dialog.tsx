@@ -15,6 +15,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { MoneyInput } from '@/components/ui/money-input';
 import { CondominiumScopeNotice } from '@/components/common/condominium-scope-notice';
 import { ApiError } from '@/lib/api';
 import { applyApiError } from '@/lib/form-errors';
@@ -195,38 +196,48 @@ export function GenerateChargesDialog({
               </p>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  id="generate-fixedAmount"
-                  label="Valor fixo por unidade (R$)"
-                  error={errors.fixedAmount?.message}
-                >
-                  {(aria) => (
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      {...aria}
-                      {...register('fixedAmount')}
-                    />
+                <Controller
+                  control={control}
+                  name="fixedAmount"
+                  render={({ field, fieldState }) => (
+                    <FormField
+                      id="generate-fixedAmount"
+                      label="Valor fixo por unidade (R$)"
+                      error={fieldState.error?.message}
+                    >
+                      {(aria) => (
+                        <MoneyInput
+                          {...aria}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
+                      )}
+                    </FormField>
                   )}
-                </FormField>
+                />
 
-                <FormField
-                  id="generate-totalToApportion"
-                  label="Total a ratear (R$)"
-                  error={errors.totalToApportion?.message}
-                  description="Dividido pelas frações ideais das unidades."
-                >
-                  {(aria) => (
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      {...aria}
-                      {...register('totalToApportion')}
-                    />
+                <Controller
+                  control={control}
+                  name="totalToApportion"
+                  render={({ field, fieldState }) => (
+                    <FormField
+                      id="generate-totalToApportion"
+                      label="Total a ratear (R$)"
+                      error={fieldState.error?.message}
+                      description="Dividido pelas frações ideais das unidades."
+                    >
+                      {(aria) => (
+                        <MoneyInput
+                          {...aria}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
+                      )}
+                    </FormField>
                   )}
-                </FormField>
+                />
               </div>
             </fieldset>
 
