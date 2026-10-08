@@ -451,7 +451,8 @@ describe('Taxa de reserva', () => {
 
     await user.type(screen.getByLabelText('Nome'), 'Salao');
     const fee = screen.getByLabelText('Taxa de reserva') as HTMLInputElement;
-    fireEvent.change(fee, { target: { value: '250' } });
+    // A virgula e o corte para reais: sem ela os digitos sao centavos.
+    fireEvent.change(fee, { target: { value: '250,00' } });
 
     // O campo reformata para moeda assim que o valor chega ao formulario.
     await waitFor(() => expect(fee.value).toMatch(/R\$\s*250,00/));

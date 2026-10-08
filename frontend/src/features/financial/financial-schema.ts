@@ -5,11 +5,12 @@
  * `z.infer` basta e cada `useForm` precisa de um generico so. A conversao para o
  * corpo da requisicao acontece nas funcoes `to...Payload`.
  *
- * **Dinheiro e digitado como numero decimal, e nao pelo `CurrencyInput`.** O
- * controle de moeda guarda `number` e formata no proprio estado, o que quebraria
- * a convencao de valores em texto deste projeto — a mesma escolha que
- * `unit-schema.ts` ja fez para a taxa mensal. A formatacao acontece na leitura,
- * em `formatCurrency`.
+ * **Dinheiro entra pela mascara de centavos implicitos do `MoneyInput`.** Sem
+ * virgula o que se digita sao centavos (`4999` = `R$ 49,99`); com virgula, sao
+ * reais (`1500,50` = `R$ 1.500,50`). O que chega aqui e sempre um decimal
+ * canonico com ponto — texto, como os demais campos, entao `z.infer` basta e a
+ * conversao do payload continua sendo `Number()`. A leitura, nas telas, segue
+ * sendo `formatCurrency`.
  *
  * `condominiumId` nao e campo de formulario — vem do seletor do shell.
  */

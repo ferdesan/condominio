@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { DateTimeInput } from '@/components/ui/date-time-input';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { MoneyInput } from '@/components/ui/money-input';
 import {
   Select,
   SelectContent,
@@ -98,23 +99,28 @@ export function RegisterPaymentDialog({ charge, onClose }: RegisterPaymentDialog
 
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField
-              id="payment-amount"
-              label="Valor recebido (R$)"
-              error={errors.amount?.message}
-              description="Menos que o saldo registra baixa parcial."
-            >
-              {(aria) => (
-                <Input
-                  autoFocus
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  {...aria}
-                  {...register('amount')}
-                />
+            <Controller
+              control={control}
+              name="amount"
+              render={({ field, fieldState }) => (
+                <FormField
+                  id="payment-amount"
+                  label="Valor recebido (R$)"
+                  error={fieldState.error?.message}
+                  description="Menos que o saldo registra baixa parcial."
+                >
+                  {(aria) => (
+                    <MoneyInput
+                      autoFocus
+                      {...aria}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                  )}
+                </FormField>
               )}
-            </FormField>
+            />
 
             <Controller
               control={control}

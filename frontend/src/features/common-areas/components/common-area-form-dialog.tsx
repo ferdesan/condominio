@@ -13,10 +13,10 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CurrencyInput } from '@/components/ui/currency-input';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { MoneyInput } from '@/components/ui/money-input';
 import {
   Select,
   SelectContent,
@@ -340,7 +340,12 @@ export function CommonAreaFormDialog({ area, condominiumId, onClose }: CommonAre
                     className="sm:max-w-xs"
                   >
                     {(aria) => (
-                      <CurrencyInput {...aria} value={field.value} onChange={field.onChange} />
+                      <MoneyInput
+                        {...aria}
+                        value={String(field.value ?? 0)}
+                        onChange={(next) => field.onChange(next === '' ? 0 : Number(next))}
+                        onBlur={field.onBlur}
+                      />
                     )}
                   </FormField>
                 )}

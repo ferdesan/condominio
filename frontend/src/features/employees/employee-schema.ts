@@ -2,9 +2,10 @@
  * Espelho cliente de `backend/src/modules/employees/employee.schema.ts`.
  *
  * Quase todo campo entra e sai como string, como nos schemas de morador e de
- * unidade. `salary` e a excecao: o `CurrencyInput` emite numero, entao guardar o
- * campo como texto obrigaria a converter duas vezes por tecla. A conversao para
- * o corpo da requisicao acontece em `toEmployeePayload`.
+ * unidade. `salary` e a excecao: o `MoneyInput` emite o decimal canonico e o
+ * `onChange` do campo o converte para numero na hora, entao o formulario ja
+ * guarda o tipo que `toEmployeePayload` envia. A conversao para o corpo da
+ * requisicao acontece ali.
  *
  * A ordem das datas contratuais e a unica regra do `EmployeeService` espelhada
  * aqui, para poupar a viagem de ida e volta de uma objecao que ja da para

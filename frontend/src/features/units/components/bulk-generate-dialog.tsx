@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { MoneyInput } from '@/components/ui/money-input';
 import {
   Select,
   SelectContent,
@@ -257,9 +258,26 @@ export function BulkGenerateDialog({
               )}
             />
 
-            <FormField id="bulk-monthly-fee" label="Taxa mensal" error={errors.monthlyFee?.message}>
-              {(aria) => <Input inputMode="decimal" {...aria} {...register('monthlyFee')} />}
-            </FormField>
+            <Controller
+              control={control}
+              name="monthlyFee"
+              render={({ field, fieldState }) => (
+                <FormField
+                  id="bulk-monthly-fee"
+                  label="Taxa mensal"
+                  error={fieldState.error?.message}
+                >
+                  {(aria) => (
+                    <MoneyInput
+                      {...aria}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                  )}
+                </FormField>
+              )}
+            />
 
             <FormField
               id="bulk-area"

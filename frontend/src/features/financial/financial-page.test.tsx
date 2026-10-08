@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { toast } from 'sonner';
 import { ApiError, apiDelete, apiGetPaginated, apiPatch, apiPost } from '@/lib/api';
+import { formatCurrency } from '@/lib/format';
 import {
   clickTrigger,
   createUser,
@@ -211,7 +212,7 @@ describe('Cobranças', () => {
 
     const dialog = await screen.findByRole('dialog');
     // A baixa total e o caso comum: o valor chega pronto com o saldo.
-    expect(within(dialog).getByLabelText('Valor recebido (R$)')).toHaveValue(800);
+    expect(within(dialog).getByLabelText('Valor recebido (R$)')).toHaveValue(formatCurrency(800));
 
     await user.click(within(dialog).getByRole('button', { name: 'Registrar' }));
 
@@ -274,7 +275,8 @@ describe('Cobranças', () => {
     const dialog = await screen.findByRole('dialog');
     // O painel de filtros tem rotulos iguais: as consultas sao escopadas no
     // dialogo, senao resolvem para o controle errado.
-    await user.type(within(dialog).getByLabelText('Valor (R$)'), '1200');
+    // A virgula e o corte para reais: sem ela os digitos sao centavos.
+    await user.type(within(dialog).getByLabelText('Valor (R$)'), '1200,00');
     clickTrigger(within(dialog).getByLabelText('Unidade'));
     clickTrigger(await screen.findByRole('option', { name: /101/ }));
 
@@ -395,7 +397,8 @@ describe('Despesas', () => {
 
     const dialog = await screen.findByRole('dialog');
     await user.type(within(dialog).getByLabelText('Descrição'), 'Energia eletrica');
-    await user.type(within(dialog).getByLabelText('Valor (R$)'), '3100');
+    // A virgula e o corte para reais: sem ela os digitos sao centavos.
+    await user.type(within(dialog).getByLabelText('Valor (R$)'), '3100,00');
     await user.click(within(dialog).getByRole('button', { name: 'Lancar' }));
 
     await waitFor(() => expect(mockPost).toHaveBeenCalledTimes(1));
