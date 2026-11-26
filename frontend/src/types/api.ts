@@ -62,6 +62,8 @@ export type AuthUser = {
    * conta pode alterar as contas globais que encountera na listagem.
    */
   condominiumIds: string[];
+  /** Unidade do morador; ausente ou nula nos perfis administrativos. */
+  unitId?: string | null;
   /** Ausente em contas semeadas antes da coluna existir. */
   preferences?: UserPreferences | null;
 };

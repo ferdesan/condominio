@@ -231,3 +231,158 @@ describe('Reservas de areas comuns', () => {
     expect(response.body.data[0]).toHaveProperty('commonAreaName');
   });
 });
+
+describe('Edicao de reservas', () => {
+  let ctx: TestContext;
+  let morador: AuthenticatedAgent;
+  let sindico: AuthenticatedAgent;
+  let areaId: string;
+  let unitId: string;
+
+  async function createReservation(start: ReturnType<typeof dayjs>, hours = 1) {
+    const response = await morador.post('/reservations').send({
+      condominiumId: ctx.seed.condominiumId,
+      commonAreaId: areaId,
+      unitId,
+      startsAt: start.toISOString(),
+      endsAt: start.add(hours, 'hour').toISOString(),
+      guestsCount: 4,
+    });
+    expect(response.status).toBe(201);
+    return response.body.data as { id: string; status: string };
+  }
+
+  async function notificationTitles(agent: AuthenticatedAgent): Promise<string[]> {
+    const response = await agent.get('/notifications?perPage=100');
+    return response.body.data.map((item: { title: string }) => item.title);
+  }
+
+  beforeAll(async () => {
+    ctx = await setupTestContext();
+    const admin = await login(ctx, seedUsers.admin);
+    morador = await login(ctx, seedUsers.morador);
+    sindico = await login(ctx, seedUsers.sindico);
+
+    const area = await admin.post('/common-areas').send({
+      condominiumId: ctx.seed.condominiumId,
+      name: 'Salao de Jogos',
+      capacity: 10,
+      requiresApproval: true,
+      reservationFee: 30,
+      opensAt: '08:00',
+      closesAt: '22:00',
+      minHours: 1,
+      maxHours: 4,
+      advanceBookingDays: 30,
+    });
+    areaId = area.body.data.id;
+
+    const me = await morador.get('/auth/me');
+    unitId = me.body.data.unitId;
+  });
+
+  afterAll(teardownTestContext);
+
+  it('morador altera observacoes e convidados sem mudar o status', async () => {
+    const reservation = await createReservation(nextWeekday(1, 9));
+
+    const response = await morador
+      .patch(`/reservations/${reservation.id}`)
+      .send({ notes: 'Aniversario', guestsCount: 6 });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.notes).toBe('Aniversario');
+    expect(response.body.data.guestsCount).toBe(6);
+    expect(response.body.data.status).toBe('PENDING');
+  });
+
+  it('ignora status enviado pela edicao: so o fluxo de aprovacao confirma', async () => {
+    const reservation = await createReservation(nextWeekday(1, 11));
+
+    const response = await morador
+      .patch(`/reservations/${reservation.id}`)
+      .send({ status: 'CONFIRMED', statusReason: 'auto aprovado' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.status).toBe('PENDING');
+    expect(response.body.data.statusReason ?? null).toBeNull();
+  });
+
+  it('recusa convidados acima da capacidade na edicao', async () => {
+    const reservation = await createReservation(nextWeekday(1, 13));
+
+    const response = await morador
+      .patch(`/reservations/${reservation.id}`)
+      .send({ guestsCount: 50 });
+
+    expect(response.status).toBe(409);
+    expect(response.body.error.message).toMatch(/maximo 10 pessoas/i);
+  });
+
+  it('remarcacao de reserva confirmada pelo morador volta para aprovacao', async () => {
+    const reservation = await createReservation(nextWeekday(2, 9));
+    await sindico.post(`/reservations/${reservation.id}/approve`).send({ reason: 'ok' });
+
+    const start = nextWeekday(2, 15);
+    const response = await morador.patch(`/reservations/${reservation.id}`).send({
+      startsAt: start.toISOString(),
+      endsAt: start.add(2, 'hour').toISOString(),
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.status).toBe('PENDING');
+    expect(response.body.data.statusReason ?? null).toBeNull();
+    expect(await notificationTitles(sindico)).toContain('Reserva alterada aguardando aprovacao');
+  });
+
+  it('remarcacao feita pelo sindico mantem a reserva confirmada e avisa o solicitante', async () => {
+    const reservation = await createReservation(nextWeekday(3, 9));
+    await sindico.post(`/reservations/${reservation.id}/approve`).send({});
+
+    const start = nextWeekday(3, 17);
+    const response = await sindico.patch(`/reservations/${reservation.id}`).send({
+      startsAt: start.toISOString(),
+      endsAt: start.add(1, 'hour').toISOString(),
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.status).toBe('CONFIRMED');
+    expect(await notificationTitles(morador)).toContain('Reserva alterada');
+  });
+
+  it('recusa remarcacao para horario ja ocupado', async () => {
+    const reservation = await createReservation(nextWeekday(4, 9));
+    const occupied = nextWeekday(3, 17);
+
+    const response = await morador.patch(`/reservations/${reservation.id}`).send({
+      startsAt: occupied.toISOString(),
+      endsAt: occupied.add(1, 'hour').toISOString(),
+    });
+
+    expect(response.status).toBe(409);
+    expect(response.body.error.message).toMatch(/ja existe uma reserva/i);
+  });
+
+  it('impede o morador de mover a reserva para a unidade de outra pessoa', async () => {
+    const reservation = await createReservation(nextWeekday(4, 13));
+    const otherUnit = ctx.seed.unitIds.find((id) => id !== unitId)!;
+
+    const response = await morador
+      .patch(`/reservations/${reservation.id}`)
+      .send({ unitId: otherUnit });
+
+    expect(response.status).toBe(403);
+  });
+
+  it('reserva recusada nao pode ser editada', async () => {
+    const reservation = await createReservation(nextWeekday(5, 9));
+    await sindico.post(`/reservations/${reservation.id}/reject`).send({ reason: 'manutencao' });
+
+    const response = await morador
+      .patch(`/reservations/${reservation.id}`)
+      .send({ notes: 'tentando de novo' });
+
+    expect(response.status).toBe(409);
+    expect(response.body.error.message).toMatch(/pendentes ou confirmadas/i);
+  });
+});
