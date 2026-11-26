@@ -201,7 +201,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.28.0
+        # Fixada por hash: a v0.28.0 dependia de `setup-trivy@v0.2.1`, tag que
+        # deixou de existir e derrubava o job em "Set up job". A v0.36.0 ja fixa
+        # o setup-trivy por hash, e o hash aqui protege contra tag reescrita.
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -211,6 +214,9 @@ jobs:
           exit-code: '1'
 
       - name: Upload Trivy results to GitHub Security tab
+        # Sem always(), um achado (exit-code 1) pulava o envio e o relatorio que
+        # explica a falha nunca chegava a aba Security.
+        if: always() && hashFiles('trivy-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
