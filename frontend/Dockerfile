@@ -10,8 +10,13 @@ RUN npm install
 
 COPY tsconfig*.json ./
 COPY vite.config.ts ./
+# Sem estes dois o build passa, mas o Tailwind nao roda: o CSS sai com as
+# diretivas `@tailwind` cruas e a aplicacao abre sem estilo.
+COPY tailwind.config.js postcss.config.js ./
 COPY index.html ./
 COPY public ./public
+# `prebuild` gera os icones do PWA a partir de scripts/icon-source.svg.
+COPY scripts ./scripts
 COPY src ./src
 RUN npm run build
 
