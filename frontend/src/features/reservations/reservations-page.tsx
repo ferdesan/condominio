@@ -38,7 +38,7 @@ type DecisionTarget = { action: ReservationAction; reservation: Reservation } | 
 const OPTIONS_PER_PAGE = MAX_PER_PAGE;
 
 export function ReservationsPage() {
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const { selectedId } = useCondominium();
   const list = useListState();
   const [view, setView] = useState<View>('list');
@@ -49,10 +49,19 @@ export function ReservationsPage() {
   // o predio recem-escolhido (US-027.EC-3).
   const [creating, setCreating] = useState<string | null>(null);
   const [decision, setDecision] = useState<DecisionTarget>(null);
+  const [editing, setEditing] = useState<Reservation | null>(null);
 
   const canCreate = can('reservation:create');
   const canManage = can('reservation:manage');
   const canUpdate = can('reservation:update');
+
+  /**
+   * Editar segue a regra do servidor: quem tem `reservation:manage` edita
+   * qualquer reserva; os demais, so as da propria unidade. Um porteiro tem
+   * `reservation:update` para cancelar, mas nao mora na unidade — nao edita.
+   */
+  const canEdit = (reservation: Reservation): boolean =>
+    canUpdate && (canManage || (Boolean(user?.unitId) && user?.unitId === reservation.unitId));
 
   const { setFilter } = list;
 
@@ -170,6 +179,7 @@ export function ReservationsPage() {
           canManage={canManage}
           canUpdate={canUpdate}
           onAct={(action, reservation) => setDecision({ action, reservation })}
+          onEdit={canEdit(row) ? setEditing : undefined}
         />
       ),
     },
@@ -323,6 +333,21 @@ export function ReservationsPage() {
           areas={bookableAreas}
           units={units}
           onClose={() => setCreating(null)}
+        />
+      ) : null}
+
+      {editing ? (
+        <ReservationFormDialog
+          key={editing.id}
+          condominiumId={editing.condominiumId}
+          // A area atual entra mesmo indisponivel, para o seletor mostrar o
+          // valor salvo; remarcar nela e que o servidor recusa.
+          areas={areas.filter(
+            (area) => area.status === 'AVAILABLE' || area.id === editing.commonAreaId,
+          )}
+          units={units}
+          reservation={editing}
+          onClose={() => setEditing(null)}
         />
       ) : null}
 
