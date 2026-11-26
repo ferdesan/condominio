@@ -1,5 +1,5 @@
 import { RowAction, RowActions } from '@/components/ui/row-actions';
-import { Ban, CalendarCheck, CalendarX } from 'lucide-react';
+import { Ban, CalendarCheck, CalendarX, Pencil } from 'lucide-react';
 
 import { formatDateTime } from '@/lib/format';
 import type { Reservation } from '@/types/api';
@@ -13,6 +13,8 @@ export interface ReservationRowActionsProps {
   /** Cancelar exige apenas `reservation:update`. */
   canUpdate: boolean;
   onAct: (action: ReservationAction, reservation: Reservation) => void;
+  /** Editar exige `reservation:update`; so pendentes e confirmadas se editam. */
+  onEdit?: (reservation: Reservation) => void;
 }
 
 /**
@@ -31,16 +33,28 @@ export function ReservationRowActions({
   canManage,
   canUpdate,
   onAct,
+  onEdit,
 }: ReservationRowActionsProps) {
   // Concluidas e canceladas sao imutaveis: nenhuma acao se aplica.
   const isImmutable = reservation.status === 'COMPLETED' || reservation.status === 'CANCELED';
   if (isImmutable) return null;
 
   const isPending = reservation.status === 'PENDING';
+  // Recusada ainda pode ser cancelada, mas nao editada: o servidor so altera
+  // pendentes e confirmadas.
+  const isEditable = isPending || reservation.status === 'CONFIRMED';
   const label = `${formatDateTime(reservation.startsAt)}`;
 
   return (
     <RowActions>
+      {isEditable && canUpdate && onEdit ? (
+        <RowAction
+          icon={Pencil}
+          label={`Editar reserva de ${label}`}
+          onClick={() => onEdit(reservation)}
+        />
+      ) : null}
+
       {isPending && canManage ? (
         <>
           <RowAction

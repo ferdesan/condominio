@@ -32,6 +32,78 @@ export function daysBetween(start: string | Date, end: string | Date): number {
   return dayjs(end).startOf('day').diff(dayjs(start).startOf('day'), 'day');
 }
 
+/** Fuso usado quando o tenant nao declara um (ou declara um invalido). */
+export const DEFAULT_TIME_ZONE = 'America/Sao_Paulo';
+
+/** Devolve o fuso informado se o runtime o reconhece; senao, o padrao. */
+export function resolveTimeZone(timeZone?: string | null): string {
+  if (!timeZone) return DEFAULT_TIME_ZONE;
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone });
+    return timeZone;
+  } catch {
+    return DEFAULT_TIME_ZONE;
+  }
+}
+
+type WallClock = { year: number; month: number; day: number; minutes: number; weekday: number };
+
+const WEEKDAY_INDEX: Record<string, number> = {
+  Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+};
+
+/** Data, hora e dia da semana que um relogio de parede no fuso mostraria. */
+function wallClock(instant: Date, timeZone: string): WallClock {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    weekday: 'short',
+    hourCycle: 'h23',
+  }).formatToParts(instant);
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? '';
+
+  return {
+    year: Number(get('year')),
+    month: Number(get('month')),
+    day: Number(get('day')),
+    minutes: Number(get('hour')) * 60 + Number(get('minute')),
+    weekday: WEEKDAY_INDEX[get('weekday')] ?? 0,
+  };
+}
+
+/**
+ * Um intervalo lido no relogio de parede de um fuso: o dia da semana do
+ * inicio e os minutos desde a meia-noite desse dia para inicio e termino.
+ * `endMinutes` passa de 1440 quando o termino cai no dia seguinte.
+ *
+ * Existe porque horarios de funcionamento (`08:00`, `22:00`) sao hora local do
+ * condominio. Calcula-los no fuso do processo faz um servidor em UTC recusar
+ * 10:00-20:20 de Brasilia como se fosse 13:00-23:20.
+ */
+export function wallClockSlot(
+  startsAt: Date,
+  endsAt: Date,
+  timeZone: string,
+): { weekday: number; startMinutes: number; endMinutes: number } {
+  const start = wallClock(startsAt, timeZone);
+  const end = wallClock(endsAt, timeZone);
+  const dayOffset = Math.round(
+    (Date.UTC(end.year, end.month - 1, end.day) - Date.UTC(start.year, start.month - 1, start.day)) /
+      86_400_000,
+  );
+
+  return {
+    weekday: start.weekday,
+    startMinutes: start.minutes,
+    endMinutes: end.minutes + dayOffset * 1440,
+  };
+}
+
 /** Intervalos [startA, endA) e [startB, endB) se sobrepoem? */
 export function overlaps(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
   return startA < endB && startB < endA;

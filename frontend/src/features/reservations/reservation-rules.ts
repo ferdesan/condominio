@@ -16,9 +16,17 @@
  * mudar de texto conforme quem a respondeu.
  */
 
-import { addDays, differenceInMinutes, getDay, isValid, parseISO, startOfDay } from 'date-fns';
+import {
+  addDays,
+  differenceInMinutes,
+  format,
+  getDay,
+  isValid,
+  parseISO,
+  startOfDay,
+} from 'date-fns';
 import { z } from 'zod';
-import type { CommonArea } from '@/types/api';
+import type { CommonArea, Reservation } from '@/types/api';
 
 export const NOTES_MAX = 1000;
 export const DECISION_REASON_MAX = 255;
@@ -228,9 +236,16 @@ export type ReservationSchema = z.ZodType<ReservationFormValues>;
 export function buildReservationSchema(
   area: CommonArea | null | undefined,
   now: () => Date = () => new Date(),
+  options: { scheduleRules?: boolean } = {},
 ): ReservationSchema {
+  const scheduleRules = options.scheduleRules ?? true;
   return baseSchema.superRefine((values, ctx) => {
-    for (const issue of checkReservationRules(values, area, now())) {
+    const issues = checkReservationRules(values, area, now()).filter(
+      // Sem mudanca de horario, so a capacidade continua valendo — igual ao
+      // servidor, que nao reavalia o periodo de uma reserva que nao mudou.
+      (issue) => scheduleRules || issue.field === 'guestsCount',
+    );
+    for (const issue of issues) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: [issue.field], message: issue.message });
     }
   });
@@ -273,6 +288,40 @@ export function toReservationPayload(
     guestsCount: values.guestsCount === '' ? 0 : Number(values.guestsCount),
     notes: values.notes === '' ? null : values.notes,
   };
+}
+
+/** Instante ISO -> valor do input de data e hora, em hora local. */
+function toLocalInput(iso: string): string {
+  const date = new Date(iso);
+  return isValid(date) ? format(date, "yyyy-MM-dd'T'HH:mm") : '';
+}
+
+/** Reserva salva -> valores iniciais do formulario de edicao. */
+export function toReservationFormValues(reservation: Reservation): ReservationFormValues {
+  return {
+    commonAreaId: reservation.commonAreaId,
+    unitId: reservation.unitId,
+    startsAt: toLocalInput(reservation.startsAt),
+    endsAt: toLocalInput(reservation.endsAt),
+    guestsCount: String(reservation.guestsCount ?? 0),
+    notes: reservation.notes ?? '',
+  };
+}
+
+/**
+ * Area, unidade ou periodo mudaram? E a condicao que faz o servidor reavaliar
+ * o horario na edicao — e, na area com aprovacao, devolver a reserva a fila.
+ */
+export function isScheduleChanged(
+  initial: ReservationFormValues,
+  values: ReservationFormValues,
+): boolean {
+  return (
+    initial.commonAreaId !== values.commonAreaId ||
+    initial.unitId !== values.unitId ||
+    initial.startsAt !== values.startsAt ||
+    initial.endsAt !== values.endsAt
+  );
 }
 
 export const RESERVATION_FORM_DEFAULTS: ReservationFormValues = {

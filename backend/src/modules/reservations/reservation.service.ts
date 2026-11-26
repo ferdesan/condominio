@@ -16,20 +16,29 @@ import { CondominiumScopedService } from '@/shared/services/condominium-scoped.s
 import { recipientsService, type RecipientsService } from '@/shared/services/recipients.service';
 import { resolveUnitCondominium } from '@/shared/services/reference-guard';
 import type { RequestContext } from '@/shared/services/request-context';
-import { dayjs } from '@/shared/utils/date.util';
-import { Reservation } from './reservation.entity';
+import { tenantRepository, type TenantRepository } from '@/modules/tenants/tenant.repository';
+import { dayjs, resolveTimeZone, wallClockSlot } from '@/shared/utils/date.util';
+import { Reservation, type ReservationStatus } from './reservation.entity';
 import { reservationRepository, type ReservationRepository } from './reservation.repository';
 import type {
   AvailabilityQuery,
   CreateReservationDTO,
+  ReservationStatusChange,
+  ReservationUpdateInput,
   ReviewReservationDTO,
-  UpdateReservationDTO,
 } from './reservation.schema';
+
+/** Recusadas, canceladas e concluidas sao historico: nao se editam. */
+const EDITABLE_STATUSES: readonly ReservationStatus[] = ['PENDING', 'CONFIRMED'];
+
+function isStatusChange(dto: ReservationUpdateInput): dto is ReservationStatusChange {
+  return 'status' in dto;
+}
 
 export class ReservationService extends CondominiumScopedService<
   Reservation,
   CreateReservationDTO,
-  UpdateReservationDTO
+  ReservationUpdateInput
 > {
   constructor(
     private readonly reservations: ReservationRepository = reservationRepository,
@@ -37,6 +46,7 @@ export class ReservationService extends CondominiumScopedService<
     private readonly notifications: NotificationService = notificationService,
     private readonly recipients: RecipientsService = recipientsService,
     private readonly realtime: RealtimeService = realtimeService,
+    private readonly tenants: TenantRepository = tenantRepository,
   ) {
     super(reservations, { resource: 'reservation', label: 'Reserva' });
   }
@@ -54,12 +64,7 @@ export class ReservationService extends CondominiumScopedService<
     }
 
     await this.assertSlotIsBookable(ctx, area, dto.startsAt, dto.endsAt, dto.unitId);
-
-    if (area.capacity > 0 && dto.guestsCount > area.capacity) {
-      throw new BusinessRuleError(
-        `A area comporta no maximo ${area.capacity} pessoas.`,
-      );
-    }
+    this.assertCapacity(area, dto.guestsCount);
 
     return {
       ...dto,
@@ -73,27 +78,122 @@ export class ReservationService extends CondominiumScopedService<
   protected override async prepareUpdate(
     ctx: RequestContext,
     current: Reservation,
-    dto: UpdateReservationDTO,
+    dto: ReservationUpdateInput,
   ): Promise<DeepPartial<Reservation>> {
-    if (current.status === 'COMPLETED' || current.status === 'CANCELED') {
-      throw new BusinessRuleError('Reservas concluidas ou canceladas nao podem ser alteradas.');
+    // Transicoes de status vem do fluxo de aprovacao, que ja conferiu permissao
+    // e estado. O schema publico de edicao nao aceita `status`, entao essa forma
+    // nunca chega de uma requisicao.
+    if (isStatusChange(dto)) return dto as DeepPartial<Reservation>;
+
+    if (!EDITABLE_STATUSES.includes(current.status)) {
+      throw new BusinessRuleError(
+        'Somente reservas pendentes ou confirmadas podem ser alteradas.',
+      );
     }
 
     this.assertUnitOwnership(ctx, current.unitId);
 
+    const unitId = dto.unitId ?? current.unitId;
+    const commonAreaId = dto.commonAreaId ?? current.commonAreaId;
     const startsAt = dto.startsAt ?? current.startsAt;
     const endsAt = dto.endsAt ?? current.endsAt;
+    const guestsCount = dto.guestsCount ?? current.guestsCount;
 
-    if (dto.startsAt || dto.endsAt || dto.commonAreaId) {
-      const area = await this.loadArea(
-        ctx,
-        dto.commonAreaId ?? current.commonAreaId,
-        dto.condominiumId ?? current.condominiumId,
-      );
-      await this.assertSlotIsBookable(ctx, area, startsAt, endsAt, current.unitId, current.id);
+    const unitChanged = unitId !== current.unitId;
+    const areaChanged = commonAreaId !== current.commonAreaId;
+    const periodChanged =
+      startsAt.getTime() !== new Date(current.startsAt).getTime() ||
+      endsAt.getTime() !== new Date(current.endsAt).getTime();
+    const guestsChanged = guestsCount !== current.guestsCount;
+
+    if (unitChanged) {
+      this.assertUnitOwnership(ctx, unitId);
+      const unitCondominium = await resolveUnitCondominium(ctx.scope, unitId);
+      if (unitCondominium !== current.condominiumId) {
+        throw new BusinessRuleError('A unidade informada pertence a outro condominio.');
+      }
     }
 
-    return dto as DeepPartial<Reservation>;
+    const payload: DeepPartial<Reservation> = { ...dto } as DeepPartial<Reservation>;
+
+    // Mudou o "quando", o "onde" ou o "quem": o horario precisa ser reservavel
+    // de novo, como se a reserva estivesse nascendo agora.
+    if (unitChanged || areaChanged || periodChanged) {
+      const area = await this.loadArea(ctx, commonAreaId, current.condominiumId);
+      await this.assertSlotIsBookable(ctx, area, startsAt, endsAt, unitId, current.id);
+      this.assertCapacity(area, guestsCount);
+
+      if (areaChanged) payload.fee = area.reservationFee;
+
+      // Mudanca de area ou periodo reabre a decisao. Quem tem
+      // `reservation:manage` e o proprio aprovador, entao a edicao dele mantem
+      // a reserva confirmada; a de qualquer outro volta para a fila.
+      if (areaChanged || periodChanged) {
+        const status = this.statusAfterReschedule(ctx, current.status, area);
+        if (status !== current.status) {
+          payload.status = status;
+          payload.statusReason = null;
+        }
+      }
+    } else if (guestsChanged) {
+      // So os convidados mudaram: a area pode ate estar em manutencao agora, o
+      // que nao deve impedir corrigir a contagem de uma reserva ja existente.
+      const area = await this.commonAreas.findById(ctx.scope, commonAreaId);
+      if (!area) throw new NotFoundError('Area comum');
+      this.assertCapacity(area, guestsCount);
+    }
+
+    return payload;
+  }
+
+  protected override async afterUpdate(
+    ctx: RequestContext,
+    entity: Reservation,
+    previous: Reservation,
+    dto: ReservationUpdateInput,
+  ): Promise<void> {
+    // `applyReview` notifica e emite o evento das transicoes por conta propria.
+    if (isStatusChange(dto)) return;
+
+    const when = dayjs(entity.startsAt).format('DD/MM/YYYY HH:mm');
+
+    if (entity.status === 'PENDING' && previous.status !== 'PENDING') {
+      const approvers = await this.recipients.usersByRoles(ctx.scope.tenantId, [
+        ROLE_ADMIN,
+        ROLE_SINDICO,
+      ]);
+      await this.notifications.notify({
+        tenantId: ctx.scope.tenantId,
+        condominiumId: entity.condominiumId,
+        userIds: approvers,
+        title: 'Reserva alterada aguardando aprovacao',
+        message: `${ctx.actor.name} alterou a reserva de ${entity.requestedByName}, agora para ${when}. A reserva voltou para aprovacao.`,
+        type: 'RESERVATION',
+        resource: 'reservation',
+        resourceId: entity.id,
+        actionUrl: `/reservas/${entity.id}`,
+      });
+    }
+
+    // Quem pediu a reserva fica sabendo quando outra pessoa a altera.
+    if (entity.requestedById && entity.requestedById !== ctx.actor.userId) {
+      await this.notifications.notify({
+        tenantId: ctx.scope.tenantId,
+        condominiumId: entity.condominiumId,
+        userIds: [entity.requestedById],
+        title: 'Reserva alterada',
+        message: `Sua reserva foi alterada por ${ctx.actor.name} e agora esta marcada para ${when}.`,
+        type: 'RESERVATION',
+        resource: 'reservation',
+        resourceId: entity.id,
+        actionUrl: `/reservas/${entity.id}`,
+      });
+    }
+
+    this.realtime.emitToCondominium(entity.condominiumId, 'reservation:updated', {
+      id: entity.id,
+      status: entity.status,
+    });
   }
 
   protected override async afterCreate(
@@ -209,10 +309,7 @@ export class ReservationService extends CondominiumScopedService<
     status: 'CONFIRMED' | 'REJECTED' | 'CANCELED',
     reason: string | null,
   ): Promise<Reservation> {
-    const updated = await this.update(ctx, reservation.id, {
-      status,
-      statusReason: reason,
-    } as UpdateReservationDTO);
+    const updated = await this.update(ctx, reservation.id, { status, statusReason: reason });
 
     const labels: Record<typeof status, string> = {
       CONFIRMED: 'confirmada',
@@ -246,6 +343,29 @@ export class ReservationService extends CondominiumScopedService<
     }
   }
 
+  private assertCapacity(area: CommonArea, guestsCount: number): void {
+    if (area.capacity > 0 && guestsCount > area.capacity) {
+      throw new BusinessRuleError(`A area comporta no maximo ${area.capacity} pessoas.`);
+    }
+  }
+
+  /**
+   * Status depois de mudar area ou periodo — a mesma regra da criacao: area
+   * sem aprovacao confirma direto; area com aprovacao deixa pendente, exceto
+   * quando quem edita e o proprio aprovador e a reserva ja estava confirmada.
+   */
+  private statusAfterReschedule(
+    ctx: RequestContext,
+    current: ReservationStatus,
+    area: CommonArea,
+  ): ReservationStatus {
+    if (!area.requiresApproval) return 'CONFIRMED';
+    if (current === 'CONFIRMED' && hasPermission(ctx.actor.permissions, 'reservation:manage')) {
+      return 'CONFIRMED';
+    }
+    return 'PENDING';
+  }
+
   /** Morador so reserva para a propria unidade; sindico/admin reservam para qualquer uma. */
   private assertUnitOwnership(ctx: RequestContext, unitId: string): void {
     if (hasPermission(ctx.actor.permissions, 'reservation:manage')) return;
@@ -269,6 +389,11 @@ export class ReservationService extends CondominiumScopedService<
     }
 
     return area;
+  }
+
+  private async tenantTimeZone(ctx: RequestContext): Promise<string> {
+    const tenant = await this.tenants.findById(ctx.scope.tenantId);
+    return resolveTimeZone(tenant?.settings?.timezone);
   }
 
   /** Converte HH:mm em minutos desde a meia-noite. */
@@ -308,19 +433,20 @@ export class ReservationService extends CondominiumScopedService<
       throw new BusinessRuleError(`A reserva maxima para esta area e de ${area.maxHours}h.`);
     }
 
+    // Dia da semana e janela sao hora local do condominio, lidas no fuso do
+    // tenant — nunca no fuso do processo, que em producao costuma ser UTC.
+    // `endMinutes` ultrapassa 1440 quando a reserva cruza a meia-noite, o que
+    // so e aceito por areas que fecham exatamente as 00:00.
+    const timeZone = await this.tenantTimeZone(ctx);
+    const { weekday, startMinutes, endMinutes } = wallClockSlot(startsAt, endsAt, timeZone);
+
     const weekdays = area.availableWeekdays;
-    if (weekdays?.length && !weekdays.includes(start.day())) {
+    if (weekdays?.length && !weekdays.includes(weekday)) {
       throw new BusinessRuleError('A area comum nao esta disponivel neste dia da semana.');
     }
 
-    // Janela de funcionamento em minutos desde o inicio do dia da reserva.
-    // `endMinutes` ultrapassa 1440 quando a reserva cruza a meia-noite, o que
-    // so e aceito por areas que fecham exatamente as 00:00.
-    const dayStart = start.startOf('day');
     const opensMinutes = this.toMinutes(area.opensAt);
     const closesMinutes = area.closesAt === '00:00' ? 1440 : this.toMinutes(area.closesAt);
-    const startMinutes = start.diff(dayStart, 'minute');
-    const endMinutes = end.diff(dayStart, 'minute');
 
     if (startMinutes < opensMinutes || endMinutes > closesMinutes) {
       throw new BusinessRuleError(
